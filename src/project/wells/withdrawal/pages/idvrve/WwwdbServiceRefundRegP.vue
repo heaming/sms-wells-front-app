@@ -137,34 +137,49 @@
         </kw-form-row>
         <kw-form-row>
           <!-- 카드번호 -->
-          <kw-form-item :label="$t('MSG_TXT_CARD_NO')">
-            <kw-input
-              v-model="infomation.cardRfndCrcdnoEncr1"
-              disable
-              type="number"
-              maxlength="4"
-            />
-            <span>-</span>
-            <kw-input
-              v-model="infomation.cardRfndCrcdnoEncr2"
-              disable
-              type="number"
-              maxlength="4"
-            />
-            <span>-</span>
-            <kw-input
-              v-model="infomation.cardRfndCrcdnoEncr3"
-              disable
-              type="number"
-              maxlength="4"
-            />
-            <span>-</span>
-            <kw-input
-              v-model="infomation.cardRfndCrcdnoEncr4"
-              disable
-              type="number"
-              maxlength="4"
-            />
+          <kw-form-item
+            :label="$t('MSG_TXT_CARD_NO')"
+            required
+          >
+            <kw-field-wrap>
+              <kw-input
+                v-model="infomation.cardRfndCrcdnoEncr1"
+                mask="####"
+                maxlength="4"
+                rules="required|digits:4"
+                :label="$t('MSG_TXT_CARD_NO')"
+                @update:model-value="onChangeNextInput1"
+              />
+              <span>-</span>
+              <kw-input
+                ref="cardNo2Ref"
+                v-model="infomation.cardRfndCrcdnoEncr2"
+                mask="####"
+                maxlength="4"
+                rules="required|digits:4"
+                :label="$t('MSG_TXT_CARD_NO')"
+                @update:model-value="onChangeNextInput2"
+              />
+              <span>-</span>
+              <kw-input
+                ref="cardNo3Ref"
+                v-model="infomation.cardRfndCrcdnoEncr3"
+                mask="####"
+                maxlength="4"
+                rules="required|digits:4"
+                :label="$t('MSG_TXT_CARD_NO')"
+                @update:model-value="onChangeNextInput3"
+              />
+              <span>-</span>
+              <kw-input
+                ref="cardNo4Ref"
+                v-model="infomation.cardRfndCrcdnoEncr4"
+                mask="####"
+                maxlength="4"
+                rules="required|min:3|max:4"
+                :label="$t('MSG_TXT_CARD_NO')"
+              />
+            </kw-field-wrap>
           </kw-form-item>
           <!-- 카드구분 -->
           <kw-form-item :label="$t('MSG_TXT_CARD_DV')">
@@ -508,34 +523,49 @@
         </kw-form-row>
         <kw-form-row>
           <!-- 카드번호 -->
-          <kw-form-item :label="$t('MSG_TXT_CARD_NO')">
-            <kw-input
-              v-model="infomation.cardRfndCrcdnoEncr1"
-              disable
-              type="number"
-              maxlength="4"
-            />
-            <span>-</span>
-            <kw-input
-              v-model="infomation.cardRfndCrcdnoEncr2"
-              disable
-              type="number"
-              maxlength="4"
-            />
-            <span>-</span>
-            <kw-input
-              v-model="infomation.cardRfndCrcdnoEncr3"
-              disable
-              type="number"
-              maxlength="4"
-            />
-            <span>-</span>
-            <kw-input
-              v-model="infomation.cardRfndCrcdnoEncr4"
-              disable
-              type="number"
-              maxlength="4"
-            />
+          <kw-form-item
+            :label="$t('MSG_TXT_CARD_NO')"
+            required
+          >
+            <kw-field-wrap>
+              <kw-input
+                v-model="infomation.cardRfndCrcdnoEncr1"
+                mask="####"
+                maxlength="4"
+                rules="required|digits:4"
+                :label="$t('MSG_TXT_CARD_NO')"
+                @update:model-value="onChangeNextInput1"
+              />
+              <span>-</span>
+              <kw-input
+                ref="cardNo2Ref"
+                v-model="infomation.cardRfndCrcdnoEncr2"
+                mask="####"
+                maxlength="4"
+                rules="required|digits:4"
+                :label="$t('MSG_TXT_CARD_NO')"
+                @update:model-value="onChangeNextInput2"
+              />
+              <span>-</span>
+              <kw-input
+                ref="cardNo3Ref"
+                v-model="infomation.cardRfndCrcdnoEncr3"
+                mask="####"
+                maxlength="4"
+                rules="required|digits:4"
+                :label="$t('MSG_TXT_CARD_NO')"
+                @update:model-value="onChangeNextInput3"
+              />
+              <span>-</span>
+              <kw-input
+                ref="cardNo4Ref"
+                v-model="infomation.cardRfndCrcdnoEncr4"
+                mask="####"
+                maxlength="4"
+                rules="required|min:3|max:4"
+                :label="$t('MSG_TXT_CARD_NO')"
+              />
+            </kw-field-wrap>
           </kw-form-item>
           <!-- 카드구분 -->
           <kw-form-item :label="$t('MSG_TXT_CARD_DV')">
@@ -631,6 +661,9 @@ const codes = await codeUtil.getMultiCodes(
 
 const grdMainRef = ref(getComponentType('KwGrid'));
 const frmMainRef = ref(getComponentType('KwForm'));
+const cardNo2Ref = ref(getComponentType('KwInput'));
+const cardNo3Ref = ref(getComponentType('KwInput'));
+const cardNo4Ref = ref(getComponentType('KwInput'));
 const grdParam = ref();
 const btnDisable = ref(false);
 const stlmDvCdCheck = [
@@ -641,7 +674,7 @@ const stlmDvCdCheck = [
     codeName: `${t('MSG_TXT_CASH_REFND')}(${t('MSG_TXT_ADP_BIL')},${t('MSG_TXT_VT_AC')})`, // 현금환불(합산청구, 가상계좌)
   },
   { codeId: '03',
-    codeName: t('MSG_TXT_CARD_CAN'), // 카드취소
+    codeName: t('MSG_TXT_CARD_REFUND'), // 카드환불
   },
 ];
 
@@ -665,11 +698,11 @@ const codeList = ref({
 
 const infomation = ref({
   rfndRqdt: now.format('YYYYMMDD'), // 환불일자
-  rfndDsbDt: now.format('YYYYMMDD'), // 지급일
+  rfndDsbDt: now.add('3', 'day').format('YYYYMMDD'), // 지급일
   bilAmt: props.checkItem[0]?.bilAmt, // 결제금액
   rfndDsbDvCd: searchParams.stlmDvCd === '03' ? '02' : '01', // 지급구분 RFND_DSB_DV_CD
   rfndDdtnAmt: 0, // 공제금액
-  rfndAkAmt: 0, // 실지급액
+  rfndAkAmt: props.checkItem[0]?.bilAmt, // 실지급액
   cardRfndCrcdnoEncr: props.checkItem[0].crcdnoEncr, // 카드번호
   cardRfndFnitCd: props.checkItem[0]?.iscmpCd, // 카드구분
   cardRfndFee: 0, // 수수료액
@@ -779,6 +812,27 @@ async function onClickCheckAccountHolder() {
     } else {
       infomation.value.cstNm = acnoData.data.ACHLDR_NM;
     }
+  }
+}
+
+// 카드번호 4자리 입력 후 자동 넘김 처리
+async function onChangeNextInput1(val) {
+  if (val.length >= 4) {
+    cardNo2Ref.value.focus();
+  }
+}
+
+// 카드번호 4자리 입력 후 자동 넘김 처리
+async function onChangeNextInput2(val) {
+  if (val.length >= 4) {
+    cardNo3Ref.value.focus();
+  }
+}
+
+// 카드번호 4자리 입력 후 자동 넘김 처리
+async function onChangeNextInput3(val) {
+  if (val.length >= 4) {
+    cardNo4Ref.value.focus();
   }
 }
 
