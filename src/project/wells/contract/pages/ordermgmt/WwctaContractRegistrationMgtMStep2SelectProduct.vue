@@ -152,6 +152,7 @@ const dataService = useDataService();
 const { codes, addCode, getCodeName } = await useCtCode(
   'SELL_TP_DTL_CD',
   'PD_TP_CD',
+  'RGLR_SPP_MCHN_TP_CD',
 );
 await addCode('SELL_TP_CD', (code) => ([
   SELL_TP_CD.SPAY,
