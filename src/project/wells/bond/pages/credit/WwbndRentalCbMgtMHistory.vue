@@ -269,7 +269,7 @@ async function onClickSendMessage() {
   const view = grdMainRef.value.getView();
   // if (await gridUtil.isModified(view)) { notify(t('MSG_ALT_CHG_CNTN_AFTER_SAVE')); return; }
   const allRows = gridUtil.getAllRowValues(view);
-  const sendRows = allRows.filter((v) => v.resultYn !== 'Y').map((row) => ({
+  const sendRows = allRows.filter((v) => v.niceFwExcdYn !== 'Y').map((row) => ({
     cstNo: row.cstNo,
     cstKnm: row.cstKnm,
     cralTno: row.cralTno,
