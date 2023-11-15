@@ -189,16 +189,6 @@ async function onClickAlarmSend() {
 }
 
 onMounted(async () => {
-  // if (!window.opener) {
-  //   const path = '/mobile/#/withdrawal/wmwda-auto-transfer-change-mgt';
-  //   const size = {
-  //     width: 390,
-  //     height: 844,
-  //   };
-
-  //   await router.close(0, true);
-  //   await popupUtil.open(`${path}`, size, false);
-  // }
   formRef.value.reset();
 });
 </script>

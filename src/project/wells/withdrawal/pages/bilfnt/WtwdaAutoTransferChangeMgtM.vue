@@ -162,15 +162,6 @@ async function onClickAlarmSend() {
 }
 
 onMounted(async () => {
-  // if (!window.opener) {
-  //   const path = '/tablet/#/withdrawal/wtwda-auto-transfer-change-mgt';
-  //   const size = {
-  //     width: 1138,
-  //     height: 712,
-  //   };
-  //   await router.close(0, true);
-  //   await popupUtil.open(`${path}`, size, false);
-  // }
   formRef.value.reset();
 });
 
