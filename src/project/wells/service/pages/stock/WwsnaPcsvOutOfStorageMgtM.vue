@@ -194,9 +194,6 @@ async function onChangeCompStatus() {
   isWaitStatus.value = false;
   const { findGb } = searchParams.value;
 
-  const view = grdMainRef.value.getView();
-  view.checkBar.visible = false;
-
   /* 작업완료 */
   if (findGb === '1') {
     isCompStatus.value = true;
@@ -205,7 +202,6 @@ async function onChangeCompStatus() {
   /* 작업대기 */
   if (findGb === '2') {
     isWaitStatus.value = true;
-    view.checkBar.visible = true;
   }
 }
 
@@ -399,6 +395,7 @@ const initGrdMain = defineGrid((data, view) => {
   columns.push(...columnPdTotals);
   const fields = columns.map(({ fieldName, dataType }) => (dataType ? { fieldName, dataType } : { fieldName }));
   data.setFields(fields);
+  view.setCheckableExpression("((value['wkPrgsStatCd']='00') or (value['wkPrgsStatCd']='10'))", true);
   view.setColumns(columns);
   view.setFixedOptions({ colCount: 6, resizable: true });
   view.checkBar.visible = true;
