@@ -114,7 +114,7 @@
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
 import { codeUtil, useDataService, gridUtil } from 'kw-lib';
-import { cloneDeep } from 'lodash-es';
+import { cloneDeep, isEmpty } from 'lodash-es';
 import dayjs from 'dayjs';
 import { printElement } from '~common/utils/common';
 
@@ -251,8 +251,10 @@ async function fetchData() {
 
 async function onClickSearch() {
   console.log('onClickSearch START =================');
-  const sdingCode = sdingDtlList.value.filter((v) => v.code === searchParams.value.sdingCausNm)[0].codeName;
-  searchParams.value.sdingPkgCd = codes.AS_CAUS_CD.filter((v) => v.codeName === sdingCode)[0].codeId;
+  if (!isEmpty(searchParams.value.sdingCausNm)) {
+    const sdingCode = sdingDtlList.value.filter((v) => v.code === searchParams.value.sdingCausNm)[0].codeName;
+    searchParams.value.sdingPkgCd = codes.AS_CAUS_CD.filter((v) => v.codeName === sdingCode)[0].codeId;
+  }
   console.log('onClickSearch searchParams.value =================', searchParams.value);
   cachedParams = cloneDeep(searchParams.value);
   await fetchData();
