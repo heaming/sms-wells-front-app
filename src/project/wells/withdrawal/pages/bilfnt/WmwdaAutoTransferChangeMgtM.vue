@@ -178,6 +178,7 @@ async function onClickAlarmSend() {
   // chRqrDvCd 방문 : '2' (교원) / 원거리 : '1' (고객)
   if (!await formRef.value.validate()) { return; }
   inputParams.value = { ...inputParams.value,
+    strDomain,
     nsUrl,
     nsFullUrl,
     chr3ChYn: 'N',
