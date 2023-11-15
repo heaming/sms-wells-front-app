@@ -360,7 +360,6 @@ import { codeUtil, defineGrid, getComponentType, useDataService, gridUtil, fileU
 import { cloneDeep, isEmpty } from 'lodash-es';
 import dayjs from 'dayjs';
 import ZctzContractDetailNumber from '~sms-common/contract/components/ZctzContractDetailNumber.vue';
-// eslint-disable-next-line no-unused-vars
 import { openReportPopup, openReportPopupWithOptions } from '~common/utils/cmPopupUtil';
 import { openOzReport } from '~sms-common/contract/util/CtPopupUtil';
 import { buildUrlForNoSession } from '~sms-common/contract/util';
@@ -1019,8 +1018,6 @@ async function onClickOzReportHello(cntrNo) {
 } /* 231106 공통유틸 확인완료 */
 
 async function onClickOzReport(cntrNo) { // oz리포트 신규/변경 계약
-  // TODO: 현재 파라미터 방식에서 url전송 방식으로 변경중
-
   // ****************** local test 주의사항 ************************
   // 리포트서비스(공통)을 이용해, ozrPath, odiPath는 받아서 파라미터로 사용해야하므로 서비스를 한번은 부른다.
   // local에서 테스트 할때에는 매핑에 /annoymous를 추가해서 searchapiurl을 파라미터로 써도 로컬에서 확인가능
@@ -1054,7 +1051,7 @@ async function onClickOzReport(cntrNo) { // oz리포트 신규/변경 계약
     );
   }
 
-  // // FIX: 기존완성여부 확인용으로 살려둠
+  // // ref) 파라미터 방식 전송
   // const res2 = await dataService.get('sms/wells/contract/report/contract', { params: { cntrNo } });
 
   // if (res2.data.length < 2) { // 단건 처리
@@ -1094,34 +1091,29 @@ async function onClickOzReport(cntrNo) { // oz리포트 신규/변경 계약
   //       children,
   //     },
   //   );
-  // }
+  //  }
 }
 
-async function onClickOzReportRstl(cntrNo, cntrSn, dtm) { // oz리포트 재약정 계약
-  console.log(cntrNo, cntrSn, dtm);
+// eslint-disable-next-line no-unused-vars
+async function onClickOzReportRstl(paramCntrNo, paramCntrSn, paramRstlCnfmDtm, paramCntrwTpCd) { // oz리포트 재약정 계약
+  const params = ref({
+    cntrNo: paramCntrNo, // 계약번호
+    cntrSn: paramCntrSn, // 일련번호
+    rstlCnfmDtm: isEmpty(paramRstlCnfmDtm) || paramRstlCnfmDtm === 'null' ? '' : paramRstlCnfmDtm, // 재약정확정일자
+    cntrwTpCd: paramCntrwTpCd, // 계약서유형코드
+  });
+  console.log(params.value);
 
-  let paramDtm = ''; // 빈값이라도 던져줘야 리포트 버전을 받을 수 있다
-  console.log(paramDtm);
-  if (!isEmpty(dtm) && dtm !== 'null') { // 비어있거나 null이 아니면 반영
-    paramDtm = dtm;
-  }
+  const res = await dataService.get('/sms/wells/contract/contracts/managements/search-api-url/rstl', { params: { ...params.value } });
+  console.log(res);
 
-  const res = await dataService.get(
-    '/sms/wells/contract/report/search-path',
-    { params: { rdId: 'RP002', dtm: paramDtm } }, // reportID - 재약정 : RP002
-  );
-  const paramOzrPath = res.data;
+  const args = { searchApiUrl: '/api/v1/sms/wells/contract/contracts/managements/search-api-url/rstl', ...params.value };
+  console.log(args);
 
-  console.log(paramOzrPath);
   await openReportPopup(
-    paramOzrPath,
+    res.data.ozrPath,
     null,
-    JSON.stringify(
-      {
-        cntrNo,
-        cntrSn,
-      },
-    ),
+    JSON.stringify(args),
   );
 }
 onMounted(async () => {
@@ -1527,6 +1519,7 @@ const initGrdMstRstlList = defineGrid((data, view) => {
     { fieldName: 'talkRcvYn' }, // 알림톡 수신여부
     { fieldName: 'notakFwDt' }, // 알림톡 발송일자
     { fieldName: 'basePdCd' }, // 상품코드
+    { fieldName: 'cntrwTpCd' }, // 계약서유형코드 rev:231115 재약정 사인 관련 추가
   ];
 
   const columns = [
@@ -1569,13 +1562,14 @@ const initGrdMstRstlList = defineGrid((data, view) => {
     const paramCntrNo = `${gridUtil.getCellValue(g, dataRow, 'cntrNo')}`;
     const paramCntrSn = `${gridUtil.getCellValue(g, dataRow, 'cntrSn')}`;
     const paramDtm = `${gridUtil.getCellValue(g, dataRow, 'stplCnfmDt')}`; // 재약정확정일시
+    const paramCntrwTpCd = `${gridUtil.getCellValue(g, dataRow, 'cntrwTpCd')}`; // 계약서 유형코드
 
     if (['notakFwIz'].includes(column)) { // 알림톡 발송 내역 버튼 클릭
       await modal({ component: 'WwKakaotalkSendListP', componentProps: { cntrDtlNo: paramCntrDtlNo, concDiv: searchParams.cntrDv } }); // 카카오톡 발송 내역 조회
     }
 
     if (['cntrwBrws'].includes(column)) { // 리포트 보기 버튼 클릭
-      onClickOzReportRstl(paramCntrNo, paramCntrSn, paramDtm);
+      onClickOzReportRstl(paramCntrNo, paramCntrSn, paramDtm, paramCntrwTpCd);
     }
   };
 
