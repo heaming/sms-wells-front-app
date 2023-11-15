@@ -730,6 +730,7 @@ onMounted(async () => {
   await fetchData();
   onClickArfndYn();
 });
+
 /** ****************환불상세 function *********************** */
 
 // 단일행추가
