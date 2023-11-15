@@ -643,12 +643,10 @@ async function onClickExcelDownload() {
   const view = grdMainRef.value.getView();
   const { data } = await dataService.get('/sms/wells/service/manage-customer-rglvl/excel-download', { params: cachedParams });
 
-  data.map((row) => ({ ...row, cntr: `${row.cntrNo}-${row.cntrSn}` }));
-
   await gridUtil.exportView(view, {
     fileName: currentRoute.value.meta.menuName,
     timePostfix: true,
-    exportData: data,
+    exportData: data.map((row) => ({ ...row, cntr: `${row.cntrNo}-${row.cntrSn}` })),
   });
 }
 
