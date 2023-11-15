@@ -266,6 +266,8 @@ const codes = await codeUtil.getMultiCodes(
   'WK_PRGS_STAT_CD',
 );
 
+codes.SV_BIZ_DCLSF_CD.sort((a, b) => a.codeName.localeCompare(b.codeName));
+
 const { data: serviceCenters } = await dataService.get('/sms/wells/service/organizations/service-center', { params: { authYn: 'N' } });
 const engineerRes = await dataService.get('/sms/wells/service/organizations/engineer', { params: { authYn: 'N' } });
 const engineers = ref(engineerRes.data);
