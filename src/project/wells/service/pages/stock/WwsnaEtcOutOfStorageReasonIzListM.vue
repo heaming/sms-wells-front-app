@@ -35,8 +35,8 @@
         </kw-search-item>
         <!-- 서비스센터 -->
         <ZwcmWareHouseSearch
-          v-model:start-ym="searchParams.startDt"
-          v-model:end-ym="searchParams.endDt"
+          v-model:start-ym="searchParams.stOstrDt"
+          v-model:end-ym="searchParams.edOstrDt"
           v-model:options-ware-dv-cd="wareDvCd"
           v-model:ware-dv-cd="searchParams.wareDvCd"
           v-model:ware-no-m="searchParams.wareNoM"
@@ -181,8 +181,6 @@ const wareDvCd = { WARE_DV_CD: [
 const searchParams = ref({
   stOstrDt: dayjs().set('date', 1).format('YYYYMMDD'),
   edOstrDt: dayjs().format('YYYYMMDD'),
-  startDt: '',
-  endDt: '',
   wareDvCd: '2',
   wareNoM: '',
   wareNoD: '',
@@ -236,14 +234,10 @@ async function onClickExcelDownload() {
 
 // 조회버튼 클릭이벤트
 async function onClickSearch() {
+  pageInfo.value.pageIndex = 1;
   cachedParams = cloneDeep(searchParams.value);
   await fetchData();
 }
-
-onMounted(async () => {
-  searchParams.value.startDt = dayjs().format('YYYYMMDD');
-  searchParams.value.endDt = dayjs().format('YYYYMMDD');
-});
 
 // -------------------------------------------------------------------------------------------------
 // Initialize Grid

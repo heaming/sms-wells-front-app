@@ -17,6 +17,7 @@
   <kw-page>
     <kw-search
       @search="onClickSearch"
+      @reset="onClickReset"
     >
       <kw-search-row>
         <!-- 출고창고 -->
@@ -228,6 +229,7 @@ async function onClickExcelDownload() {
 }
 
 async function onClickSearch() {
+  pageInfo.value.pageIndex = 1;
   cachedParams = cloneDeep(searchParams.value);
   await fetchData();
 }
@@ -269,8 +271,14 @@ const divideData = (val) => {
     default:
       searchParams.value.divide = '0';
   }
-  console.log(searchParams.value.divide);
 };
+
+// 초기화 버튼 클릭
+function onClickReset() {
+  if (!isEmpty(warehouses.value)) {
+    searchParams.value.ostrWareNo = warehouses.value[0].codeId;
+  }
+}
 
 onMounted(async () => {
   await fetchDefaultData();
