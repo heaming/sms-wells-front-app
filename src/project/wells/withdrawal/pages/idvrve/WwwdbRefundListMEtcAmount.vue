@@ -214,22 +214,26 @@
           </kw-form-item>
         </kw-form-row>
         <kw-form-row>
-          <kw-form-item :label="$t('웰스 인수 전금')">
+          <!-- 웰스 인수 전금 -->
+          <kw-form-item :label="$t('MSG_TXT_WELS') + ' ' + $t('MSG_TXT_TK_BLTF')">
             <p>
               0{{ t('MSG_TXT_CUR_WON') }}
             </p>
           </kw-form-item>
-          <kw-form-item :label="$t('웰스 할부 전금')">
+          <!-- 웰스 할부 전금 -->
+          <kw-form-item :label="$t('MSG_TXT_WELS') + ' ' + $t('MSG_TXT_RFND') + ' ' + $t('MSG_TXT_BLTF')">
             <p>
               {{ stringUtil.getNumberWithComma(aggregationStatus.welsIstmBltf) }}{{ t('MSG_TXT_CUR_WON') }}
             </p>
           </kw-form-item>
-          <kw-form-item :label="$t('웰스 렌탈 전금')">
+          <!-- 웰스 렌탈 전금 -->
+          <kw-form-item :label="$t('MSG_TXT_WELS') + ' ' + $t('MSG_TXT_RENTAL') + ' ' + $t('MSG_TXT_BLTF')">
             <p>
               {{ stringUtil.getNumberWithComma(aggregationStatus.welsRentalBltf) }}{{ t('MSG_TXT_CUR_WON') }}
             </p>
           </kw-form-item>
-          <kw-form-item :label="$t('웰스 멤버 전금')">
+          <!-- 웰스 멤버 전금 -->
+          <kw-form-item :label="$t('MSG_TXT_WELS') + ' ' + $t('MSG_TXT_MMBER') + ' ' + $t('MSG_TXT_BLTF')">
             <p>
               {{ stringUtil.getNumberWithComma(aggregationStatus.welsMmbrBltf) }}{{ t('MSG_TXT_CUR_WON') }}
             </p>
@@ -242,7 +246,8 @@
               {{ stringUtil.getNumberWithComma(aggregationStatus.rfndDsbPspIntSum) }}{{ t('MSG_TXT_CUR_WON') }}
             </p>
           </kw-form-item>
-          <kw-form-item :label="$t('K 머니')">
+          <!-- K 머니 -->
+          <kw-form-item :label="$t('MSG_TXT_K_MON')">
             <p>
               0{{ t('MSG_TXT_CUR_WON') }}
             </p>
