@@ -44,12 +44,16 @@
         <kw-search-item :label="$t('MSG_TXT_BARCODE')">
           <kw-input
             v-model="searchParams.bcNo"
+            :regex="/^[A-Z0-9]*$/i"
             @update:model-value="()=>{searchParams.bcNo=searchParams.bcNo?.toUpperCase()?.replaceAll(' ','')}"
           />
         </kw-search-item>
         <!-- 송장번호 -->
         <kw-search-item :label="$t('MSG_TXT_IVC_NO')">
-          <kw-input v-model="searchParams.idvTno" />
+          <kw-input
+            v-model="searchParams.sppIvcNo"
+            :regex="/^[0-9]*$/i"
+          />
         </kw-search-item>
       </kw-search-row>
     </kw-search>
