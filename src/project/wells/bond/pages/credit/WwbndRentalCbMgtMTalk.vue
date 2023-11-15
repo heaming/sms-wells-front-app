@@ -127,6 +127,7 @@ import dayjs from 'dayjs';
 const {
   modal,
   notify,
+  alert,
 } = useGlobal();
 const { t } = useI18n();
 const { getConfig } = useMeta();
@@ -311,6 +312,18 @@ const initGridTalk = defineGrid((data, view) => {
         const { cstNo: getCstNo } = payload;
         data.setValue(dataRow, 'cstNo', getCstNo);
       }
+    }
+  };
+
+  view.onEditCommit = async (grid, index, oldValue, newValue) => {
+    const { apyStrtdt, apyEnddt } = grid.getValues(index.itemIndex);
+    if (index.column === 'apyStrtdt' && newValue > apyEnddt) {
+      await alert(t('MSG_ALT_STRT_YM_END_YM_CONF'));
+      grid.setValue(index.itemIndex, 'apyStrtdt', '');
+    }
+    if (index.column === 'apyEnddt' && apyStrtdt > newValue) {
+      await alert(t('MSG_ALT_STRT_YM_END_YM_CONF'));
+      grid.setValue(index.itemIndex, 'apyEnddt', '');
     }
   };
 });
