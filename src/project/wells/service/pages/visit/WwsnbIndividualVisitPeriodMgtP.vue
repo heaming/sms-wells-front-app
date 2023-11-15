@@ -617,7 +617,17 @@ const initGrid2 = defineGrid((data, view) => {
   const columns = [
     { fieldName: 'vstNmnN', header: '서비스차월', width: '100', styleName: 'text-center' },
     { fieldName: 'bfsvcWkDvCd', header: '작업구분', width: '100', styleName: 'text-left' },
-    { fieldName: 'filtChngLvCd', header: '단계', width: '100', styleName: 'text-center' },
+    { fieldName: 'filtChngLvCd',
+      header: '단계',
+      width: '100',
+      styleName: 'text-center',
+      displayCallback(grid, index, value) {
+        if (isEmpty(value) || value === '0' || value === '00') {
+          return '';
+        }
+        return value;
+      },
+    },
     { fieldName: 'pdNm', header: '품목명', width: '250', styleName: 'text-left' },
     { fieldName: 'partUseQty', header: '수량', width: '116', styleName: 'text-right' },
     { fieldName: 'vstDvCd', header: '방문구분', width: '116', options: codes.VST_DV_CD, styleName: 'text-left' },
