@@ -174,7 +174,6 @@ async function onUpdateRgsnYn() {
 
 async function fetchData() {
   console.log('fetchData START');
-  console.log('fetchData cachedParams  >>>', cachedParams);
   const res = await dataService.get('/sms/wells/service/mobile-happy-call-agrg/get-mobile-happy-call-agrg', { params: { ...cachedParams } });
   console.log('res.data >>>', res.data);
 
@@ -223,30 +222,75 @@ function initGrid(data, view) {
         return isEmpty(cntrDt) ? '' : dayjs(cntrDt).format('YYYY-MM-DD');
       },
     },
-    { fieldName: 'synthAvg', header: `${t('MSG_TXT_AV')}(${t('점')})`, width: '100', styleName: 'text-right', dataType: 'number' }, // 평균(점)
-    { fieldName: 'synthAvgRank', header: `${t('MSG_TXT_HGR')}(%)`, width: '100', styleName: 'text-right', dataType: 'number' }, // 상위(%)
-    { fieldName: 'synthAvgGrd', header: t('MSG_TXT_GD'), width: '100', styleName: 'text-right' }, // 등급
-    { fieldName: 'synthAvgGrdScore', header: `${t('MSG_TXT_PC')}(${t('점')})`, width: '100', styleName: 'text-right', dataType: 'number' }, // 점수(점)
-    { fieldName: 'rplyCnt', header: t('MSG_TXT_RSP_CT'), width: '100', styleName: 'text-right', dataType: 'number' }, // 응답건
-    { fieldName: 'rplyCntRank', header: `${t('MSG_TXT_HGR')}(%)`, width: '100', styleName: 'text-right', dataType: 'number' }, // 상위(%)
-    { fieldName: 'rplyCntGrd', header: t('MSG_TXT_GD'), width: '100', styleName: 'text-right' }, // 등급
-    { fieldName: 'rplyCntGrdScore', header: `${t('MSG_TXT_PC')}(${t('점')})`, width: '100', styleName: 'text-right', dataType: 'number' }, // 점수(점)
-    { fieldName: 'rplyPer', header: `${t('MSG_TXT_RSP_RT')}(%)`, width: '100', styleName: 'text-right', dataType: 'number' }, // 응답율(%)
-    { fieldName: 'rplyPerRank', header: t('MSG_TXT_HGR'), width: '100', styleName: 'text-right', dataType: 'number' }, // [응답율]상위
-    { fieldName: 'rplyPerGrd', header: t('MSG_TXT_GD'), width: '100', styleName: 'text-right' }, // [응답율]등급
-    { fieldName: 'rplyPerGrdScore', header: t('MSG_TXT_PC'), width: '100', styleName: 'text-right', dataType: 'number' }, // [응답율]점수
-    { fieldName: 'hpcallAvg', header: t('MSG_TXT_HPCALL'), width: '100', styleName: 'text-right', dataType: 'number' }, // 해피콜
-    { fieldName: 'hpcallAvgRank', header: t('MSG_TXT_HGR'), width: '100', styleName: 'text-right', dataType: 'number' }, // [해피콜] 상위
-    { fieldName: 'hpcallAvgGrd', header: t('MSG_TXT_GD'), width: '100', styleName: 'text-right' }, // [해피콜] 등급
-    { fieldName: 'hpcallAvgGrdScore', header: t('MSG_TXT_PC'), width: '100', styleName: 'text-right', dataType: 'number' }, // [해피콜] 점수
-    { fieldName: 'trsCnt', header: t('MSG_TXT_PSH_SEND') + t('MSG_TXT_CNT'), width: '100', styleName: 'text-right', dataType: 'number' }, // 발송건
-    { fieldName: 'compCnt', header: t('MSG_TXT_PROC') + t('MSG_TXT_CNT'), width: '100', styleName: 'text-right', dataType: 'number' }, // 처리건
-    { fieldName: 'envrElhmCnt', header: t('MSG_TXT_ENVR_ELHM'), width: '100', styleName: 'text-right', dataType: 'number' }, // 환경가전 건수
-    { fieldName: 'sdingSpcltCnt', header: t('MSG_TXT_SDING') + t('전문'), width: '100', styleName: 'text-right', dataType: 'number' }, // 모종전문 건수
-    { fieldName: 'hcrCnt', header: t('MSG_TXT_HOME_CARE'), width: '100', styleName: 'text-right', dataType: 'number' }, // 홈케어 건수
-    { fieldName: 'lgszElhmCnt', header: t('MSG_TXT_LGSZ_ELHM'), width: '100', styleName: 'text-right', dataType: 'number' }, // 대형가전 건수
-    { fieldName: 'mdimRprCnt', header: t('MSG_TXT_MDIM_RPR'), width: '100', styleName: 'text-right', dataType: 'number' }, // 중수리 건수
-    { fieldName: 'acpnCnt', header: t('MSG_TXT_ACPN'), width: '100', styleName: 'text-right', dataType: 'number' }, // 동행 건수
+    { fieldName: 'synthAvg', header: `${t('MSG_TXT_AV')}(${t('점')})`, width: '100', styleName: 'text-center', dataType: 'number' }, // 평균(점)
+    { // 상위(%)
+      fieldName: 'synthAvgRank',
+      header: `${t('MSG_TXT_HGR')}(%)`,
+      width: '100',
+      styleName: 'text-center',
+      displayCallback(grid, index) {
+        const { synthAvgRank } = grid.getValues(index.itemIndex);
+        let retValue;
+        if (synthAvgRank === 0 || isEmpty(synthAvgRank)) {
+          retValue = '0 %';
+        } else {
+          retValue = `${synthAvgRank} %`;
+        }
+        return retValue;
+      },
+    },
+    { fieldName: 'synthAvgGrd', header: t('MSG_TXT_GD'), width: '100', styleName: 'text-center' }, // 등급
+    { fieldName: 'synthAvgGrdScore', header: `${t('MSG_TXT_PC')}(${t('점')})`, width: '100', styleName: 'text-center', dataType: 'number' }, // 점수(점)
+    { fieldName: 'rplyCnt', header: t('MSG_TXT_RSP_CT'), width: '100', styleName: 'text-center', dataType: 'number' }, // 응답건
+    { // 상위(%)
+      fieldName: 'rplyCntRank',
+      header: `${t('MSG_TXT_HGR')}(%)`,
+      width: '100',
+      styleName: 'text-center',
+      displayCallback(grid, index) {
+        const { rplyCntRank } = grid.getValues(index.itemIndex);
+        let retValue;
+        if (rplyCntRank === 0 || isEmpty(rplyCntRank)) {
+          retValue = '0 %';
+        } else {
+          retValue = `${rplyCntRank} %`;
+        }
+        return retValue;
+      },
+    },
+    { fieldName: 'rplyCntGrd', header: t('MSG_TXT_GD'), width: '100', styleName: 'text-center' }, // 등급
+    { fieldName: 'rplyCntGrdScore', header: `${t('MSG_TXT_PC')}(${t('점')})`, width: '100', styleName: 'text-center', dataType: 'number' }, // 점수(점)
+    { // 응답율(%)
+      fieldName: 'rplyPer',
+      header: `${t('MSG_TXT_RSP_RT')}(%)`,
+      width: '100',
+      styleName: 'text-center',
+      displayCallback(grid, index) {
+        const { rplyPer } = grid.getValues(index.itemIndex);
+        let retValue;
+        if (rplyPer === 0 || isEmpty(rplyPer)) {
+          retValue = '0 %';
+        } else {
+          retValue = `${rplyPer} %`;
+        }
+        return retValue;
+      },
+    },
+    { fieldName: 'rplyPerRank', header: t('MSG_TXT_HGR'), width: '100', styleName: 'text-center', dataType: 'number' }, // [응답율]상위
+    { fieldName: 'rplyPerGrd', header: t('MSG_TXT_GD'), width: '100', styleName: 'text-center' }, // [응답율]등급
+    { fieldName: 'rplyPerGrdScore', header: t('MSG_TXT_PC'), width: '100', styleName: 'text-center', dataType: 'number' }, // [응답율]점수
+    { fieldName: 'hpcallAvg', header: t('MSG_TXT_HPCALL'), width: '100', styleName: 'text-center', dataType: 'number' }, // 해피콜
+    { fieldName: 'hpcallAvgRank', header: t('MSG_TXT_HGR'), width: '100', styleName: 'text-center', dataType: 'number' }, // [해피콜] 상위
+    { fieldName: 'hpcallAvgGrd', header: t('MSG_TXT_GD'), width: '100', styleName: 'text-center' }, // [해피콜] 등급
+    { fieldName: 'hpcallAvgGrdScore', header: t('MSG_TXT_PC'), width: '100', styleName: 'text-center', dataType: 'number' }, // [해피콜] 점수
+    { fieldName: 'trsCnt', header: t('MSG_TXT_PSH_SEND') + t('MSG_TXT_CNT'), width: '100', styleName: 'text-center', dataType: 'number' }, // 발송건
+    { fieldName: 'compCnt', header: t('MSG_TXT_PROC') + t('MSG_TXT_CNT'), width: '100', styleName: 'text-center', dataType: 'number' }, // 처리건
+    { fieldName: 'envrElhmCnt', header: t('MSG_TXT_ENVR_ELHM'), width: '100', styleName: 'text-center', dataType: 'number' }, // 환경가전 건수
+    { fieldName: 'sdingSpcltCnt', header: t('MSG_TXT_SDING') + t('전문'), width: '100', styleName: 'text-center', dataType: 'number' }, // 모종전문 건수
+    { fieldName: 'hcrCnt', header: t('MSG_TXT_HOME_CARE'), width: '100', styleName: 'text-center', dataType: 'number' }, // 홈케어 건수
+    { fieldName: 'lgszElhmCnt', header: t('MSG_TXT_LGSZ_ELHM'), width: '100', styleName: 'text-center', dataType: 'number' }, // 대형가전 건수
+    { fieldName: 'mdimRprCnt', header: t('MSG_TXT_MDIM_RPR'), width: '100', styleName: 'text-center', dataType: 'number' }, // 중수리 건수
+    { fieldName: 'acpnCnt', header: t('MSG_TXT_ACPN'), width: '100', styleName: 'text-center', dataType: 'number' }, // 동행 건수
   ];
 
   data.setFields(columns.map(({ fieldName, dataType }) => (dataType ? { fieldName, dataType } : { fieldName })));
