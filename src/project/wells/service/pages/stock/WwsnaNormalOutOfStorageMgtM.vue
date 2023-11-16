@@ -70,6 +70,7 @@
             v-model:from="searchParams.strHopDtStr"
             v-model:to="searchParams.strHopDtEnd"
             rules="date_range_months:1|required"
+            :label="$t('MSG_TXT_STR_HOP_DT')"
             @update:from="fetchDefaultData"
           />
         </kw-search-item>
