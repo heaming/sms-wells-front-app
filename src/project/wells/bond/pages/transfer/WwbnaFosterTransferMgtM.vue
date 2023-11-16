@@ -256,19 +256,17 @@ const totalCount = ref(0);
 // -------------------------------------------------------------------------------------------------
 const baseUrl = '/sms/wells/bond/foster-transfers';
 const codes = await codeUtil.getMultiCodes(
-  'BZ_HDQ_DV_CD',
-  'CLCO_CD',
-  'CLCTAM_DV_CD',
-  'BND_NW_DV_CD',
+  'BZ_HDQ_DV_CD', // 사업본부구분코드
+  'CLCO_CD', // 추심사코드
+  'CLCTAM_DV_CD', // 집금구분코드
+  'BND_NW_DV_CD', // 채권신규구분코드
   'COD_PAGE_SIZE_OPTIONS',
-  'LWM_TP_CD',
-  'LWM_DTL_TP_CD',
-  'BND_BIZ_DV_CD',
+  'LWM_TP_CD', // 법조치유형코드
+  'LWM_DTL_TP_CD', // 법조치상세유형코드
+  'BND_BIZ_DV_CD', // 채권업무구분코드
 );
 const filteredCodes = ref({ BND_NW_DV_CD: codes.BND_NW_DV_CD.filter((obj) => (obj.codeId !== '01')) });
 const clctamDvOpt = codes.CLCTAM_DV_CD?.filter((v) => ['09', '11']?.includes(v.codeId));
-// clctamDvOpt.push({ codeId: '100', codeName: '대손확정' });
-
 const now = dayjs();
 const searchParams = ref({
   baseYm: now.format('YYYYMM'),
@@ -311,7 +309,6 @@ async function fetchData() {
   pageDetailInfo.value.pageSize = Number(getConfig('CFG_CMZ_DEFAULT_PAGE_SIZE'));
 
   view.getDataSource().setRows(data);
-  // view.resetCurrent();
 }
 
 // 집계 결과 상세 조회
@@ -598,10 +595,10 @@ const initGridResult = defineGrid((data, view) => {
     'clctamPrtnrNm',
     // single
     {
-      header: t('MSG_TIT_TOT'), // colspan title
+      header: t('MSG_TXT_ALL'), // colspan title
       direction: 'horizontal', // merge type
       items: ['woCstCt', 'woCntrCt', 'woObjAmt', 'woDlqAmt', 'woThmChramAmt', 'woDlqAddAmt', 'woRsgBorAmt'],
-    },
+    }, // 전체
     {
       header: t('MSG_TXT_RENTAL'),
       direction: 'horizontal',
@@ -667,8 +664,7 @@ const initGridDetail = ((data, view) => {
         type: 'line',
         maxLength: 20,
       },
-      buttonVisibleCallback: () => { if (cachedParams?.baseYm === dayjs().format('YYYYMM')) { return true; } },
-      editable: false },
+      buttonVisibleCallback: () => { if (cachedParams?.baseYm === dayjs().format('YYYYMM')) { return true; } } },
     // 직전담당집금구분
     { fieldName: 'clctamDvd', header: t('MSG_TXT_JBF_ICHR_CLCTAM_DV'), styleName: 'text-center', width: '130' },
     // 직전담당자
@@ -739,6 +735,7 @@ const initGridDetail = ((data, view) => {
   view.rowIndicator.visible = true;
   view.checkBar.visible = true;
   view.editOptions.columnEditableFirst = true;
+  view.editOptions.editable = true;
 
   // 집금담당자 팝업 오픈
   view.onCellButtonClicked = async (grid, { dataRow, column, itemIndex }) => {
@@ -775,8 +772,15 @@ const initGridDetail = ((data, view) => {
 
   // 현재년월 제외 수정 불가
   view.onCellEditable = (grid, index) => {
-    if (cachedParams?.baseYm === dayjs().format('YYYYMM') && ['fstrCoNm'].includes(index.column)) {
+    if (cachedParams?.baseYm === dayjs().format('YYYYMM') && ['clctamPrtnrNm'].includes(index.column)) {
       return true;
+    }
+    return false;
+  };
+
+  view.onEditCommit = async (grid, index, oldValue, newValue) => {
+    if (index.column === 'clctamPrtnrNm' && oldValue !== newValue) {
+      grid.setValue(index.itemIndex, 'clctamPrtnrNo', '');
     }
   };
 });
