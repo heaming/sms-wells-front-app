@@ -148,8 +148,8 @@ const initGrdMain = defineGrid((data, view) => {
   ];
 
   const columns = [
-    { fieldName: 'dateClientReq', header: t('MSG_TXT_BOO_FW_DTM'), width: '160', styleName: 'text-center', datetimeFormat: 'datetime' },
-    { fieldName: 'cstNm', header: t('MSG_TXT_CST_NM_CNTRT'), width: '120', styleName: 'text-center' },
+    { fieldName: 'dateClientReq', header: t('MSG_TXT_BOO_FW_DTM'), width: '160', styleName: 'text-center', datetimeFormat: 'datetime' }, // 예약발송일시
+    { fieldName: 'cstNm', header: t('MSG_TXT_CST_NM_CNTRT'), width: '120', styleName: 'text-center' }, // 고객명
     { fieldName: 'recipientNum',
       header: t('MSG_TXT_CNTRT_MPNO'),
       styleName: 'text-center',
@@ -157,15 +157,15 @@ const initGrdMain = defineGrid((data, view) => {
       displayCallback(grid, index, value) {
         return !isEmpty(value) ? `${value.substring(0, 3)}-${value.substring(3, 7)}-${value.substring(7, 11)}` : value;
       },
-    },
+    }, // 전화번호
 
-    { fieldName: 'cntrNo', header: t('MSG_TXT_CNTR_NO'), width: '140', styleName: 'text-center' },
-    { fieldName: 'bndMsgTpVal4', header: t('MSG_TXT_PD_INF'), width: '260', styleName: 'text-left' },
-    { fieldName: 'bndMsgTpVal2', header: t('MSG_TXT_PRM_EXN_YM'), width: '120', styleName: 'text-center' },
-    { fieldName: 'sucYn', header: t('MSG_TXT_SCS_YN'), width: '80', styleName: 'text-center' },
-    { fieldName: 'fnlMdfcDtm', header: t('MSG_TXT_IN_DTM'), width: '160', styleName: 'text-center', datetimeFormat: 'datetime' },
-    { fieldName: 'usrNm', header: t('MSG_TXT_INP_NM'), width: '100', styleName: 'text-center' },
-    { fieldName: 'epno', header: t('MSG_TXT_EPNO'), width: '100', styleName: 'text-center' },
+    { fieldName: 'cntrNo', header: t('MSG_TXT_CNTR_NO'), width: '140', styleName: 'text-center' }, // 계약번호
+    { fieldName: 'bndMsgTpVal4', header: t('MSG_TXT_PD_INF'), width: '260', styleName: 'text-left' }, // 상품정보
+    { fieldName: 'bndMsgTpVal2', header: t('MSG_TXT_PRM_EXN_YM'), width: '120', styleName: 'text-center' }, // 선납만료년월
+    { fieldName: 'sucYn', header: t('MSG_TXT_SCS_YN'), width: '80', styleName: 'text-center' }, // 성공여부
+    { fieldName: 'fnlMdfcDtm', header: t('MSG_TXT_IN_DTM'), width: '160', styleName: 'text-center', datetimeFormat: 'datetime' }, // 입력일시
+    { fieldName: 'usrNm', header: t('MSG_TXT_INP_NM'), width: '100', styleName: 'text-center' }, // 입력자명
+    { fieldName: 'epno', header: t('MSG_TXT_EPNO'), width: '100', styleName: 'text-center' }, // 사번
 
   ];
 

@@ -181,11 +181,7 @@ function initGrid(data, view) {
       fieldName: 'cttRsCd',
       header: t('MSG_TXT_CTT_CNTN'),
       width: '200',
-      displayCallback: (cd) => {
-        // console.log(cd.cttRsCd);
-        if (isEmpty(cd.cttRsCd) || isEmpty(codes.LC_CTT_RS_CD)) { return ''; }
-        return `${cd.cttRsCd}. ${codes.LC_CTT_RS_CD.find((code) => code.codeId === cd.cttRsCd)?.codeName || ''}`;
-      },
+      options: codes.LC_CTT_RS_CD,
     },
     {
       fieldName: 'cttMoCn',

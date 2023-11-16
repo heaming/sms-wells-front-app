@@ -20,6 +20,7 @@
     <kw-search
       :cols="2"
       @search="onClickSearch"
+      @reset="onClickReset"
     >
       <kw-search-row>
         <!-- 서비스센터 -->
@@ -32,6 +33,7 @@
             :options="codes.GG_LCT_CD"
             :label="$t('MSG_TXT_SV_CNR')"
             rules="required"
+            @change="onChangeCenter"
           />
         </kw-search-item>
         <!-- 출고일자 -->
@@ -44,6 +46,7 @@
             type="date"
             rules="required"
             :label="$t('MSG_TXT_OSTR_DT')"
+            @change="onChangeOstrDt"
           />
         </kw-search-item>
       </kw-search-row>
@@ -126,6 +129,41 @@ const codes = await codeUtil.getMultiCodes(
   'GG_LCT_CD',
 );
 
+let daysOfWeek;
+
+// 서비스센터 변경 시
+async function onChangeCenter() {
+  daysOfWeek = [];
+  const { dgGgLctCd } = searchParams.value;
+
+  if (!isEmpty(dgGgLctCd)) {
+    // 센터별 요일 조회
+    const res = await dataService.get('/sms/wells/service/seeding-package-ctr-qtys-reg/days-of-week', { params: { dgGgLctCd } });
+    daysOfWeek = res.data;
+  }
+}
+
+// 출고일자 유효성 체크
+async function validOstrDt() {
+  const { ostrDt } = searchParams.value;
+  if (!isEmpty(ostrDt)) {
+    const dow = dayjs(ostrDt).format('d');
+    const isValidDow = daysOfWeek.includes(dow);
+    if (!isValidDow) {
+      // 출고 예정 요일이 아닙니다.
+      await alert(t('MSG_ALT_OSTR_EXP_DOW'));
+      return false;
+    }
+  }
+  return true;
+}
+
+// 출고일자 변경 시
+async function onChangeOstrDt() {
+  // 출고일자 유효성 체크
+  await validOstrDt();
+}
+
 const totalCount = ref(0);
 // 조회
 async function fetchData() {
@@ -141,6 +179,9 @@ async function fetchData() {
 
 // 조회버튼 클릭
 async function onClickSearch() {
+  // 출고일자 유효성 체크
+  if (!await validOstrDt()) return;
+
   cachedParams = cloneDeep(searchParams.value);
   await fetchData();
 }
@@ -148,8 +189,13 @@ async function onClickSearch() {
 // 저장
 async function onClickSave() {
   const view = grdMainRef.value.getView();
-  if (await gridUtil.alertIfIsNotModified(view)) { return; }
-  if (!await gridUtil.validate(view)) { return; }
+  const checkedRows = gridUtil.getCheckedRowValues(view);
+  if (isEmpty(checkedRows)) {
+    // 선택된 데이터가 없습니다.
+    notify(t('MSG_ALT_NO_CHECK_DATA'));
+    return;
+  }
+  if (!await gridUtil.validate(view, { isCheckedOnly: true })) { return; }
 
   // 출고당일 오전 7시 30분 이후 수량 조정 불가
   const curTime = dayjs().format('YYYYMMDDHHmmss');
@@ -160,13 +206,26 @@ async function onClickSave() {
     return;
   }
 
-  const changedData = gridUtil.getChangedRowValues(view);
-  changedData.forEach((item) => {
+  let validPdNm = '';
+  checkedRows.forEach((item) => {
+    const { ostrQty, excdQty, spmtQty, sdingPkgNm } = item;
+    // 출고 + 추가수량 < 제외수량
+    if (ostrQty + spmtQty < excdQty) {
+      validPdNm = sdingPkgNm;
+      return false;
+    }
+
     item.ostrDuedt = cachedParams.ostrDt;
     item.dgGgLctCd = cachedParams.dgGgLctCd;
   });
 
-  const res = await dataService.post('/sms/wells/service/seeding-package-ctr-qtys-reg', changedData);
+  if (!isEmpty(validPdNm)) {
+    // 품목의 제외수량은 출고+추가수량을 초과할 수 없습니다.
+    await alert(`${validPdNm} ${t('MSG_ALT_NOT_OVR_EXCD_QTY_OSTR_QTY')}`);
+    return;
+  }
+
+  const res = await dataService.post('/sms/wells/service/seeding-package-ctr-qtys-reg', checkedRows);
   const { processCount } = res.data;
   if (processCount > 0) {
     notify(t('MSG_ALT_SAVE_DATA'));
@@ -185,6 +244,15 @@ async function onClickExcelDownload() {
     exportData: res.data,
   });
 }
+
+// 초기화 버튼 클릭
+async function onClickReset() {
+  await onChangeCenter();
+}
+
+onMounted(async () => {
+  await onChangeCenter();
+});
 
 // -------------------------------------------------------------------------------------------------
 // Initialize Grid

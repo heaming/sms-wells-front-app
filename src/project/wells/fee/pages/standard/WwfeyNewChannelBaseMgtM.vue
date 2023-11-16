@@ -274,12 +274,15 @@ async function onClickRowDelete() {
 async function onClickRowAdd() {
   const view = grdRef.value.getView();
   const defaultRow = {
+    pdCd: searchParams.value.pdCd,
+    pdNm: searchParams.value.pdNm,
     feeFxamYn: 'N',
     apyStrtdt: searchParams.value.apyStrtdt,
     apyEnddt: '99991231',
+    sppDvCd: '2',
   };
-  const dataRow = view.getDataSource().insertRow(0, defaultRow);
-  gridUtil.focusCellInput(view, dataRow, 'basePdCd');
+  view.getDataSource().insertRow(0, defaultRow);
+  gridUtil.focusCellInput(view, 0, 'basePdCd');
 }
 
 // 저장
@@ -325,9 +328,57 @@ const initGrd = defineGrid((data, view) => {
         return g.getDataSource().getRowState(index.dataRow) === 'created';
       },
     }, // 상품코드
-    { fieldName: 'pdNm', header: t('MSG_TXT_PRDT_NM'), width: '250', styleName: 'text-left' }, // 상품명
-    { fieldName: 'sellTpCd', header: t('MSG_TXT_SEL_TYPE'), width: '150', styleName: 'text-center', rules: 'required', editable: true, options: codes.SELL_TP_CD, editor: { type: 'list' } }, // 판매유형
-    { fieldName: 'uswyTpCd', header: t('MSG_TXT_USWY_DV'), width: '150', styleName: 'text-center', rules: 'required', editable: true, options: codes.USWY_TP_CD, editor: { type: 'list' } }, // 용도구분
+    { fieldName: 'pdNm', header: t('MSG_TXT_PRDT_NM'), width: '250', styleName: 'text-left', editable: false }, // 상품명
+    { fieldName: 'sellTpCd',
+      header: t('MSG_TXT_SEL_TYPE'),
+      width: '150',
+      styleName: 'text-center',
+      rules: 'required',
+      editable: true,
+      options: codes.SELL_TP_CD,
+      editor: { type: 'list' },
+      styleCallback() {
+        const ret = {};
+        ret.editor = {
+          type: 'list',
+          textReadOnly: true,
+          values: codes.SELL_TP_CD.map((v) => v.codeId),
+          labels: codes.SELL_TP_CD.map((v) => `[${v.codeId}] ${v.codeName}`),
+        };
+        return ret;
+      },
+      displayCallback(grid, index, value) {
+        let retValue = value;
+        const v = codes.SELL_TP_CD.find((r) => r.codeId === value);
+        retValue = v ? `[${v.codeId}] ${v.codeName}` : retValue;
+        return retValue;
+      },
+    }, // 판매유형
+    { fieldName: 'uswyTpCd',
+      header: t('MSG_TXT_USWY_DV'),
+      width: '150',
+      styleName: 'text-center',
+      rules: 'required',
+      editable: true,
+      options: codes.USWY_TP_CD,
+      editor: { type: 'list' },
+      styleCallback() {
+        const ret = {};
+        ret.editor = {
+          type: 'list',
+          textReadOnly: true,
+          values: codes.USWY_TP_CD.map((v) => v.codeId),
+          labels: codes.USWY_TP_CD.map((v) => `[${v.codeId}] ${v.codeName}`),
+        };
+        return ret;
+      },
+      displayCallback(grid, index, value) {
+        let retValue = value;
+        const v = codes.USWY_TP_CD.find((r) => r.codeId === value);
+        retValue = v ? `[${v.codeId}] ${v.codeName}` : retValue;
+        return retValue;
+      },
+    }, // 용도구분
     { fieldName: 'hcrDvCd1', header: `${t('MSG_TXT_PRDT_GUBUN')}1`, width: '100', styleName: 'text-center', editable: true, editor: { maxLength: 2, textCase: 'upper' } }, /* 상품구분1 */
     { fieldName: 'hcrDvCd2', header: `${t('MSG_TXT_PRDT_GUBUN')}2`, width: '100', styleName: 'text-center', editable: true, editor: { maxLength: 2, textCase: 'upper' } }, /* 상품구분2 */
     {
@@ -341,27 +392,30 @@ const initGrd = defineGrid((data, view) => {
         const ret = {};
         if (sellTpCd === '1') {
           ret.editor = {
-            type: 'dropdown',
+            type: 'list',
+            textReadOnly: true,
             values: codes.SPAY_DSC_DV_CD.map((v) => v.codeId),
-            labels: codes.SPAY_DSC_DV_CD.map((v) => v.codeName),
+            labels: codes.SPAY_DSC_DV_CD.map((v) => `[${v.codeId}] ${v.codeName}`),
           };
         } else if (sellTpCd === '2') {
           ret.editor = {
-            type: 'dropdown',
+            type: 'list',
+            textReadOnly: true,
             values: codes.RENTAL_DSC_DV_CD.map((v) => v.codeId),
-            labels: codes.RENTAL_DSC_DV_CD.map((v) => v.codeName),
+            labels: codes.RENTAL_DSC_DV_CD.map((v) => `[${v.codeId}] ${v.codeName}`),
           };
         } else if (['3', '4'].includes(sellTpCd)) {
           ret.editor = {
-            type: 'dropdown',
+            type: 'list',
+            textReadOnly: true,
             values: codes.MSH_DSC_DV_CD.map((v) => v.codeId),
-            labels: codes.MSH_DSC_DV_CD.map((v) => v.codeName),
+            labels: codes.MSH_DSC_DV_CD.map((v) => `[${v.codeId}] ${v.codeName}`),
           };
         } else {
           ret.editor = {
-            type: 'dropdown',
-            values: [],
-            labels: [],
+            type: 'text',
+            maxLength: '1',
+            textCase: 'upper',
           };
         }
         return ret;
@@ -370,11 +424,14 @@ const initGrd = defineGrid((data, view) => {
         let retValue = value;
         const { sellTpCd } = grid.getValues(index.itemIndex);
         if (sellTpCd === '1') {
-          retValue = codes.SPAY_DSC_DV_CD.find((v) => v.codeId === value)?.codeName;
+          const v = codes.SPAY_DSC_DV_CD.find((r) => r.codeId === value);
+          retValue = v ? `[${v.codeId}] ${v.codeName}` : retValue;
         } else if (sellTpCd === '2') {
-          retValue = codes.RENTAL_DSC_DV_CD.find((v) => v.codeId === value)?.codeName;
+          const v = codes.RENTAL_DSC_DV_CD.find((r) => r.codeId === value);
+          retValue = v ? `[${v.codeId}] ${v.codeName}` : retValue;
         } else if (['3', '4'].includes(sellTpCd)) {
-          retValue = codes.MSH_DSC_DV_CD.find((v) => v.codeId === value)?.codeName;
+          const v = codes.MSH_DSC_DV_CD.find((r) => r.codeId === value);
+          retValue = v ? `[${v.codeId}] ${v.codeName}` : retValue;
         }
         return retValue;
       },
@@ -390,33 +447,37 @@ const initGrd = defineGrid((data, view) => {
         const ret = {};
         if (sellTpCd === '2' && sellDscDvCd === '5') {
           ret.editor = {
-            type: 'dropdown',
+            type: 'list',
+            textReadOnly: true,
             values: codes.RENTAL_CRP_DSCR_CD.map((v) => v.codeId),
-            labels: codes.RENTAL_CRP_DSCR_CD.map((v) => v.codeName),
+            labels: codes.RENTAL_CRP_DSCR_CD.map((v) => `[${v.codeId}] ${v.codeName}`),
           };
         } else if (sellTpCd === '2' && sellDscDvCd === '7') {
           ret.editor = {
-            type: 'dropdown',
+            type: 'list',
+            textReadOnly: true,
             values: codes.RENTAL_MCHD_DSC_APY_DTL_CD.map((v) => v.codeId),
-            labels: codes.RENTAL_MCHD_DSC_APY_DTL_CD.map((v) => v.codeName),
+            labels: codes.RENTAL_MCHD_DSC_APY_DTL_CD.map((v) => `[${v.codeId}] ${v.codeName}`),
           };
-        } else if (sellTpCd === '2' && ['1', '8'].includes(sellDscDvCd)) {
+        } else if (sellTpCd === '2' && ['1', '3', '8'].includes(sellDscDvCd)) {
           ret.editor = {
-            type: 'dropdown',
+            type: 'list',
+            textReadOnly: true,
             values: codes.RENTAL_CRP_DSC_APY_DTL_CD.map((v) => v.codeId),
-            labels: codes.RENTAL_CRP_DSC_APY_DTL_CD.map((v) => v.codeName),
+            labels: codes.RENTAL_CRP_DSC_APY_DTL_CD.map((v) => `[${v.codeId}] ${v.codeName}`),
           };
         } else if (sellTpCd === '4' && sellDscDvCd === '4') {
           ret.editor = {
-            type: 'dropdown',
+            type: 'list',
+            textReadOnly: true,
             values: codes.MSH_PRC_BASE_DSC_TP_ACD.map((v) => v.codeId),
-            labels: codes.MSH_PRC_BASE_DSC_TP_ACD.map((v) => v.codeName),
+            labels: codes.MSH_PRC_BASE_DSC_TP_ACD.map((v) => `[${v.codeId}] ${v.codeName}`),
           };
         } else {
           ret.editor = {
-            type: 'dropdown',
-            values: [],
-            labels: [],
+            type: 'text',
+            maxLength: '2',
+            textCase: 'upper',
           };
         }
         return ret;
@@ -425,30 +486,132 @@ const initGrd = defineGrid((data, view) => {
         let retValue = value;
         const { sellTpCd, sellDscDvCd } = grid.getValues(index.itemIndex);
         if (sellTpCd === '2' && sellDscDvCd === '5') {
-          retValue = codes.RENTAL_CRP_DSCR_CD.find((v) => v.codeId === value)?.codeName;
+          const v = codes.RENTAL_CRP_DSCR_CD.find((r) => r.codeId === value);
+          retValue = v ? `[${v.codeId}] ${v.codeName}` : retValue;
         }
         if (sellTpCd === '2' && sellDscDvCd === '7') {
-          retValue = codes.RENTAL_MCHD_DSC_APY_DTL_CD.find((v) => v.codeId === value)?.codeName;
+          const v = codes.RENTAL_MCHD_DSC_APY_DTL_CD.find((r) => r.codeId === value);
+          retValue = v ? `[${v.codeId}] ${v.codeName}` : retValue;
         }
-        if (sellTpCd === '2' && ['1', '8'].includes(sellDscDvCd)) {
-          retValue = codes.RENTAL_CRP_DSC_APY_DTL_CD.find((v) => v.codeId === value)?.codeName;
+        if (sellTpCd === '2' && ['1', '3', '8'].includes(sellDscDvCd)) {
+          const v = codes.RENTAL_CRP_DSC_APY_DTL_CD.find((r) => r.codeId === value);
+          retValue = v ? `[${v.codeId}] ${v.codeName}` : retValue;
         }
         if (sellTpCd === '4' && sellDscDvCd === '4') {
-          retValue = codes.MSH_PRC_BASE_DSC_TP_ACD.find((v) => v.codeId === value)?.codeName;
+          const v = codes.MSH_PRC_BASE_DSC_TP_ACD.find((r) => r.codeId === value);
+          retValue = v ? `[${v.codeId}] ${v.codeName}` : retValue;
         }
         return retValue;
       },
     }, // 할인유형
-    { fieldName: 'feecDvCd', header: t('MSG_TXT_CHNL_DV'), width: '150', styleName: 'text-center', rules: 'required', editable: true, options: codes.FEE_BASE_MNGT_CHNL_ACD, editor: { type: 'list' } }, // 채널구분
-    { fieldName: 'pmotCd', header: t('MSG_TXT_DSC_SYST'), width: '150', styleName: 'text-center', editable: true, options: codes.PMOT_CD, editor: { type: 'list' }, firstOption: 'select', firstOptionValue: '', firstOptionLabel: ' ' }, // 할인제도
-    { fieldName: 'sppDvCd', header: t('MSG_TXT_FULT_DV'), width: '150', styleName: 'text-center', rules: 'required', editable: true, options: codes.RENTAL_COMBI_DV_CD, editor: { type: 'list' } }, // 결함구분
-    { fieldName: 'svPrd', header: t('MSG_TXT_BS_CYC'), width: '150', styleName: 'text-center', rules: 'required', editable: true, options: codes.MNGT_PRD_ACD, editor: { type: 'list' } }, // BS주기
+    { fieldName: 'feecDvCd',
+      header: t('MSG_TXT_CHNL_DV'),
+      width: '150',
+      styleName: 'text-center',
+      rules: 'required',
+      editable: true,
+      options: codes.FEE_BASE_MNGT_CHNL_ACD,
+      editor: { type: 'list' },
+      styleCallback() {
+        const ret = {};
+        ret.editor = {
+          type: 'list',
+          textReadOnly: true,
+          values: codes.FEE_BASE_MNGT_CHNL_ACD.map((v) => v.codeId),
+          labels: codes.FEE_BASE_MNGT_CHNL_ACD.map((v) => `[${v.codeId}] ${v.codeName}`),
+        };
+        return ret;
+      },
+      displayCallback(grid, index, value) {
+        let retValue = value;
+        const v = codes.FEE_BASE_MNGT_CHNL_ACD.find((r) => r.codeId === value);
+        retValue = v ? `[${v.codeId}] ${v.codeName}` : retValue;
+        return retValue;
+      },
+    }, // 채널구분
+    { fieldName: 'pmotCd',
+      header: t('MSG_TXT_DSC_SYST'),
+      width: '150',
+      styleName: 'text-center',
+      editable: true,
+      options: codes.PMOT_CD,
+      editor: { type: 'list' },
+      firstOption: 'select',
+      firstOptionValue: '',
+      firstOptionLabel: ' ',
+      styleCallback() {
+        const ret = {};
+        ret.editor = {
+          type: 'list',
+          textReadOnly: true,
+          values: codes.PMOT_CD.map((v) => v.codeId),
+          labels: codes.PMOT_CD.map((v) => `[${v.codeId}] ${v.codeName}`),
+        };
+        return ret;
+      },
+      displayCallback(grid, index, value) {
+        let retValue = value;
+        const v = codes.PMOT_CD.find((r) => r.codeId === value);
+        retValue = v ? `[${v.codeId}] ${v.codeName}` : retValue;
+        return retValue;
+      },
+    }, // 할인제도
+    { fieldName: 'sppDvCd',
+      header: t('MSG_TXT_FULT_DV'),
+      width: '150',
+      styleName: 'text-center',
+      rules: 'required',
+      editable: true,
+      options: codes.RENTAL_COMBI_DV_CD,
+      editor: { type: 'list' },
+      styleCallback() {
+        const ret = {};
+        ret.editor = {
+          type: 'list',
+          textReadOnly: true,
+          values: codes.RENTAL_COMBI_DV_CD.map((v) => v.codeId),
+          labels: codes.RENTAL_COMBI_DV_CD.map((v) => `[${v.codeId}] ${v.codeName}`),
+        };
+        return ret;
+      },
+      displayCallback(grid, index, value) {
+        let retValue = value;
+        const v = codes.RENTAL_COMBI_DV_CD.find((r) => r.codeId === value);
+        retValue = v ? `[${v.codeId}] ${v.codeName}` : retValue;
+        return retValue;
+      },
+    }, // 결함구분
+    { fieldName: 'svPrd',
+      header: t('MSG_TXT_BS_CYC'),
+      width: '150',
+      styleName: 'text-center',
+      rules: 'required',
+      editable: true,
+      options: codes.MNGT_PRD_ACD,
+      editor: { type: 'list' },
+      styleCallback() {
+        const ret = {};
+        ret.editor = {
+          type: 'list',
+          textReadOnly: true,
+          values: codes.MNGT_PRD_ACD.map((v) => v.codeId),
+          labels: codes.MNGT_PRD_ACD.map((v) => `[${v.codeId}] ${v.codeName}`),
+        };
+        return ret;
+      },
+      displayCallback(grid, index, value) {
+        let retValue = value;
+        const v = codes.MNGT_PRD_ACD.find((r) => r.codeId === value);
+        retValue = v ? `[${v.codeId}] ${v.codeName}` : retValue;
+        return retValue;
+      },
+    }, // BS주기
     { fieldName: 'hgrPdCd', header: t('MSG_TXT_PKG_PD_NO'), width: '150', styleName: 'text-center', editable: true, editor: { maxLength: 10, textCase: 'upper' } }, // 페키지상품번호
     { fieldName: 'feeFxamYn', header: t('MSG_TXT_FXAM_YN'), width: '150', styleName: 'text-center', editable: true, options: codes.YN_CD, editor: { type: 'list' } }, // 정액여부
     { fieldName: 'apyStrtdt', header: t('MSG_TXT_APY_STRT_DAY'), width: '150', styleName: 'text-center', rules: 'required', editable: true, editor: { type: 'btdate', datetimeFormat: 'date' }, datetimeFormat: 'date' }, // 적용시작일
     { fieldName: 'apyEnddt', header: t('MSG_TXT_APY_END_DAY'), width: '150', styleName: 'text-center', editable: true, editor: { type: 'btdate', datetimeFormat: 'date' }, datetimeFormat: 'date' }, // 적용종료일
     { fieldName: 'sellFee', header: t('MSG_TXT_BASE_PRC'), width: '150', styleName: 'text-right', dataType: 'number', editor: { type: 'number', numberFormat: '#,##0', maxLength: 22 }, editable: true }, // 기준가격
-    { fieldName: 'totStplMcn', header: t('MSG_TXT_STPL_MCNT'), width: '150', styleName: 'text-right', dataType: 'number', editor: { type: 'number', numberFormat: '#,##0', maxLength: 22 }, editable: true }, // 약정개월
+    { fieldName: 'totStplMcn', header: t('MSG_TXT_STPL_MCNT'), width: '150', styleName: 'text-right', dataType: 'number', editor: { type: 'number', numberFormat: '#,##0', maxLength: 10 }, editable: true }, // 약정개월
     { fieldName: 'fstRgstDtm', header: t('MSG_TXT_FST_RGST_DT'), width: '150', styleName: 'text-center', datetimeFormat: 'date' }, // 등록일자
     { fieldName: 'fstRgstUsrId', header: t('MSG_TXT_RGST_PSIC'), width: '150', styleName: 'text-center' }, // 등록담당자
     { fieldName: 'fnlMdfcDtm', header: t('MSG_TXT_MDFC_DATE'), width: '150', styleName: 'text-center', datetimeFormat: 'date' }, // 수정일자
@@ -461,7 +624,7 @@ const initGrd = defineGrid((data, view) => {
   view.rowIndicator.visible = true;
   view.editOptions.columnEditableFirst = true;
   view.onCellEditable = (grid, index) => {
-    if (gridUtil.isCreatedRow(grid, index.dataRow) && ['pdCd', 'sellTpCd', 'uswyTpCd', 'hcrDvCd1', 'hcrDvCd2', 'sellDscDvCd', 'sellDscrCd', 'feecDvCd', 'pmotCd', 'sppDvCd', 'svPrd', 'hgrPdCd', 'feeFxamYn', 'apyStrtdt', 'apyEnddt', 'sellFee', 'totStplMcn'].includes(index.column)) {
+    if (gridUtil.isCreatedRow(grid, index.dataRow) && ['pdCd', 'pdNm', 'sellTpCd', 'uswyTpCd', 'hcrDvCd1', 'hcrDvCd2', 'sellDscDvCd', 'sellDscrCd', 'feecDvCd', 'pmotCd', 'sppDvCd', 'svPrd', 'hgrPdCd', 'feeFxamYn', 'apyStrtdt', 'apyEnddt', 'sellFee', 'totStplMcn'].includes(index.column)) {
       return true;
     }
     if (!gridUtil.isCreatedRow(grid, index.dataRow) && ['hcrDvCd1', 'hcrDvCd2', 'sellDscDvCd', 'sellDscrCd', 'pmotCd', 'hgrPdCd', 'feeFxamYn', 'apyEnddt', 'sellFee', 'totStplMcn'].includes(index.column)) {

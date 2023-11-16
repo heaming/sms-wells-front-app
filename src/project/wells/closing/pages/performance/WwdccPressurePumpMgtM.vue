@@ -422,8 +422,8 @@ const initGridConfirm = defineGrid((data, view) => {
   ];
 
   const columns = [
-    { fieldName: 'cnfmYn', header: t('MSG_TXT_DTRM_YN'), width: '80', styleName: 'text-center' },
-    { fieldName: 'errMsg', header: t('MSG_TXT_ERR_DTL2'), width: '200', styleName: 'text-left' },
+    { fieldName: 'cnfmYn', header: t('MSG_TXT_DTRM_YN'), width: '80', styleName: 'text-center' }, //
+    { fieldName: 'errMsg', header: t('MSG_TXT_ERR_DTL2'), width: '200', styleName: 'text-left' }, //
     {
       fieldName: 'cntrNoSn',
       header: t('MSG_TXT_CNTR_DTL_NO'),
@@ -434,39 +434,39 @@ const initGridConfirm = defineGrid((data, view) => {
         const { cntrNo, cntrSn } = grid.getValues(index.itemIndex);
         return `${cntrNo}-${cntrSn}`;
       },
-    },
-    { fieldName: 'cntrNo', header: t('MSG_TXT_CNTR_NO'), width: '100', styleName: 'text-center', visible: false },
-    { fieldName: 'cntrSn', header: t('MSG_TXT_CNTR_SN'), width: '100', styleName: 'text-center', visible: false },
-    { fieldName: 'cstKnm', header: t('MSG_TXT_CST_NM'), width: '80', styleName: 'text-left' },
-    { fieldName: 'filtSellTpCd', header: t('MSG_TXT_CST_TYPE'), width: '100', styleName: 'text-center' },
-    { fieldName: 'adnSvSn', header: t('MSG_TXT_SERIAL_NUMBER'), width: '80', styleName: 'text-center' },
-    { fieldName: 'itmPdCd', header: t('MSG_TXT_PROD_CD'), width: '120', styleName: 'text-center', visible: false },
-    { fieldName: 'basePdCd', header: t('MSG_TXT_PROD_CD'), width: '120', styleName: 'text-center' },
-    { fieldName: 'pdAbbrNm', header: t('MSG_TXT_GOODS_NM'), width: '200', styleName: 'text-left' },
-    { fieldName: 'pdNm', header: t('MSG_TXT_PRESSURE_PUMP_MAT'), width: '150', styleName: 'text-left' },
-    { fieldName: 'ogNm', header: t('MSG_TXT_CENTER_DIVISION'), width: '120', styleName: 'text-left' },
-    { fieldName: 'wrkTypNm', header: t('MSG_TXT_TASK_TYPE'), width: '100', styleName: 'text-left' },
-    { fieldName: 'svBizHclsfCd', width: '100', styleName: 'text-center', visible: false },
-    { fieldName: 'gubn', header: t('MSG_TXT_USE_CLN'), width: '80', styleName: 'text-center' },
-    { fieldName: 'lctamt', header: t('MSG_TXT_PDCT_PRC'), width: '100', styleName: 'text-right', numberFormat: '#,##0' },
-    { fieldName: 'svMcn', header: t('MSG_TXT_SV_PTRM'), width: '80', styleName: 'text-center' },
-    { fieldName: 'dutyUseMcn', header: t('MSG_TXT_DUTY_PTRM'), width: '80', styleName: 'text-center' },
-    { fieldName: 'fnlVstFshDt', header: t('MSG_TXT_WK_DT'), width: '100', styleName: 'text-center', datetimeFormat: 'date' },
-    { fieldName: 'rcpdt', header: t('MSG_TXT_RCPDT'), width: '100', styleName: 'text-center', datetimeFormat: 'date' },
-    { fieldName: 'istDt', header: t('MSG_TXT_IST_DT'), width: '100', styleName: 'text-center', datetimeFormat: 'date' },
-    { fieldName: 'reqdDt', header: t('MSG_TXT_DEM_DT'), width: '100', styleName: 'text-center', datetimeFormat: 'date' },
-    { fieldName: 'rsgDt', header: t('MSG_TXT_CLTN_DT'), width: '100', styleName: 'text-center', datetimeFormat: 'date' },
-    { fieldName: 'fnlItmGdCd', header: t('MSG_TXT_GD'), width: '80', styleName: 'text-center' },
-    { fieldName: 'useQty', header: t('MSG_TXT_QTY'), width: '80', styleName: 'text-right' },
-    { fieldName: 'chagGbNm', header: t('MSG_TXT_DIV'), width: '80', styleName: 'text-center' },
-    { fieldName: 'prtnrKnm', header: t('MSG_TXT_EGER'), width: '80', styleName: 'text-left' },
-    { fieldName: 'tCnt', header: t('MSG_TXT_ACU_STOC'), width: '80', styleName: 'text-right' },
-    { fieldName: 'fstRgstDtm', header: t('MSG_TXT_FST_RGST_DT'), width: '160', styleName: 'text-center', datetimeFormat: 'datetime' },
-    { fieldName: 'fstRgstUsrId', header: t('MSG_TXT_FST_RGST_USR'), width: '80', styleName: 'text-left' },
-    { fieldName: 'fnlMdfcDtm', header: t('MSG_TXT_MDFC_DATE'), width: '160', styleName: 'text-center', datetimeFormat: 'datetime' },
-    { fieldName: 'fnlMdfcUsrId', header: t('MSG_TIT_MDFC_USR'), width: '120', styleName: 'text-left' },
-    { fieldName: 'adnSvStrtYm', header: t('MSG_TXT_ADN_SV_STRT_YM'), width: '120', styleName: 'text-center', visible: false },
-    { fieldName: 'istDuedt', header: t('MSG_TXT_IST_EXP_DT'), width: '120', styleName: 'text-center', visible: false },
+    }, //
+    { fieldName: 'cntrNo', header: t('MSG_TXT_CNTR_NO'), width: '100', styleName: 'text-center', visible: false }, // 계약번호
+    { fieldName: 'cntrSn', header: t('MSG_TXT_CNTR_SN'), width: '100', styleName: 'text-center', visible: false }, // 계약일련번호
+    { fieldName: 'cstKnm', header: t('MSG_TXT_CST_NM'), width: '80', styleName: 'text-left' }, // 고객명
+    { fieldName: 'filtSellTpCd', header: t('MSG_TXT_CST_TYPE'), width: '100', styleName: 'text-center' }, // 고객유형
+    { fieldName: 'adnSvSn', header: t('MSG_TXT_SERIAL_NUMBER'), width: '80', styleName: 'text-center' }, // 일련번호
+    { fieldName: 'itmPdCd', header: t('MSG_TXT_PROD_CD'), width: '120', styleName: 'text-center', visible: false }, // 제품코드
+    { fieldName: 'basePdCd', header: t('MSG_TXT_PROD_CD'), width: '120', styleName: 'text-center' }, // 제품코드
+    { fieldName: 'pdAbbrNm', header: t('MSG_TXT_GOODS_NM'), width: '200', styleName: 'text-left' }, // 제품명
+    { fieldName: 'pdNm', header: t('MSG_TXT_PRESSURE_PUMP_MAT'), width: '150', styleName: 'text-left' }, // 가압펌프자재
+    { fieldName: 'ogNm', header: t('MSG_TXT_CENTER_DIVISION'), width: '120', styleName: 'text-left' }, // 센터
+    { fieldName: 'wrkTypNm', header: t('MSG_TXT_TASK_TYPE'), width: '100', styleName: 'text-left' }, // 업무유형
+    { fieldName: 'svBizHclsfCd', width: '100', styleName: 'text-center', visible: false }, // 업무유형
+    { fieldName: 'gubn', header: t('MSG_TXT_USE_CLN'), width: '80', styleName: 'text-center' }, // 사용/회수
+    { fieldName: 'lctamt', header: t('MSG_TXT_PDCT_PRC'), width: '100', styleName: 'text-right', numberFormat: '#,##0' }, // 제품가격
+    { fieldName: 'svMcn', header: t('MSG_TXT_SV_PTRM'), width: '80', styleName: 'text-center' }, // 서비스기간
+    { fieldName: 'dutyUseMcn', header: t('MSG_TXT_DUTY_PTRM'), width: '80', styleName: 'text-center' }, // 의무기간
+    { fieldName: 'fnlVstFshDt', header: t('MSG_TXT_WK_DT'), width: '100', styleName: 'text-center', datetimeFormat: 'date' }, // 작업일자
+    { fieldName: 'rcpdt', header: t('MSG_TXT_RCPDT'), width: '100', styleName: 'text-center', datetimeFormat: 'date' }, // 접수일자
+    { fieldName: 'istDt', header: t('MSG_TXT_IST_DT'), width: '100', styleName: 'text-center', datetimeFormat: 'date' }, // 설치일자
+    { fieldName: 'reqdDt', header: t('MSG_TXT_DEM_DT'), width: '100', styleName: 'text-center', datetimeFormat: 'date' }, // 철거일자
+    { fieldName: 'rsgDt', header: t('MSG_TXT_CLTN_DT'), width: '100', styleName: 'text-center', datetimeFormat: 'date' }, // 해약일자
+    { fieldName: 'fnlItmGdCd', header: t('MSG_TXT_GD'), width: '80', styleName: 'text-center' }, // 등급
+    { fieldName: 'useQty', header: t('MSG_TXT_QTY'), width: '80', styleName: 'text-right' }, // 수량
+    { fieldName: 'chagGbNm', header: t('MSG_TXT_DIV'), width: '80', styleName: 'text-center' }, // 구분
+    { fieldName: 'prtnrKnm', header: t('MSG_TXT_EGER'), width: '80', styleName: 'text-left' }, // 엔지니어
+    { fieldName: 'tCnt', header: t('MSG_TXT_ACU_STOC'), width: '80', styleName: 'text-right' }, // 누적재고
+    { fieldName: 'fstRgstDtm', header: t('MSG_TXT_FST_RGST_DT'), width: '160', styleName: 'text-center', datetimeFormat: 'datetime' }, // 등록일자
+    { fieldName: 'fstRgstUsrId', header: t('MSG_TXT_FST_RGST_USR'), width: '80', styleName: 'text-left' }, // 등록자
+    { fieldName: 'fnlMdfcDtm', header: t('MSG_TXT_MDFC_DATE'), width: '160', styleName: 'text-center', datetimeFormat: 'datetime' }, // 수정일자
+    { fieldName: 'fnlMdfcUsrId', header: t('MSG_TIT_MDFC_USR'), width: '120', styleName: 'text-left' }, // 수정자
+    { fieldName: 'adnSvStrtYm', header: t('MSG_TXT_ADN_SV_STRT_YM'), width: '120', styleName: 'text-center', visible: false }, // 부가서비스시작년월
+    { fieldName: 'istDuedt', header: t('MSG_TXT_IST_EXP_DT'), width: '120', styleName: 'text-center', visible: false }, // 설치예정일자
 
   ];
 
@@ -509,23 +509,23 @@ const initGridSalesBase = defineGrid((data, view) => {
         const { cntrNo, cntrSn } = grid.getValues(index.itemIndex);
         return `${cntrNo}-${cntrSn}`;
       },
-    },
-    { fieldName: 'cntrNo', header: t('MSG_TXT_CNTR_NO'), width: '100', styleName: 'text-center', visible: false },
-    { fieldName: 'cntrSn', header: t('MSG_TXT_CNTR_SN'), width: '100', styleName: 'text-center', visible: false },
-    { fieldName: 'pdNm', header: t('MSG_TXT_GOODS_NM'), width: '240', styleName: 'text-left' },
-    { fieldName: 'adnSvCsAmt', header: t('MSG_TXT_SL_AMT'), width: '100', styleName: 'text-right', numberFormat: '#,##0' },
-    { fieldName: 'istDt', header: t('MSG_TXT_IST_DT'), width: '100', styleName: 'text-center', datetimeFormat: 'date' },
-    { fieldName: 'reqdDt', header: t('MSG_TXT_DEM_DT'), width: '100', styleName: 'text-center', datetimeFormat: 'date' },
-    { fieldName: 'mpyBsdt', header: t('MSG_TXT_FNT_DT'), width: '100', styleName: 'text-center' },
-    { fieldName: 'dpTpCd', header: t('MSG_TXT_FNT_DV'), width: '120', styleName: 'text-center' },
-    { fieldName: 'copnDvCd', header: t('MSG_TXT_INDI_CORP'), width: '80', styleName: 'text-center' },
-    { fieldName: 'alncmpCd', header: t('MSG_TXT_MUTU_ALNC'), width: '80', styleName: 'text-center' },
-    { fieldName: 'alncStatTpCd', header: t('MSG_TXT_ALNC_STAT'), width: '80', styleName: 'text-center' },
-    { fieldName: 'lcpgub', header: t('MSG_TXT_PRE_PAY'), width: '80', styleName: 'text-center' },
-    { fieldName: 'lcam36', header: t('MSG_TXT_ATAM'), width: '100', styleName: 'text-right', numberFormat: '#,##0' },
-    { fieldName: 'lcmon1', header: t('MSG_TXT_RENT_PRD_MN'), width: '100', styleName: 'text-right' },
-    { fieldName: 'lcamt1', header: t('MSG_TXT_RTLFE'), width: '100', styleName: 'text-right', numberFormat: '#,##0' },
-    { fieldName: 'lcram1', header: t('MSG_TXT_RENTAL_DSC'), width: '100', styleName: 'text-right', numberFormat: '#,##0' },
+    }, //
+    { fieldName: 'cntrNo', header: t('MSG_TXT_CNTR_NO'), width: '100', styleName: 'text-center', visible: false }, // 계약번호
+    { fieldName: 'cntrSn', header: t('MSG_TXT_CNTR_SN'), width: '100', styleName: 'text-center', visible: false }, // 계약일련번호
+    { fieldName: 'pdNm', header: t('MSG_TXT_GOODS_NM'), width: '240', styleName: 'text-left' }, // 상품명
+    { fieldName: 'adnSvCsAmt', header: t('MSG_TXT_SL_AMT'), width: '100', styleName: 'text-right', numberFormat: '#,##0' }, // 매출금액
+    { fieldName: 'istDt', header: t('MSG_TXT_IST_DT'), width: '100', styleName: 'text-center', datetimeFormat: 'date' }, // 설치일자
+    { fieldName: 'reqdDt', header: t('MSG_TXT_DEM_DT'), width: '100', styleName: 'text-center', datetimeFormat: 'date' }, // 철거일자
+    { fieldName: 'mpyBsdt', header: t('MSG_TXT_FNT_DT'), width: '100', styleName: 'text-center' }, // 이체일자
+    { fieldName: 'dpTpCd', header: t('MSG_TXT_FNT_DV'), width: '120', styleName: 'text-center' }, // 이체구분
+    { fieldName: 'copnDvCd', header: t('MSG_TXT_INDI_CORP'), width: '80', styleName: 'text-center' }, // 개인/법인
+    { fieldName: 'alncmpCd', header: t('MSG_TXT_MUTU_ALNC'), width: '80', styleName: 'text-center' }, // 상조제휴
+    { fieldName: 'alncStatTpCd', header: t('MSG_TXT_ALNC_STAT'), width: '80', styleName: 'text-center' }, // 제휴상태
+    { fieldName: 'lcpgub', header: t('MSG_TXT_PRE_PAY'), width: '80', styleName: 'text-center' }, // 선납여부
+    { fieldName: 'lcam36', header: t('MSG_TXT_ATAM'), width: '100', styleName: 'text-right', numberFormat: '#,##0' }, // 선수금
+    { fieldName: 'lcmon1', header: t('MSG_TXT_RENT_PRD_MN'), width: '100', styleName: 'text-right' }, // 렌탈기간
+    { fieldName: 'lcamt1', header: t('MSG_TXT_RTLFE'), width: '100', styleName: 'text-right', numberFormat: '#,##0' }, // 렌탈료
+    { fieldName: 'lcram1', header: t('MSG_TXT_RENTAL_DSC'), width: '100', styleName: 'text-right', numberFormat: '#,##0' }, // 렌탈할인
 
   ];
 

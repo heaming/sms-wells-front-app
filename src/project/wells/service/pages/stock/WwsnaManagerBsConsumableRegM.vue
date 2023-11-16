@@ -20,7 +20,6 @@
           <kw-date-picker
             v-model="searchParams.mngtYm"
             type="month"
-            @change="getBldCode"
           />
         </kw-search-item>
         <kw-search-item :label="$t('MSG_TXT_BLD_NM')">
@@ -146,6 +145,7 @@ import dayjs from 'dayjs';
 const { getConfig, hasRoleNickName } = useMeta();
 const { t } = useI18n();
 const dataService = useDataService();
+const { currentRoute } = useRouter();
 
 // -------------------------------------------------------------------------------------------------
 // Function & Event
@@ -192,13 +192,11 @@ const aplcCloseData = ref({
 });
 
 const isDisableSave = computed(() => {
-  if (!isBusinessSupportTeam.value) { return true; }
-
   const nowDateTime = Number(dayjs().format('YYYYMMDDHHmm'));
-  const strtDtHh = Number(aplcCloseData.value.bizStrtdt + aplcCloseData.value.bizStrtHh.substring(0, 4));
-  const endDtHh = Number(aplcCloseData.value.bizEnddt + aplcCloseData.value.bizEndHh.substring(0, 4));
+  const strtDtHh = `${aplcCloseData.value.bizStrtdt}${aplcCloseData.value.bizStrtHh ?? ''}`;
+  const endDtHh = `${aplcCloseData.value.bizEnddt}${aplcCloseData.value.bizEndHh ?? ''}`;
 
-  if (!isBusinessSupportTeam.value && !(nowDateTime >= strtDtHh && nowDateTime <= endDtHh)) {
+  if (!isBusinessSupportTeam.value && !(nowDateTime >= Number(strtDtHh) && nowDateTime <= Number(endDtHh))) {
     return true;
   }
 
@@ -288,12 +286,14 @@ async function reAryGrid() {
   let j = 1;
   for (let i = 0; i < fxnItems.length; i += 1) {
     // 고정품목 갯수만큼 field, column 추가
-    fields.push({ fieldName: `fxnQty${j}` });
+    fields.push({ fieldName: `fxnQty${j}`, dataType: 'number' });
     columns.push({
       fieldName: `fxnQty${j}`,
       header: fxnItems[i].fxnSapMatCd,
       width: '180',
       styleName: 'text-center',
+      dataType: 'number',
+      rules: 'min_value:0',
       editable: isBusinessSupportTeam.value,
     });
 
@@ -319,12 +319,14 @@ async function reAryGrid() {
   let k = 1;
   for (let i = 0; i < aplcItems.length; i += 1) {
     // 신청품목 갯수만큼 field, column 추가
-    fields.push({ fieldName: `aplcQty${k}` });
+    fields.push({ fieldName: `aplcQty${k}`, dataType: 'number' });
     columns.push({
       fieldName: `aplcQty${k}`,
       header: aplcItems[i].aplcSapMatCd,
       width: '180',
       styleName: 'text-center',
+      dataType: 'number',
+      rules: 'min_value:0',
       editable: true,
     });
 
@@ -349,13 +351,13 @@ async function reAryGrid() {
 
   data.setFields(fields);
   view.setColumns(columns);
-  view.setFixedOptions({ colCount: 1 });
+  // view.setFixedOptions({ colCount: 1 });
 
-  view.onCellClicked = (grd, cData) => {
-    if (cData.cellType !== 'check') { return false; }
-  };
+  // view.onCellClicked = (grd, cData) => {
+  //   if (cData.cellType !== 'check') { return false; }
+  // };
 
-  view.setColumnLayout([
+  const columnLayout = [
     {
       header: '소속',
       direction: 'horizontal',
@@ -392,12 +394,63 @@ async function reAryGrid() {
       direction: 'horizontal',
       items: items1,
     },
-    {
-      header: t('MSG_TXT_APLC'),
-      direction: 'horizontal',
-      items: items2,
-    },
-  ]);
+  ];
+
+  if (items2.length > 0) { // 엑셀다운로드 오류로 인한 수정
+    columnLayout.push(
+      {
+        header: t('MSG_TXT_APLC'),
+        direction: 'horizontal',
+        items: items2,
+      },
+    );
+  }
+
+  view.setColumnLayout(columnLayout);
+
+  // view.setColumnLayout([
+  //   {
+  //     header: '소속',
+  //     direction: 'horizontal',
+  //     items: [
+  //       'reqYn',
+  //       'bldNm',
+  //       'bldCd',
+  //       'prtnrNo',
+  //       'ogCd',
+  //       'prtnrKnm',
+  //       'vstCstN',
+  //     ],
+  //   },
+  //   {
+  //     header: '상품별 방문계정',
+  //     direction: 'horizontal',
+  //     items: [
+  //       'wrfr',
+  //       'bdtIndv',
+  //       'bdtCrp',
+  //       'arcleIndv',
+  //       'arcleCrp',
+  //       'wtrSftnr',
+  //       'cffMchn',
+  //       'msgcr',
+  //       'dryr',
+  //       'wash',
+  //       'ardrssr',
+  //       'sscling',
+  //     ],
+  //   },
+  //   {
+  //     header: t('MSG_TXT_FXN'),
+  //     direction: 'horizontal',
+  //     items: items1,
+  //   },
+  //   {
+  //     header: t('MSG_TXT_APLC'),
+  //     direction: 'horizontal',
+  //     items: items2,
+  //   },
+  // ]);
 }
 
 async function fetchData() {
@@ -430,41 +483,7 @@ async function fetchData() {
     });
   }
 
-  // TODO: editable 조건에 권한별 수정 가능여부 추가해야함(빌딩 업무담당은 본인 빌딩에 대한 수량만 수정 가능)
-  const editFields = [];
-
-  for (let i = 0; i < items2.length; i += 1) {
-    let l = i + 1;
-    editFields.push(`aplcQty${l}`);
-    l += 1;
-  }
-
-  view.onCellEditable = (grid, itemIndex) => {
-    const nowDateTime = Number(dayjs().format('YYYYMMDDHHmmss'));
-    const strtDtHh = Number(aplcCloseData.value.bizStrtdt + aplcCloseData.value.bizStrtHh);
-    const endDtHh = Number(aplcCloseData.value.bizEnddt + aplcCloseData.value.bizEndHh);
-
-    // TODO: 권한조회 후 빌딩 업무담당일 경우 본인 소속 빌딩 외 수정불가 로직 추가해야함
-    if ((!isBusinessSupportTeam.value && !(nowDateTime >= strtDtHh && nowDateTime <= endDtHh)) || res.data[itemIndex.itemIndex].bfsvcCsmbDdlvStatCd === '30') {
-      return false;
-    }
-  };
-
-  view.onCellEdited = (grid, itemIndex) => {
-    grid.checkItem(itemIndex, true);
-  };
-
   view.getDataSource().setRows(res.data);
-  view.rowIndicator.indexOffset = gridUtil.getPageIndexOffset(pageInfo);
-
-  view.setCheckableCallback((dataSource, item) => {
-    const { bfsvcCsmbDdlvStatCd } = gridUtil.getRowValue(view, item.dataRow);
-
-    if (bfsvcCsmbDdlvStatCd === '30') {
-      return false;
-    }
-    return true;
-  }, true);
 }
 
 function validateRegPeriod() {
@@ -507,35 +526,31 @@ async function onClickSearch() {
 async function onClickSave() {
   const view = grdMainRef.value.getView();
   const checkedRows = gridUtil.getCheckedRowValues(view);
-  const checkedModifyRows = gridUtil.getCheckedRowValues(view, { isChangedOnly: true });
 
   if (checkedRows.length === 0) {
     notify(t('MSG_ALT_NOT_SEL_ITEM'));
     return;
   }
 
-  if (checkedModifyRows.length !== 0 && (checkedRows.length > checkedModifyRows.length)) {
-    notify(t('MSG_ALT_NO_CHG_ROW_SELECT'));
-    return;
-  }
+  if (!await gridUtil.validate(view)) { return; }
 
-  // if (await gridUtil.alertIfIsNotModified(view)) { return; }
-  let isError = false;
+  const isError = false;
   checkedRows.forEach((checkedRow) => {
     let f = 1;
     let a = 1;
     for (let i = 0; i < itemsData.value.length; i += 1) {
       if (itemsData.value[i].bfsvcCsmbDdlvTpCd === '1') {
-        if (Number(itemsData.value[i].fxnPckngUnit.replace(/[^0-9]/g, '')) < Number(checkedRow[`fxnQty${f}`])) {
-          // alert(t('MSG_ALT_PSBL_MAX_CNT_DATA'), [itemsData.value[i].aplcPdNm],
-          //  [itemsData.value[i].aplcPckngUnit.replace(/[^0-9]/g, '')]);
+        // if (Number(itemsData.value[i].fxnPckngUnit.replace(/[^0-9]/g, '')) < Number(checkedRow[`fxnQty${f}`])) {
+        //   // alert(t('MSG_ALT_PSBL_MAX_CNT_DATA'), [itemsData.value[i].aplcPdNm],
+        //   //  [itemsData.value[i].aplcPckngUnit.replace(/[^0-9]/g, '')]);
 
-          // i18n 다국어모듈 사용으로 처리하면 파라미터 값 표시 안됨. 확인 필요
-          alert(`${itemsData.value[i].fxnPdNm}은(는) ${itemsData.value[i].fxnPckngUnit.replace(/[^0-9]/g, '')}개까지 가능합니다.`);
-          isError = true;
-          saveData = [];
-          return;
-        }
+        //   // i18n 다국어모듈 사용으로 처리하면 파라미터 값 표시 안됨. 확인 필요
+        //   alert(`${itemsData.value[i].fxnPdNm}은(는)
+        // ${itemsData.value[i].fxnPckngUnit.replace(/[^0-9]/g, '')}개까지 가능합니다.`);
+        //   isError = true;
+        //   saveData = [];
+        //   return;
+        // }
 
         saveData.push({
           mngtYm: searchParams.value.mngtYm,
@@ -549,16 +564,17 @@ async function onClickSave() {
 
         f += 1;
       } else if (itemsData.value[i].bfsvcCsmbDdlvTpCd === '2') {
-        if (Number(itemsData.value[i].aplcPckngUnit.replace(/[^0-9]/g, '')) < Number(checkedRow[`aplcQty${a}`])) {
-          // alert(t('MSG_ALT_PSBL_MAX_CNT_DATA'), [itemsData.value[i].aplcPdNm],
-          //  [itemsData.value[i].aplcPckngUnit.replace(/[^0-9]/g, '')]);
+        // if (Number(itemsData.value[i].aplcPckngUnit.replace(/[^0-9]/g, '')) < Number(checkedRow[`aplcQty${a}`])) {
+        //   // alert(t('MSG_ALT_PSBL_MAX_CNT_DATA'), [itemsData.value[i].aplcPdNm],
+        //   //  [itemsData.value[i].aplcPckngUnit.replace(/[^0-9]/g, '')]);
 
-          // i18n 다국어모듈 사용으로 처리하면 파라미터 값 표시 안됨. 확인 필요
-          alert(`${itemsData.value[i].aplcPdNm}은(는) ${itemsData.value[i].aplcPckngUnit.replace(/[^0-9]/g, '')}개까지 가능합니다.`);
-          isError = true;
-          saveData = [];
-          return;
-        }
+        //   // i18n 다국어모듈 사용으로 처리하면 파라미터 값 표시 안됨. 확인 필요
+        //   alert(`${itemsData.value[i].aplcPdNm}은(는)
+        // ${itemsData.value[i].aplcPckngUnit.replace(/[^0-9]/g, '')}개까지 가능합니다.`);
+        //   isError = true;
+        //   saveData = [];
+        //   return;
+        // }
 
         saveData.push({
           mngtYm: searchParams.value.mngtYm,
@@ -579,7 +595,19 @@ async function onClickSave() {
     await dataService.post('/sms/wells/service/manager-bsconsumables', saveData);
     notify(t('MSG_ALT_SAVE_DATA'));
     await fetchData();
+    saveData = [];
   }
+}
+
+async function onClickExcelDownload() {
+  const view = grdMainRef.value.getView();
+
+  await gridUtil.exportView(view, {
+    fileName: currentRoute.value.meta.menuName,
+    timePostfix: true,
+    exportData: gridUtil.getAllRowValues(view),
+    checkBar: 'hidden',
+  });
 }
 
 async function onClickOstrAk() {
@@ -589,20 +617,33 @@ async function onClickOstrAk() {
 
   const view = grdMainRef.value.getView();
   const checkedRows = gridUtil.getCheckedRowValues(view);
-  const checkedModifyRows = gridUtil.getCheckedRowValues(view, { isChangedOnly: true });
-  console.log(checkedRows);
+  // const checkedModifyRows = gridUtil.getCheckedRowValues(view, { isChangedOnly: true });
 
   if (checkedRows.length === 0) {
     notify(t('MSG_ALT_NOT_SEL_ITEM'));
     return;
   }
 
-  if (checkedModifyRows.length !== 0 && (checkedRows.length > checkedModifyRows.length)) {
-    notify(t('MSG_ALT_NO_CHG_ROW_SELECT'));
-    return;
-  }
+  // if (checkedModifyRows.length !== 0 && (checkedRows.length > checkedModifyRows.length)) {
+  //   notify(t('MSG_ALT_NO_CHG_ROW_SELECT'));
+  //   return;
+  // }
 
   let errorYn = false;
+
+  // checkedRows.forEach((checkedRow) => {
+  //   if (checkedRow.bfsvcCsmbDdlvStatCd !== '20') {
+  //     alert(`${checkedRow.prtnrKnm}(${checkedRow.prtnrNo})님의 신청 상태를 확인해주세요`);
+  //     errorYn = true;
+  //     return;
+  //   }
+
+  //   requestData.push({
+  //     mngtYm: searchParams.value.mngtYm,
+  //     bfsvcCsmbDdlvOjCd: '2',
+  //     strWareNo: checkedRow.prtnrNo,
+  //   });
+  // });
 
   checkedRows.forEach((checkedRow) => {
     if (checkedRow.bfsvcCsmbDdlvStatCd !== '20') {
@@ -611,17 +652,42 @@ async function onClickOstrAk() {
       return;
     }
 
-    requestData.push({
-      mngtYm: searchParams.value.mngtYm,
-      bfsvcCsmbDdlvOjCd: '2',
-      strWareNo: checkedRow.prtnrNo,
-    });
+    let f = 1;
+    let a = 1;
+    for (let i = 0; i < itemsData.value.length; i += 1) {
+      if (itemsData.value[i].bfsvcCsmbDdlvTpCd === '1') {
+        requestData.push({
+          mngtYm: searchParams.value.mngtYm,
+          bfsvcCsmbDdlvOjCd: '2',
+          strWareNo: checkedRow.prtnrNo,
+          csmbPdCd: itemsData.value[i].fxnPdCd,
+          sapMatCd: itemsData.value[i].fxnSapMatCd,
+          bfsvcCsmbDdlvQty: checkedRow[`fxnQty${f}`] === undefined ? '0' : checkedRow[`fxnQty${f}`],
+          bfsvcCsmbDdlvStatCd: isBusinessSupportTeam.value ? '20' : '10',
+        });
+
+        f += 1;
+      } else if (itemsData.value[i].bfsvcCsmbDdlvTpCd === '2') {
+        requestData.push({
+          mngtYm: searchParams.value.mngtYm,
+          bfsvcCsmbDdlvOjCd: '2',
+          strWareNo: checkedRow.prtnrNo,
+          csmbPdCd: itemsData.value[i].aplcPdCd,
+          sapMatCd: itemsData.value[i].aplcSapMatCd,
+          bfsvcCsmbDdlvQty: checkedRow[`aplcQty${a}`] === undefined ? '0' : checkedRow[`aplcQty${a}`],
+          bfsvcCsmbDdlvStatCd: isBusinessSupportTeam.value ? '20' : '10',
+        });
+
+        a += 1;
+      }
+    }
   });
 
   if (!errorYn) {
     await dataService.post('/sms/wells/service/manager-bsconsumables/request', requestData);
     notify(t('MSG_ALT_AK_FSH'));
     await fetchData();
+    requestData = [];
   } else {
     requestData = [];
   }
@@ -749,12 +815,15 @@ const initGrdMain = defineGrid(async (data, view) => {
   data.setFields(fields);
   view.setColumns(columns);
   view.setFixedOptions({ colCount: 1 });
+  view.checkBar.visible = true;
+  view.rowIndicator.visible = true;
+  view.editOptions.editable = true;
 
   view.onCellClicked = (grd, cData) => {
     if (cData.cellType !== 'check') { return false; }
   };
 
-  view.setColumnLayout([
+  const columnLayout = [
     {
       header: '소속',
       direction: 'horizontal',
@@ -791,16 +860,44 @@ const initGrdMain = defineGrid(async (data, view) => {
       direction: 'horizontal',
       items: items1,
     },
-    {
-      header: t('MSG_TXT_APLC'),
-      direction: 'horizontal',
-      items: items2,
-    },
-  ]);
+  ];
 
-  view.checkBar.visible = true;
-  view.rowIndicator.visible = true;
-  view.editOptions.editable = true;
+  if (items2) {
+    columnLayout.push(
+      {
+        header: t('MSG_TXT_APLC'),
+        direction: 'horizontal',
+        items: items2,
+      },
+    );
+  }
+
+  view.setColumnLayout(columnLayout);
+
+  view.onCellEditable = (grid, itemIndex) => {
+    const nowDateTime = Number(dayjs().format('YYYYMMDDHHmmss'));
+    const strtDtHh = Number(aplcCloseData.value.bizStrtdt + aplcCloseData.value.bizStrtHh);
+    const endDtHh = Number(aplcCloseData.value.bizEnddt + aplcCloseData.value.bizEndHh);
+    const { bfsvcCsmbDdlvStatCd } = grid.getValues(itemIndex.itemIndex);
+
+    // TODO: 권한조회 후 빌딩 업무담당일 경우 본인 소속 빌딩 외 수정불가 로직 추가해야함
+    if ((!isBusinessSupportTeam.value && !(nowDateTime >= strtDtHh && nowDateTime <= endDtHh)) || bfsvcCsmbDdlvStatCd === '30') {
+      return false;
+    }
+  };
+
+  view.onCellEdited = (grid, itemIndex) => {
+    grid.checkItem(itemIndex, true);
+  };
+
+  view.setCheckableCallback((dataSource, item) => {
+    const { bfsvcCsmbDdlvStatCd } = gridUtil.getRowValue(view, item.dataRow);
+
+    if (bfsvcCsmbDdlvStatCd === '30') {
+      return false;
+    }
+    return true;
+  }, true);
 });
 </script>
 <style scoped>

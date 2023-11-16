@@ -334,15 +334,22 @@ function validateIsApplyRowExists() {
   return true;
 }
 
+let viewCurrentLength = 0;
+
 // 시점재고 조회
 async function fetchPitmStoc(rows, itmGdCd, index) {
   const view = grdMainRef.value.getView();
   const itmPdCds = rows.map((v) => v.itmPdCd);
-  const res = await dataService.get(`/sms/wells/service/returning-goods-out-of-storages/${searchParams.value.ostrWareNo}`, { params: { itmPdCds, itmGdCd } });
+  const res = await dataService.post(`/sms/wells/service/returning-goods-out-of-storages/${searchParams.value.ostrWareNo}`, { itmPdCds, itmGdCd });
+  let startRow = 0;
+
+  if (isIndexEmpty(index)) {
+    startRow = viewCurrentLength;
+  }
   for (let i = 0; i < rows.length; i += 1) {
     if (res.data[i].itmPdCd === rows[i].itmPdCd) {
       if (isIndexEmpty(index)) {
-        view.setValue(i, 'onQty', res.data[i].pitmQty);
+        view.setValue(startRow + i, 'onQty', res.data[i].pitmQty);
       } else {
         view.setValue(index, 'onQty', res.data[i].pitmQty);
       }
@@ -371,9 +378,10 @@ function onClickGridBulkChange(val, type) {
 function getRowData(rowData) {
   return { ...rowData,
     sapMatCd: rowData.sapCd,
-    onQty: rowData.myCenterQty || 0,
+    onQty: 0,
     mngtUnitCd: rowData.delUntNm,
-    itmKndCd: rowData.itmKnd };
+    itmKndCd: rowData.itmKnd,
+    itmPdNm: rowData.itmPdAbbr1 };
 }
 
 // 품목기본정보 팝업 오픈
@@ -401,6 +409,7 @@ async function openItemBasePopup(type, row) {
         target.push(obj);
         return false;
       });
+      viewCurrentLength = view.getJsonRows().length;
       view.getDataSource().addRows(target.map((v) => getRowData(v)));
       view.checkAll(false);
       view.resetCurrent();
@@ -570,6 +579,14 @@ async function onClickSave() {
     return;
   }
   if (!(await gridUtil.validate(view, { isCheckedOnly: true }))) { return; }
+
+  const selectedDay = searchParams.value.ostrDt;
+
+  if (selectedDay > dayjs().format('YYYYMMDD')) {
+    // {출고일자}는 오늘이거나 이전 일자만 선택이 가능합니다.
+    notify(t('MSG_ALT_TOD_BF_DT_CHO_PSB', [t('MSG_TXT_OSTR_DT')]));
+    return;
+  }
 
   const rowCount = view.getItemCount();
 
@@ -774,7 +791,7 @@ const initGrdMain = defineGrid((data, view) => {
     const changedFieldName = grid.getDataSource().getOrgFieldName(field);
 
     if (changedFieldName === 'itmGdCd') {
-      await fetchPitmStoc(dataRow, itmGdCd, row);
+      await fetchPitmStoc(dataRow, itmGdCd, itemIndex);
     }
   };
 });

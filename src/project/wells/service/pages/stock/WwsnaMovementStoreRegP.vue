@@ -28,7 +28,7 @@
         >
           <kw-input
             v-model="propsParams.itmStrNo"
-            :disable="true"
+            :readonly="true"
             mask="###-########-#######"
           />
         </kw-form-item>
@@ -39,8 +39,16 @@
         >
           <kw-input
             v-model="propsParams.strWareNm"
-            :disable="true"
+            :readonly="true"
           />
+          <!-- 표준 미적용 -->
+          <kw-checkbox
+            v-model="searchParams.stckNoStdGb"
+            class="ml20"
+            :label="$t('MSG_TXT_STD_NO_APY')"
+            @update:model-value="onCheckedStckNoStdGb"
+          />
+          <!-- //표준 미적용 -->
         </kw-form-item>
         <!-- //입고창고 -->
       </kw-form-row>
@@ -51,8 +59,9 @@
         >
           <kw-input
             v-model="propsParams.strHopDt"
-            :disable="true"
-            datetime-format="date"
+            :readonly="true"
+            mask="####-##-##"
+            placeholder=""
           />
         </kw-form-item>
         <!-- //입고희망일자 -->
@@ -62,7 +71,7 @@
         >
           <kw-input
             v-model="propsParams.strTpNm"
-            :disable="true"
+            :readonly="true"
           />
         </kw-form-item>
         <!-- //입고유형 -->
@@ -74,6 +83,7 @@
         >
           <kw-date-picker
             v-model="searchParams.strRgstDt"
+            :readonly="propsParams.flagChk === 1"
           />
         </kw-form-item>
         <!-- //입고일자 -->
@@ -83,17 +93,9 @@
           <!-- 출고창고 -->
           <kw-input
             v-model="propsParams.ostrWareNm"
-            :disable="true"
+            :readonly="true"
           />
           <!-- //출고창고 -->
-          <!-- 표준 미적용 -->
-          <kw-checkbox
-            v-model="searchParams.stckNoStdGb"
-            class="ml20"
-            :label="$t('MSG_TXT_STD_NO_APY')"
-            @update:model-value="onCheckedStckNoStdGb"
-          />
-          <!-- //표준 미적용 -->
         </kw-form-item>
       </kw-form-row>
     </kw-form>
@@ -248,6 +250,10 @@ const props = defineProps({
     type: Number,
     default: 0,
   },
+  strWareDtlDvCd: {
+    type: String,
+    default: '',
+  },
 });
 // -------------------------------------------------------------------------------------------------
 // Function & Event
@@ -274,11 +280,12 @@ const propsParams = ref({
   itmPdNm: props.itmPdNm,
   strHopDt: props.strHopDt,
   flagChk: props.flagChk,
+  strWareDtlDvCd: props.strWareDtlDvCd,
 });
 
 const searchParams = ref({
   baseYm: dayjs().format('YYYYMM'),
-  strRgstDt: today,
+  strRgstDt: isEmpty(props.strRgstDt) ? today : props.strRgstDt,
   strTpCd: props.strTpCd,
   itmStrNo: props.itmStrNo,
   strWareNo: props.strWareNo,
@@ -301,7 +308,7 @@ const pageInfo = ref({
 // 표준창고등록 조회
 async function stckStdGbFetchData() {
   const apyYm = searchParams.value.strRgstDt.substring(0, 6);
-  const wareNo = searchParams.value.ostrWareNo;
+  const wareNo = searchParams.value.strWareNo;
   const res = await dataService.get(stdWareUri, { params: { apyYm, wareNo } });
   const { stckStdGb } = res.data;
   searchParams.value.stckNoStdGb = stckStdGb === 'Y' ? 'N' : 'Y';
@@ -317,7 +324,6 @@ async function fetchData() {
   const view = grdMainRef.value.getView();
   const datasSource = view.getDataSource();
   datasSource.setRows(searchData);
-  view.resetCurrent();
 
   view.rowIndicator.indexOffset = gridUtil.getPageIndexOffset(pageInfo);
 
@@ -330,7 +336,6 @@ async function fetchData() {
 
 // 표준미적용 클릭이벤트
 async function onCheckedStckNoStdGb() {
-  debugger;
   const { stckNoStdGb, baseYm, ostrWareNo } = searchParams.value;
   const stckStdGb = stckNoStdGb === 'N' ? 'Y' : 'N';
   const apyYm = baseYm;
@@ -599,11 +604,11 @@ const initGrdMain = defineGrid((data, view) => {
     // 출고요청수량
     { fieldName: 'ostrAkQty', header: t('MSG_TXT_OSTR_AK_QTY'), width: '100', styleName: 'text-right' },
     // 품목등급코드
-    { fieldName: 'itmGdCd', header: t('MSG_TXT_GD'), width: '100', styleName: 'text-center' },
+    { fieldName: 'itmGdCd', header: t('MSG_TXT_GD'), width: '60', styleName: 'text-center' },
     // 출고수량
     { fieldName: 'ostrQty', header: t('MSG_TXT_OSTR_QTY'), width: '100', styleName: 'text-right' },
     // 최근입고일자
-    { fieldName: 'strRgstDt', header: t('MSG_TXT_RECT_STR_DT'), width: '100', styleName: 'text-center', datetimeFormat: 'date' },
+    { fieldName: 'strConfDt', header: t('MSG_TXT_RECT_STR_DT'), width: '100', styleName: 'text-center', datetimeFormat: 'date' },
     // 입고누계수량
     { fieldName: 'inSum', header: t('MSG_TXT_STR_AGG_QTY'), width: '100', styleName: 'text-right' },
     // 입고(대상) 수량
@@ -617,7 +622,7 @@ const initGrdMain = defineGrid((data, view) => {
   const gridField = columns.map((v) => ({ fieldName: v.fieldName }));
   const fields = [...gridField,
     { fieldName: 'strSn' },
-    { fieldName: 'strConfDt' },
+    { fieldName: 'strRgstDt' },
     { fieldName: 'baseGb' },
     { fieldName: 'baseColorGb' },
     { fieldName: 'strWareNo' },
@@ -628,26 +633,30 @@ const initGrdMain = defineGrid((data, view) => {
   view.checkBar.visible = true;
   view.rowIndicator.visible = true;
 
+  // 셀 클릭시 row check 막기
+  view.onCellClicked = () => false;
+
   view.onCellDblClicked = async (g, c) => {
-    const { itmPdCd, itmPdNm, strRgstDt } = g.getValues(g.getCurrent().itemIndex);
-    console.log(itmPdNm, itmPdNm, strRgstDt);
-    console.log(searchParams.value.ostrWareNo);
+    const { strWareDtlDvCd } = propsParams.value;
+    const { itmPdCd, strRgstDt } = g.getValues(g.getCurrent().itemIndex);
 
     if (c.column === 'itemLoc') {
-      const { result } = await modal({
+      if (strWareDtlDvCd !== '20') {
+        // 품목위치 관리 대상 창고가 아닙니다.
+        notify(t('MSG_ALT_NOT_ITM_LOC_MNGT_WARE'));
+        return;
+      }
+      await modal({
         component: 'WwsnaItemLocationMgtP',
         componentProps: {
-          wareNo: searchParams.value.ostrWareNo,
+          wareNo: searchParams.value.strWareNo,
           itmPdCd,
           apyYm: strRgstDt.substring(0, 6),
         },
       });
 
-      if (result) {
-        await fetchData();
-      }
-
       await stckStdGbFetchData();
+      await fetchData();
     }
   };
 

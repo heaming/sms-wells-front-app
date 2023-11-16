@@ -31,6 +31,7 @@
             v-model="searchParams.apyYm"
             type="month"
             rules="required"
+            :label="$t('MSG_TXT_BASE_YM')"
             @change="onChangeApyYm"
           />
         </kw-search-item>
@@ -43,6 +44,7 @@
             v-model="searchParams.asnOjYm"
             type="month"
             rules="required"
+            :label="$t('MSG_TXT_ASN_YM')"
             @change="onChangeData"
           />
         </kw-search-item>
@@ -53,6 +55,7 @@
         >
           <kw-input
             v-model="searchParams.cnt"
+            :label="$t('MSG_TXT_ORDERSELECT_TITLE')"
             rules="required|numeric|min_value:1|max_value:999999999999"
             @change="onChangeData"
           />
@@ -67,6 +70,7 @@
             :options="optionsOstrWareNo"
             option-value="wareNo"
             option-label="wareNm"
+            :label="$t('MSG_TXT_OSTR_WARE')"
             rules="required"
             @change="onChangeData"
           />
@@ -82,7 +86,7 @@
           <kw-select
             v-model="searchParams.wareDvCd"
             :options="filterCodes.wareDvCd"
-            :label="$t('MSG_TXT_STR_WARE')"
+            :label="$t('MSG_TXT_WARE_DV')"
             rules="required"
           />
           <kw-select
@@ -121,6 +125,7 @@
           <kw-date-picker
             v-model="searchParams.ostrDt"
             type="date"
+            :label="$t('MSG_TXT_OSTR_DT')"
             :min-date="minDate"
           />
         </kw-search-item>
@@ -222,7 +227,7 @@
           vertical
           inset
         />
-        <!-- 이관 데이터 다운 -->
+        <!-- 이관 대상 데이터 다운 -->
         <kw-btn
           v-permission:download
           icon="download_on"
@@ -654,7 +659,7 @@ async function onClickSave() {
   }
 }
 
-// 이관 데이터 다운
+// 이관 대상 데이터 다운
 async function onClickTfDataDown() {
   const { apyYm, asnOjYm, cnt, ostrWareNo } = searchParams.value;
 

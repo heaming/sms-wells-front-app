@@ -732,6 +732,10 @@
                 name="tab7"
                 :label="$t('MSG_TXT_CST_CNR_CNSL_HIST')"
               />
+              <kw-tab
+                name="tab8"
+                :label="$t('MSG_TXT_OLD_CHAR_HIST')"
+              />
             </kw-tabs>
             <kw-observer
               ref="obsTabRef"
@@ -789,6 +793,14 @@
                 <kw-tab-panel name="tab7">
                   <zwbnc-customer-dtl-p-customer-center
                     ref="centerRef"
+                    v-model:cst-no="customer.cstNo"
+                    v-model:cntr-no="customer.cntrNo"
+                    v-model:cntr-sn="customer.cntrSn"
+                  />
+                </kw-tab-panel>
+                <kw-tab-panel name="tab8">
+                  <zwbnc-customer-dtl-p-old-character-hist
+                    ref="oldCharacterHistRef"
                     v-model:cst-no="customer.cstNo"
                     v-model:cntr-no="customer.cntrNo"
                     v-model:cntr-sn="customer.cntrSn"
@@ -1079,7 +1091,7 @@
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
-import { defineGrid, codeUtil, getComponentType, useDataService, gridUtil, useGlobal, confirm, popupUtil, stringUtil } from 'kw-lib';
+import { defineGrid, codeUtil, getComponentType, useDataService, gridUtil, useGlobal, confirm, popupUtil, stringUtil, alert } from 'kw-lib';
 import { cloneDeep, isEmpty } from 'lodash-es';
 
 import ZwbncCustomerDtlPSms from '~sms-common/bond/pages/consultation/ZwbncCustomerDtlPSms.vue';
@@ -1088,6 +1100,7 @@ import ZwbncCustomerDtlPPromise from '~sms-common/bond/pages/consultation/ZwbncC
 import ZwbncCustomerDtlPCustomerCenter from '~sms-common/bond/pages/consultation/ZwbncCustomerDtlPCustomerCenter.vue';
 import ZwbncCustomerDtlPVisit from '~sms-common/bond/pages/consultation/ZwbncCustomerDtlPVisit.vue';
 import ZwbncCustomerDtlPFosterCounsel from '~sms-common/bond/pages/consultation/ZwbncCustomerDtlPFosterCounsel.vue';
+import ZwbncCustomerDtlPOldCharacterHist from '~sms-common/bond/pages/consultation/ZwbncCustomerDtlPOldCharacterHist.vue'; // 구문자이력
 import WwbncCustomerDtlPCounselHistory from './WwbncCustomerDtlPCounselHistory.vue';
 
 const { t } = useI18n();
@@ -1138,6 +1151,7 @@ const counselRef = ref();
 const centerRef = ref();
 const isFlag = ref();
 const isFlag2 = ref('N');
+const oldCharacterHistRef = ref();
 
 popupUtil.registerCloseEvent();
 
@@ -1169,6 +1183,9 @@ watch(selectedTab, (newTab) => {
   }
   if (newTab === 'tab7') {
     centerRef.value.fetchData();
+  }
+  if (newTab === 'tab8') {
+    oldCharacterHistRef.value.fetchData();
   }
 });
 
@@ -1465,21 +1482,29 @@ async function onClickPetitionCreate() {
     notify(t('MSG_ALT_NOT_SEL_ITEM'));
     return;
   }
-  checkedRows.forEach((obj) => {
+
+  checkedRows.forEach(async (obj, index) => {
     const cntrDtlNo = `${obj.cntrNo}-${obj.cntrSn}`;
-    dataParams.push({
-      baseYm: obj.baseYm,
-      cntrDtlNo,
-    });
-  });
-
-  const userObjects = ref(dataParams);
-
-  await modal({
-    component: 'ZwbncPetitionCreateP',
-    componentProps: {
-      userObjects: userObjects.value,
-    },
+    const response = await dataService.get('/sms/wells/bond/bond-counsel/petition-create-check', { params: { cntrDtlNo, baseYm: obj.baseYm } });
+    if (response.data > 0) {
+      dataParams.push({
+        baseYm: obj.baseYm,
+        cntrDtlNo,
+      });
+    }
+    if (checkedRows.length === index + 1) {
+      if (dataParams.length > 0) {
+        const userObjects = ref(dataParams);
+        await modal({
+          component: 'ZwbncPetitionCreateP',
+          componentProps: {
+            userObjects: userObjects.value,
+          },
+        });
+      } else {
+        alert(t('MSG_ALT_PTTN_CRT'));
+      }
+    }
   });
 }
 

@@ -75,11 +75,6 @@
             :on-click-icon="onClickSearchNo"
             :placeholder="$t('MSG_TXT_SEQUENCE_NUMBER')"
           />
-          <kw-input
-            v-model="searchParams.prtnrKnm"
-            :placeholder="$t('MSG_TXT_EMPL_NM')"
-            readonly
-          />
         </kw-search-item>
       </kw-search-row>
     </kw-search>
@@ -189,7 +184,6 @@ const searchParams = ref({
   prtnrNo: '',
   ogLevl2Id: '',
   ogLevl3Id: '',
-  prtnrKnm: '',
   ogTpCd: 'W03',
   feeSchdTpCd: '301',
   coCd: '2000',
@@ -236,14 +230,12 @@ async function onClickSearchNo() {
       baseYm: perfYm,
       prtnrNo,
       ogTpCd: 'W03',
-      prtnrKnm: undefined,
     },
   });
 
   if (result) {
     if (!isEmpty(payload)) {
       searchParams.value.prtnrNo = payload.prtnrNo;
-      searchParams.value.prtnrKnm = payload.prtnrKnm;
     }
   }
 }
@@ -738,6 +730,7 @@ const initGrd1Main = defineGrid((data, view) => {
     { fieldName: 'aksd10', dataType: 'number' },
     { fieldName: 'aksd11', dataType: 'number' },
     { fieldName: 'aksd13', dataType: 'number' },
+    { fieldName: 'earlSettleFee', dataType: 'number' },
     { fieldName: 'aksd14', dataType: 'number' },
     { fieldName: 'aksd16', dataType: 'number' },
     { fieldName: 'intbsSum', dataType: 'number' },
@@ -773,7 +766,7 @@ const initGrd1Main = defineGrid((data, view) => {
     { fieldName: 'nelecnt', header: t('MSG_TXT_ELHM_EXCP') + t('MSG_TXT_COUNT'), width: '158.4', styleName: 'text-right', numberFormat: '#,##0' },
     { fieldName: 'sercnt', header: t('MSG_TXT_COM_TOT') + t('MSG_TXT_SERVICE') + t('MSG_TXT_COUNT'), width: '158.4', styleName: 'text-right', numberFormat: '#,##0' },
     { fieldName: 'serryl', header: t('MSG_TXT_PROCS_RT'), width: '158.4', styleName: 'text-right', numberFormat: '###0.##' },
-    { fieldName: 'aksd01', header: t('MSG_TXT_PRPN'), width: '286', styleName: 'text-right', numberFormat: '#,##0' },
+    { fieldName: 'aksd01', header: t('MSG_TXT_PRPN'), width: '158.4', styleName: 'text-right', numberFormat: '#,##0' },
     { fieldName: 'aksd03', header: t('MSG_TXT_ENRG'), width: '158.4', styleName: 'text-right', numberFormat: '#,##0' },
     { fieldName: 'aksd04', header: t('MSG_TXT_SNGL_PMNT'), width: '158.4', styleName: 'text-right', numberFormat: '#,##0' },
     { fieldName: 'aksd15', header: t('MSG_TXT_CHNG'), width: '122.8', styleName: 'text-right', numberFormat: '#,##0' },
@@ -784,6 +777,7 @@ const initGrd1Main = defineGrid((data, view) => {
     { fieldName: 'aksd10', header: t('MSG_TXT_EDUC'), width: '158.4', styleName: 'text-right', numberFormat: '#,##0' },
     { fieldName: 'aksd11', header: t('MSG_TXT_RGLVL'), width: '158.4', styleName: 'text-right', numberFormat: '#,##0' },
     { fieldName: 'aksd13', header: t('MSG_TXT_ETC') + t('MSG_TXT_SUPPORT'), width: '158.4', styleName: 'text-right', numberFormat: '#,##0' },
+    { fieldName: 'earlSettleFee', header: t('MSG_TXT_EARLY_STTLMNT') + t('MSG_TXT_FEE'), width: '158.4', styleName: 'text-right', numberFormat: '#,##0' },
     { fieldName: 'aksd14', header: t('MSG_TXT_ADSB'), width: '158.4', styleName: 'text-right', numberFormat: '#,##0' },
     { fieldName: 'aksd16', header: t('MSG_TXT_UNIFORM'), width: '158.4', styleName: 'text-right', numberFormat: '#,##0' },
     { fieldName: 'intbsSum', header: t('MSG_TXT_ASESS_STD_TX_BASE') + t('MSG_TXT_SUM'), width: '158.4', styleName: 'text-right', numberFormat: '#,##0' },
@@ -827,7 +821,7 @@ const initGrd1Main = defineGrid((data, view) => {
     {
       header: t('MSG_TXT_FEE'),
       direction: 'horizontal',
-      items: ['aksd01', 'aksd03', 'aksd04', 'aksd15', 'aksd05', 'aksd06', 'aksd07', 'aksd09', 'aksd10', 'aksd11', 'aksd13', 'aksd14', 'aksd16'],
+      items: ['aksd01', 'aksd03', 'aksd04', 'aksd15', 'aksd05', 'aksd06', 'aksd07', 'aksd09', 'aksd10', 'aksd11', 'aksd13', 'earlSettleFee', 'aksd14', 'aksd16'],
     },
     'intbsSum', 'ddtnSum', 'aclDsbAmt',
 
@@ -876,6 +870,7 @@ const initGrd2Main = defineGrid((data, view) => {
     { fieldName: 'aksd10', dataType: 'number' },
     { fieldName: 'aksd11', dataType: 'number' },
     { fieldName: 'aksd13', dataType: 'number' },
+    { fieldName: 'earlSettleFee', dataType: 'number' },
     { fieldName: 'aksd14', dataType: 'number' },
     { fieldName: 'aksd16', dataType: 'number' },
     { fieldName: 'gadcnt', dataType: 'number' },
@@ -922,7 +917,7 @@ const initGrd2Main = defineGrid((data, view) => {
     { fieldName: 'nelecnt', header: t('MSG_TXT_ELHM_EXCP') + t('MSG_TXT_COUNT'), width: '158.4', styleName: 'text-right', numberFormat: '#,###,##0' },
     { fieldName: 'sercnt', header: t('MSG_TXT_COM_TOT') + t('MSG_TXT_SERVICE') + t('MSG_TXT_COUNT'), width: '158.4', styleName: 'text-right', numberFormat: '#,###,##0' },
     { fieldName: 'serryl', header: t('MSG_TXT_PROCS_RT'), width: '158.4', styleName: 'text-right', numberFormat: '#,###,##0' },
-    { fieldName: 'aksd01', header: t('MSG_TXT_PRPN'), width: '286', styleName: 'text-right', numberFormat: '#,###,##0' },
+    { fieldName: 'aksd01', header: t('MSG_TXT_PRPN'), width: '158.4', styleName: 'text-right', numberFormat: '#,###,##0' },
     { fieldName: 'aksd03', header: t('MSG_TXT_ENRG'), width: '158.4', styleName: 'text-right', numberFormat: '#,###,##0' },
     { fieldName: 'aksd04', header: t('MSG_TXT_SNGL_PMNT'), width: '158.4', styleName: 'text-right', numberFormat: '#,###,##0' },
     { fieldName: 'aksd15', header: t('MSG_TXT_CHNG'), width: '122.8', styleName: 'text-right', numberFormat: '#,###,##0' },
@@ -933,6 +928,7 @@ const initGrd2Main = defineGrid((data, view) => {
     { fieldName: 'aksd10', header: t('MSG_TXT_EDUC'), width: '158.4', styleName: 'text-right', numberFormat: '#,###,##0' },
     { fieldName: 'aksd11', header: t('MSG_TXT_RGLVL'), width: '158.4', styleName: 'text-right', numberFormat: '#,###,##0' },
     { fieldName: 'aksd13', header: t('MSG_TXT_ETC') + t('MSG_TXT_SUPPORT'), width: '158.4', styleName: 'text-right', numberFormat: '#,###,##0' },
+    { fieldName: 'earlSettleFee', header: t('MSG_TXT_EARLY_STTLMNT') + t('MSG_TXT_FEE'), width: '158.4', styleName: 'text-right', numberFormat: '#,##0' },
     { fieldName: 'aksd14', header: t('MSG_TXT_ADSB'), width: '158.4', styleName: 'text-right', numberFormat: '#,###,##0' },
     { fieldName: 'aksd16', header: t('MSG_TXT_UNIFORM'), width: '158.4', styleName: 'text-right', numberFormat: '#,###,##0' },
     { fieldName: 'gadcnt', header: t('MSG_TXT_ACL_ACTI_PPL'), width: '119.9', styleName: 'text-right', numberFormat: '#,###,##0' },
@@ -995,7 +991,7 @@ const initGrd2Main = defineGrid((data, view) => {
     {
       header: t('MSG_TXT_INDV') + t('MSG_TXT_FEE'),
       direction: 'horizontal',
-      items: ['aksd01', 'aksd03', 'aksd04', 'aksd15', 'aksd05', 'aksd06', 'aksd07', 'aksd09', 'aksd10', 'aksd11', 'aksd13', 'aksd14', 'aksd16'],
+      items: ['aksd01', 'aksd03', 'aksd04', 'aksd15', 'aksd05', 'aksd06', 'aksd07', 'aksd09', 'aksd10', 'aksd11', 'aksd13', 'earlSettleFee', 'aksd14', 'aksd16'],
     },
     {
       header: t('MSG_TXT_BRANCH') + t('MSG_TXT_FEE'),

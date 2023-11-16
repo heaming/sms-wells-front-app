@@ -35,8 +35,8 @@
         </kw-search-item>
         <!-- 서비스센터 -->
         <ZwcmWareHouseSearch
-          v-model:start-ym="searchParams.startDt"
-          v-model:end-ym="searchParams.endDt"
+          v-model:start-ym="searchParams.stOstrDt"
+          v-model:end-ym="searchParams.edOstrDt"
           v-model:options-ware-dv-cd="wareDvCd"
           v-model:ware-dv-cd="searchParams.wareDvCd"
           v-model:ware-no-m="searchParams.wareNoM"
@@ -94,10 +94,18 @@
         >
           <kw-input
             v-model="searchParams.startItemCd"
+            upper-case
+            type="text"
+            :label="$t('MSG_TXT_ITM_CD')"
+            rules="alpha_num|max:10"
           />
           <span>~</span>
           <kw-input
             v-model="searchParams.endItemCd"
+            upper-case
+            type="text"
+            :label="$t('MSG_TXT_ITM_CD')"
+            rules="alpha_num|max:10"
           />
         </kw-search-item>
       </kw-search-row>
@@ -179,8 +187,6 @@ const wareDvCd = { WARE_DV_CD: [
 const searchParams = ref({
   stOstrDt: dayjs().set('date', 1).format('YYYYMMDD'),
   edOstrDt: dayjs().format('YYYYMMDD'),
-  startDt: '',
-  endDt: '',
   wareDvCd: '2',
   wareNoM: '',
   wareNoD: '',
@@ -234,14 +240,10 @@ async function onClickExcelDownload() {
 
 // 조회버튼 클릭이벤트
 async function onClickSearch() {
+  pageInfo.value.pageIndex = 1;
   cachedParams = cloneDeep(searchParams.value);
   await fetchData();
 }
-
-onMounted(async () => {
-  searchParams.value.startDt = dayjs().format('YYYYMMDD');
-  searchParams.value.endDt = dayjs().format('YYYYMMDD');
-});
 
 // -------------------------------------------------------------------------------------------------
 // Initialize Grid
@@ -273,7 +275,7 @@ const initGrdMain = defineGrid((data, view) => {
       width: '126',
       styleName: 'text-center',
       datetimeFormat: 'date',
-      footer: { text: t('MSG_TXT_SUM') } },
+      footer: { text: t('MSG_TXT_SUM'), styleName: 'text-center text-blue' } },
     { fieldName: 'ostrQty',
       header: t('MSG_TXT_QTY'),
       width: '126',
@@ -298,9 +300,9 @@ const initGrdMain = defineGrid((data, view) => {
         expression: 'sum',
         numberFormat: '#,##0',
       } },
-    { fieldName: 'deptNm', header: t('MSG_TXT_BIL_DEPARTMENT'), width: '140' },
-    { fieldName: 'ostrRsonCd', header: t('MSG_TXT_BIL_RSON'), width: '140' },
-    { fieldName: 'wareNm', header: t('MSG_TXT_SV_CNR_BZNS_CNR'), width: '160' },
+    { fieldName: 'deptNm', header: t('MSG_TXT_BIL_DEPARTMENT'), width: '140', styleName: 'text-center' },
+    { fieldName: 'ostrRsonCd', header: t('MSG_TXT_BIL_RSON'), width: '140', styleName: 'text-center' },
+    { fieldName: 'wareNm', header: t('MSG_TXT_SV_CNR_BZNS_CNR'), width: '160', styleName: 'text-center' },
     { fieldName: 'rmkCn', header: t('MSG_TXT_NOTE'), width: '140' },
   ];
 

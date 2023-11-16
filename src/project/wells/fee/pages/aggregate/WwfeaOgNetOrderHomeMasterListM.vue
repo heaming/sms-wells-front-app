@@ -111,7 +111,7 @@
             />
           </kw-search-item>
           <kw-search-item
-            :label="$t('MSG_TXT_PKG_CD')"
+            :label="$t('MSG_TXT_PKG_PD_NO')"
           >
             <kw-input
               v-model="searchParams.pkgStrtCd"
@@ -131,11 +131,6 @@
               :maxlength="10"
               :on-click-icon="onClickSearchNo"
               :placeholder="$t('MSG_TXT_SEQUENCE_NUMBER')"
-            />
-            <kw-input
-              v-model="searchParams.prtnrKnm"
-              :placeholder="$t('MSG_TXT_EMPL_NM')"
-              readonly
             />
           </kw-search-item>
         </kw-search-row>
@@ -201,11 +196,6 @@
               clearable
               :on-click-icon="onClickSearchNo"
               :placeholder="$t('MSG_TXT_SEQUENCE_NUMBER')"
-            />
-            <kw-input
-              v-model="searchParams.prtnrKnm"
-              :placeholder="$t('MSG_TXT_EMPL_NM')"
-              readonly
             />
           </kw-search-item>
           <kw-search-item :label="t('MSG_TXT_OG_LEVL')">
@@ -359,7 +349,6 @@ const searchParams = ref({
   prtnrNo: '',
   perfYm: now.add(-1, 'month').format('YYYYMM'),
   rsbDvCd: '00',
-  prtnrKnm: '',
   ogTpCd: 'W03',
   pdCd: '',
 });
@@ -389,14 +378,12 @@ async function onClickSearchNo() {
       baseYm: searchParams.value.perfYm,
       prtnrNo: searchParams.value.prtnrNo,
       ogTpCd: 'W03',
-      prtnrKnm: undefined,
     },
   });
 
   if (result) {
     if (!isEmpty(payload)) {
       searchParams.value.prtnrNo = payload.prtnrNo;
-      searchParams.value.prtnrKnm = payload.prtnrKnm;
     }
   }
 }
@@ -695,7 +682,6 @@ const initGrd1Main = defineGrid((data, view) => {
     { fieldName: 'rtlfe', header: t('MSG_TXT_RTLFE'), width: '100', styleName: 'text-right', numberFormat: '#,###,##0' },
     { fieldName: 'pmotNo', header: t('MSG_TXT_PMOT_NO'), width: '100', styleName: 'text-right' },
     { fieldName: 'pkgPdNo', header: t('MSG_TXT_PKG_PD_NO'), width: '140', styleName: 'text-center' },
-    { fieldName: 'pkgSn', header: t('MSG_TXT_PKG_SN'), width: '140', styleName: 'text-center' },
     { fieldName: 'mchnPrtnr', header: t('MSG_TXT_MCHN') + t('MSG_TXT_CST_CD'), width: '100', styleName: 'text-center' },
     { fieldName: 'mchnPd', header: t('MSG_TXT_MCHN') + t('MSG_TXT_PRDT_CODE'), width: '100', styleName: 'text-center' },
     { fieldName: 'perfExcd', header: t('MSG_TXT_PERF_EXCD') + t('MSG_TXT_RGST_YN'), width: '120', styleName: 'text-center' },
@@ -796,7 +782,6 @@ const initGrd2Main = defineGrid((data, view) => {
     { fieldName: 'rtlfe', header: t('MSG_TXT_RTLFE'), width: '104.3', styleName: 'text-right', numberFormat: '#,###,##0' },
     { fieldName: 'pmotNo', header: t('MSG_TXT_PMOT_NO'), width: '120', styleName: 'text-right' },
     { fieldName: 'pkgPdNo', header: t('MSG_TXT_PKG_PD_NO'), width: '135.1', styleName: 'text-center' },
-    { fieldName: 'pkgSn', header: t('MSG_TXT_PKG_SN'), width: '135.1', styleName: 'text-center' },
     { fieldName: 'mchnPrtnr', header: t('MSG_TXT_MCHN') + t('MSG_TXT_CST_CD'), width: '113', styleName: 'text-center' },
     { fieldName: 'mchnPd', header: t('MSG_TXT_MCHN') + t('MSG_TXT_PRDT_CODE'), width: '113', styleName: 'text-center' },
     { fieldName: 'perfExcd', header: t('MSG_TXT_PERF_EXCD') + t('MSG_TXT_RGST_YN'), width: '113', styleName: 'text-center' },

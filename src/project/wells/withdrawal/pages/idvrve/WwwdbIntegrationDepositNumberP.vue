@@ -269,7 +269,7 @@ const onSelect = async (data) => {
     return;
   }
 
-  if (data.dpBlam === 0) {
+  if (data.dpBlam <= 0) {
     await alert(t('MSG_ALT_SELECT_ITEM_DP_BLAM')); // 입금잔액이 존재하는 데이터를 선택해주세요.
     return;
   }

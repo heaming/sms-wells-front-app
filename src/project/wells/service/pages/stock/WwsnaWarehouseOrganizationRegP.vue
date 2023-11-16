@@ -464,7 +464,7 @@ async function onClickOpenHumanResourcesPopup() {
 // 빌딩조회 팝업 오픈
 async function onClickOpenBuildingPopup() {
   const { result: isChanged, payload } = await modal({
-    component: 'WsnaBuildingsListP',
+    component: 'WwsnaBuildingsListP',
     componentProps: {
       dgr1LevlOgId: warehouseInfo.value.dgr1LevlOgId,
       dgr2LevlOgId: warehouseInfo.value.dgr2LevlOgId,

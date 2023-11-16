@@ -77,7 +77,7 @@
           <kw-select
             v-model="searchParams.inqrDv"
             :options="[{ codeId: t('MSG_TXT_IST_DT'), codeName: t('MSG_TXT_IST_DT') }]"
-            class="w150"
+            class="w140"
           />
           <kw-date-range-picker
             v-model:from="searchParams.istDtFrom"
@@ -129,6 +129,7 @@
           <kw-input
             v-model="searchParams.cntrDtlNo"
             :maxlength="14"
+            :placeholder="$t('MSG_TIT_CNTR_NO_CNTR_SN')"
             class="w200"
           />
         </kw-form-item>
@@ -278,7 +279,7 @@ const pageInfo = ref({
 /* 페이지 이동용 */
 
 let cachedParams;
-
+// 엑셀 다운로드
 async function onClickExcelDownload() {
   const view = grdMainRef.value.getView();
 
@@ -291,7 +292,7 @@ async function onClickExcelDownload() {
     checkBar: 'hidden',
   });
 }
-
+// 그리드 조회
 async function fetchData() {
   const res = await dataService.get('/sms/wells/service/installation-locations/paging', { params: { ...cachedParams, ...pageInfo.value } });
   const { list: locations, pageInfo: pagingResult } = res.data;
@@ -301,30 +302,29 @@ async function fetchData() {
   // view.resetCurrent();
   view.rowIndicator.indexOffset = gridUtil.getPageIndexOffset(pageInfo);
 }
-
+// 조회버튼 클릭
 async function onClickSearch() {
   const splited = split(searchParams.value.cntrDtlNo, '-');
   searchParams.value.cntrNo = splited[0];
   searchParams.value.cntrSn = splited[1];
   pageInfo.value.pageIndex = 1;
   cachedParams = cloneDeep(searchParams.value);
-  debugger;
   await fetchData();
 }
-
+// 저장버튼 클릭
 async function onClickSave() {
   const view = grdMainRef.value.getView();
   const chkRows = gridUtil.getCheckedRowValues(view).map((v) => ({ ...v, dtlSn: '1' }));
   if (chkRows.length === 0) {
-    notify(t('MSG_ALT_NOT_SEL_ITEM'));
+    notify(t('MSG_ALT_NOT_SEL_ITEM')); // 데이터를 선택해주세요.
   } else {
     await dataService.post('/sms/wells/service/installation-locations', chkRows);
   }
 
-  notify(t('MSG_ALT_SAVE_DATA'));
+  notify(t('MSG_ALT_SAVE_DATA')); // 저장되었습니다.
   await fetchData();
 }
-
+// 엔지니어 콤보박스 정보 세팅
 async function setEngineers() {
   if (searchParams.value.ogId === '') {
     engineers.value = [];
@@ -338,7 +338,7 @@ async function setEngineers() {
     engineers.value = eng.map((v) => ({ codeId: v.prtnrNo, codeName: v.prtnrNm }));
   }
 }
-
+// 상품 콤보박스 값 세팅
 function setProducts() {
   if (searchParams.value.pdGrpCd === '') {
     products.value = prd;
@@ -346,17 +346,17 @@ function setProducts() {
     products.value = prd.filter((v) => v.pdGrpCd === searchParams.value.pdGrpCd);
   }
 }
-
+// 서비스센터 콤보박스 값 선택
 async function onUpdateSvcCode() {
   searchParams.value.egerId = '';
   setEngineers();
 }
-
+// 퇴사자 제외버튼 클릭시
 async function onUpdateRgsnYn() {
   searchParams.value.egerId = '';
   setEngineers();
 }
-
+// 상품 그룹 콤보박스 선택
 async function onUpdatePdGrpCd() {
   searchParams.value.pdCd = '';
   setProducts();
@@ -368,29 +368,30 @@ async function onUpdatePdGrpCd() {
 
 const initGrdMain = defineGrid((data, view) => {
   const fields = [
-    { fieldName: 'istDt' },
-    { fieldName: 'cntrNo' },
-    { fieldName: 'cntrSn' },
-    { fieldName: 'custNm' },
+    { fieldName: 'istDt' }, // 설치일자
+    { fieldName: 'cntrNo' }, // 계약번호
+    { fieldName: 'cntrSn' }, // 계약상세번호
+    { fieldName: 'custNm' }, // 고객명
     { fieldName: 'sellTpNm' },
-    { fieldName: 'pdctPdCd' },
-    { fieldName: 'sapMatCd' },
-    { fieldName: 'pdNm' },
-    { fieldName: 'locaraTno' },
-    { fieldName: 'exnoEncr' },
-    { fieldName: 'idvTno' },
-    { fieldName: 'telNo' },
-    { fieldName: 'cralLocaraTno' },
-    { fieldName: 'mexnoEncr' },
-    { fieldName: 'cralIdvTno' },
-    { fieldName: 'cralTelNo' },
-    { fieldName: 'zip' },
-    { fieldName: 'adr' },
-    { fieldName: 'istLctDtlCn' },
-    { fieldName: 'ogNm' },
-    { fieldName: 'prtnrKnm' },
-    { fieldName: 'wkPrtnrNo' },
-    { fieldName: 'regDtm' },
+    { fieldName: 'pdctPdCd' }, // 상품코드
+    { fieldName: 'sapMatCd' }, // SAP코드
+    { fieldName: 'pdNm' }, // 상품명
+    { fieldName: 'locaraTno' }, // 지역전화번호
+    { fieldName: 'exnoEncr' }, // 전화국번호암호화
+    { fieldName: 'idvTno' }, // 개별전화번호
+    { fieldName: 'telNo' }, // 전화번호tot
+    { fieldName: 'cralLocaraTno' }, // 휴대지역전화번호
+    { fieldName: 'mexnoEncr' }, // 휴대전화국번호암호화
+    { fieldName: 'cralIdvTno' }, // 휴대개별전화번호
+    { fieldName: 'cralTelNo' }, // 휴대전화번호tot
+    { fieldName: 'zip' }, // 우편번호
+    { fieldName: 'adr' }, // 주소
+    { fieldName: 'istLctDtlCn' }, // 설치위치상세정보
+    { fieldName: 'ogNm' }, // 조직명
+    { fieldName: 'ogTpCd' }, // 조직유형코드
+    { fieldName: 'prtnrKnm' }, // 담당자명
+    { fieldName: 'wkPrtnrNo' }, // 담당자사번
+    { fieldName: 'regDtm' }, // 요청일자
   ];
 
   const columns = [
@@ -442,7 +443,7 @@ const initGrdMain = defineGrid((data, view) => {
       fieldName: 'pdNm',
       header: t('MSG_TXT_PRDT_NM'),
       width: '300',
-      styleName: 'text-center',
+      styleName: 'text-left',
     },
     {
       fieldName: 'telNo',

@@ -25,6 +25,7 @@
         <kw-search-item :label="$t('MSG_TXT_GO_DV')">
           <kw-select
             v-model="searchParams.goDvCd"
+            first-option="all"
             :options="codes.GO_DV_CD"
           />
         </kw-search-item>
@@ -83,10 +84,23 @@
           vertical
           inset
         />
-        <kw-date-range-picker
+        <!-- <kw-date-range-picker
           v-model:from="carriedOverParams.carriedOverFrom"
           v-model:to="carriedOverParams.carriedOverTo"
           class="w275"
+          type="month"
+        /> -->
+        <kw-date-picker
+          v-model="carriedOverParams.carriedOverFrom"
+          class="w125"
+          dense
+          type="month"
+        />
+        <p>▶</p>
+        <kw-date-picker
+          v-model="carriedOverParams.carriedOverTo"
+          class="w125"
+          dense
           type="month"
         />
         <kw-btn
@@ -238,7 +252,7 @@ async function onClickDdlvBaseCrdovr() {
 
   await dataService.post('/sms/wells/service/delivery-bases/next-month', carriedOverParams.value);
   await fetchData();
-  notify('MSG_ALT_CRDOVR_WK_FSH');
+  notify(t('MSG_ALT_CRDOVR_WK_FSH'));
 }
 
 async function onClickDdlvBaseInfGrst() {

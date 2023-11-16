@@ -68,9 +68,11 @@
 // -------------------------------------------------------------------------------------------------
 import { defineGrid, getComponentType, useDataService, useGlobal, codeUtil } from 'kw-lib';
 import { cloneDeep, isEmpty } from 'lodash-es';
+import dayjs from 'dayjs';
 import ZctzContractDetailNumber from '~sms-common/contract/components/ZctzContractDetailNumber.vue';
 
 const { t } = useI18n();
+const now = dayjs();
 const { alert, modal } = useGlobal();
 const dataService = useDataService();
 // -------------------------------------------------------------------------------------------------
@@ -87,7 +89,7 @@ let cachedParams;
 const searchParams = ref({
   cntrNo: '', // 계약번호
   cntrSn: '', // 계약일련번호
-  rfDt: '', // 반영일자
+  rfDt: now.format('YYYYMMDD'), // 반영일자
 });
 
 // 검색조건 : 계약상세번호

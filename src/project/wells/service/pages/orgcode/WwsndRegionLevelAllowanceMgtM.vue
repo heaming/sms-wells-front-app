@@ -267,9 +267,13 @@ function getMoveTime(view, row, rglvlGdCd, value) {
   if (rglvlGdCd !== 25) {
     view.setValue(view.getItemIndex(row), 'mmtDstn', value);
 
-    const mmtDstn = isBlank(value) ? 0 : Number(value);
-    const averageSpeed = Number(movementAverageSpeed);
-    mmtLdtm = (mmtDstn * 60) / averageSpeed;
+    if (!isBlank(movementAverageSpeed) && Number(movementAverageSpeed) !== 0) {
+      const mmtDstn = isBlank(value) ? 0 : Number(value);
+      const averageSpeed = Number(movementAverageSpeed);
+      mmtLdtm = (mmtDstn * 60) / averageSpeed;
+    } else {
+      mmtLdtm = 0;
+    }
 
     view.setValue(view.getItemIndex(row), 'mmtLdtm', mmtLdtm);
   }
@@ -280,6 +284,11 @@ function getMoveTime(view, row, rglvlGdCd, value) {
 // 수당 셋팅
 function setAllowance(view, row, mmtLdtm) {
   const { movementManHour, movementFieldWeight } = getBaseInfo('movement');
+  if (isBlank(movementManHour) || isBlank(movementFieldWeight)) {
+    view.setValue(view.getItemIndex(row), 'rglvlAwAmt', 0);
+    return;
+  }
+
   const manHour = Number(movementManHour);
   const fieldWeight = Number(movementFieldWeight);
   const rglvlAwAmt = Math.round((mmtLdtm * manHour * (fieldWeight / 100)) / 100) * 100;
@@ -582,7 +591,7 @@ const initGrdMovementLevel = defineGrid((data, view) => {
       styleName: 'text-center',
       datetimeFormat: 'date' },
     { fieldName: 'chEmpno', header: t('MSG_TXT_CH_EMPNO'), width: '100', styleName: 'text-center' },
-    { fieldName: 'chNm', header: t('MSG_TXT_CH_FNM'), width: '100' },
+    { fieldName: 'chNm', header: t('MSG_TXT_CH_FNM'), width: '100', styleName: 'text-center' },
     { fieldName: 'minPerManho' },
     { fieldName: 'rglvlWeit' },
     { fieldName: 'avVe' },
@@ -663,7 +672,7 @@ const initGrdBizLevel = defineGrid((data, view) => {
       styleName: 'text-center',
       datetimeFormat: 'date' },
     { fieldName: 'chEmpno', header: t('MSG_TXT_CH_EMPNO'), width: '100', styleName: 'text-center' },
-    { fieldName: 'chNm', header: t('MSG_TXT_CH_FNM'), width: '100' },
+    { fieldName: 'chNm', header: t('MSG_TXT_CH_FNM'), width: '100', styleName: 'text-center' },
     { fieldName: 'minPerManho' },
     { fieldName: 'rglvlWeit' },
     { fieldName: 'maxApyStrtdt' },
@@ -701,7 +710,7 @@ function initGrdMovementBase(data, view) {
     { fieldName: 'movementManHour',
       header: t('MSG_TXT_AIRLIFT_PER_MIN'),
       width: '100',
-      styleName: 'text-center',
+      styleName: 'text-right',
       editable: true,
       editor: {
         type: 'number',
@@ -711,7 +720,7 @@ function initGrdMovementBase(data, view) {
     { fieldName: 'movementFieldWeight',
       header: t('MSG_TXT_RGLVL_WEIT'),
       width: '100',
-      styleName: 'text-center',
+      styleName: 'text-right',
       editable: true,
       editor: {
         type: 'number',
@@ -721,7 +730,7 @@ function initGrdMovementBase(data, view) {
     { fieldName: 'movementAverageSpeed',
       header: t('MSG_TXT_AV_HH_VE'),
       width: '100',
-      styleName: 'text-center',
+      styleName: 'text-right',
       editable: true,
       editor: {
         type: 'number',
@@ -748,7 +757,7 @@ function initGrdBizBase(data, view) {
     { fieldName: 'bizManHour',
       header: t('MSG_TXT_AIRLIFT_PER_MIN'),
       width: '100',
-      styleName: 'text-center',
+      styleName: 'text-right',
       editable: true,
       editor: {
         type: 'number',
@@ -759,14 +768,14 @@ function initGrdBizBase(data, view) {
     { fieldName: 'bizFieldWeight',
       header: t('MSG_TXT_RGLVL_WEIT'),
       width: '100',
-      styleName: 'text-center',
+      styleName: 'text-right',
       editable: true,
       editor: {
         type: 'number',
         maxLength: 3,
         editFormat: '##0',
       } },
-    { fieldName: 'bizFieldAirlift', header: t('MSG_TXT_RGLVL_AIRLIFT'), width: '100', styleName: 'text-center' },
+    { fieldName: 'bizFieldAirlift', header: t('MSG_TXT_RGLVL_AIRLIFT'), width: '100', styleName: 'text-right' },
   ];
 
   data.setFields(fields);

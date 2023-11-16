@@ -241,6 +241,7 @@
             </template>
 
             <kw-form-row>
+              <!-- 상품검색 -->
               <kw-form-item
                 :label="$t('MSG_TXT_PRDT') + $t('MSG_TXT_SEARCH')"
                 :colspan="3"
@@ -250,7 +251,7 @@
                   icon="search"
                   maxlength="100"
                   grow
-                  :disable="fieldData.slClYn==='Y'"
+                  :disable="fieldData.slClYn==='Y' || !isEmpty(fieldData.vstSchDt)"
                   @click-icon="onClickSelectProduct"
                 />
               </kw-form-item>
@@ -262,9 +263,11 @@
                 :key="`rps-${compKey}`"
                 :model-value="orderProduct"
                 :bas="fieldData"
+                modify
                 @select:one-plus-one="onClickOnePlusOne"
                 @delete:one-plus-one="onDeleteOnePlusOne"
-                @change:device="onClickDeviceChange"
+                @select:device="onClickDeviceChange"
+                @delete:device="onDeleteDeviceChange"
                 @packaging="onPackaging"
                 @price-changed="onPriceChanged(orderProduct, $event)"
                 @delete="onClickDelete(orderProduct)"
@@ -431,16 +434,30 @@
             </kw-form>
           </kw-expansion-item>
         </kw-list>
+
+        <div align="center">
+          <div class="w360">
+            <wwcta-contract-settlement-sign-item
+              :description="'계약 확정 서명을 해주세요.'"
+              empty-alert
+              confirm-label="계약 변경 내용을 숙지했으며, 이에 동의합니다."
+              @confirm="onSignSettlementConfirmed"
+            />
+          </div>
+        </div>
+
+        <!--
         <kw-action-bottom>
-          <!-- 저장 -->
+          <!- 저장 ->
           <kw-btn
             v-permission:update
             primary
             :label="$t('MSG_BTN_SAVE')"
-            :disable="!isFetched"
+            :disable="!isFetched || !isCnfmPd || !isCnfmSign || isEmpty(confirmSign)"
             @click="onClickSave"
           />
         </kw-action-bottom>
+        -->
       </div>
     </kw-form>
   </kw-page>
@@ -456,6 +473,8 @@ import pdConst from '~sms-common/product/constants/pdConst';
 import ZctzContractDetailNumber from '~sms-common/contract/components/ZctzContractDetailNumber.vue';
 import RentalPriceSelect
   from '~sms-wells/contract/components/ordermgmt/WwctaRentalFinalPriceSelect.vue';
+import WwctaContractSettlementSignItem
+  from '~sms-wells/contract/components/ordermgmt/WwctaContractSettlementSignItem.vue';
 import { warn } from 'vue';
 import {
   CNTR_REL_DTL_CD,
@@ -581,6 +600,7 @@ const fieldData = ref({
 
 const orderProduct = ref({});
 const promotions = ref([]); // 적용가능한 프로모션
+const confirmSign = ref(''); // 계약 확정 사인
 
 // 설치환경 및 요청사항
 const istEnvRequest = ref({
@@ -594,7 +614,7 @@ const istEnvRequest = ref({
 
 const isLinked = ref(false); // 다른 화면에서 넘어왔나(계약번호를 받아왔나)
 const isFetched = ref(false); // 조회되었나
-const isInit = ref(true); // 첫 조회 초기화인가
+const isInit = ref(true); // 조회후 초기화인가
 const isCnfmPd = ref(false); // 상품확정 유무
 
 // 설치환경 및 요청사항 초기화
@@ -675,7 +695,7 @@ async function fetchData() {
   await initIstEnvRequest();
 
   // 주문상품선택 세팅
-  console.log('orderProduct 세팅');
+  // console.log('orderProduct 세팅');
   const product = {
     pdPrcFnlDtlId: fieldData.value.pdPrcFnlDtlId,
     pdQty: fieldData.value.pdQty,
@@ -685,6 +705,13 @@ async function fetchData() {
     pdCd: fieldData.value.pdCd,
     cntrNo: fieldData.value.cntrNo,
     pdClsfNm: fieldData.value.pdMclsfNm,
+    wellsDtl: {
+      sellEvCd: isEmpty(fieldData.value.sellEvCd) ? '' : fieldData.value.sellEvCd,
+    },
+    priceOptionFilter: {
+      rentalDscDvCd: fieldData.value.sellDscDvCd || '',
+      rentalDscTpCd: fieldData.value.sellDscTpCd || '',
+    },
   };
 
   // 적용되있는 기기변경 세팅
@@ -750,15 +777,16 @@ async function fetchData() {
   obsRef.value.init();
 }
 
+// 상품 가격이 바꼈을 때, 이벤트
 function onPriceChanged(item, price) {
-  console.log('onPriceChanged');
+  // console.log('onPriceChanged');
   item.finalPrice = price;
 
   orderProduct.value = item;
 
   // 최초 세팅시
   if (isInit.value) {
-    console.log('promotions 세팅 : ', promotions.value);
+    // console.log('promotions 세팅 : ', promotions.value);
     isInit.value = false;
 
     // 적용되있는 프로모션 세팅
@@ -806,11 +834,11 @@ async function onClickSelectProduct() {
       return;
     }
 
-    console.log('payload : ', payload[0]);
+    // console.log('payload : ', payload[0]);
 
     if (!isEmpty(payload[0].channelId)) {
       if (payload[0].channelId.indexOf(fieldData.value.sellInflwChnlDtlCd) === -1) {
-        await alert('선택 가능한 상품이 아닙니다. 판매채널을 확인해주세요.');
+        await alert(`선택 가능한 상품이 아닙니다. 판매채널[${fieldData.value.sellInflwChnlDtlCd}]을 확인해주세요.`);
         return;
       }
     } else {
@@ -822,7 +850,7 @@ async function onClickSelectProduct() {
     searchParams.value.pdNm = payload[0].pdNm;
     searchParams.value.sellInflwChnlDtlCd = fieldData.value.sellInflwChnlDtlCd;
 
-    console.log(payload[0]);
+    // console.log(payload[0]);
 
     isFetched.value = false;
 
@@ -853,6 +881,11 @@ async function onPackaging() {
 
 // 기기변경 버튼 클릭
 async function onClickDeviceChange(odrPrdct) {
+  if (!isEmpty(fieldData.value.vstSchDt)) {
+    alert('설치 배정된 계약건은 기기변경 할 수 없습니다.');
+    return;
+  }
+
   const { result, payload } = await modal({
     component: 'WwctaMachineChangeCustomerDtlP',
     componentProps: {
@@ -955,15 +988,27 @@ async function onDeleteOnePlusOne(odrPrdct) {
   cntrRels.splice(onePlusOneRelIndex, 1);
 
   if (odrPrdct.priceOptionFilter?.rentalDscTpCd) {
-    odrPrdct.priceOptionFilter.rentalDscTpCd = undefined;
+    odrPrdct.priceOptionFilter.rentalDscTpCd = '';
   }
   if (odrPrdct.priceOptionFilter.rentalDscDvCd) {
-    odrPrdct.priceOptionFilter.rentalDscDvCd = undefined;
+    odrPrdct.priceOptionFilter.rentalDscDvCd = '';
   }
 }
 
-// 저장 버튼 클릭
-async function onClickSave() {
+// 기기변경 삭제 버튼 클릭
+async function onDeleteDeviceChange(odrPrdct) {
+  odrPrdct.mchnCh = null;
+
+  if (odrPrdct.priceOptionFilter?.rentalDscTpCd) {
+    odrPrdct.priceOptionFilter.rentalDscTpCd = '';
+  }
+  if (odrPrdct.priceOptionFilter?.rentalDscDvCd) {
+    odrPrdct.priceOptionFilter.rentalDscDvCd = '';
+  }
+}
+
+// 계약 변경 저장
+async function saveCntrChanges() {
   // console.log(orderProduct.value);
   // console.log(istEnvRequest.value);
 
@@ -996,10 +1041,20 @@ async function onClickSave() {
     baseInfo: fieldData.value,
     product: orderProduct.value,
     istEnv: istEnvRequest.value,
+    sign: confirmSign.value,
   });
 
   notify(t('MSG_ALT_SAVE_DATA'));
   await fetchData();
+}
+
+// 사인 확정 버튼 클릭
+async function onSignSettlementConfirmed(sign) {
+  if (!isEmpty(sign)) {
+    confirmSign.value = sign; // 계약확정사인
+  }
+
+  await saveCntrChanges();
 }
 
 // 조회 버튼 클릭

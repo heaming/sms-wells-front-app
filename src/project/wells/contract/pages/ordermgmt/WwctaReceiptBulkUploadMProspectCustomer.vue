@@ -109,36 +109,10 @@ function onClickCheckCode() {
   });
 }
 
-async function validate(data) {
-  const { adr1, adr2, basePdCd, svPdCd } = data;
-  const params = {
-    basePdCd,
-    svPdCd,
-    adr1,
-    adr2,
-  };
-
-  const response = await dataService.put('/sms/wells/contract/bulk-upload/prospects/validate', params, {
+async function validate(row) {
+  const { data: sideEffect } = await dataService.put('/sms/wells/contract/bulk-upload/prospects/validate', row, {
     alert: false,
   });
-
-  const { adr, pdBas } = response.data;
-  const adrId = adr?.adrCd;
-
-  if (adr1) { // 주소가 입력된 경우에만,
-    if (!adrId || adrId.startsWith('IF_ERR')) {
-      throw new Error('주소를 다시 확인해주세요.');
-    }
-  }
-
-  // noinspection UnnecessaryLocalVariableJS
-  const sideEffect = {
-    adrId,
-    pdHclsfId: pdBas.pdHclsfId,
-    pdMclsfId: pdBas.pdMclsfId,
-    pdLclsfId: pdBas.pdLclsfId,
-    pdDclsfId: pdBas.pdDclsfId,
-  };
 
   return sideEffect;
 }
@@ -250,13 +224,7 @@ const initGrd = defineGrid((data, view) => {
     },
     alncmpDgPrtnrOgTpCd: {
       displaying: false,
-      valueCallback: (gridBase, rowId, fieldName, fields, values) => {
-        const alncmpDgPrtnrMapngCdId = values[fields.indexOf('alncmpDgPrtnrMapngCd')];
-        const alncmpDgPrtnrMapngCd = codes.ALNCMP_DG_PRTNR_MAPNG_CD
-          .find((code) => code.codeId === alncmpDgPrtnrMapngCdId);
-        return alncmpDgPrtnrMapngCd?.userDfn02 || '';
-      },
-    },
+    }, // 서버 채번으로 변경
     cntrAmt: { label: t('등록비'), type: Number, width: 146 },
     cntrPtrm: { label: t('변동개월'), type: Number, width: 146 },
     svPdCd: { label: t('서비스상품코드'), width: 146, classes: 'text-center' }, /* 상품코드 긁어올까.. */

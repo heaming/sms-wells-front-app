@@ -20,20 +20,6 @@
     >
       <kw-search-row>
         <kw-search-item
-          :label="$t('MSG_TXT_SFK')"
-          required
-        >
-          <kw-input
-            v-model="searchParams.rsdnNo"
-            :label="$t('MSG_TXT_SFK')"
-            icon="search"
-            clearable
-            rules="required"
-            @click-icon="onClickSelectCustomer"
-            @change="onChangeCstNo"
-          />
-        </kw-search-item>
-        <kw-search-item
           :label="$t('MSG_TXT_CST_NM')"
         >
           <kw-input
@@ -57,8 +43,21 @@
             v-model:tel-no1="searchParams.insHpNo2"
             v-model:tel-no2="searchParams.insHpNo3"
             mask="telephone"
-            :placeholder="$t('MSG_TXT_REPSN_DGT4_WO_NO_IN')"
             :disable="true"
+          />
+        </kw-search-item>
+        <kw-search-item
+          :label="$t('MSG_TXT_SFK')"
+          required
+        >
+          <kw-input
+            v-model="searchParams.rsdnNo"
+            :label="$t('MSG_TXT_SFK')"
+            icon="search"
+            clearable
+            rules="required"
+            @click-icon="onClickSelectCustomer"
+            @change="onChangeCstNo"
           />
         </kw-search-item>
       </kw-search-row>
@@ -462,13 +461,13 @@ const initContractMain = defineGrid((data, view) => {
   ];
 
   const columns = [
-    { fieldName: 'baseNm', header: t('MSG_TXT_BASE_PITM'), width: '100', styleName: 'text-center' },
-    { fieldName: 'crtlTot1', header: t('MSG_TXT_CURRENT'), width: '100', styleName: 'text-right', numberFormat: '#,##0' },
-    { fieldName: 'crtlTot2', header: t('MSG_TXT_3MON_BF'), width: '100', styleName: 'text-right', numberFormat: '#,##0' },
-    { fieldName: 'crtlTot3', header: t('MSG_TXT_6MON_BF'), width: '100', styleName: 'text-right', numberFormat: '#,##0' },
-    { fieldName: 'crtlTot4', header: t('MSG_TXT_1YEAR_BF'), width: '100', styleName: 'text-right', numberFormat: '#,##0' },
-    { fieldName: 'crtlTot5', header: t('MSG_TXT_2YEAR_BF'), width: '100', styleName: 'text-right', numberFormat: '#,##0' },
-    { fieldName: 'crtlTot6', header: t('MSG_TXT_3YEAR_BF'), width: '100', styleName: 'text-right', numberFormat: '#,##0' },
+    { fieldName: 'baseNm', header: t('MSG_TXT_BASE_PITM'), width: '100', styleName: 'text-center' }, // 기준시점
+    { fieldName: 'crtlTot1', header: t('MSG_TXT_CURRENT'), width: '100', styleName: 'text-right', numberFormat: '#,##0' }, // 현재
+    { fieldName: 'crtlTot2', header: t('MSG_TXT_3MON_BF'), width: '100', styleName: 'text-right', numberFormat: '#,##0' }, // 3개월전
+    { fieldName: 'crtlTot3', header: t('MSG_TXT_6MON_BF'), width: '100', styleName: 'text-right', numberFormat: '#,##0' }, // 6개월전
+    { fieldName: 'crtlTot4', header: t('MSG_TXT_1YEAR_BF'), width: '100', styleName: 'text-right', numberFormat: '#,##0' }, // 1년전
+    { fieldName: 'crtlTot5', header: t('MSG_TXT_2YEAR_BF'), width: '100', styleName: 'text-right', numberFormat: '#,##0' }, // 2년전
+    { fieldName: 'crtlTot6', header: t('MSG_TXT_3YEAR_BF'), width: '100', styleName: 'text-right', numberFormat: '#,##0' }, // 3년전
   ];
 
   data.setFields(fields);
@@ -488,13 +487,13 @@ const initPaymentMain = defineGrid((data, view) => {
   ];
 
   const columns = [
-    { fieldName: 'baseNm', header: t('MSG_TXT_BTE_PS'), width: '100', styleName: 'text-center' },
-    { fieldName: 'crtlTot1', header: t('MSG_TXT_RECENT_10DAY'), width: '100', styleName: 'text-right', numberFormat: '#,##0' },
-    { fieldName: 'crtlTot2', header: t('MSG_TXT_RECENT_30DAY'), width: '100', styleName: 'text-right', numberFormat: '#,##0' },
-    { fieldName: 'crtlTot3', header: t('MSG_TXT_RECENT_60DAY'), width: '100', styleName: 'text-right', numberFormat: '#,##0' },
-    { fieldName: 'crtlTot4', header: t('MSG_TXT_RECENT_90DAY'), width: '100', styleName: 'text-right', numberFormat: '#,##0' },
-    { fieldName: 'crtlTot5', header: t('MSG_TXT_RECENT_183DAY'), width: '100', styleName: 'text-right', numberFormat: '#,##0' },
-    { fieldName: 'crtlTot6', header: t('MSG_TXT_RECENT_365DAY'), width: '100.', styleName: 'text-right', numberFormat: '#,##0' },
+    { fieldName: 'baseNm', header: t('MSG_TXT_BTE_PS'), width: '100', styleName: 'text-center' }, // 기간별 현황
+    { fieldName: 'crtlTot1', header: t('MSG_TXT_RECENT_10DAY'), width: '100', styleName: 'text-right', numberFormat: '#,##0' }, // 최근10일
+    { fieldName: 'crtlTot2', header: t('MSG_TXT_RECENT_30DAY'), width: '100', styleName: 'text-right', numberFormat: '#,##0' }, // 최근30일
+    { fieldName: 'crtlTot3', header: t('MSG_TXT_RECENT_60DAY'), width: '100', styleName: 'text-right', numberFormat: '#,##0' }, // 최근60일
+    { fieldName: 'crtlTot4', header: t('MSG_TXT_RECENT_90DAY'), width: '100', styleName: 'text-right', numberFormat: '#,##0' }, // 최근90일
+    { fieldName: 'crtlTot5', header: t('MSG_TXT_RECENT_183DAY'), width: '100', styleName: 'text-right', numberFormat: '#,##0' }, // 최근183일
+    { fieldName: 'crtlTot6', header: t('MSG_TXT_RECENT_365DAY'), width: '100.', styleName: 'text-right', numberFormat: '#,##0' }, // 최근365일
   ];
 
   data.setFields(fields);
@@ -514,13 +513,13 @@ const initRecentContractMain = defineGrid((data, view) => {
   ];
 
   const columns = [
-    { fieldName: 'baseNm', header: t('MSG_TXT_BTE_PS'), width: '100', styleName: 'text-center' },
-    { fieldName: 'crtlTot1', header: t('MSG_TXT_CURRENT'), width: '100', styleName: 'text-right', numberFormat: '#,##0' },
-    { fieldName: 'crtlTot2', header: t('MSG_TXT_3MON_BF'), width: '100', styleName: 'text-right', numberFormat: '#,##0' },
-    { fieldName: 'crtlTot3', header: t('MSG_TXT_6MON_BF'), width: '100', styleName: 'text-right', numberFormat: '#,##0' },
-    { fieldName: 'crtlTot4', header: t('MSG_TXT_1YEAR_BF'), width: '100', styleName: 'text-right', numberFormat: '#,##0' },
-    { fieldName: 'crtlTot5', header: t('MSG_TXT_2YEAR_BF'), width: '100', styleName: 'text-right', numberFormat: '#,##0' },
-    { fieldName: 'crtlTot6', header: t('MSG_TXT_3YEAR_BF'), width: '100', styleName: 'text-right', numberFormat: '#,##0' },
+    { fieldName: 'baseNm', header: t('MSG_TXT_BTE_PS'), width: '100', styleName: 'text-center' }, // 기간별현황
+    { fieldName: 'crtlTot1', header: t('MSG_TXT_CURRENT'), width: '100', styleName: 'text-right', numberFormat: '#,##0' }, // 현재
+    { fieldName: 'crtlTot2', header: t('MSG_TXT_3MON_BF'), width: '100', styleName: 'text-right', numberFormat: '#,##0' }, // 3개월전
+    { fieldName: 'crtlTot3', header: t('MSG_TXT_6MON_BF'), width: '100', styleName: 'text-right', numberFormat: '#,##0' }, // 6개월전
+    { fieldName: 'crtlTot4', header: t('MSG_TXT_1YEAR_BF'), width: '100', styleName: 'text-right', numberFormat: '#,##0' }, // 1년전
+    { fieldName: 'crtlTot5', header: t('MSG_TXT_2YEAR_BF'), width: '100', styleName: 'text-right', numberFormat: '#,##0' }, // 2년전
+    { fieldName: 'crtlTot6', header: t('MSG_TXT_3YEAR_BF'), width: '100', styleName: 'text-right', numberFormat: '#,##0' }, // 3년전
   ];
 
   data.setFields(fields);
@@ -547,14 +546,14 @@ const initEtcMain = defineGrid((data, view) => {
       },
       header: t('MSG_TXT_BASE'),
       width: '140',
-      styleName: 'text-center' },
-    { fieldName: 'ptrmPs', header: t('MSG_TXT_BTE_PS'), width: '100', styleName: 'text-center' },
-    { fieldName: 'crtlTot1', header: t('MSG_TXT_RECENT_10DAY'), width: '100', styleName: 'text-right', numberFormat: '#,##0' },
-    { fieldName: 'crtlTot2', header: t('MSG_TXT_RECENT_30DAY'), width: '100', styleName: 'text-right', numberFormat: '#,##0' },
-    { fieldName: 'crtlTot3', header: t('MSG_TXT_RECENT_60DAY'), width: '100 ', styleName: 'text-right', numberFormat: '#,##0' },
-    { fieldName: 'crtlTot4', header: t('MSG_TXT_RECENT_90DAY'), width: '100', styleName: 'text-right', numberFormat: '#,##0' },
-    { fieldName: 'crtlTot5', header: t('MSG_TXT_RECENT_183DAY'), width: '100', styleName: 'text-right', numberFormat: '#,##0' },
-    { fieldName: 'crtlTot6', header: t('MSG_TXT_RECENT_365DAY'), width: '100', styleName: 'text-right', numberFormat: '#,##0' },
+      styleName: 'text-center' }, // 기준
+    { fieldName: 'ptrmPs', header: t('MSG_TXT_BTE_PS'), width: '100', styleName: 'text-center' }, // 기간별현황
+    { fieldName: 'crtlTot1', header: t('MSG_TXT_RECENT_10DAY'), width: '100', styleName: 'text-right', numberFormat: '#,##0' }, // 최근10일
+    { fieldName: 'crtlTot2', header: t('MSG_TXT_RECENT_30DAY'), width: '100', styleName: 'text-right', numberFormat: '#,##0' }, // 최근30일
+    { fieldName: 'crtlTot3', header: t('MSG_TXT_RECENT_60DAY'), width: '100 ', styleName: 'text-right', numberFormat: '#,##0' }, // 최근60일
+    { fieldName: 'crtlTot4', header: t('MSG_TXT_RECENT_90DAY'), width: '100', styleName: 'text-right', numberFormat: '#,##0' }, // 최근90일
+    { fieldName: 'crtlTot5', header: t('MSG_TXT_RECENT_183DAY'), width: '100', styleName: 'text-right', numberFormat: '#,##0' }, // 최근183일
+    { fieldName: 'crtlTot6', header: t('MSG_TXT_RECENT_365DAY'), width: '100', styleName: 'text-right', numberFormat: '#,##0' }, // 최근365일
   ];
 
   data.setFields(fields);
@@ -574,13 +573,13 @@ const initDelinquentMain = defineGrid((data, view) => {
   ];
 
   const columns = [
-    { fieldName: 'baseNm', header: t('MSG_TXT_RENTAL_PD'), width: '200', styleName: 'text-center' },
-    { fieldName: 'crtlTot1', header: t('MSG_TXT_DLQ_DV'), width: '200', styleName: 'text-center' },
-    { fieldName: 'crtlTot2', header: t('MSG_TXT_OC_BUR_NM'), width: '200', styleName: 'text-center' },
-    { fieldName: 'crtlTot3', header: t('MSG_TXT_OC_D'), width: '200', styleName: 'text-center', datetimeFormat: 'date' },
-    { fieldName: 'crtlTot4', header: t('MSG_TXT_RGST_DT'), width: '200', styleName: 'text-center', datetimeFormat: 'date' },
-    { fieldName: 'crtlTot5', header: t('MSG_TXT_DLQ_AMT'), width: '200', styleName: 'text-right', numberFormat: '#,##0' },
-    { fieldName: 'crtlTot6', header: t('MSG_TXT_BLAM'), width: '200', styleName: 'text-right', numberFormat: '#,##0' },
+    { fieldName: 'baseNm', header: t('MSG_TXT_RENTAL_PD'), width: '200', styleName: 'text-center' }, // 렌탈상품
+    { fieldName: 'crtlTot1', header: t('MSG_TXT_DLQ_DV'), width: '200', styleName: 'text-center' }, // 연체구분
+    { fieldName: 'crtlTot2', header: t('MSG_TXT_OC_BUR_NM'), width: '200', styleName: 'text-center' }, // 발생기관명
+    { fieldName: 'crtlTot3', header: t('MSG_TXT_OC_D'), width: '200', styleName: 'text-center', datetimeFormat: 'date' }, // 발생일
+    { fieldName: 'crtlTot4', header: t('MSG_TXT_RGST_DT'), width: '200', styleName: 'text-center', datetimeFormat: 'date' }, // 등록일
+    { fieldName: 'crtlTot5', header: t('MSG_TXT_DLQ_AMT'), width: '200', styleName: 'text-right', numberFormat: '#,##0' }, // 연체금액
+    { fieldName: 'crtlTot6', header: t('MSG_TXT_BLAM'), width: '200', styleName: 'text-right', numberFormat: '#,##0' }, // 잔액
   ];
 
   data.setFields(fields);

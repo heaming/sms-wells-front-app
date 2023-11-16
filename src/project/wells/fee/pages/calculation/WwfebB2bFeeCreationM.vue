@@ -80,6 +80,7 @@
             v-model:to="searchParams.cancelEndYm"
             type="month"
             :label="t('MSG_TXT_CANCEL_YM')"
+            :rules="searchParams.cancelStrtYm || searchParams.cancelEndYm ? 'date_range_required' : ''"
           />
         </kw-search-item>
       </kw-search-row>
@@ -207,6 +208,7 @@ const codes = await codeUtil.getMultiCodes(
   'RENTAL_DSC_DV_CD',
   'MSH_DSC_DV_CD',
   'SELL_TP_CD',
+  'SV_TP_CD',
   'MSH_PRC_BASE_DSC_TP_ACD',
   'RENTAL_CRP_DSC_APY_DTL_CD',
   'RENTAL_MCHD_DSC_APY_DTL_CD',

@@ -624,7 +624,7 @@
         <!-- 예정일 -->
         <kw-form-item :label="$t('MSG_TXT_DUEDT')">
           <kw-input
-            v-model="frmMainData.sppDuedt"
+            v-model="frmMainData.hcrDuedt"
             mask="####-##-##"
             placeholder=""
             readonly
@@ -642,7 +642,7 @@
         <!-- 가입일 -->
         <kw-form-item :label="$t('MSG_TXT_SUBS_DT')">
           <kw-input
-            v-model="frmMainData.cntrTempSaveDt"
+            v-model="frmMainData.cntrPdStrtdt"
             mask="####-##-##"
             placeholder=""
             readonly
@@ -833,8 +833,9 @@ const frmMainData = ref({
   ackmtPerfCt: '', // 인정건수
   ackmtPerfAmt: '', // 인정금액(원)
   sppDuedt: '', // 예정일
+  hcrDuedt: '', // 예정일
   istDt: '', // 설치일
-  cntrTempSaveDt: '', // 가입일
+  cntrPdStrtdt: '', // 가입일
   cntrCnfmDt: '', // 확정일
   cntrCnfmYn: '', // 확정유무
   canDt: '', // 취소일
@@ -968,8 +969,9 @@ async function fetchData() {
     // 일자정보
     // -------------------------------------------------------------------------------------------------
     frmMainData.value.sppDuedt = pages[0].sppDuedt; // 예정일
+    frmMainData.value.hcrDuedt = pages[0].hcrDuedt; // 예정일
     frmMainData.value.istDt = pages[0].istDt; // 설치일
-    frmMainData.value.cntrTempSaveDt = pages[0].cntrTempSaveDt; // 가입일
+    frmMainData.value.cntrPdStrtdt = pages[0].cntrPdStrtdt; // 가입일
     frmMainData.value.cntrCnfmDt = pages[0].cntrCnfmDt; // 확정일
     frmMainData.value.cntrCnfmYn = pages[0].cntrCnfmYn; // 확정유무
     frmMainData.value.canDt = pages[0].canDt; // 취소일

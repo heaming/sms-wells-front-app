@@ -45,11 +45,6 @@
             :placeholder="$t('MSG_TXT_SEQUENCE_NUMBER')"
             rules="required"
           />
-          <kw-input
-            v-model="searchParams.prtnrKnm"
-            :placeholder="$t('MSG_TXT_EMPL_NM')"
-            readonly
-          />
         </kw-search-item>
       </kw-search-row>
     </kw-search>
@@ -231,6 +226,7 @@
           <h3>{{ t('MSG_TXT_DDTN_IZ') }}</h3>
           <span class="kw-fc--black3 text-weight-regular">{{ $t('MSG_TXT_UNIT_WON') }}</span>
         </template>
+        <!-- 부담공제조정 버튼 미사용 처리
         <kw-btn
           dense
           secondary
@@ -243,6 +239,7 @@
           vertical
           inset
         />
+        -->
         <kw-btn
           dense
           secondary
@@ -343,7 +340,6 @@ const searchParams = ref({
 
   perfYm: now.add(-1, 'month').format('YYYYMM'),
   no: '',
-  prtnrKnm: '',
 
 });
 const info1 = ref({
@@ -391,14 +387,12 @@ async function onClickSearchNo() {
       baseYm: searchParams.value.perfYm,
       prtnrNo: searchParams.value.no,
       ogTpCd: 'W03',
-      prtnrKnm: undefined,
     },
   });
 
   if (result) {
     if (!isEmpty(payload)) {
       searchParams.value.no = payload.prtnrNo;
-      searchParams.value.prtnrKnm = payload.prtnrKnm;
     }
   }
 }
@@ -443,7 +437,6 @@ async function fetchData(type) {
       isBtnClick.value = true;
     } else {
       isBtnClick.value = false;
-      searchParams.value.prtnrKnm = '';
     }
   } else if (type === 'fees') {
     const feeView = grd2MainRef.value.getView();
@@ -468,21 +461,22 @@ async function onClickSearch() {
 }
 
 /*
- *  Event - 부담공제조정 버튼 클릭
+ * Event - 부담공제조정 버튼 클릭
+ * 프로세스 변경으로 미사용 처리
  */
-async function openZwfedFeeBurdenDeductionRegP() {
-  const { perfYm, no } = searchParams.value;
-  const param = {
-    ddtnYm: perfYm,
-    coCd: '2000',
-    ogTpCd: 'W03',
-    prtnrNo: no,
-  };
-  await modal({
-    component: 'ZwfedFeeBurdenDeductionRegP',
-    componentProps: param,
-  });
-}
+// async function openZwfedFeeBurdenDeductionRegP() {
+//   const { perfYm, no } = searchParams.value;
+//   const param = {
+//     ddtnYm: perfYm,
+//     coCd: '2000',
+//     ogTpCd: 'W03',
+//     prtnrNo: no,
+//   };
+//   await modal({
+//     component: 'ZwfedFeeBurdenDeductionRegP',
+//     componentProps: param,
+//   });
+// }
 
 /*
  *  Event - 가지급금조정 버튼 클릭

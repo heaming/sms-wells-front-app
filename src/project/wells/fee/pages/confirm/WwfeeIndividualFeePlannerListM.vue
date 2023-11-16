@@ -45,11 +45,6 @@
             :on-click-icon="onClickSearchNo"
             :placeholder="$t('MSG_TXT_SEQUENCE_NUMBER')"
           />
-          <kw-input
-            v-model="searchParams.prtnrKnm"
-            :placeholder="$t('MSG_TXT_EMPL_NM')"
-            readonly
-          />
         </kw-search-item>
       </kw-search-row>
     </kw-search>
@@ -234,16 +229,6 @@ import { cloneDeep, isEmpty } from 'lodash-es';
 const { t } = useI18n();
 const dataService = useDataService();
 
-const props = defineProps({
-  perfYm: {
-    type: String,
-    required: true,
-  },
-  partnerNo: {
-    type: String,
-    required: true,
-  },
-});
 // -------------------------------------------------------------------------------------------------
 // Function & Event
 // -------------------------------------------------------------------------------------------------
@@ -253,15 +238,13 @@ const grd1MainRef = ref(getComponentType('KwGrid'));
 const grd2MainRef = ref(getComponentType('KwGrid'));
 const grd3MainRef = ref(getComponentType('KwGrid'));
 const grd4MainRef = ref(getComponentType('KwGrid'));
+const route = useRoute();
 const totalCount = ref(0);
+
 const searchParams = ref({
 
   perfYm: now.add(-1, 'month').format('YYYYMM'),
   no: '',
-  prtnrKnm: '',
-  prPerfYm: props.perfYm,
-  prpartnerNo: props.partnerNo,
-
 });
 
 const info = ref({
@@ -278,9 +261,6 @@ const info = ref({
   pstnDvCd: '',
 });
 
-const { prPerfYm } = searchParams.value;
-const { prpartnerNo } = searchParams.value;
-
 let cachedParams;
 
 /*
@@ -293,14 +273,12 @@ async function onClickSearchNo() {
       baseYm: searchParams.value.perfYm,
       prtnrNo: searchParams.value.no,
       ogTpCd: 'W01',
-      prtnrKnm: undefined,
     },
   });
 
   if (result) {
     if (!isEmpty(payload)) {
       searchParams.value.no = payload.prtnrNo;
-      searchParams.value.prtnrKnm = payload.prtnrKnm;
     }
   }
 }
@@ -340,7 +318,7 @@ async function openPerformancePopup() {
   if (info.value.prtnrNo !== '' && info.value.prtnrNo !== undefined) {
     const param = {
       perfYm,
-      no,
+      prtnrNo: no,
       ogTpCd: 'W01',
     };
     await modal({
@@ -457,11 +435,38 @@ async function onClickSearch() {
   await fetchData('pnpyam');
 }
 
-if (!isEmpty(prPerfYm) && !isEmpty(prpartnerNo)) {
-  searchParams.value.perfYm = prPerfYm;
-  searchParams.value.no = prpartnerNo;
-  onClickSearch();
+function setParams() {
+  if (!isEmpty(route.params)) {
+    searchParams.value.perfYm = route.params.perfYm;
+    searchParams.value.no = route.params.prtnrNo;
+
+    onClickSearch();
+  }
 }
+
+onBeforeMount(() => {
+  if (!isEmpty(route.params)) {
+    searchParams.value.perfYm = route.params.perfYm;
+    searchParams.value.no = route.params.prtnrNo;
+  }
+});
+
+onMounted(() => {
+  nextTick(() => {
+    setParams();
+  });
+});
+
+onActivated(() => {
+  if (!isEmpty(route.params)) {
+    searchParams.value.perfYm = route.params.perfYm;
+    searchParams.value.no = route.params.prtnrNo;
+
+    nextTick(() => {
+      setParams();
+    });
+  }
+});
 
 // -------------------------------------------------------------------------------------------------
 // Initialize Grid

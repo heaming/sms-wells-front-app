@@ -79,6 +79,7 @@
             v-model:to="searchParams.cancelEndYm"
             type="month"
             :label="t('MSG_TXT_CANCEL_YM')"
+            :rules="searchParams.cancelStrtYm || searchParams.cancelEndYm ? 'date_range_required' : ''"
           />
         </kw-search-item>
       </kw-search-row>
@@ -192,6 +193,7 @@ const codes = await codeUtil.getMultiCodes(
   'BFSVC_PRD_CD',
   'SPP_DV_CD',
   'SV_PD_TP_CD',
+  'SV_TP_CD',
   'USWY_TP_CD',
   'RENTAL_COMBI_DV_CD',
   'SPAY_DSC_DV_CD',

@@ -127,7 +127,7 @@
         </kw-search-row>
         <kw-search-row>
           <kw-search-item
-            :label="$t('MSG_TXT_PKG_CD')"
+            :label="$t('MSG_TXT_PKG_PD_NO')"
           >
             <kw-input
               v-model="searchParams.pkgCdFrom"
@@ -160,11 +160,6 @@
               :maxlength="10"
               :on-click-icon="onClickSearchNo"
               :placeholder="$t('MSG_TXT_SEQUENCE_NUMBER')"
-            />
-            <kw-input
-              v-model="searchParams.prtnrKnm"
-              :placeholder="$t('MSG_TXT_EMPL_NM')"
-              readonly
             />
           </kw-search-item>
         </kw-search-row>
@@ -247,11 +242,6 @@
               :on-click-icon="onClickSearchNo"
               :placeholder="$t('MSG_TXT_SEQUENCE_NUMBER')"
             />
-            <kw-input
-              v-model="searchParams.prtnrKnm"
-              :placeholder="$t('MSG_TXT_EMPL_NM')"
-              readonly
-            />
           </kw-search-item>
         </kw-search-row>
       </div>
@@ -328,11 +318,6 @@
               :maxlength="10"
               :on-click-icon="onClickSearchNo"
               :placeholder="$t('MSG_TXT_SEQUENCE_NUMBER')"
-            />
-            <kw-input
-              v-model="searchParams.prtnrKnm"
-              :placeholder="$t('MSG_TXT_EMPL_NM')"
-              readonly
             />
           </kw-search-item>
         </kw-search-row>
@@ -492,7 +477,6 @@ const searchParams = ref({
   sellTpCd: '',
   prtnrNo: '',
   feePdctTpCd: '',
-  prtnrKnm: '',
   rsbDvCd: '',
   ogLevl1: '',
   ogLevl2: '',
@@ -523,7 +507,6 @@ const searchParams = ref({
   // prtnrNo: '',
   // perfYm: now.add(-1, 'month').format('YYYYMM'),
   // rsbDvCd: '00',
-  // prtnrKnm: '',
   // ogTpCd: 'W02',
   // pdCd: '',
   // feeBatWkId: 'WSM_FE_OA0003', /* 수수료배치작업ID= 조직별실적집계 */
@@ -592,14 +575,12 @@ async function onClickSearchNo() {
       baseYm: searchParams.value.perfYm,
       prtnrNo: searchParams.value.prtnrNo,
       ogTpCd: 'W02',
-      prtnrKnm: undefined,
     },
   });
 
   if (result) {
     if (!isEmpty(payload)) {
       searchParams.value.prtnrNo = payload.prtnrNo;
-      searchParams.value.prtnrKnm = payload.prtnrKnm;
     }
   }
 }

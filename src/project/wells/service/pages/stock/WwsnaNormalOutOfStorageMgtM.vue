@@ -17,6 +17,7 @@
     <kw-search
       :cols="5"
       @search="onClickSearch"
+      @reset="onClickReset"
     >
       <kw-search-row>
         <!-- 출고요청접수 -->
@@ -69,6 +70,7 @@
             v-model:from="searchParams.strHopDtStr"
             v-model:to="searchParams.strHopDtEnd"
             rules="date_range_months:1|required"
+            :label="$t('MSG_TXT_STR_HOP_DT')"
             @update:from="fetchDefaultData"
           />
         </kw-search-item>
@@ -168,8 +170,6 @@ const codes = ref(await codeUtil.getMultiCodes(
   'OVIV_TP_CD',
 ));
 
-// 출고요청 필터링
-codes.value.OSTR_AK_TP_CD = codes.value.OSTR_AK_TP_CD.filter((v) => v.codeId === '310' || v.codeId === '320' || v.codeId === '330');
 const toMonth = dayjs().format('YYYYMMDD');
 
 const searchParams = ref({
@@ -188,6 +188,14 @@ const pageInfo = ref({
   pageIndex: 1,
   pageSize: Number(getConfig('CFG_CMZ_DEFAULT_PAGE_SIZE')),
 });
+
+// 공통코드 필터링
+function codeFilter() {
+  // 출고요청 필터링
+  codes.value.OSTR_AK_TP_CD = codes.value.OSTR_AK_TP_CD.filter((v) => v.codeId === '310' || v.codeId === '320' || v.codeId === '330');
+  // 출고요청창고 필터링
+  codes.value.WARE_DV_CD = codes.value.WARE_DV_CD.filter((v) => v.codeId !== '1');
+}
 
 // 조회
 async function fetchData() {
@@ -236,8 +244,16 @@ async function fetchDefaultData() {
   }
 }
 
+// 초기화 버튼 클릭
+function onClickReset() {
+  if (!isEmpty(codes.value.WARE_HOUSE)) {
+    searchParams.value.ostrOjWareNo = codes.value.WARE_HOUSE[0].wareNo;
+  }
+}
+
 onMounted(async () => {
   await fetchDefaultData();
+  codeFilter();
 });
 
 // 출고요청유형코드 변경시
@@ -294,6 +310,9 @@ const initGrdMain = defineGrid((data, view) => {
       width: '200',
       styleName: 'text-center',
       displayCallback: (g, i, v) => {
+        if (isEmpty(v)) {
+          return v;
+        }
         const regExp = /^(\d{3})(\d{8})(\d{7}).*/;
         return v.replace(regExp, '$1-$2-$3');
       },

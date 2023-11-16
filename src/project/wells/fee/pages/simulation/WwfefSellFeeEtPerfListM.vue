@@ -35,7 +35,7 @@
           <kw-option-group
             v-model="searchParams.perfBaseDv"
             type="radio"
-            :options="perfBaseDv"
+            :options="customCodes.perfBaseDv"
             rules="required"
           />
         </kw-search-item>
@@ -47,7 +47,7 @@
           <kw-option-group
             v-model="searchParams.inqrDv"
             type="radio"
-            :options="inqrDv"
+            :options="customCodes.inqrDv"
             rules="required"
           />
         </kw-search-item>
@@ -59,7 +59,7 @@
           <kw-option-group
             v-model="searchParams.nincDv"
             type="radio"
-            :options="nincDv"
+            :options="customCodes.nincDv"
             rules="required"
           />
         </kw-search-item>
@@ -163,19 +163,21 @@ const codes = await codeUtil.getMultiCodes(
   'CMN_STAT_CH_RSON_CD',
 );
 
-const ojPstnRankCd = ref(codes.WELS_MNGER_INQR_DV_CD);
-const perfBaseDv = [
-  { codeId: '1', codeName: t('MSG_TXT_RCP') },
-  { codeId: '2', codeName: t('MSG_TXT_SL') },
-];
-const inqrDv = [
-  { codeId: '1', codeName: `${t('MSG_TXT_COUNT')}&${t('MSG_TXT_PERF')}` },
-  { codeId: '2', codeName: t('MSG_TXT_ACC_NINC') },
-  { codeId: '3', codeName: `${t('MSG_TXT_SELL')}${t('MSG_TXT_DTL')}` },
-  { codeId: '4', codeName: `${t('MSG_TXT_NINC')}${t('MSG_TXT_DTL')}` },
-];
-const nincDv = codes.MNGER_OG_ACC_NINC_MNGT_INQR_DV_CD.filter((v) => ['01', '02'].includes(v.codeId));
-const mchnChTpCd = codes.PMOT_MCHN_CH_TP_CD.filter((v) => v.codeId !== '0');
+const ojPstnRankCd = ref([...codes.WELS_MNGER_INQR_DV_CD]);
+const customCodes = {
+  perfBaseDv: [
+    { codeId: '1', codeName: t('MSG_TXT_RCP') },
+    { codeId: '2', codeName: t('MSG_TXT_SL') },
+  ],
+  inqrDv: [
+    { codeId: '1', codeName: `${t('MSG_TXT_COUNT')}&${t('MSG_TXT_PERF')}` },
+    { codeId: '2', codeName: t('MSG_TXT_ACC_NINC') },
+    { codeId: '3', codeName: `${t('MSG_TXT_SELL')}${t('MSG_TXT_DTL')}` },
+    { codeId: '4', codeName: `${t('MSG_TXT_NINC')}${t('MSG_TXT_DTL')}` },
+  ],
+  nincDv: codes.MNGER_OG_ACC_NINC_MNGT_INQR_DV_CD.filter((v) => ['01', '02'].includes(v.codeId)),
+  mchnChTpCd: codes.PMOT_MCHN_CH_TP_CD.filter((v) => v.codeId !== '0'),
+};
 
 const searchParams = ref({
   inqrStrtDt: dayjs().startOf('month').format('YYYYMMDD'),
@@ -202,16 +204,27 @@ const grdMain4Ref = ref(getComponentType('KwGrid'));
 // -------------------------------------------------------------------------------------------------
 // Function & Event
 // -------------------------------------------------------------------------------------------------
-
+/* 조회구분 변경시 처리 */
 watch(
   () => searchParams.value.inqrDv,
   (newInqrDv) => {
+    totalCount.value = 0;
     if (newInqrDv === '3' || newInqrDv === '4') {
       ojPstnRankCd.value = codes.WELS_MNGER_INQR_DV_CD.filter((v) => ['04'].includes(v.codeId));
       searchParams.value.pstnDvCd = '04';
     } else {
       ojPstnRankCd.value = codes.WELS_MNGER_INQR_DV_CD;
       searchParams.value.pstnDvCd = '01';
+    }
+  },
+);
+
+/* 사원번호 변경시 처리 */
+watch(
+  () => searchParams.value.prtnrNo,
+  (prtnrNo) => {
+    if (prtnrNo === '') {
+      searchParams.value.prtnrNm = '';
     }
   },
 );
@@ -317,16 +330,7 @@ function initGrid1(data, view) {
     { fieldName: 'prtnrNo', header: t('MSG_TXT_PRTNR_NO'), width: '100', styleName: 'text-center' },
     { fieldName: 'pstnDvCd', header: t('MSG_TXT_CRLV'), width: '70', styleName: 'text-center', headerSummary: { text: '합계' } },
     { fieldName: 'brchCt', header: t('MSG_TXT_BRCH_N'), width: '90', styleName: 'text-right', dataType: 'number', headerSummary: { expression: 'sum', numberFormat: '#,##0' } },
-    { fieldName: 'rentalElhmCt',
-      header: t('MSG_TXT_RENTAL'),
-      width: '100',
-      styleName: 'text-right',
-      dataType: 'number',
-      summaries: [{
-        expression: 'sum',
-        numberFormat: '#,##0',
-      }],
-    },
+    { fieldName: 'rentalElhmCt', header: t('MSG_TXT_RENTAL'), width: '100', styleName: 'text-right', dataType: 'number', summaries: [{ expression: 'sum', numberFormat: '#,##0' }] },
     { fieldName: 'spayElhmCt', header: t('MSG_TXT_SNGL_PMNT'), width: '100', styleName: 'text-right', dataType: 'number', headerSummary: { expression: 'sum', numberFormat: '#,##0' } },
     { fieldName: 'rentalElhmBaseAmt', header: t('MSG_TXT_RENTAL'), width: '110', styleName: 'text-right', dataType: 'number', headerSummary: { expression: 'sum', numberFormat: '#,##0' } },
     { fieldName: 'spayElhmBaseAmt', header: t('MSG_TXT_ISTM'), width: '100', styleName: 'text-right', dataType: 'number', headerSummary: { expression: 'sum', numberFormat: '#,##0' } },
@@ -370,31 +374,27 @@ function initGrid1(data, view) {
     },
     'notElhmAmt', 'vstAsnCt', 'vstFshCt', 'vstProcsRt', 'nwSellCt', 'accNincSum',
   ]);
-  view.setHeaderSummaries({
-    visible: true,
-    items: [
-      { height: 42 },
-    ],
-  });
+  // Header Summary
+  view.setHeaderSummaries({ visible: true, items: [{ height: 42 }] });
 }
 
 // 계정순증 그리드
 function initGrid2(data, view) {
   const columns = [
-    { fieldName: 'ogCd', header: t('MSG_TXT_BLG'), width: '90', styleName: 'text-center' },
+    { fieldName: 'ogCd', header: t('MSG_TXT_BLG'), width: '90', styleName: 'text-center', headerSummary: { text: '합계' } },
     { fieldName: 'prtnrNm', header: t('MSG_TXT_EMPL_NM'), width: '80', styleName: 'text-center' },
     { fieldName: 'prtnrNo', header: t('MSG_TXT_PRTNR_NO'), width: '100', styleName: 'text-center' },
     { fieldName: 'pstnDvCd', header: t('MSG_TXT_CRLV'), width: '70', styleName: 'text-center' },
-    { fieldName: 'brchCt', header: t('MSG_TXT_BRCH_N'), width: '90', styleName: 'text-right', dataType: 'number' },
-    { fieldName: 'rentalNincNwCt', header: t('MSG_TXT_RENTAL'), width: '100', styleName: 'text-right', dataType: 'number' },
-    { fieldName: 'spayNincNwCt', header: t('MSG_TXT_SNGL_PMNT'), width: '100', styleName: 'text-right', dataType: 'number' },
-    { fieldName: 'nwSellCt', header: t('MSG_TXT_AGG'), width: '100', styleName: 'text-right', dataType: 'number' },
-    { fieldName: 'rentalCanCt', header: `${t('MSG_TXT_PUR_RSG')}(${t('MSG_TXT_RENTAL')})`, width: '100', styleName: 'text-right', dataType: 'number' },
-    { fieldName: 'spayRsgCt', header: `${t('MSG_TXT_PUR_RSG')}(${t('MSG_TXT_SNGL_PMNT')})`, width: '110', styleName: 'text-right', dataType: 'number' },
-    { fieldName: 'rentalExnCt', header: t('MSG_TXT_EXN'), width: '100', styleName: 'text-right', dataType: 'number' },
-    { fieldName: 'mshSprCt', header: `${t('MSG_TXT_MMBR')}${t('MSG_TXT_WDWAL')}`, width: '100', styleName: 'text-right', dataType: 'number' },
-    { fieldName: 'canCt', header: t('MSG_TXT_AGG'), width: '90', styleName: 'text-right', dataType: 'number' },
-    { fieldName: 'accNincSum', header: t('MSG_TXT_ACC_NINC'), width: '90', styleName: 'text-right', dataType: 'number' },
+    { fieldName: 'brchCt', header: t('MSG_TXT_BRCH_N'), width: '90', styleName: 'text-right', dataType: 'number', headerSummary: { expression: 'sum', numberFormat: '#,##0' } },
+    { fieldName: 'rentalNincNwCt', header: t('MSG_TXT_RENTAL'), width: '100', styleName: 'text-right', dataType: 'number', headerSummary: { expression: 'sum', numberFormat: '#,##0' } },
+    { fieldName: 'spayNincNwCt', header: t('MSG_TXT_SNGL_PMNT'), width: '100', styleName: 'text-right', dataType: 'number', headerSummary: { expression: 'sum', numberFormat: '#,##0' } },
+    { fieldName: 'nwSellCt', header: t('MSG_TXT_AGG'), width: '100', styleName: 'text-right', dataType: 'number', headerSummary: { expression: 'sum', numberFormat: '#,##0' } },
+    { fieldName: 'rentalCanCt', header: `${t('MSG_TXT_PUR_RSG')}(${t('MSG_TXT_RENTAL')})`, width: '100', styleName: 'text-right', dataType: 'number', headerSummary: { expression: 'sum', numberFormat: '#,##0' } },
+    { fieldName: 'spayRsgCt', header: `${t('MSG_TXT_PUR_RSG')}(${t('MSG_TXT_SNGL_PMNT')})`, width: '110', styleName: 'text-right', dataType: 'number', headerSummary: { expression: 'sum', numberFormat: '#,##0' } },
+    { fieldName: 'rentalExnCt', header: t('MSG_TXT_EXN'), width: '100', styleName: 'text-right', dataType: 'number', headerSummary: { expression: 'sum', numberFormat: '#,##0' } },
+    { fieldName: 'mshSprCt', header: `${t('MSG_TXT_MMBR')}${t('MSG_TXT_WDWAL')}`, width: '100', styleName: 'text-right', dataType: 'number', headerSummary: { expression: 'sum', numberFormat: '#,##0' } },
+    { fieldName: 'canCt', header: t('MSG_TXT_AGG'), width: '90', styleName: 'text-right', dataType: 'number', headerSummary: { expression: 'sum', numberFormat: '#,##0' } },
+    { fieldName: 'accNincSum', header: t('MSG_TXT_ACC_NINC'), width: '90', styleName: 'text-right', dataType: 'number', headerSummary: { expression: 'sum', numberFormat: '#,##0' } },
   ];
 
   const fields = columns.map(({ fieldName, dataType }) => (dataType ? { fieldName, dataType } : { fieldName }));
@@ -420,16 +420,18 @@ function initGrid2(data, view) {
     },
     'accNincSum',
   ]);
+  // Header Summary
+  view.setHeaderSummaries({ visible: true, items: [{ height: 42 }] });
 }
 
 // 판매상세 그리드
 function initGrid3(data, view) {
   const columns = [
-    { fieldName: 'ogCd', header: t('MSG_TXT_BLG'), width: '90', styleName: 'text-center' },
+    { fieldName: 'ogCd', header: t('MSG_TXT_BLG'), width: '85', styleName: 'text-center' },
     { fieldName: 'prtnrNm', header: t('MSG_TXT_EMPL_NM'), width: '80', styleName: 'text-center' },
-    { fieldName: 'prtnrNo', header: t('MSG_TXT_PRTNR_NO'), width: '100', styleName: 'text-center' },
+    { fieldName: 'prtnrNo', header: t('MSG_TXT_PRTNR_NO'), width: '100', styleName: 'text-center', dataType: 'number', numberFormat: '#' },
     { fieldName: 'pstnDvCd', header: t('MSG_TXT_CRLV'), width: '70', styleName: 'text-center' },
-    { fieldName: 'cntrNo', header: t('MSG_TXT_CST_CD'), width: '140', styleName: 'text-center' },
+    { fieldName: 'cntrNo', header: t('MSG_TXT_CST_CD'), width: '125', styleName: 'text-center' },
     { fieldName: 'cntrCstNm', header: t('MSG_TXT_CST_NM'), width: '100', styleName: 'text-center' },
     { fieldName: 'cntrCnfmDt', header: t('MSG_TXT_RCPDT'), width: '100', styleName: 'text-center', datetimeFormat: 'YYYY-MM-DD' },
     { fieldName: 'cntrPdStrtdt', header: t('MSG_TXT_SL_DT'), width: '100', styleName: 'text-center', datetimeFormat: 'YYYY-MM-DD' },
@@ -437,10 +439,10 @@ function initGrid3(data, view) {
     { fieldName: 'pdClsfNm', header: t('MSG_TXT_PRDT_GUBUN'), width: '110', styleName: 'text-center' },
     { fieldName: 'pdCd', header: t('MSG_TXT_PRDT_CODE'), width: '120', styleName: 'text-center' },
     { fieldName: 'pdNm', header: t('MSG_TXT_PRDT_NM'), width: '200', styleName: 'text-left' },
-    { fieldName: 'mchnChTpCd', header: t('MSG_TXT_CHDVC_TP'), width: '90', styleName: 'text-center', options: mchnChTpCd },
-    { fieldName: 'elhmBaseAmt', header: `${t('MSG_TXT_ELHM')}${t('TXT_MSG_BAS_VAL')}(${t('MSG_TXT_RENTAL')}/${t('MSG_TXT_ISTM')})`, width: '150', styleName: 'text-right', dataType: 'number' },
-    { fieldName: 'notElhmAmt', header: t('MSG_TXT_ELHM_EXCP_ACKMT_PERF'), width: '110', styleName: 'text-right', dataType: 'number' },
-    { fieldName: 'elhmPerfCt', header: t('MSG_TXT_ELHM_ACKMT_CT'), width: '90', styleName: 'text-right', dataType: 'number' },
+    { fieldName: 'mchnChTpCd', header: t('MSG_TXT_CHDVC_TP'), width: '90', styleName: 'text-center', options: customCodes.mchnChTpCd },
+    { fieldName: 'elhmBaseAmt', header: `${t('MSG_TXT_ELHM')}${t('TXT_MSG_BAS_VAL')}(${t('MSG_TXT_RENTAL')}/${t('MSG_TXT_ISTM')})`, width: '150', styleName: 'text-right', dataType: 'number', headerSummary: { expression: 'sum', numberFormat: '#,##0' } },
+    { fieldName: 'notElhmAmt', header: t('MSG_TXT_ELHM_EXCP_ACKMT_PERF'), width: '110', styleName: 'text-right', dataType: 'number', headerSummary: { expression: 'sum', numberFormat: '#,##0' } },
+    { fieldName: 'elhmPerfCt', header: t('MSG_TXT_ELHM_ACKMT_CT'), width: '90', styleName: 'text-right', dataType: 'number', headerSummary: { expression: 'sum', numberFormat: '#,##0' } },
   ];
 
   const fields = columns.map(({ fieldName, dataType }) => (dataType ? { fieldName, dataType } : { fieldName }));
@@ -450,6 +452,7 @@ function initGrid3(data, view) {
 
   view.checkBar.visible = false; // create checkbox column
   view.rowIndicator.visible = true; // create number indicator column
+  view.setHeaderSummaries({ visible: true, items: [{ height: 42 }] });
 }
 
 // 순증상세 그리드

@@ -33,7 +33,7 @@
         <kw-search-item :label="$t('MSG_TXT_CNTR_DTL_NO')">
           <kw-input
             v-model="searchParams.cntrDtlNo"
-            mask="A###########-#"
+            mask="A###########-#####"
             upper-case
             type="text"
             :label="$t('MSG_TXT_CNTR_DTL_NO')"
@@ -102,6 +102,11 @@ const router = useRouter();
 
 const dataService = useDataService();
 
+const { getUserInfo } = useMeta();
+const { tenantCd } = getUserInfo();
+const availablePrefix = ['E', 'W'].includes(tenantCd) ? tenantCd : '[EW]';
+const contractNumberRegEx = RegExp(`^${availablePrefix}\\d{11}(\\d{0,5})?$|^$`); // 계약상세번호
+
 // -------------------------------------------------------------------------------------------------
 // Function & Event
 // -------------------------------------------------------------------------------------------------
@@ -152,8 +157,7 @@ async function onClickSearch() {
   const { cntrDtlNo } = cachedParams;
   // 계약상세번호 유효성 체크
   if (!isEmpty(cntrDtlNo)) {
-    const regex = /^(W|w)\d{12}$/;
-    const isRegex = regex.test(cntrDtlNo);
+    const isRegex = contractNumberRegEx.test(cntrDtlNo);
     if (!isRegex) {
       // 올바른 계약상세번호로 조회 하세요.
       await alert(t('MSG_ALT_CNTR_DTL_NO_CONF'));

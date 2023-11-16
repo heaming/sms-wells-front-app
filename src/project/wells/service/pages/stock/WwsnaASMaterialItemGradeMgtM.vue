@@ -94,8 +94,6 @@
             :disable="true"
           />
         </kw-search-item>
-      </kw-search-row>
-      <kw-search-row>
         <!-- 품목코드 -->
         <kw-search-item :label="$t('MSG_TXT_ITM_CD')">
           <kw-input
@@ -106,6 +104,8 @@
             rules="alpha_num|max:10"
           />
         </kw-search-item>
+      </kw-search-row>
+      <kw-search-row>
         <!-- 자재구분 -->
         <kw-search-item :label="t('MSG_TXT_MAT_DV')">
           <kw-select

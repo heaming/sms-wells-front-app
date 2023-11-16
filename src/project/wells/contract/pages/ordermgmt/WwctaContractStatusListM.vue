@@ -311,6 +311,12 @@
                 padding="10px"
                 @click="onClickConfirm(item)"
               />
+              <kw-btn
+                v-if="sessionUserInfo.baseRleCd === 'W8010'"
+                :label="$t('MSG_BTN_F2F_PYMNT')"
+                padding="10px"
+                @click="onClickF2fPayment(item)"
+              />
             </template>
             <!--<template v-else>-->
             <!--재약정 아닐때, 노출-->
@@ -492,7 +498,10 @@ const now = dayjs();
 const contractNumberRegEx = RegExp(`^${sessionUserInfo.tenantCd}\\d{0,11}?$`); // 계약번호 입력 정규식
 
 const props = defineProps({
+  srchDv: { type: String, default: '' },
   srchCstNm: { type: String, default: '' },
+  srchCntrNo: { type: String, default: '' },
+  timestemp: { type: String, default: '' },
 });
 
 const resultList = ref({});
@@ -613,9 +622,10 @@ async function onClickPrgsSearch(prgsCd) {
 }
 
 // 검색 > 계약자/계약번호 구분 변경
-function onChangeSearchDiv() {
-  searchParams.value.srchCntrNo = '';
-  searchParams.value.srchCstNm = '';
+function onChangeSearchDiv(dv) {
+  console.log(`----------------------${dv}`);
+  if (dv === 'NO') { searchParams.value.srchCstNm = ''; } else if (dv === 'NM') { searchParams.value.srchCntrNo = ''; }
+
   searchParams.value.srchText = '';
 }
 
@@ -849,17 +859,34 @@ async function onClickApproval(item) {
 }
 
 watch(props, () => {
-  const { srchCstNm } = props;
+  console.log('watch!');
+  if (props.srchDv === 'NM') {
+    searchParams.value.srchCstNm = props.srchCstNm;
+    searchParams.value.srchCntrNo = '';
+  } else if (props.srchDv === 'NO') {
+    searchParams.value.srchCstNm = '';
+    searchParams.value.srchCntrNo = props.srchCntrNo;
+  }
 
-  if (srchCstNm) {
-    searchParams.value.srchCstNm = srchCstNm;
+  if (props.srchDv) {
+    searchParams.value.srchDv = props.srchDv;
     onClickSearch();
   }
 }, { deep: true });
 
 onMounted(async () => {
-  if (props.srchCstNm) { searchParams.value.srchCstNm = props.srchCstNm; }
-  await onClickSearch();
+  console.log('mount!');
+
+  if (props.srchDv === 'NM') {
+    searchParams.value.srchCstNm = props.srchCstNm;
+  } else if (props.srchDv === 'NO') {
+    searchParams.value.srchCntrNo = props.srchCntrNo;
+  }
+
+  if (props.srchDv) {
+    searchParams.value.srchDv = props.srchDv;
+    await onClickSearch();
+  }
 });
 
 // -------------------------------------------------------------------------------------------------

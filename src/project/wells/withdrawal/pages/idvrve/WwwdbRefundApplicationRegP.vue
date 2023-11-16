@@ -475,6 +475,8 @@ const codes = await codeUtil.getMultiCodes(
   /* 전금상세 */
   'BLTF_RFND_MB_DV_CD',
 );
+codes.RFND_RSON_CD.push({ codeId: '', codeName: t('MSG_TXT_SELT') });
+codes.RFND_RSON_CD.sort((a, b) => a.codeId - b.codeId);
 
 let cachedParams;
 let rgstStatCd = false; // 검색조건용 disable 처리
@@ -756,7 +758,7 @@ async function onClickEftnCheck() {
     saveParams.value.cstNm = '테스트예금주';
   });
   if (!isEmpty(acnoData.data)) {
-    if (isEmpty(acnoData.data.ACHLDR_NM.trim())) {
+    if (isEmpty(acnoData.data.ACHLDR_NM) && isEmpty(acnoData.data.ACHLDR_NM?.trim())) {
       notify(acnoData.data.ERR_CN);
       saveParams.value.cstNm = '테스트예금주';
     } else {
@@ -966,13 +968,6 @@ async function onEditRfnd(cntrNo, rveNo, rveSn) {
   totBltfAkAmt.value = temp;
 }
 
-// 그리드3 - 전금상세 행삭제
-async function onClickRfndDelete() {
-  const view = grdPopRef3.value.getView();
-  await gridUtil.confirmDeleteCheckedRows(view);
-  pageInfo3.value.totalCount = gridUtil.getAllRowValues(view).length;
-}
-
 /** *************************************** */
 // 그리드4 (환불접수총액 실시간 계산) - 자동계산 및 기입
 async function onCheckTotalData() {
@@ -1022,6 +1017,19 @@ async function onClickRfndAddRow(cntrNo, cntrSn, cntrDtlNo, dpDt, dpMesCd, dpAmt
     rveSn,
     rfndAkNo,
   });
+}
+
+// 그리드3 - 전금상세 행삭제
+async function onClickRfndDelete() {
+  const view = grdPopRef3.value.getView();
+  await gridUtil.confirmDeleteCheckedRows(view);
+  const bltfData = gridUtil.getAllRowValues(view);
+  pageInfo3.value.totalCount = bltfData.length;
+
+  bltfData.forEach((obj) => {
+    onEditRfnd(obj.cntrNo, obj.rveNo, obj.rveSn);
+  });
+  await onCheckTotalData();
 }
 // -------------------------------------------------------------------------------------------------
 // Initialize Grid
@@ -1307,6 +1315,10 @@ const initGrid2 = defineGrid((data, view) => {
       width: '140',
       styleName: 'text-right',
       editable: true,
+      // 입금액
+      editor: {
+        type: 'number',
+      },
     },
     { fieldName: 'rfndCardAkAmt',
       header: t('MSG_TXT_CARD_RFND_RQST_AMT'),
@@ -1400,7 +1412,9 @@ const initGrid2 = defineGrid((data, view) => {
   // 2번째 GRID 변경(환불상세)에 따라 4번째 GRID(환불접수총액) 상시변경
   // eslint-disable-next-line no-unused-vars
   view.onCellEdited = async (grid, itemIndex) => {
-    const { dpMesCd, crdcdFer, rfndCshAkAmt } = grid.getValues(itemIndex);
+    const { dpMesCd, crdcdFer, rfndCshAkAmt, rfndCardAkAmt } = grid.getValues(itemIndex);
+    if (Number.isNaN(Number(rfndCshAkAmt))) grid.setValue(itemIndex, 'rfndCshAkAmt', 0);
+    if (Number.isNaN(Number(rfndCardAkAmt))) grid.setValue(itemIndex, 'rfndCardAkAmt', 0);
 
     if (dpMesCd === '02') {
       let fee = crdcdFer;
@@ -1588,7 +1602,10 @@ const initGrid3 = defineGrid((data, view) => {
   view.onCellEdited = async (grid, itemIndex) => {
     // const { sellAmt, cntrAmt, afctIstmMcn } = grid.getValues(itemIndex);
     const { cntrNo, rveNo, rveSn, dpAmt, rfndBltfAkAmt } = grid.getValues(itemIndex);
-    if (dpAmt < rfndBltfAkAmt) {
+
+    if (Number.isNaN(Number(rfndBltfAkAmt))) {
+      grid.setValue(itemIndex, 'rfndBltfAkAmt', 0);
+    } else if (dpAmt < rfndBltfAkAmt) {
       grid.setValue(itemIndex, 'rfndBltfAkAmt', Number(0));
     } else {
       grid.setValue(itemIndex, 'rfndBltfAkAmt', Number(rfndBltfAkAmt));

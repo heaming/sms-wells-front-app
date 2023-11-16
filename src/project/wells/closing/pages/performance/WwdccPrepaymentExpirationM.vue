@@ -573,20 +573,20 @@ const initGrdObjectPresentState = defineGrid((data, view) => {
   ];
 
   const columns = [
-    { fieldName: 'cntrDtlNo', header: t('MSG_TXT_CNTR_NO'), width: '140', styleName: 'text-center' },
-    { fieldName: 'cstKnm', header: t('MSG_TXT_CNTOR_NM'), width: '100', styleName: 'text-center' },
-    { fieldName: 'rcgvpKnm', header: t('MSG_TXT_IST_NM'), width: '100', styleName: 'text-center' },
-    { fieldName: 'pdNm', header: t('MSG_TXT_GOODS_NM'), width: '250', styleName: 'text-left' },
-    { fieldName: 'rentalTn', header: t('MSG_TXT_RNTL_SN'), width: '100', styleName: 'text-right' },
-    { fieldName: 'mpyBsdt', header: t('MSG_TXT_FNT_DT'), width: '100', styleName: 'text-right' },
-    { fieldName: 'lcsleDt', header: t('MSG_TXT_SL_DT'), width: '140', styleName: 'text-center', datetimeFormat: 'date' },
-    { fieldName: 'cntrCanDt', header: t('MSG_TXT_CANC_DT'), width: '140', styleName: 'text-center', datetimeFormat: 'date' },
-    { fieldName: 'prmMcn', header: t('MSG_TXT_PRM_MCNT'), width: '100', styleName: 'text-right' },
-    { fieldName: 'prmDscr', header: t('MSG_TXT_PRM_DSC'), width: '100', styleName: 'text-right', numberFormat: '#,##0' },
-    { fieldName: 'prmPeriod', header: t('MSG_TXT_PRM_PTRM'), width: '200', styleName: 'text-center' },
-    { fieldName: 'totPrmAmt', header: t('MSG_TXT_PRM_TAM'), width: '100', styleName: 'text-center', numberFormat: '#,##0' },
-    { fieldName: 'prmReAplcYn', header: t('MSG_TXT_PRM_RE_APLC_YN'), width: '100', styleName: 'text-center' },
-    { fieldName: 'prmExcpt', header: t('MSG_TXT_PRM_EXCD'), width: '100', styleName: 'text-right' },
+    { fieldName: 'cntrDtlNo', header: t('MSG_TXT_CNTR_NO'), width: '140', styleName: 'text-center' }, // 계약상세번호
+    { fieldName: 'cstKnm', header: t('MSG_TXT_CNTOR_NM'), width: '100', styleName: 'text-center' }, // 고객명
+    { fieldName: 'rcgvpKnm', header: t('MSG_TXT_IST_NM'), width: '100', styleName: 'text-center' }, // 설치자명
+    { fieldName: 'pdNm', header: t('MSG_TXT_GOODS_NM'), width: '250', styleName: 'text-left' }, // 상품명
+    { fieldName: 'rentalTn', header: t('MSG_TXT_RNTL_SN'), width: '100', styleName: 'text-right' }, // 렐탈차월
+    { fieldName: 'mpyBsdt', header: t('MSG_TXT_FNT_DT'), width: '100', styleName: 'text-right' }, // 이체일자
+    { fieldName: 'lcsleDt', header: t('MSG_TXT_SL_DT'), width: '140', styleName: 'text-center', datetimeFormat: 'date' }, // 매출일자
+    { fieldName: 'cntrCanDt', header: t('MSG_TXT_CANC_DT'), width: '140', styleName: 'text-center', datetimeFormat: 'date' }, // 취소일자
+    { fieldName: 'prmMcn', header: t('MSG_TXT_PRM_MCNT'), width: '100', styleName: 'text-right' }, // 선납개월
+    { fieldName: 'prmDscr', header: t('MSG_TXT_PRM_DSC'), width: '100', styleName: 'text-right', numberFormat: '#,##0' }, // 할인율
+    { fieldName: 'prmPeriod', header: t('MSG_TXT_PRM_PTRM'), width: '200', styleName: 'text-center' }, // 선납시작/종료
+    { fieldName: 'totPrmAmt', header: t('MSG_TXT_PRM_TAM'), width: '100', styleName: 'text-center', numberFormat: '#,##0' }, // 선납총액
+    { fieldName: 'prmReAplcYn', header: t('MSG_TXT_PRM_RE_APLC_YN'), width: '100', styleName: 'text-center' }, // 선납재신청
+    { fieldName: 'prmExcpt', header: t('MSG_TXT_PRM_EXCD'), width: '100', styleName: 'text-right' }, // 선납제외
     { fieldName: 'cntrLocalTno',
       header: t('MSG_TXT_CNTRT_TNO2'),
       width: '130',
@@ -597,7 +597,7 @@ const initGrdObjectPresentState = defineGrid((data, view) => {
           return `${cntrLocalTno1}-${cntrLocalTno2}-${cntrLocalTno3}`;
         }
       },
-    },
+    }, // 계약자전화번호
     { fieldName: 'cntrCralTno',
       header: t('MSG_TXT_CNTRT_MPNO'),
       width: '130',
@@ -608,8 +608,8 @@ const initGrdObjectPresentState = defineGrid((data, view) => {
           return `${cntrCralTno1}-${cntrCralTno2}-${cntrCralTno3}`;
         }
       },
-    },
-    { fieldName: 'cntrCralTno3', width: '100', styleName: 'text-right', visible: false },
+    }, // 계약자휴대전화번호
+    { fieldName: 'cntrCralTno3', width: '100', styleName: 'text-right', visible: false }, // 계약자휴대전화번호3
     { fieldName: 'rcgvpLocalTno',
       header: t('MSG_TXT_ISTLL_TNO'),
       width: '130',
@@ -620,8 +620,8 @@ const initGrdObjectPresentState = defineGrid((data, view) => {
           return `${rcgvpLocalTno1}-${rcgvpLocalTno2}-****`;
         }
       },
-    },
-    { fieldName: 'rcgvpLocalTno3', width: '100', styleName: 'text-right', visible: false },
+    }, // 설치자전화번호
+    { fieldName: 'rcgvpLocalTno3', width: '100', styleName: 'text-right', visible: false }, // 설치자전화번호3
     { fieldName: 'rcgvpCralTno',
       header: t('MSG_TXT_ISTLL_MPNO'),
       width: '130',
@@ -632,15 +632,15 @@ const initGrdObjectPresentState = defineGrid((data, view) => {
           return `${rcgvpCralTno1}-${rcgvpCralTno2}-****`;
         }
       },
-    },
-    { fieldName: 'rcgvpCralTno3', width: '100', styleName: 'text-right', visible: false },
-    { fieldName: 'dpClDt', header: t('MSG_TXT_DP_DT'), width: '140', styleName: 'text-center', datetimeFormat: 'date' },
-    { fieldName: 'dpTpCdNm', header: t('MSG_TXT_DP_TP'), width: '140', styleName: 'text-center' },
-    { fieldName: 'dpAmt', header: t('MSG_TXT_DEPOSIT_AMT'), width: '140', styleName: 'text-right', numberFormat: '#,##0' },
-    { fieldName: 'ogCd', header: t('MSG_TXT_OG_CD'), width: '100', styleName: 'text-center' },
-    { fieldName: 'prtnrKnm', header: t('MSG_TXT_EMPL_NM'), width: '100', styleName: 'text-center' },
-    { fieldName: 'sellPrtnrNo', header: t('MSG_TXT_PRTNR_NUM'), width: '100', styleName: 'text-center' },
-    { fieldName: 'cltnDt', header: t('MSG_TXT_BIZ_CLTN_D'), width: '100', styleName: 'text-center' },
+    }, // 설치자휴대전화번호
+    { fieldName: 'rcgvpCralTno3', width: '100', styleName: 'text-right', visible: false }, // 설치자휴대전화번호3
+    { fieldName: 'dpClDt', header: t('MSG_TXT_DP_DT'), width: '140', styleName: 'text-center', datetimeFormat: 'date' }, // 입금일자
+    { fieldName: 'dpTpCdNm', header: t('MSG_TXT_DP_TP'), width: '140', styleName: 'text-center' }, // 입금유형
+    { fieldName: 'dpAmt', header: t('MSG_TXT_DEPOSIT_AMT'), width: '140', styleName: 'text-right', numberFormat: '#,##0' }, // 입금액
+    { fieldName: 'ogCd', header: t('MSG_TXT_OG_CD'), width: '100', styleName: 'text-center' }, // 조직코드
+    { fieldName: 'prtnrKnm', header: t('MSG_TXT_EMPL_NM'), width: '100', styleName: 'text-center' }, // 성명
+    { fieldName: 'sellPrtnrNo', header: t('MSG_TXT_PRTNR_NUM'), width: '100', styleName: 'text-center' }, // 판매파트너번호
+    { fieldName: 'cltnDt', header: t('MSG_TXT_BIZ_CLTN_D'), width: '100', styleName: 'text-center' }, // 업무해약일
     { fieldName: 'prtnrLocalTno',
       header: t('MSG_TXT_TEL_NO'),
       width: '130',
@@ -651,8 +651,8 @@ const initGrdObjectPresentState = defineGrid((data, view) => {
           return `${prtnrLocalTno1}-${prtnrLocalTno2}-****`;
         }
       },
-    },
-    { fieldName: 'prtnrLocalTno3', width: '100', styleName: 'text-right', visible: false },
+    }, // 판매자전화번호
+    { fieldName: 'prtnrLocalTno3', width: '100', styleName: 'text-right', visible: false }, // 판매자전화번호3
     { fieldName: 'prtnrCralTno',
       header: t('MSG_TXT_MPNO'),
       width: '130',
@@ -663,11 +663,11 @@ const initGrdObjectPresentState = defineGrid((data, view) => {
           return `${prtnrCralTno1}-${prtnrCralTno2}-****`;
         }
       },
-    },
-    { fieldName: 'prtnrCralTno3', width: '100', styleName: 'text-right', visible: false },
-    { fieldName: 'hooPrtnrNm', header: t('MSG_TXT_EMPL_NM'), width: '100', styleName: 'text-center' },
-    { fieldName: 'hooPrtnrNo', header: t('MSG_TXT_PRTNR_NUM'), width: '100', styleName: 'text-center' },
-    { fieldName: 'hooPrtnrCltnDt', header: t('MSG_TXT_BRMGR_CLTN_D'), width: '100', styleName: 'text-center' },
+    }, // 판매자휴대전화번호
+    { fieldName: 'prtnrCralTno3', width: '100', styleName: 'text-right', visible: false }, // 판매자휴대전화번호3
+    { fieldName: 'hooPrtnrNm', header: t('MSG_TXT_EMPL_NM'), width: '100', styleName: 'text-center' }, // 성명
+    { fieldName: 'hooPrtnrNo', header: t('MSG_TXT_PRTNR_NUM'), width: '100', styleName: 'text-center' }, // 번호
+    { fieldName: 'hooPrtnrCltnDt', header: t('MSG_TXT_BRMGR_CLTN_D'), width: '100', styleName: 'text-center' }, // 지점장해약일
     { fieldName: 'ogLocalTno',
       header: t('MSG_TXT_BRCH_TNO'),
       width: '130',
@@ -678,8 +678,8 @@ const initGrdObjectPresentState = defineGrid((data, view) => {
           return `${ogLocalTno1}-${ogLocalTno2}-****`;
         }
       },
-    },
-    { fieldName: 'ogLocalTno3', width: '100', styleName: 'text-right', visible: false },
+    }, // 지점전화번호
+    { fieldName: 'ogLocalTno3', width: '100', styleName: 'text-right', visible: false }, // 지점전화번호3
     { fieldName: 'hooPrtnrCralTno',
       header: t('MSG_TXT_MPNO'),
       width: '130',
@@ -690,8 +690,8 @@ const initGrdObjectPresentState = defineGrid((data, view) => {
           return `${hooPrtnrCralTno1}-${hooPrtnrCralTno2}-****`;
         }
       },
-    },
-    { fieldName: 'hooPrtnrCralTno3', width: '100', styleName: 'text-right', visible: false },
+    }, // 지점장휴대전화번호
+    { fieldName: 'hooPrtnrCralTno3', width: '100', styleName: 'text-right', visible: false }, // 지점장휴대전화번호3
   ];
 
   data.setFields(fields);
@@ -745,8 +745,8 @@ const initGrdCharacterFwUld = defineGrid((data, view) => {
   ];
 
   const columns = [
-    { fieldName: 'cstNo', header: t('MSG_TXT_CST_NO'), width: '80', styleName: 'text-center', visible: false, editable: false },
-    { fieldName: 'cstKnm', header: t('MSG_TXT_CST_NM_CNTRT'), width: '100', styleName: 'text-center', editable: false },
+    { fieldName: 'cstNo', header: t('MSG_TXT_CST_NO'), width: '80', styleName: 'text-center', visible: false, editable: false }, // 고객번호
+    { fieldName: 'cstKnm', header: t('MSG_TXT_CST_NM_CNTRT'), width: '100', styleName: 'text-center', editable: false }, // 고객명
     { fieldName: 'cntrCralTno',
       header: t('MSG_TXT_CNTRR_VAC_PH_NO'),
       width: '140',
@@ -758,14 +758,14 @@ const initGrdCharacterFwUld = defineGrid((data, view) => {
           return `${cntrCralTno1}-${cntrCralTno2}-${cntrCralTno3}`;
         }
       },
-    },
-    { fieldName: 'cntrNo', header: t('MSG_TXT_CNTR_NO'), width: '160', styleName: 'text-center', visible: false, editable: false },
-    { fieldName: 'cntrSn', header: t('MSG_TXT_CNTR_NO'), width: '160', styleName: 'text-center', visible: false, editable: false },
-    { fieldName: 'cntrDtlNo', header: t('MSG_TXT_CNTR_NO'), width: '160', styleName: 'text-center', editable: false },
-    { fieldName: 'cntrInfo', header: t('MSG_TXT_PD_INF'), width: '300', styleName: 'text-left', editable: false },
-    { fieldName: 'prmEndYm', header: t('MSG_TXT_PRM_EXN_YM'), width: '100', styleName: 'text-center', editable: false },
-    { fieldName: 'mmpmYm', header: t('MSG_TXT_MM_PY_STRT_YM'), width: '100', styleName: 'text-center', editable: false },
-    { fieldName: 'orgPrmReAplcYn', header: t('MSG_TXT_PRM_RE_APLC_YN'), width: '100', styleName: 'text-center', editable: false },
+    }, // 계약자휴대전화번호
+    { fieldName: 'cntrNo', header: t('MSG_TXT_CNTR_NO'), width: '160', styleName: 'text-center', visible: false, editable: false }, // 계약번호
+    { fieldName: 'cntrSn', header: t('MSG_TXT_CNTR_NO'), width: '160', styleName: 'text-center', visible: false, editable: false }, // 계약일련번호
+    { fieldName: 'cntrDtlNo', header: t('MSG_TXT_CNTR_NO'), width: '160', styleName: 'text-center', editable: false }, // 계약상세번호
+    { fieldName: 'cntrInfo', header: t('MSG_TXT_PD_INF'), width: '300', styleName: 'text-left', editable: false }, // 상품정보
+    { fieldName: 'prmEndYm', header: t('MSG_TXT_PRM_EXN_YM'), width: '100', styleName: 'text-center', editable: false }, // 선납종료년월
+    { fieldName: 'mmpmYm', header: t('MSG_TXT_MM_PY_STRT_YM'), width: '100', styleName: 'text-center', editable: false }, // 선납종료익월년월
+    { fieldName: 'orgPrmReAplcYn', header: t('MSG_TXT_PRM_RE_APLC_YN'), width: '100', styleName: 'text-center', editable: false }, // 선납재신청
     {
       fieldName: 'prmReAplcYn',
       header: t('MSG_TXT_FW_OJ'),
@@ -773,17 +773,17 @@ const initGrdCharacterFwUld = defineGrid((data, view) => {
       width: '100',
       options: [{ codeId: 'Y', codeName: t('MSG_TXT_EXCD') }, { codeId: 'N', codeName: t('MSG_TXT_INC') }],
       styleCallback(grid, dataCell) { return isEditable(grid, dataCell); },
-    },
-    { fieldName: 'prmEndMm', width: '250', styleName: 'text-center', visible: false, editable: false },
-    { fieldName: 'pdCd', width: '250', styleName: 'text-center', visible: false, editable: false },
-    { fieldName: 'pdNm', width: '250', styleName: 'text-center', visible: false, editable: false },
-    { fieldName: 'cnt', width: '250', styleName: 'text-center', visible: false, editable: false },
-    { fieldName: 'currMm', width: '250', styleName: 'text-center', visible: false, editable: false },
-    { fieldName: 'postYy', width: '250', styleName: 'text-center', visible: false, editable: false },
-    { fieldName: 'postMm', width: '250', styleName: 'text-center', visible: false, editable: false },
-    { fieldName: 'cntrCralTno1', width: '250', styleName: 'text-center', visible: false, editable: false },
-    { fieldName: 'cntrCralTno2', width: '250', styleName: 'text-center', visible: false, editable: false },
-    { fieldName: 'cntrCralTno3', width: '250', styleName: 'text-center', visible: false, editable: false },
+    }, // 선납재신청
+    { fieldName: 'prmEndMm', width: '250', styleName: 'text-center', visible: false, editable: false }, // 선납종료월
+    { fieldName: 'pdCd', width: '250', styleName: 'text-center', visible: false, editable: false }, // 상품코드
+    { fieldName: 'pdNm', width: '250', styleName: 'text-center', visible: false, editable: false }, // 상품명
+    { fieldName: 'cnt', width: '250', styleName: 'text-center', visible: false, editable: false }, // 건수
+    { fieldName: 'currMm', width: '250', styleName: 'text-center', visible: false, editable: false }, // 당월
+    { fieldName: 'postYy', width: '250', styleName: 'text-center', visible: false, editable: false }, // 익월년도
+    { fieldName: 'postMm', width: '250', styleName: 'text-center', visible: false, editable: false }, // 익월
+    { fieldName: 'cntrCralTno1', width: '250', styleName: 'text-center', visible: false, editable: false }, // 계약자휴대전화번호1
+    { fieldName: 'cntrCralTno2', width: '250', styleName: 'text-center', visible: false, editable: false }, // 계약자휴대전화번호2
+    { fieldName: 'cntrCralTno3', width: '250', styleName: 'text-center', visible: false, editable: false }, // 계약자휴대전화번호3
 
   ];
 

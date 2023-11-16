@@ -75,14 +75,16 @@
             first-option="all"
           />
         </kw-search-item>
-        <!-- 배송기간 -->
+        <!-- 배송구분 -->
         <kw-search-item
           :label="t('TXT_MSG_SPP_DV_CD')"
+          required
         >
           <kw-select
             v-model="searchParams.sppDvCd"
             :options="codes.ITM_IOST_DV_CD"
-            first-option="all"
+            :label="t('TXT_MSG_SPP_DV_CD')"
+            rules="required"
           />
         </kw-search-item>
         <!-- 완료처리 -->
@@ -349,6 +351,7 @@ async function onClickSearch() {
 // 초기화버튼 클릭
 function onClickReset() {
   searchParams.value.strtDt = now.format('YYYYMMDD');
+  searchParams.value.endDt = now.format('YYYYMMDD');
 }
 
 // 저장

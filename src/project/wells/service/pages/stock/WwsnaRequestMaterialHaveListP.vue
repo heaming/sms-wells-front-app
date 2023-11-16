@@ -17,6 +17,7 @@
   <kw-popup size="xl">
     <kw-search
       @search="onClickSearch"
+      @reset="onClickReset"
     >
       <kw-search-row>
         <!-- 품목코드 -->
@@ -255,8 +256,14 @@ async function onChangeWareClsFCd() {
  *  Event - 조회 버튼 클릭
  */
 async function onClickSearch() {
+  pageInfo.value.pageIndex = 1;
   cachedParams = cloneDeep(searchParams.value);
   await fetchData();
+}
+
+// 초기화 버튼 클릭이벤트
+async function onClickReset() {
+  await onChangeWareClsFCd();
 }
 
 function isProps() {
@@ -277,12 +284,12 @@ const initGrdMain = defineGrid((data, view) => {
   const fields = [
     { fieldName: 'wareNm' }, // 창고명
     { fieldName: 'wareNo' }, // 창고번호
-    { fieldName: 'qty' }, // 수량
+    { fieldName: 'qty', dataType: 'number' }, // 수량
 
   ];
 
   const columns = [
-    { fieldName: 'wareNm', header: t('MSG_TXT_WARE_NM'), width: '30', styleName: 'text-left' },
+    { fieldName: 'wareNm', header: t('MSG_TXT_WARE_NM'), width: '30', styleName: 'text-center' },
     { fieldName: 'wareNo', header: t('MSG_TXT_WARE_CD'), width: '30', styleName: 'text-center' },
     { fieldName: 'qty', header: t('MSG_TXT_STOC'), width: '20', styleName: 'text-right' },
 
@@ -299,12 +306,12 @@ const initGrdMain2 = defineGrid((data, view) => {
   const fields = [
     { fieldName: 'wareNm' },
     { fieldName: 'wareMngtPrtnrNo' },
-    { fieldName: 'qty' },
+    { fieldName: 'qty', dataType: 'number' },
 
   ];
 
   const columns = [
-    { fieldName: 'wareNm', header: t('MSG_TXT_WARE_NM'), width: '30', styleName: 'text-left' },
+    { fieldName: 'wareNm', header: t('MSG_TXT_WARE_NM'), width: '30', styleName: 'text-center' },
     { fieldName: 'wareMngtPrtnrNo', header: t('MSG_TXT_EPNO'), width: '30', styleName: 'text-center' },
     { fieldName: 'qty', header: t('MSG_TXT_STOC'), width: '20', styleName: 'text-right' },
 

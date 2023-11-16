@@ -15,7 +15,7 @@
 -->
 <template>
   <kw-popup
-    class="kw-popup--xl"
+    size="3xl"
   >
     <kw-action-top>
       <template #left>
@@ -24,7 +24,7 @@
     </kw-action-top>
     <kw-grid
       ref="grdMainRef"
-      :visible-rows="3"
+      :visible-rows="10"
       @init="initGrid"
     />
   </kw-popup>
@@ -97,7 +97,7 @@ function initGrid(data, view) {
       width: '70',
       styleName: 'text-center',
       displayCallback(g, index, val) {
-        return `${val}${t('MSG_TXT_MCNT')}`; // 개월
+        return val ? `${val}${t('MSG_TXT_MCNT')}` : ''; // 개월
       } }, // BS주기
     { fieldName: 'stplPtrm',
       header: t('MSG_TXT_DUTY_STPL'),
@@ -106,7 +106,7 @@ function initGrid(data, view) {
       displayCallback(g, index, val) {
         return `${val}${t('MSG_TXT_YEAR')}`; // 년
       } }, // 의무약정
-    { fieldName: 'cntrChAkCn', header: t('MSG_TXT_ETC_CH_ARTC'), width: '200', styleName: 'text-left' }, // 기타 변경사항
+    { fieldName: 'cntrChAkCn', header: t('MSG_TXT_ETC_CH_ARTC'), width: '500', styleName: 'text-left' }, // 기타 변경사항
   ];
 
   data.setFields(fields);

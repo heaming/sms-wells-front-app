@@ -34,6 +34,7 @@
             <template #append>
               <kw-icon
                 name="search"
+                clickable="true"
                 @click="onClickCstSearch"
               />
             </template>
@@ -43,12 +44,16 @@
         <kw-search-item :label="$t('MSG_TXT_BARCODE')">
           <kw-input
             v-model="searchParams.bcNo"
+            :regex="/^[A-Z0-9]*$/i"
             @update:model-value="()=>{searchParams.bcNo=searchParams.bcNo?.toUpperCase()?.replaceAll(' ','')}"
           />
         </kw-search-item>
         <!-- 송장번호 -->
         <kw-search-item :label="$t('MSG_TXT_IVC_NO')">
-          <kw-input v-model="searchParams.idvTno" />
+          <kw-input
+            v-model="searchParams.sppIvcNo"
+            :regex="/^[0-9]*$/i"
+          />
         </kw-search-item>
       </kw-search-row>
     </kw-search>
@@ -761,6 +766,7 @@ async function getIndividualCounsel() {
   individualCounselData.checkRowStates(true);
 }
 
+/* 조회내역 */
 async function fetchData() {
   await getHousehold();
   await getIndividualContact();
@@ -770,6 +776,7 @@ async function fetchData() {
   await getIndividualCounsel();
 }
 
+/* 고객정보 조회 및 초기화 */
 async function isValidateIndividualParams() {
   await getIndividualServicePs();
   if (isEmpty(individualParams.value)) {
@@ -800,13 +807,14 @@ async function onClickSearch() {
   await isValidateIndividualParams();
 }
 
+/* 처리내역 엑셀다운로드 */
 const { currentRoute } = useRouter();
 async function onClickExcelDownload() {
+  const res = await dataService.get('sms/wells/service/individual-service-ps/process-state/excel-download', { params: { cntrNo: searchParams.value.cntrNo, cntrSn: searchParams.value.cntrSn } });
   const view = grdIndividualStateRef.value.getView();
-  const res = dataService.get('sms/wells/service/individual-service-ps/process-state/excel-download', { params: { cntrNo: searchParams.value.cntrNo, cntrSn: searchParams.value.cntrSn } });
 
   await gridUtil.exportView(view, {
-    filtName: currentRoute.value.meta.menuName,
+    fileName: currentRoute.value.meta.menuName,
     timePostfix: true,
     exportData: res.data,
   });
@@ -839,6 +847,7 @@ async function onClickCstSearch() {
   }
 }
 
+/* 바코드/송장번호 input-box 초기화 */
 watch(props, async (val) => {
   if (val) {
     searchParams.value.bcNo = '';
@@ -907,6 +916,7 @@ const initGridHousehold = defineGrid((data, view) => {
   view.checkBar.visible = false;
   view.rowIndicator.visible = true;
 
+  // 계약상세번호에 따른 그리드 재조회
   view.onCellDblClicked = async (g, cData) => {
     if (cData.fieldName === 'cntrDtl') {
       const { cntrDtl } = g.getValues(cData.itemIndex);
@@ -1013,6 +1023,7 @@ const initGridState = defineGrid((data, view) => {
   view.checkBar.visible = false; // create checkbox column
   view.rowIndicator.visible = true; // create number indicator column
 
+  // 서비스처리상세내역 팝업
   view.onCellDblClicked = async (g, cData) => {
     if (cData.fieldName === 'wkPrgsStat' || cData.fieldName === 'imgYn') { return false; }
 
@@ -1028,8 +1039,8 @@ const initGridState = defineGrid((data, view) => {
     });
   };
 
+  // 모바일 작업상세 팝업
   view.onCellItemClicked = async (g, cData) => {
-    /* 작업상세 */
     if (cData.fieldName === 'wkPrgsStat') {
       const {
         cstSvAsnNo,

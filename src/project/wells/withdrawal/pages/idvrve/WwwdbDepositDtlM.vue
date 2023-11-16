@@ -138,6 +138,24 @@
             maxlength="100"
           />
         </kw-search-item>
+        <!-- label="수납코드" -->
+        <kw-search-item
+          :label="t('MSG_TXT_RVE_CD')"
+        >
+          <kw-input
+            v-model="searchParams.stRveCd"
+            :rules="validateRveCdComponent"
+            regex="num"
+            maxlength="100"
+          />
+          <span>-</span>
+          <kw-input
+            v-model="searchParams.enRveCd"
+            :rules="validateRveCdComponent"
+            regex="num"
+            maxlength="100"
+          />
+        </kw-search-item>
       </kw-search-row>
     </kw-search>
     <div class="result-area">
@@ -251,6 +269,8 @@ const searchParams = ref({
   enClctamPrtnrNo: '', // 집금담당자 사번 끝
   stFstRgstUsrId: '', // 입력담당자 사번 시작
   enFstRgstUsrId: '', // 입력담당자 사번 끝
+  stRveCd: '',
+  enRveCd: '',
 });
 
 async function onChangeDpTpCd() {
@@ -337,6 +357,27 @@ const validateUsrComponent = computed(() => async () => {
   if (searchParams.value.stFstRgstUsrId > searchParams.value.enFstRgstUsrId) {
     errors.push(t('MSG_ALT_STRT_ICHR_END_ICHR_CMPR'));
     // 시작 입력담당자사번이 종료 입력담당자사번보다 클 수 없습니다.
+  }
+
+  return errors[0] || true;
+});
+
+const validateRveCdComponent = computed(() => async () => {
+  const errors = [];
+
+  if (!isEmpty(searchParams.value.stRveCd)) {
+    if (isEmpty(searchParams.value.enRveCd)) {
+      errors.push(t('시작 수납코드 입력시 종료 수납코드는 필수입니다.'));
+    }
+  }
+  if (!isEmpty(searchParams.value.enRveCd)) {
+    if (isEmpty(searchParams.value.stRveCd)) {
+      errors.push(t('시작 수납코드 입력은 필수 입니다.'));
+    }
+  }
+
+  if (searchParams.value.stRveCd > searchParams.value.enRveCd) {
+    errors.push(t('시작 수납코드는 종료수납코드보다 클 수 없습니다.'));
   }
 
   return errors[0] || true;

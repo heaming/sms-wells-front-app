@@ -27,6 +27,7 @@
         >
           <kw-date-picker
             v-model="searchParams.baseYm"
+            :label="$t('MSG_TXT_BASE_YM')"
             type="month"
             rules="required"
           />
@@ -308,7 +309,7 @@ const initGrdMain = defineGrid((data, view) => {
     { fieldName: 'prtnrKnm', header: t('MSG_TXT_EMPL_NM'), width: '70', styleName: 'text-center' },
     { fieldName: 'ogNm', header: t('MSG_TXT_BLG'), width: '120', styleName: 'text-center' },
     { fieldName: 'bldNm', header: t('MSG_TXT_BUILDING'), width: '120', styleName: 'text-left' },
-    { fieldName: 'hgrWareNm', header: t('MSG_TXT_HGR_WARE'), width: '120', styleName: 'text-left' },
+    { fieldName: 'hgrWareNm', header: t('MSG_TXT_HGR_WARE'), width: '120', styleName: 'text-center' },
     { fieldName: 'qomAsnApyYn',
       header: t('MSG_TXT_QOM_ASN_APY_YN'),
       width: '70',

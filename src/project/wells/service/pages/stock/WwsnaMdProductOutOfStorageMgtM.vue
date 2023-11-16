@@ -230,56 +230,21 @@ const totalCount = ref(0);
 const isCompStatus = ref(false);
 async function onChangeCompStatus() {
   const { findGb } = searchParams.value;
-  const view = grdMainRef.value.getView();
 
   /* 작업완료 */
   if (findGb === '1') {
     isCompStatus.value = true;
-    view.checkBar.visible = false;
     searchParams.value.firstSppGb = 'ALL';
   }
 
   /* 작업대기 */
   if (findGb === '2') {
     isCompStatus.value = false;
-    view.checkBar.visible = true;
   }
 }
 async function fetchData() {
   const res = await dataService.get(`${baseUrl}`, { params: cachedParams });
-  let list = res.data;
-  // 임시 테스트 데이터 S
-  list = [];
-  list.push({
-    cntrRcpFshDtm: '20230702',
-    svBizDclsfCd: '1112',
-    svBizDclsfNm: '제품배송',
-    wkPrgsStatNm: '작업완료',
-    cntrNo: 'W20226010893',
-    cntrSn: '1',
-    rcgvpKnm: '테스트이름',
-    cralIdvTno: '010-1234-5678',
-    idvTno: '02-777-2222',
-    newAdrZip: '12345',
-    rnadr: '기본주소',
-    rdadr: '상세주소',
-    ostrCnfmDt: '20230702',
-    partCnt: 1,
-    partCd1: '상품1',
-    partNm1: '상품1',
-    partQty1: '상품1',
-    reqdDt: '20230702',
-    rsgFshDt: '20230702',
-    cstSvAsnNo: '2202204000000000000',
-    cntrDtlNo: 'W20226010893-1',
-    sellTpNm: '정기배송',
-    pcsvCompDv: '2',
-    pcsvCompNm: '대한통운',
-    prtnrBzsNm: '롯데푸드',
-    sppIvcNo: '888888888',
-    sppBzsPdId: 'WFBKB0022',
-  });
-  // 임시 테스트 데이터 E
+  const list = res.data;
   totalCount.value = list.length;
   const view = grdMainRef.value.getView();
   view.getDataSource().setRows(list);
@@ -293,12 +258,12 @@ async function onClickSearch() {
   if (!isEmpty(searchParams.value.cntrDtlNo)
       || !isEmpty(searchParams.value.rcgvpKnm)
       || !isEmpty(searchParams.value.serialNo)
-      || !isEmpty(searchParams.value.cralLocaraTno + searchParams.value.mexnoEncr + searchParams.value.cralIdvTno)) {
+      || !isEmpty(searchParams.value.cralLocaraTno)) {
     const initParams = cloneDeep(searchParams.value);
     initParams.startDt = '';
     initParams.endDt = '';
     initParams.findGb = '';
-    initParams.firstSppGb = '';
+    initParams.firstSppGb = 'ALL';
     cachedParams = cloneDeep(initParams);
   } else {
     cachedParams = cloneDeep(searchParams.value);
@@ -345,8 +310,8 @@ async function onClickSave() {
       obj.products = checkRowProducts;
     });
     console.log(chkRows);
-    // await dataService.post(`${baseUrl}`, chkRows);
-    // notify(t('MSG_ALT_SAVE_DATA'));
+    await dataService.post(`${baseUrl}`, chkRows);
+    notify(t('MSG_ALT_SAVE_DATA'));
     await fetchData();
   }
 }
@@ -431,6 +396,7 @@ const initGrdMain = defineGrid((data, view) => {
     { fieldName: 'pcsvCompNm', header: t('MSG_TXT_PCSV_CO'), width: '110', styleName: 'text-center' },
     { fieldName: 'sppIvcNo', header: t('MSG_TXT_IVC_NO'), width: '150', styleName: 'text-center' },
     { fieldName: 'sppBzsPdId', header: t('MSG_TXT_SR_NO'), width: '150', styleName: 'text-center' },
+    { fieldName: 'wkPrgsStatCd', visible: false },
     { fieldName: 'wkPrgsStatNm', header: t('MSG_TXT_WK_STS'), width: '80', styleName: 'text-center' },
     { fieldName: 'ostrCnfmDt', header: t('MSG_TXT_OSTR_CNFM_DT'), width: '100', styleName: 'text-center', datetimeFormat: 'date' },
     {
@@ -482,6 +448,13 @@ const initGrdMain = defineGrid((data, view) => {
     { fieldName: 'reqdDt', header: t('MSG_TXT_DEM_DT'), width: '130', styleName: 'text-center', datetimeFormat: 'date' },
     { fieldName: 'rsgFshDt', header: t('MSG_TXT_CANC_DT'), width: '130', styleName: 'text-center', datetimeFormat: 'date' },
     { fieldName: 'cstSvAsnNo', header: t('MSG_TXT_ASGN_NO'), width: '180', styleName: 'text-center' },
+    { fieldName: 'svBizHclsfCd', visible: false },
+    { fieldName: 'prtnrNo', visible: false },
+    { fieldName: 'ogTpCd', visible: false },
+    { fieldName: 'ogId', visible: false },
+    { fieldName: 'pdctPdCd', visible: false },
+    { fieldName: 'wkWareNo', visible: false },
+    { fieldName: 'partCnt', visible: false },
   ];
   // 상품 동적 필드
   const pdColums = [
@@ -536,7 +509,7 @@ const initGrdMain = defineGrid((data, view) => {
     'cntrNo',
     'cstSvAsnNo',
     {
-      header: t('택배정보'),
+      header: t('MSG_TXT_PCSV') + t('MSG_TXT_INF'),
       direction: 'horizontal',
       items: ['pcsvCompNm', 'sppIvcNo', 'sppBzsPdId'],
     },
@@ -553,6 +526,7 @@ const initGrdMain = defineGrid((data, view) => {
   columns.push(...columnPdTotals);
   const fields = columns.map(({ fieldName, dataType }) => (dataType ? { fieldName, dataType } : { fieldName }));
   data.setFields(fields);
+  view.setCheckableExpression("((value['wkPrgsStatCd']='00') or (value['wkPrgsStatCd']='10'))", true);
   view.setColumns(columns);
   view.setColumnLayout(layout);
   view.setFixedOptions({ colCount: 8, resizable: true });
@@ -564,7 +538,19 @@ const initGrdMain = defineGrid((data, view) => {
 const initGrdSppIvc = defineGrid((data, view) => {
   const columns = [
     { fieldName: 'cstSvAsnNo', header: t('MSG_TXT_ASGN_NO'), width: 160 },
-    { fieldName: 'cntrDtlNo', header: t('MSG_TXT_CNTR_DTL_NO'), width: 150 },
+    {
+      fieldName: 'cntrNo',
+      header: t('MSG_TXT_CNTR_DTL_NO'),
+      width: '150',
+      styleName: 'text-center',
+      displayCallback(grid, index) {
+        const { cntrNo, cntrSn } = grid.getValues(index.itemIndex);
+        if (!isEmpty(cntrNo)) {
+          return `${cntrNo}-${cntrSn}`;
+        }
+      },
+    },
+    { fieldName: 'cntrSn', visible: false },
     { fieldName: 'pcsvCompDv', header: `${t('MSG_TXT_PCSV_CO')}`, width: 120 },
     { fieldName: 'sppIvcNo', header: t('MSG_TXT_IVC_NO'), width: 150 },
     { fieldName: 'sppBzsPdId', header: t('MSG_TXT_SR_NO'), width: 130 },

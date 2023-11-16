@@ -136,6 +136,7 @@ async function ozPrint() {
     return;
   }
 
+  /* parameter 방식 */
   // const res = await dataService.get
   // ('/sms/wells/contract/contracts/soledistributor-cancel-contracts/oz', { params: { ...cachedParams } });
   // console.log(res.data);

@@ -485,6 +485,7 @@ import { CNTR_TP_CD, COPN_DV_CD } from '~sms-wells/contract/constants/ctConst';
 
 const props = defineProps({
   contract: { type: Object, default: undefined },
+  cntrCstNo: { type: String, default: undefined },
 });
 const emit = defineEmits([
   'activated',
@@ -499,6 +500,7 @@ const userInfo = getters['meta/getUserInfo'];
 const currentPartner = {
   prtnrNo: userInfo.employeeIDNumber,
   ogTpCd: userInfo.ogTpCd,
+  baseRleCd: userInfo.baseRleCd,
   pstnDvCd: userInfo.careerLevelCode,
   prtnrKnm: userInfo.userName,
 };
@@ -561,10 +563,14 @@ const searchParams = ref({
 
 async function setupAvailableCntrTpCd() {
   await addCode('CNTR_TP_CD', (code) => {
-    if (currentPartner.ogTpCd === 'HR1') {
+    const isCustomerCenterService = currentPartner.baseRleCd === 'W8010';
+    const isBusinessDepartment = currentPartner.ogTpCd === 'HR1';
+    const isBranchManager = currentPartner.pstnDvCd === '7';
+
+    if (isBusinessDepartment && !isCustomerCenterService) {
       return code.codeId === CNTR_TP_CD.EMPLOYEE && code;
     }
-    if (currentPartner.pstnDvCd === '7') {
+    if (isBranchManager) {
       return [
         CNTR_TP_CD.INDIVIDUAL,
         CNTR_TP_CD.COOPERATION,
@@ -807,6 +813,7 @@ async function selectContractor() {
   const { result, payload } = await openCustomerSelectPopup();
 
   if (!result) {
+    step1.value.cntrt = {};
     return;
   }
 
@@ -847,7 +854,8 @@ async function selectPartner() {
     }
   }
 
-  step1.value.prtnr = currentPartner;
+  // step1.value.prtnr ??= currentPartner; // {} => Nullish coalescing assignment (??=) 처리안됨
+  step1.value.prtnr = isEmpty(step1.value.prtnr) ? currentPartner : step1.value.prtnr;
 
   if (currentPartner.pstnDvCd === '7') {
     // 지국장 정보 설정 후, 소속 파트너 선택
@@ -928,7 +936,6 @@ async function onClickSearch() {
     return;
   }
 
-  clearSelected();
   await selectContractor();
   await selectPartner();
 }
@@ -1104,13 +1111,14 @@ async function saveStep() {
     step1.value.bas ??= {};
     step1.value.bas.cntrCstNm = searchParams.value.cstKnm;
   }
-  if (cntrTpCd.value === reStipulationCntrTpCd) {
-    return rstlCntrNo.value;
-  }
 
   // 최초 계약시 설정해야 summary 에서 계약유형 등 표시 가능
   step1.value.bas.cntrTpCd = searchParams.value.cntrTpCd;
   step1.value.bas.copnDvCd = searchParams.value.copnDvCd;
+
+  if (cntrTpCd.value === reStipulationCntrTpCd) {
+    return rstlCntrNo.value;
+  }
 
   // console.log(JSON.stringify(step1.value, null, '\t'));
   const { data } = await dataService.post('sms/wells/contract/contracts/save-cntr-step1', step1.value);
@@ -1124,8 +1132,10 @@ async function getCounts() {
   if (await isPartnerStpa()) {
     await alert('휴업중인 파트너로 계약이 불가합니다');
   } else {
-    const res = await dataService.get('/sms/wells/contract/re-stipulation/customers/counts', { params: { copnDvCd: '1' } });
-    const res2 = await dataService.get('/sms/wells/contract/membership/customers/counts', { params: { copnDvCd: '1' } });
+    const [res, res2] = await Promise.all([
+      dataService.get('/sms/wells/contract/re-stipulation/customers/counts', { params: { copnDvCd: '1', cntrCstNo: props.cntrCstNo } }),
+      dataService.get('/sms/wells/contract/membership/customers/counts', { params: { copnDvCd: '1', cntrCstNo: props.cntrCstNo } }),
+    ]);
     dashboardCounts.value.restipulationCnt = res.data;
     dashboardCounts.value.membershipCnt = res2.data;
   }
@@ -1140,7 +1150,7 @@ async function initStep(forced = false) {
 
   await getCntrInfo();
   if (!cntrNo.value) {
-    await getCounts();
+    getCounts();
   }
   loaded.value = true;
 }
@@ -1150,6 +1160,21 @@ exposed.isChangedStep = isChangedStep;
 exposed.isValidStep = isValidStep;
 exposed.initStep = initStep;
 exposed.saveStep = saveStep;
+
+// fixme 우선 기워 넣기 so sorry.
+const unwatch = watchEffect(() => {
+  if (step1.value.pspcCstBas) {
+    const { pspcCstKnm, cralLocaraTno, mexnoEncr, cralIdvTno } = step1.value.pspcCstBas;
+    setupSearchParams({
+      cstKnm: pspcCstKnm,
+      cntrtTno: `${cralLocaraTno}${mexnoEncr}${cralIdvTno}`,
+      cralLocaraTno,
+      mexnoEncr,
+      cralIdvTno,
+    });
+    unwatch();
+  }
+});
 
 onActivated(() => {
   initStep(true);

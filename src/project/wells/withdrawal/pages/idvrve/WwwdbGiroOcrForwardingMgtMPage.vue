@@ -384,6 +384,7 @@ async function onClickPrintCreate() {
     state: 'created',
     wkDt: searchParams.value.wkDt,
     giroOcrPblOjStrtdt: searchParams.value.wkDt,
+    giroRglrDvCd: searchParams.value.giroRglrDvCd,
   };
 
   await dataService.post('/sms/wells/withdrawal/idvrve/giro-ocr-forwardings/print', paramData);

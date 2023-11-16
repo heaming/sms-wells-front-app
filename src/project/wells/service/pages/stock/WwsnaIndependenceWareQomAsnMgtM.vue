@@ -66,6 +66,7 @@
             :options="optionsOstrWareNo"
             option-value="wareNo"
             option-label="wareNm"
+            :label="$t('MSG_TXT_OSTR_WARE')"
             rules="required"
           />
         </kw-search-item>

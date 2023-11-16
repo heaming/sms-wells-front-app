@@ -154,11 +154,7 @@
       <kw-action-top>
         <template #left>
           <kw-paging-info
-            v-model:page-index="pageInfo.pageIndex"
-            v-model:page-size="pageInfo.pageSize"
-            :total-count="pageInfo.totalCount"
-            :page-size-options="codes.COD_PAGE_SIZE_OPTIONS"
-            @change="fetchData"
+            :total-count="totalCount"
           />
           <span class="ml8">({{ $t('MSG_TXT_UNIT') }} : EA)</span>
         </template>
@@ -169,7 +165,7 @@
           dense
           secondary
           :label="$t('MSG_BTN_EXCEL_DOWN')"
-          :disable="pageInfo.totalCount === 0"
+          :disable="totalCount === 0"
           @click="onClickExcelDownload"
         />
       </kw-action-top>
@@ -177,15 +173,8 @@
       <kw-grid
         ref="grdMainRef"
         name="grdMain"
-        :page-size="pageInfo.pageSize"
-        :total-count="pageInfo.totalCount"
+        :total-count="totalCount"
         @init="initGrdMain"
-      />
-      <kw-pagination
-        v-model:page-index="pageInfo.pageIndex"
-        v-model:page-size="pageInfo.pageSize"
-        :total-count="pageInfo.totalCount"
-        @change="fetchData"
       />
     </div>
   </kw-page>
@@ -197,12 +186,11 @@
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
 
-import { codeUtil, useMeta, useDataService, getComponentType, gridUtil, defineGrid } from 'kw-lib';
+import { codeUtil, useDataService, getComponentType, gridUtil, defineGrid } from 'kw-lib';
 import dayjs from 'dayjs';
 import { isEmpty, cloneDeep } from 'lodash-es';
 
 const { t } = useI18n();
-const { getConfig } = useMeta();
 const { currentRoute } = useRouter();
 
 const dataService = useDataService();
@@ -221,7 +209,7 @@ const searchParams = ref({
   wareNo: '',
   wareDtlDvCd: '',
   itmGdCd: '',
-  useYn: 'Y',
+  useYn: '',
   itmKndCd: '',
   itmPdCds: [],
   itmPdCd: '',
@@ -230,15 +218,7 @@ const searchParams = ref({
   matUtlzDvCd: '',
 });
 
-const pageInfo = ref({
-  totalCount: 0,
-  pageIndex: 1,
-  pageSize: Number(getConfig('CFG_CMZ_DEFAULT_PAGE_SIZE')),
-  needTotalCount: true,
-});
-
 const codes = await codeUtil.getMultiCodes(
-  'COD_PAGE_SIZE_OPTIONS',
   'WARE_DV_CD',
   'WARE_DTL_DV_CD',
   'PD_GD_CD',
@@ -398,27 +378,22 @@ await Promise.all([
   getProducts(),
 ]);
 
+const totalCount = ref(0);
+
 // 조회
 async function fetchData() {
-  const res = await dataService.get('/sms/wells/service/monthly-by-stock-state/paging', { params: { ...cachedParams, ...pageInfo.value } });
-
-  const { list: stocks, pageInfo: pagingResult } = res.data;
-  // fetch시에는 총 건수 조회하지 않도록 변경
-  pagingResult.needTotalCount = false;
-  pageInfo.value = pagingResult;
+  const res = await dataService.get('/sms/wells/service/monthly-by-stock-state', { params: { ...cachedParams } });
+  const stocks = res.data;
+  totalCount.value = stocks.length;
 
   if (grdMainRef.value != null) {
     const view = grdMainRef.value.getView();
     view.getDataSource().setRows(stocks);
-    view.rowIndicator.indexOffset = gridUtil.getPageIndexOffset(pageInfo);
   }
 }
 
 // 조회버튼 클릭
 async function onClickSearch() {
-  pageInfo.value.pageIndex = 1;
-  // 조회버튼 클릭 시에만 총 건수 조회하도록
-  pageInfo.value.needTotalCount = true;
   cachedParams = cloneDeep(searchParams.value);
   await fetchData();
 }

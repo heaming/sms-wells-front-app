@@ -39,7 +39,9 @@
           <kw-input
             v-model="searchParams.cntr"
             icon="search"
+            :mask="mask"
             clearable
+            :placeholder="`${$t('MSG_TXT_CNTR_NO')}-${$t('MSG_TXT_CNTR_SN')}`"
             @keydown="onKeyDownSelectCntr"
             @click-icon="onClickSelectCntr"
             @clear="onClearSelectCntr"
@@ -218,6 +220,10 @@ const codes = await codeUtil.getMultiCodes(
 //   });
 // }
 
+const delimiter = '-';
+const fullMask = `A###########${delimiter}#####`;
+const mask = ref(fullMask);
+
 const searchParams = ref({
   cntrNo: '',
   cntrSn: '',
@@ -280,8 +286,15 @@ async function onClickSearch() {
 
 // 계약상세번호 조회
 async function onClickSelectCntr() {
+  searchParams.value.cntrNo = searchParams.value.cntr.substring(0, 12);
+  searchParams.value.cntrSn = searchParams.value.cntr.substring(12);
+
   const { result, payload } = await modal({ component: 'WwctaContractNumberListP',
-    // componentProps: { rveCd: searchParams.value.rveCd, rveNm: searchParams.value.rveNm },
+    componentProps: {
+      cntrNo: searchParams.value.cntrNo,
+      cntrSn: searchParams.value.cntrSn,
+
+    },
   });
   if (result) {
     searchParams.value.cntrNo = payload.cntrNo;
@@ -478,7 +491,7 @@ async function onClickDeposit() {
     return false;
   }
 
-  if (!await confirm(t('MSG_ALT_CREATED') + t(' ') + t('MSG_ALT_CREATED'))) { // 입금전표 생성 하시겠습니까?
+  if (!await confirm(t('MSG_TXT_DP_SLIP') + t(' ') + t('MSG_ALT_CREATED'))) { // 입금전표 생성 하시겠습니까?
     return false;
   }
 

@@ -252,7 +252,7 @@ const pageInfo2 = ref({
 });
 
 const codes = await codeUtil.getMultiCodes(
-  // 'AFTN_ITG_UNRG_RSON_CD', // 자동이체통합미등록사유코드
+  'AFTN_ITG_UNRG_RSON_CD', // 자동이체통합미등록사유코드
   'BNDL_WDRW_UNRG_OJ_DV_CD', // 묶음출금미등록대상구분코드
   'AFTN_NOM_ERR_DV_CD', // 자동이체통합미등록결과코드 -> AFTN_NOM_ERR_DV_CD 추후에 수정 아직 생성안된듯
   // 'BNK_CD_CD',
@@ -276,7 +276,7 @@ async function fetchData1() {
 }
 
 async function fetchData2() {
-  const res = await dataService.get('/sms/wells/withdrawal/bilfnt/bundle-withdrawal-hist', { params: { ...cachedParams, ...pageInfo2.value } });
+  const res = await dataService.get('/sms/wells/withdrawal/bilfnt/bundle-withdrawal-hist', { params: { ...cachedParams, ...pageInfo2.value, timeout: 300000 } });
   const { list: lists, pageInfo: pageResult } = res.data;
   pageInfo2.value = pageResult;
 
@@ -317,6 +317,7 @@ async function onClickBundleWithdrawalRgst() {
     cntrSn: v.dgCntrSn,
     cntrPdStrtdt: searchParams.value.cntrPdStrtdt,
     cntrPdEnddt: searchParams.value.cntrPdEnddt,
+    unrgRsCd: searchParams.value.unrgRsCd,
   }));
 
   await dataService.post('/sms/wells/withdrawal/bilfnt/bundle-registration', data);
@@ -391,6 +392,7 @@ const initGrid1 = defineGrid((data, view) => {
       header: t('MSG_TXT_BNDL_WDRW_UNRG'), // 묶음 출금 미등록
       width: '200',
       styleName: 'text-center',
+      options: codes.BNDL_WDRW_UNRG_OJ_DV_CD,
     },
     { fieldName: 'dgCntr', header: t('MSG_TXT_MCHN_CNTR_DTL_NO'), width: '150', styleName: 'text-center' },
     { fieldName: 'dpTpCd', header: t('MSG_TXT_FNT_DV'), width: '120', styleName: 'text-center', options: codes.DP_TP_CD },
@@ -522,7 +524,7 @@ const initGrid2 = defineGrid((data, view) => {
       header: t('MSG_TXT_BNDL_WDRW_UNRG'), // 묶음출금 미등록
       width: '200',
       styleName: 'text-center',
-      options: codes.BNDL_WDRW_UNRG_OJ_DV_CD },
+      options: codes.AFTN_ITG_UNRG_RSON_CD },
 
     { fieldName: 'cntrSn', header: t('MSG_TXT_MCHN_CNTR_DTL_NO'), width: '150', styleName: 'text-center' },
     { fieldName: 'dpTpCd', header: t('MSG_TXT_FNT_DV'), width: '120', styleName: 'text-center', options: codes.DP_TP_CD },

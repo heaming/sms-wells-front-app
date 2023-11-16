@@ -537,7 +537,7 @@ ${step4.cntrt.sexDvNm || ''}`
             <kw-form-item
               label="재약정개월"
             >
-              <p>{{ `${restipulationBasInfo.stplPtrm}개월` }}</p>
+              <p>{{ `${restipulationBasInfo.stplPtrm || 0}개월` }}</p>
             </kw-form-item>
           </kw-form-row>
           <kw-form-row>

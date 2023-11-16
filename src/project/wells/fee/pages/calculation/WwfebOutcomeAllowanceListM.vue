@@ -359,9 +359,9 @@ const initGridMOg = defineGrid((data, view) => {
       width: '106',
       styleName: 'text-right',
       dataType: 'number',
-      numberFormat: '#,##0',
+      numberFormat: '#,##0.#',
       headerSummary: {
-        numberFormat: '#,##0',
+        numberFormat: '#,##0.#',
         expression: 'sum',
       } }, // WM
     { fieldName: 'bfsvcAclActiCt',
@@ -369,9 +369,9 @@ const initGridMOg = defineGrid((data, view) => {
       width: '106',
       styleName: 'text-right',
       dataType: 'number',
-      numberFormat: '#,##0',
+      numberFormat: '#,##0.#',
       headerSummary: {
-        numberFormat: '#,##0',
+        numberFormat: '#,##0.#',
         expression: 'sum',
       } }, // Pre-M(BS)
     { fieldName: 'aclActiBrchAvCt',
@@ -379,9 +379,9 @@ const initGridMOg = defineGrid((data, view) => {
       width: '106',
       styleName: 'text-right',
       dataType: 'number',
-      numberFormat: '#,##0',
+      numberFormat: '#,##0.##',
       headerSummary: {
-        numberFormat: '#,##0>#',
+        numberFormat: '#,##0.##',
         expression: 'sum',
       } }, // 실활동(지평)
     { fieldName: 'actvBrchN',

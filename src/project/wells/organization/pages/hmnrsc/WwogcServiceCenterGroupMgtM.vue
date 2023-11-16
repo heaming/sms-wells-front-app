@@ -25,7 +25,6 @@
         >
           <zwog-level-select
             v-model:og-levl-dv-cd1="searchParams.ogLevlDvCd1"
-            v-model:og-levl-dv-cd2="searchParams.ogLevlDvCd2"
             :og-tp-cd="searchParams.ogTpCd"
             :base-ym="searchParams.baseYm"
             :start-level="1"
@@ -209,7 +208,6 @@ const codes = await codeUtil.getMultiCodes(
 const searchParams = ref({
   ogTpCd: wkOjOgTpCd === null ? ogTpCd : wkOjOgTpCd,
   ogLevlDvCd1: undefined,
-  ogLevlDvCd2: undefined,
   wkGrpCd: undefined,
   rsbDvCd: undefined,
   prtnrNo: undefined,

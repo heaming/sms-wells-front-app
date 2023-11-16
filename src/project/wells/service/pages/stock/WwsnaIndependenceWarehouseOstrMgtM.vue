@@ -29,6 +29,7 @@
             v-model="searchParams.apyYm"
             type="month"
             rules="required"
+            :label="$t('MSG_TXT_BASE_YM')"
             @change="onChangeApyYm"
           />
         </kw-search-item>
@@ -41,6 +42,7 @@
             v-model="searchParams.asnOjYm"
             type="month"
             rules="required"
+            :label="$t('MSG_TXT_ASN_YM')"
             @change="onChangeData"
           />
         </kw-search-item>
@@ -51,6 +53,7 @@
         >
           <kw-input
             v-model="searchParams.cnt"
+            :label="$t('MSG_TXT_ORDERSELECT_TITLE')"
             rules="required|numeric|min_value:1|max_value:999999999999"
             @change="onChangeData"
           />
@@ -65,6 +68,7 @@
             :options="optionsOstrWareNo"
             option-value="wareNo"
             option-label="wareNm"
+            :label="$t('MSG_TXT_OSTR_WARE')"
             rules="required"
             @change="onChangeData"
           />
@@ -100,6 +104,7 @@
         >
           <kw-date-picker
             v-model="searchParams.ostrDt"
+            :label="$t('MSG_TXT_OSTR_DT')"
             type="date"
             :min-date="minDate"
           />
@@ -203,7 +208,7 @@
           vertical
           inset
         />
-        <!-- 이관 데이터 다운 -->
+        <!-- 이관 대상 데이터 다운 -->
         <kw-btn
           v-permission:download
           icon="download_on"
@@ -496,7 +501,7 @@ async function onClickSave() {
   }
 }
 
-// 이관 데이터 다운
+// 이관 대상 데이터 다운
 async function onClickTfDataDown() {
   const { apyYm, asnOjYm, cnt, ostrWareNo } = searchParams.value;
 
@@ -645,8 +650,8 @@ const initGrdMain = defineGrid((data, view) => {
     { fieldName: 'useQty', header: t('MSG_TXT_NED_QTY'), width: '100', styleName: 'text-right' },
     { fieldName: 'cnfmQty', header: t('MSG_TXT_QTY'), width: '84', styleName: 'text-right' },
     { fieldName: 'cnfmBoxQty', header: t('MSG_TXT_BOX'), width: '84', styleName: 'text-right' },
-    { fieldName: 'mcbyAcuOstrQty', header: t('MSG_TXT_AGGS'), width: '84', styleName: 'text-right' },
-    { fieldName: 'mcbyAcuOstrBoxQty', header: t('MSG_TXT_BOX'), width: '84', styleName: 'text-right' },
+    { fieldName: 'mcbyAcuOstrQty', header: t('MSG_TXT_AGGS'), width: '84', styleName: 'text-right', numberFormat: '#,##0.0#' },
+    { fieldName: 'mcbyAcuOstrBoxQty', header: t('MSG_TXT_BOX'), width: '84', styleName: 'text-right', numberFormat: '#,##0.0#' },
     { fieldName: 'outBoxQty', header: t('MSG_TXT_FILT_BOX_QTY'), width: '130', styleName: 'text-right' },
     { fieldName: 'outQty',
       header: t('MSG_TXT_OSTR_QTY'),

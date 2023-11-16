@@ -17,6 +17,7 @@
   <kw-page>
     <kw-search
       @search="onClickSearch"
+      @reset="onClickReset"
     >
       <kw-search-row>
         <!-- 입고창고 -->
@@ -41,23 +42,23 @@
             first-option="all"
           />
         </kw-search-item>
-        <!-- 입고일자 -->
+        <!-- 입고기간 -->
         <kw-search-item
-          :label="$t('MSG_TXT_STR_DT')"
+          :label="$t('MSG_TXT_STR_PTRM')"
           required
         >
           <kw-date-range-picker
             v-model:from="searchParams.stStrDt"
             v-model:to="searchParams.edStrDt"
             rules="required|date_range_months:1"
-            :label="$t('MSG_TXT_STR_DT')"
+            :label="$t('MSG_TXT_STR_PTRM')"
           />
         </kw-search-item>
       </kw-search-row>
       <kw-search-row>
-        <!-- 출고창고 -->
+        <!-- 출고창고구분 -->
         <kw-search-item
-          :label="$t('MSG_TXT_OSTR_WARE')"
+          :label="$t('MSG_TXT_OSTR_WARE_DV')"
         >
           <kw-select
             v-model="searchParams.wareDvCd"
@@ -191,6 +192,7 @@ async function onClickExcelDownload() {
 
 // 조회버튼 클릭이벤트
 async function onClickSearch() {
+  pageInfo.value.pageIndex = 1;
   cachedParams = cloneDeep(searchParams.value);
   await fetchData();
 }
@@ -202,6 +204,13 @@ async function fetchDefaultData() {
   const { userId, apyYm } = wharehouseParams.value;
 
   warehouses.value = await getMonthWarehouse(userId, apyYm);
+  if (!isEmpty(warehouses.value)) {
+    searchParams.value.strOjWareNo = warehouses.value[0].codeId;
+  }
+}
+
+// 초기화 버튼 클릭
+function onClickReset() {
   if (!isEmpty(warehouses.value)) {
     searchParams.value.strOjWareNo = warehouses.value[0].codeId;
   }
@@ -232,14 +241,35 @@ const initGrdMain = defineGrid((data, view) => {
     { fieldName: 'itmOstrNo' }, // 품목출고번호
     { fieldName: 'ostrSn' }, // 출고순번
     { fieldName: 'strDelButn' }, // 비고
+    { fieldName: 'wareDtlDvCd' }, // 입고창고상세구분
   ];
 
   const columns = [
     { fieldName: 'strRgstDt', header: t('MSG_TXT_STR_DT'), width: '126', styleName: 'text-center', datetimeFormat: 'date' },
     { fieldName: 'strTpCd', header: t('MSG_TXT_STR_TP'), width: '126', styleName: 'text-center', options: codes.STR_TP_CD },
-    { fieldName: 'itmStrNo', header: t('MSG_TXT_STR_MNGT_NO'), width: '240', styleName: 'text-center' },
-    { fieldName: 'ostrWareNm', header: t('MSG_TXT_OSTR_WARE'), width: '182', styleName: 'text-left' },
-    { fieldName: 'itmOstrNo', header: t('MSG_TXT_OSTR_MNGT_NO'), width: '240', styleName: 'text-center' },
+    { fieldName: 'itmStrNo',
+      header: t('MSG_TXT_STR_MNGT_NO'),
+      width: '240',
+      styleName: 'text-center',
+      displayCallback: (g, i, v) => {
+        if (isEmpty(v)) {
+          return v;
+        }
+        const regExp = /^(\d{3})(\d{8})(\d{7}).*/;
+        return v.replace(regExp, '$1-$2-$3');
+      } },
+    { fieldName: 'ostrWareNm', header: t('MSG_TXT_OSTR_WARE'), width: '182', styleName: 'text-center' },
+    { fieldName: 'itmOstrNo',
+      header: t('MSG_TXT_OSTR_MNGT_NO'),
+      width: '240',
+      styleName: 'text-center',
+      displayCallback: (g, i, v) => {
+        if (isEmpty(v)) {
+          return v;
+        }
+        const regExp = /^(\d{3})(\d{8})(\d{7}).*/;
+        return v.replace(regExp, '$1-$2-$3');
+      } },
     { fieldName: 'strDelButn',
       header: t('MSG_TXT_NOTE'),
       width: '126',
@@ -266,6 +296,7 @@ const initGrdMain = defineGrid((data, view) => {
       ostrWareNm,
       ostrSn,
       strHopDt,
+      wareDtlDvCd,
     } = gridUtil.getRowValue(g, dataRow);
 
     const { result: isChanged } = await modal({
@@ -282,6 +313,7 @@ const initGrdMain = defineGrid((data, view) => {
         ostrSn,
         strHopDt,
         flagChk: 1,
+        strWareDtlDvCd: wareDtlDvCd,
       },
     });
 
@@ -292,5 +324,3 @@ const initGrdMain = defineGrid((data, view) => {
   };
 });
 </script>
-<style scoped>
-</style>

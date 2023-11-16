@@ -121,12 +121,7 @@
         <!-- (입력담당자, 사용자) / 등록자 선택 -->
         <kw-search-item :label="t('MSG_TXT_RGST_USR')">
           <kw-input
-            v-model="searchParams.userName"
-            icon="search"
-            clearable
-            @click-icon="onClickSelectUser"
-            @clear="onClearSelectUser"
-            @keydown="onKeydownSelectUser"
+            v-model="searchParams.prtnrNo"
           />
           <!-- :readonly="true" -->
         </kw-search-item>
@@ -307,6 +302,7 @@ const pageInfo = ref({
 });
 
 let cachedParams;
+let cachedParams2;
 // -------------------------------------------------------------------------------------------------
 // Function & Event
 // -------------------------------------------------------------------------------------------------
@@ -331,6 +327,7 @@ async function onClickSearch() {
   if (!isEmpty(searchParams.value.userName) && isEmpty(searchParams.value.prtnrNo)) {
     return notify(t('MSG_ALT_SRCH_AFTER', [`${t('MSG_TXT_RGST_USR')} 조회 `]));
   }
+
   cachedParams = cloneDeep(searchParams.value);
 
   // 방학면제 선택시 그리드 변경X, 조회버튼 클릭시 변경
@@ -340,13 +337,13 @@ async function onClickSearch() {
 }
 
 const optionsCodes = ref(codes.SELL_TP_DTL_CD.filter((p1) => ['21', '22', '24', '25', '26'].includes(p1.codeId)));
-
+/*
 // 사용자 조회 팝업 -> 파트너 조회
 async function onClickSelectUser() {
   const { result, payload } = await modal({
     component: 'ZwogzPartnerListP', // Z-OG-U-0050P01
     componentProps: {
-      prtnrNo: searchParams.value.userName,
+      prtnrNo: searchParams.value.prtnrNo,
       ogTpCd: searchParams.value.ogTpCd,
     },
   });
@@ -369,6 +366,7 @@ async function onKeydownSelectUser() {
   // searchParams.value.userName = '';
   searchParams.value.ogTpCd = '';
 }
+*/
 
 // 행 추가 버튼
 async function onClickAdd() {
@@ -397,7 +395,7 @@ async function onClickRemove() {
   const view = grdMainRef.value.getView();
 
   if (!gridUtil.getCheckedRowValues(view).length > 0) {
-    notify(t('MSG_ALT_NOT_SEL_ITEM'));
+    notify(t('MSG_ALT_NOT_SEL_ITEM')); // 데이터를 선택해주세요.
     return;
   }
   if (!await gridUtil.confirmIfIsModified(view)) { return; }
@@ -426,9 +424,9 @@ async function onClickExcelDownload() {
 // 엑셀업로드
 async function onClickExcelUpload() {
   const apiUrl = `${apiUri}/${searchParams.value.exmpYn}/excel-upload`;
-  // const templateId = 'FOM_WDC_0001';
   const templateId = 'FOM_WDC_0001';
 
+  // const templateId = 'FOM_WDC_0001';
   // if (searchParams.value.exmpYn === 'N') {
   //   templateId = 'FOM_WDC_0001';
   // } else {
@@ -436,23 +434,30 @@ async function onClickExcelUpload() {
   // }
 
   const {
-    resultData,
     payload,
   } = await modal({
     component: 'ZwcmzExcelUploadP',
     componentProps: { apiUrl, templateId },
   });
-    // if (result && payload.status === 'S') {
-  if (resultData) {
-    console.log(payload);
+
+  if (payload.status === 'S') {
     notify(t('MSG_ALT_SAVE_DATA')); // 저장되었습니다.
     await fetchData();
   }
+
+  // if (result && payload.status === 'S') {
+  // if (resultData) {
+  //   console.log(payload);
+  //   notify(t('MSG_ALT_SAVE_DATA')); // 저장되었습니다.
+  //   await fetchData();
+  // }
 }
 
 // 판매유형 선택
 async function onChangesellTp(param) {
   let options;
+
+  searchParams.value.sellTpDtlCd = '';
 
   if (param === '1') {
     options = lump;
@@ -481,7 +486,7 @@ async function onClickSave() {
 
   if (!await gridUtil.validate(view)) { return false; }
   await dataService.post(`${apiUri}/save`, changedRows);
-  notify(t('MSG_ALT_SAVE_DATA'));
+  notify(t('MSG_ALT_SAVE_DATA')); // 저장되었습니다.
   await fetchData();
 }
 
@@ -515,12 +520,14 @@ const initGrid1 = defineGrid((data, view) => {
 
     { fieldName: 'canAfOjYn' }, /* 취소후적용 */
     { fieldName: 'slCtrAmt', dataType: 'number' }, /* 조정금액 */
+    { fieldName: 'dummySlCtrAmt', dataType: 'number' }, /* 조정금액 */
     { fieldName: 'slCtrWoExmpAmt', dataType: 'number' }, /* 전액면제금액 */
     { fieldName: 'slCtrPtrmExmpAmt', dataType: 'number' }, /* 조회기간면제금액 */
     { fieldName: 'slCtrRmkCn' }, /* 조정사유 */
-    { fieldName: 'slCtrPrcsdt' }, /* 등록일자 */
+    { fieldName: 'fstRgstDtm' }, /* 등록일자 */
     { fieldName: 'usrNm' }, /* 등록자 */
     { fieldName: 'fnlMdfcUsrId' }, /* 번호 */
+    { fieldName: 'mdfyYn' }, /* 번호 */
   ];
 
   const columns = [
@@ -574,12 +581,23 @@ const initGrid1 = defineGrid((data, view) => {
       header: {
         text: t('MSG_TXT_MTR_DV'), // 자료구분
         styleName: 'essential',
-        // 자료구분
       },
       width: '100',
       rules: 'required',
       editor: { type: 'dropdown' },
       options: codes.SL_CTR_MTR_DV_CD,
+      styleCallback(grid, dataCell) {
+        const mdfyYn = grid.getValue(dataCell.index.itemIndex, 'mdfyYn');
+        let ret = {};
+        if (mdfyYn === 'N') {
+          ret.editable = false;
+        } else {
+          ret = {
+            editor: { type: 'dropdown' },
+          };
+        }
+        return ret;
+      },
     },
     {
       fieldName: 'slCtrSellTpCd',
@@ -591,9 +609,8 @@ const initGrid1 = defineGrid((data, view) => {
       width: '100',
       rules: 'required',
       editor: { type: 'dropdown' },
-      editable: true,
       options: codes.SELL_TP_CD,
-
+      editable: false,
     },
     {
       fieldName: 'sellTpDtlCd',
@@ -601,146 +618,148 @@ const initGrid1 = defineGrid((data, view) => {
         text: t('MSG_TXT_SELL_TP_DTL'), // 판매유형상세
         styleName: 'essential',
       },
+      editable: false,
+      options: codes.SELL_TP_DTL_CD,
       width: '100',
       rules: 'required',
       editor: { type: 'dropdown',
       },
       // editable: true,
-      options: codes.SELL_TP_DTL_CD,
-      styleCallback(grid, dataCell) {
-        const sellTpCd = grid.getValue(dataCell.index.itemIndex, 'slCtrSellTpCd');
-        const lumpCodeId = lump.map((param) => param.codeId);
-        const lumpCodeName = lump.map((param) => param.codeName);
+      // options: codes.SELL_TP_DTL_CD,
+      // styleCallback(grid, dataCell) {
+      //   const sellTpCd = grid.getValue(dataCell.index.itemIndex, 'slCtrSellTpCd');
+      //   const lumpCodeId = lump.map((param) => param.codeId);
+      //   const lumpCodeName = lump.map((param) => param.codeName);
 
-        const rentalCodeId = rental.map((param) => param.codeId);
-        const rentalCodeName = rental.map((param) => param.codeName);
+      //   const rentalCodeId = rental.map((param) => param.codeId);
+      //   const rentalCodeName = rental.map((param) => param.codeName);
 
-        const membershipCodeId = membership.map((param) => param.codeId);
-        const membershipCodeName = membership.map((param) => param.codeName);
+      //   const membershipCodeId = membership.map((param) => param.codeId);
+      //   const membershipCodeName = membership.map((param) => param.codeName);
 
-        const deliveryCodeId = delivery.map((param) => param.codeId);
-        const deliveryCodeName = delivery.map((param) => param.codeName);
+      //   const deliveryCodeId = delivery.map((param) => param.codeId);
+      //   const deliveryCodeName = delivery.map((param) => param.codeName);
 
-        const ret = {};
-        switch (sellTpCd) {
-          case '1':
-            ret.editor = {
-              type: 'dropdown',
-              values: lumpCodeId,
-              labels: lumpCodeName,
-              editable: true,
-              textReadOnly: true,
-            };
-            break;
-          case '2':
-            ret.editor = {
-              type: 'dropdown',
-              values: rentalCodeId,
-              labels: rentalCodeName,
-              editable: true,
-              textReadOnly: true,
-            };
-            break;
-          case '3':
-            ret.editor = {
-              type: 'dropdown',
-              values: membershipCodeId,
-              labels: membershipCodeName,
-              editable: true,
-              textReadOnly: true,
-            };
-            break;
-          case '6':
-            ret.editor = {
-              type: 'dropdown',
-              values: deliveryCodeId,
-              labels: deliveryCodeName,
-              editable: true,
-              textReadOnly: true,
-            };
-            break;
-          case '9':
-            ret.editor = {
-              values: '',
-              labels: '',
-            };
-            break;
-          default:
-            ret.editor = {
-              type: 'dropdown',
-              values: Array([]),
-              labels: Array([]),
-            };
-            ret.editable = false;
-            break;
-        }
-        return ret;
-      },
-      // valueCallback: (gridBase, rowId, fieldName, field, values) => {
-      //   const no = values[field.indexOf('slCtrSellTpCd')];
-      //   console.log(no);
-      //   // let value;
-      //   return 0;
-      // },
-
-      // displayCallback(grid, index, value) {
-      //   // let retValue = value;
-      //   console.log(value);
-      //   const sellTpDtlCd = grid.getValue(index.itemIndex, 'sellTpDtlCd');
-      //   // let idx;
-      //   const sellTpCd = grid.getValue(index.itemIndex, 'slCtrSellTpCd');
-      //   // const lumpCodeId = lump.map((param) => param.codeId);
-      //   // const lumpCodeName = lump.map((param) => param.codeName);
-
-      //   // const rentalCodeId = rental.map((param) => param.codeId);
-      //   // const rentalCodeName = rental.map((param) => param.codeName);
-
-      //   // const membershipCodeId = membership.map((param) => param.codeId);
-      //   // const membershipCodeName = membership.map((param) => param.codeName);
-
-      //   // const deliveryCodeId = delivery.map((param) => param.codeId);
-      //   // const deliveryCodeName = delivery.map((param) => param.codeName);
-
-      //   if (sellTpCd === '4' || sellTpCd === '5') {
-      //     return -1;
+      //   const ret = {};
+      //   switch (sellTpCd) {
+      //     case '1':
+      //       ret.editor = {
+      //         type: 'dropdown',
+      //         values: lumpCodeId,
+      //         labels: lumpCodeName,
+      //         editable: true,
+      //         textReadOnly: true,
+      //       };
+      //       break;
+      //     case '2':
+      //       ret.editor = {
+      //         type: 'dropdown',
+      //         values: rentalCodeId,
+      //         labels: rentalCodeName,
+      //         editable: true,
+      //         textReadOnly: true,
+      //       };
+      //       break;
+      //     case '3':
+      //       ret.editor = {
+      //         type: 'dropdown',
+      //         values: membershipCodeId,
+      //         labels: membershipCodeName,
+      //         editable: true,
+      //         textReadOnly: true,
+      //       };
+      //       break;
+      //     case '6':
+      //       ret.editor = {
+      //         type: 'dropdown',
+      //         values: deliveryCodeId,
+      //         labels: deliveryCodeName,
+      //         editable: true,
+      //         textReadOnly: true,
+      //       };
+      //       break;
+      //     case '9':
+      //       ret.editor = {
+      //         values: '',
+      //         labels: '',
+      //       };
+      //       break;
+      //     default:
+      //       ret.editor = {
+      //         type: 'dropdown',
+      //         values: Array([]),
+      //         labels: Array([]),
+      //       };
+      //       ret.editable = false;
+      //       break;
       //   }
-      //   return sellTpDtlCd;
-
-      // switch (sellTpCd) {
-      //   case '1':
-      //     // idx = lump.indexOf(value);
-      //     retValue = {
-      //       lump,
-      //     };
-      //     break;
-      //   case '2':
-      //     // idx = rental.indexOf(value);
-      //     // retValue = rental[idx];
-      //     retValue = {
-      //       codeId: rentalCodeId,
-      //       codeName: rentalCodeName,
-      //     };
-      //     break;
-      //   case '3':
-      //     // idx = membership.indexOf(value);
-      //     retValue = membership;
-      //     break;
-      //   case '4':
-      //     retValue = '';
-      //     break;
-      //   case '5':
-      //     retValue = '';
-      //     break;
-      //   case '6':
-      //     // idx = delivery.indexOf(value);
-      //     retValue = delivery;
-      //     break;
-      //   default:
-      //     retValue = value;
-      //     break;
-      // }
-      // return retValue;
+      //   return ret;
       // },
+      // // valueCallback: (gridBase, rowId, fieldName, field, values) => {
+      // //   const no = values[field.indexOf('slCtrSellTpCd')];
+      // //   console.log(no);
+      // //   // let value;
+      // //   return 0;
+      // // },
+
+      // // displayCallback(grid, index, value) {
+      // //   // let retValue = value;
+      // //   console.log(value);
+      // //   const sellTpDtlCd = grid.getValue(index.itemIndex, 'sellTpDtlCd');
+      // //   // let idx;
+      // //   const sellTpCd = grid.getValue(index.itemIndex, 'slCtrSellTpCd');
+      // //   // const lumpCodeId = lump.map((param) => param.codeId);
+      // //   // const lumpCodeName = lump.map((param) => param.codeName);
+
+      // //   // const rentalCodeId = rental.map((param) => param.codeId);
+      // //   // const rentalCodeName = rental.map((param) => param.codeName);
+
+      // //   // const membershipCodeId = membership.map((param) => param.codeId);
+      // //   // const membershipCodeName = membership.map((param) => param.codeName);
+
+      // //   // const deliveryCodeId = delivery.map((param) => param.codeId);
+      // //   // const deliveryCodeName = delivery.map((param) => param.codeName);
+
+      // //   if (sellTpCd === '4' || sellTpCd === '5') {
+      // //     return -1;
+      // //   }
+      // //   return sellTpDtlCd;
+
+      // // switch (sellTpCd) {
+      // //   case '1':
+      // //     // idx = lump.indexOf(value);
+      // //     retValue = {
+      // //       lump,
+      // //     };
+      // //     break;
+      // //   case '2':
+      // //     // idx = rental.indexOf(value);
+      // //     // retValue = rental[idx];
+      // //     retValue = {
+      // //       codeId: rentalCodeId,
+      // //       codeName: rentalCodeName,
+      // //     };
+      // //     break;
+      // //   case '3':
+      // //     // idx = membership.indexOf(value);
+      // //     retValue = membership;
+      // //     break;
+      // //   case '4':
+      // //     retValue = '';
+      // //     break;
+      // //   case '5':
+      // //     retValue = '';
+      // //     break;
+      // //   case '6':
+      // //     // idx = delivery.indexOf(value);
+      // //     retValue = delivery;
+      // //     break;
+      // //   default:
+      // //     retValue = value;
+      // //     break;
+      // // }
+      // // return retValue;
+      // // },
     },
     { fieldName: 'pdCd',
       header: t('MSG_TXT_PROD_CD'), // 제품코드
@@ -764,6 +783,18 @@ const initGrid1 = defineGrid((data, view) => {
       rules: 'required',
       editor: { type: 'dropdown' },
       options: codes.SL_CTR_DV_CD,
+      styleCallback(grid, dataCell) {
+        const mdfyYn = grid.getValue(dataCell.index.itemIndex, 'mdfyYn');
+        let ret = {};
+        if (mdfyYn === 'N') {
+          ret.editable = false;
+        } else {
+          ret = {
+            editor: { type: 'dropdown' },
+          };
+        }
+        return ret;
+      },
     },
     {
       fieldName: 'slCtrMtrTpCd',
@@ -775,22 +806,23 @@ const initGrid1 = defineGrid((data, view) => {
       rules: 'required',
       editor: { type: 'dropdown' },
       options: codes.SL_CTR_MTR_TP_CD,
-    },
-    {
-      fieldName: 'slCtrDscTpCd',
-      header: {
-        text: t('MSG_TXT_CTR_TP'), // 조정유형
-        styleName: 'essential',
+      styleCallback(grid, dataCell) {
+        const mdfyYn = grid.getValue(dataCell.index.itemIndex, 'mdfyYn');
+        let ret = {};
+        if (mdfyYn === 'N') {
+          ret.editable = false;
+        } else {
+          ret = {
+            editor: { type: 'dropdown' },
+          };
+        }
+        return ret;
       },
-      width: '208',
-      rules: 'required',
-      editor: { type: 'dropdown' },
-      options: codes.SL_CTR_DSC_TP_CD,
     },
     {
       fieldName: 'slCtrTpCd',
       header: {
-        text: t('MSG_TXT_DSC'), // 할인
+        text: t('MSG_TXT_CTR_TP'), // 조정유형
         styleName: 'essential',
       },
       rules: 'required',
@@ -798,21 +830,83 @@ const initGrid1 = defineGrid((data, view) => {
       editor: { type: 'dropdown' },
       editable: true,
       options: codes.SL_CTR_TP_CD,
+      styleCallback(grid, dataCell) {
+        const mdfyYn = grid.getValue(dataCell.index.itemIndex, 'mdfyYn');
+        let ret = {};
+        if (mdfyYn === 'N') {
+          ret.editable = false;
+        } else {
+          ret = {
+            editor: { type: 'dropdown' },
+          };
+        }
+        return ret;
+      },
+    },
+    {
+      fieldName: 'slCtrDscTpCd',
+      header: {
+        text: t('MSG_TXT_DSC'), // 할인
+        styleName: 'essential',
+      },
+      width: '208',
+      rules: 'required',
+      editor: { type: 'dropdown' },
+      options: codes.SL_CTR_DSC_TP_CD,
+      styleCallback(grid, dataCell) {
+        const mdfyYn = grid.getValue(dataCell.index.itemIndex, 'mdfyYn');
+        let ret = {};
+        if (mdfyYn === 'N') {
+          ret.editable = false;
+        } else {
+          ret = {
+            editor: { type: 'dropdown' },
+          };
+        }
+        return ret;
+      },
     },
     { fieldName: 'canAfOjYn',
       header: t('MSG_TXT_CAN_AFT_APY'), // 취소 후 적용
       width: '100',
       editor: { type: 'dropdown' },
       editable: true,
+      styleCallback(grid, dataCell) {
+        const mdfyYn = grid.getValue(dataCell.index.itemIndex, 'mdfyYn');
+        let ret = {};
+        if (mdfyYn === 'N') {
+          ret.editable = false;
+        } else {
+          ret = {
+            editor: { type: 'dropdown' },
+          };
+        }
+        return ret;
+      },
       options: [{ codeId: 'Y', codeName: 'Y' },
         { codeId: 'N', codeName: 'N' }],
+
     },
     { fieldName: 'slCtrAmt',
+      rules: 'required',
       header: t('MSG_TXT_CTR_AMT'), // 조정금액
       width: '100',
       styleName: 'text-right',
       numberFormat: '#,##0',
       editable: true,
+      styleCallback: (grid, dataCell) => {
+        const ret = {};
+        const { slCtrTpCd, dummySlCtrAmt } = grid.getValues(dataCell.index.itemIndex);
+        if (dataCell.item.rowState === 'created') {
+          if (slCtrTpCd !== '2') {
+            view.setValue(dataCell.index.itemIndex, 'slCtrAmt', 0);
+          } else {
+            ret.editable = false;
+            view.setValue(dataCell.index.itemIndex, 'slCtrAmt', dummySlCtrAmt);
+          }
+          return ret;
+        }
+      },
     },
     { fieldName: 'slCtrWoExmpAmt',
       header: t('MSG_TXT_FULL_EXMP_AMT'), // 전액면제금액
@@ -836,8 +930,20 @@ const initGrid1 = defineGrid((data, view) => {
       },
       rules: 'required',
       width: '208',
+      styleCallback(grid, dataCell) {
+        const mdfyYn = grid.getValue(dataCell.index.itemIndex, 'mdfyYn');
+        let ret = {};
+        if (mdfyYn === 'N') {
+          ret.editable = false;
+        } else {
+          ret = {
+            editor: { type: 'dropdown' },
+          };
+        }
+        return ret;
+      },
     },
-    { fieldName: 'slCtrPrcsdt',
+    { fieldName: 'fstRgstDtm',
       header: t('MSG_TXT_FST_RGST_DT'), // 등록일자
       width: '100',
       styleName: 'text-center',
@@ -897,6 +1003,15 @@ const initGrid1 = defineGrid((data, view) => {
         view.setValue(itemIndex, 'cstKnm', cntrCstKnm);
         view.setValue(itemIndex, 'pdNm', pdNm);
         view.setValue(itemIndex, 'pdCd', pdCd);
+
+        const searchDtl = ref({
+          cntrNo: payload.cntrNo, // 판매유형
+          cntrSn: payload.cntrSn, // 계약일련번호(Int)
+        });
+        cachedParams2 = cloneDeep(searchDtl.value);
+        const res = await dataService.get('/sms/common/common/codes/contract/detail/paging', { params: cachedParams2 });
+        view.setValue(itemIndex, 'slCtrAmt', res.data.list[0].thmSlSumAmt);
+        view.setValue(itemIndex, 'dummySlCtrAmt', res.data.list[0].thmSlSumAmt);
       }
     }
   };

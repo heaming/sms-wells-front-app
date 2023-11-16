@@ -149,7 +149,8 @@
       <kw-grid
         ref="grdMainRef"
         name="grdMain"
-        :visible-rows="pageInfo.pageSize"
+        :page-size="pageInfo.pageSize"
+        :total-count="pageInfo.totalCount"
         @init="initGrdMain"
       />
 
@@ -219,6 +220,8 @@ const searchParams = ref({
   applyDate: now.format('YYYYMMDD'),
 });
 
+// const isDisableEBtn = watch(() => searchParams.value.hgrPdCd || searchParams.value.pdCd);
+
 let cachedParams;
 
 const pds = ref([]);
@@ -282,7 +285,7 @@ async function onClickSearch() {
 const { currentRoute } = useRouter();
 async function onClickExcelDownload() {
   const view = grdMainRef.value.getView();
-  const res = await dataService.get('/sms/wells/service/paid-as-costs/excel-download', { params: searchParams.value });
+  const res = await dataService.get('/sms/wells/service/paid-as-costs/excel-download', { params: cachedParams });
   await gridUtil.exportView(view, {
     fileName: currentRoute.value.meta.menuName,
     timePostfix: true,
@@ -319,7 +322,9 @@ async function onClickSave() {
     return;
   }
 
-  await gridUtil.validate(view, { isCheckedOnly: true });
+  if (!(await gridUtil.validate(view, { isCheckedOnly: true }))) { return; }
+  if (await gridUtil.alertIfIsNotModified(view)) { return; }
+  if (!await gridUtil.validate(view)) { return; }
 
   await dataService.post('sms/wells/service/paid-as-costs', chkRows);
   notify(t('MSG_ALT_SAVE_DATA'));
@@ -364,40 +369,45 @@ const initGrdMain = defineGrid((data, view) => {
     { fieldName: 'csmrUprcAmt',
       header: t('MSG_TXT_CSPRC'),
       width: '100',
+      rules: 'min_value:0',
       editor: {
         type: 'number',
         maxLength: 8,
-        inputCharacters: '0-9',
+        // textFormat: '/^[0-9]*$/i',
+        inputCharacters: ['0-9'],
       },
       styleName: 'text-right',
     }, // 소비자가
     { fieldName: 'whlsUprcAmt',
       header: t('MSG_TXT_WHLS_UPRC'),
       width: '100',
+      rules: 'min_value:0',
       editor: {
         type: 'number',
         maxLength: 8,
-        inputCharacters: '0-9',
+        inputCharacters: ['0-9'],
       },
       styleName: 'text-right',
     }, // 도매단가
     { fieldName: 'insiUprcAmt',
       header: t('MSG_TXT_INSI_UPRC'),
       width: '100',
+      rules: 'min_value:0',
       editor: {
         type: 'number',
         maxLength: 8,
-        inputCharacters: '0-9',
+        inputCharacters: ['0-9'],
       },
       styleName: 'text-right',
     }, // 내부단가
     { fieldName: 'tcfeeAmt',
       header: t('MSG_TXT_TCFEE'),
       width: '100',
+      rules: 'min_value:0',
       editor: {
         type: 'number',
         maxLength: 8,
-        inputCharacters: '0-9',
+        inputCharacters: ['0-9'],
       },
       styleName: 'text-right',
     }, // 기술료

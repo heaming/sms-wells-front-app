@@ -137,11 +137,7 @@
       <kw-action-top>
         <template #left>
           <kw-paging-info
-            v-model:page-index="pageInfo.pageIndex"
-            v-model:page-size="pageInfo.pageSize"
-            :total-count="pageInfo.totalCount"
-            :page-size-options="codes.COD_PAGE_SIZE_OPTIONS"
-            @change="fetchData"
+            :total-count="totalCount"
           />
         </template>
         <kw-separator
@@ -154,7 +150,7 @@
           dense
           secondary
           :label="$t('MSG_BTN_EXCEL_DOWN')"
-          :disable="pageInfo.totalCount === 0"
+          :disable="totalCount === 0"
           @click="onClickExcelDownload"
         />
         <kw-btn
@@ -166,14 +162,8 @@
       </kw-action-top>
       <kw-grid
         ref="grdMainRef"
-        :total-count="pageInfo.totalCount"
+        :total-count="totalCount"
         @init="initGrdMain"
-      />
-      <kw-pagination
-        v-model:page-index="pageInfo.pageIndex"
-        v-model:page-size="pageInfo.pageSize"
-        :total-count="pageInfo.totalCount"
-        @change="fetchData"
       />
     </div>
   </kw-page>
@@ -239,12 +229,6 @@ const searchParams = ref({
   itmPdCdTo: '',
 });
 
-const pageInfo = ref({
-  totalCount: 0,
-  pageIndex: 1,
-  pageSize: 10,
-});
-
 let cachedParams;
 
 // 서비스센터
@@ -253,29 +237,27 @@ const serviceCenters = ref((await dataService.get('/sms/wells/service/organizati
 // 엔지니어
 const engineers = ref((await dataService.get('/sms/wells/service/organizations/engineer', { params: { authYn: 'N' } })).data);
 
+const totalCount = ref(0);
 async function fetchData() {
-  const res = await dataService.get(`${baseUrl}/paging`, { params: { ...cachedParams, ...pageInfo.value } });
-  const { list: result, pageInfo: pagingResult } = res.data;
-  pageInfo.value = pagingResult;
+  const res = await dataService.get(`${baseUrl}`, { params: { ...cachedParams } });
+  const list = res.data;
+  totalCount.value = list.length;
 
   const view = grdMainRef.value.getView();
-  view.getDataSource().setRows(result);
+  view.getDataSource().setRows(list);
   view.resetCurrent();
-  view.rowIndicator.indexOffset = gridUtil.getPageIndexOffset(pageInfo);
 }
 
 async function onClickSearch() {
-  pageInfo.value.pageIndex = 1;
   cachedParams = cloneDeep(searchParams.value);
   await fetchData();
 }
 async function onClickExcelDownload() {
   const view = grdMainRef.value.getView();
-  const res = await dataService.get(`${baseUrl}/excel-download`, { params: cachedParams });
   await gridUtil.exportView(view, {
     fileName: currentRoute.value.meta.menuName,
     timePostfix: true,
-    exportData: res.data,
+    exportData: gridUtil.getAllRowValues(view),
   });
 }
 async function onClickOZ() {
@@ -333,6 +315,7 @@ const initGrdMain = defineGrid((data, view) => {
     },
     { fieldName: 'cntrSn', visible: false },
     { fieldName: 'rcgvpKnm', header: t('MSG_TXT_CST_NM'), width: '100', styleName: 'text-center' }, /* 고객명 */
+    { fieldName: 'sellTpNm', header: t('MSG_TXT_CST_TYPE'), width: '100', styleName: 'text-center' }, /* 고객유형 */
     { fieldName: 'cntrRcpFshDtm', header: t('MSG_TXT_CNTR_DATE'), width: '100', styleName: 'text-center', datetimeFormat: 'date' }, /* 계약일자 */
     { fieldName: 'locaraTno', visible: false }, // [전화번호1]
     { fieldName: 'exnoEncr', visible: false }, // [전화번호2]
@@ -389,6 +372,7 @@ const initGrdMain = defineGrid((data, view) => {
     'refriDvNm',
     'cntrNo',
     'rcgvpKnm',
+    'sellTpNm',
     'cntrRcpFshDtm',
     'idvTno',
     'newAdrZip',

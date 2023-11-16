@@ -811,7 +811,7 @@ async function callKiwiTimeAssign(dataList, prdDiv) {
       basePdCd: dataList.basePdCd, // 상품코드
       istPcsvDvCd: searchParams.value.istPcsvDvCd, // 설치택배구분
       mnftCoId: dataList.mnftCoId, // 제조사(LCJEJO)
-      svBizDclsfCd: '', // 서비스업무세분류코드
+      svBizDclsfCd: dataList.svBizDclsfCd, // 서비스업무세분류코드
       inChnlDvCd: dataList.inChnlDvCd, // 입력채널구분코드
       svBizHclsfCd: dataList.svBizHclsfCd, // 서비스세분류코드
       prdDiv, // 배정구분코드
@@ -956,26 +956,32 @@ async function cancelKiwiTimeAssign(dataList, prdDivParam) {
     asIstOjNo: dataList.asIstOjNo, // 작업순번
     acpgDiv: '3', // 구분
     basePdCd: '', // 상품코드
-    svBizDclsfCd: '', // 서비스업무세분류코드
+    svBizDclsfCd: dataList.svBizDclsfCd, // 서비스업무세분류코드
     mnftCoId: dataList.mnftCoId, // 제조사(LCJEJO)
     prdDiv: prdDivParam, // 접수구분
     inChnlDvCd: dataList.inChnlDvCd, // 입력채널구분코드
     svBizHclsfCd: dataList.svBizHclsfCd, // 서비스세분류코드
     mtrStatCd: prdDivParam, // 배정구분코드
   });
-
   if (isEqual(dataList.kaetc1, '8')) {
     if (isEqual(dataList.sellTpCd, '1')) {
       saveParams.value.wkGb = '4';
-      saveParams.value.svBizDclsfCd = '4110';
-    } else {
-      saveParams.value.svBizDclsfCd = '4130';
     }
   }
+  // if (isEqual(dataList.kaetc1, '8')) {
+  //   if (isEqual(dataList.sellTpCd, '1')) {
+  //     saveParams.value.wkGb = '4';
+  //     saveParams.value.svBizDclsfCd = '4110';
+  //   } else {
+  //     saveParams.value.svBizDclsfCd = '4130';
+  //   }
+  // }
   const res = await dataService.post('/sms/wells/contract/contracts/installation-shippings', saveParams.value); // 체크
-  if (!isEmpty(res)) {
+  if (isEqual(res.data, 'Y')) {
     notify(t('MSG_ALT_WAS_CNCL'));
     fetchData();
+  } else {
+    alert(t('MSG_ALT_FAILED_CANC'));
   }
 }
 
@@ -1020,7 +1026,7 @@ async function checkKiwiTimeAssign(dataList, prdDiv) {
       basePdCd: dataList.basePdCd, // 상품코드
       istPcsvDvCd: searchParams.value.istPcsvDvCd,
       mnftCoId: dataList.mnftCoId, // 제조사(LCJEJO)
-      svBizDclsfCd: '', // 서비스업무세분류코드
+      svBizDclsfCd: dataList.svBizDclsfCd, // 서비스업무세분류코드
       prdDiv, // 접수구분
     });
 

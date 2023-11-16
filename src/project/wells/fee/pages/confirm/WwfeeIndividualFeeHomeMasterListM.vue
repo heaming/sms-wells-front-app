@@ -45,11 +45,6 @@
             :on-click-icon="onClickSearchNo"
             :placeholder="$t('MSG_TXT_SEQUENCE_NUMBER')"
           />
-          <kw-input
-            v-model="searchParams.prtnrKnm"
-            :placeholder="$t('MSG_TXT_EMPL_NM')"
-            readonly
-          />
         </kw-search-item>
       </kw-search-row>
     </kw-search>
@@ -184,12 +179,14 @@
           <h3>{{ t('MSG_TXT_DDTN_IZ') }}</h3>
           <span class="ml8">{{ $t('MSG_TXT_UNIT_COLON_WON') }}</span>
         </template>
+        <!-- 부담공제 버튼 미사용 처리
         <kw-btn
           secondary
           dense
           :label="t('MSG_BTN_BU_DDTN')"
           @click="openZwfedFeeBurdenDeductionRegP"
         />
+        -->
       </kw-action-top>
       <kw-grid
         ref="grd3MainRef"
@@ -232,17 +229,6 @@ import { cloneDeep, isEmpty } from 'lodash-es';
 const { t } = useI18n();
 const dataService = useDataService();
 
-const props = defineProps({
-  perfYm: {
-    type: String,
-    required: true,
-  },
-  partnerNo: {
-    type: String,
-    required: true,
-  },
-});
-
 // -------------------------------------------------------------------------------------------------
 // Function & Event
 // -------------------------------------------------------------------------------------------------
@@ -252,15 +238,12 @@ const grd1MainRef = ref(getComponentType('KwGrid'));
 const grd2MainRef = ref(getComponentType('KwGrid'));
 const grd3MainRef = ref(getComponentType('KwGrid'));
 const grd4MainRef = ref(getComponentType('KwGrid'));
+const route = useRoute();
 const totalCount = ref(0);
 const searchParams = ref({
 
   perfYm: now.add(-1, 'month').format('YYYYMM'),
   prtnrNo: '',
-  prtnrKnm: '',
-  prPerfYm: props.perfYm,
-  prpartnerNo: props.partnerNo,
-
 });
 
 const info = ref({
@@ -277,9 +260,6 @@ const info = ref({
   pstnDvCd: '',
 });
 
-const { prPerfYm } = searchParams.value;
-const { prpartnerNo } = searchParams.value;
-
 let cachedParams;
 
 /*
@@ -292,14 +272,12 @@ async function onClickSearchNo() {
       baseYm: searchParams.value.perfYm,
       prtnrNo: searchParams.value.prtnrNo,
       ogTpCd: 'W03',
-      prtnrKnm: undefined,
     },
   });
 
   if (result) {
     if (!isEmpty(payload)) {
       searchParams.value.prtnrNo = payload.prtnrNo;
-      searchParams.value.prtnrKnm = payload.prtnrKnm;
     }
   }
 }
@@ -373,23 +351,24 @@ async function openAgainDisbursementPopup() {
 
 /*
  *  Event - 부담공제조정 버튼 클릭
+ * 부담공제 버튼 미사용 처리
  */
-async function openZwfedFeeBurdenDeductionRegP() {
-  const { perfYm, prtnrNo } = cachedParams;
-  if (info.value.prtnrNo !== '' && info.value.prtnrNo !== undefined) {
-    const param = {
-      perfYm,
-      ogTpCd: 'W03',
-      prtnrNo,
-    };
-    await modal({
-      component: 'ZwdeeBurdenDeductionP',
-      componentProps: param,
-    });
-  } else {
-    alert(t('MSG_ALT_USE_DT_SRCH_AF'));
-  }
-}
+// async function openZwfedFeeBurdenDeductionRegP() {
+//   const { perfYm, prtnrNo } = cachedParams;
+//   if (info.value.prtnrNo !== '' && info.value.prtnrNo !== undefined) {
+//     const param = {
+//       perfYm,
+//       ogTpCd: 'W03',
+//       prtnrNo,
+//     };
+//     await modal({
+//       component: 'ZwdeeBurdenDeductionP',
+//       componentProps: param,
+//     });
+//   } else {
+//     alert(t('MSG_ALT_USE_DT_SRCH_AF'));
+//   }
+// }
 
 /*
  *  Event - 되물림 버튼 클릭
@@ -457,11 +436,38 @@ async function onClickSearch() {
   await fetchData('pnpyam');
 }
 
-if (!isEmpty(prPerfYm) && !isEmpty(prpartnerNo)) {
-  searchParams.value.perfYm = prPerfYm;
-  searchParams.value.prtnrNo = prpartnerNo;
-  onClickSearch();
+function setParams() {
+  if (!isEmpty(route.params)) {
+    searchParams.value.perfYm = route.params.perfYm;
+    searchParams.value.prtnrNo = route.params.prtnrNo;
+
+    onClickSearch();
+  }
 }
+
+onBeforeMount(() => {
+  if (!isEmpty(route.params)) {
+    searchParams.value.perfYm = route.params.perfYm;
+    searchParams.value.prtnrNo = route.params.prtnrNo;
+  }
+});
+
+onMounted(() => {
+  nextTick(() => {
+    setParams();
+  });
+});
+
+onActivated(() => {
+  if (!isEmpty(route.params)) {
+    searchParams.value.perfYm = route.params.perfYm;
+    searchParams.value.prtnrNo = route.params.prtnrNo;
+
+    nextTick(() => {
+      setParams();
+    });
+  }
+});
 
 // -------------------------------------------------------------------------------------------------
 // Initialize Grid

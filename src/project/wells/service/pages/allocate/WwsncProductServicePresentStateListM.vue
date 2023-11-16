@@ -26,10 +26,10 @@
             type="year"
           />
         </kw-search-item>
-        <kw-search-item :label="$t('MSG_TXT_LOCARA_MNGT_DV_CD')">
+        <kw-search-item :label="$t('MSG_TXT_MNGT_DV')">
           <kw-select
             v-model="searchParams.mngrDvCd"
-            :label="$t('MSG_TXT_LOCARA_MNGT_DV_CD')"
+            :label="$t('MSG_TXT_MNGT_DV')"
             :options="codes.LOCARA_MNGT_DV_CD"
             first-option="all"
           />
@@ -64,13 +64,11 @@
     </kw-search>
     <div class="result-area">
       <kw-action-top>
-        <kw-btn
-          :disable="pageInfo.totalCount === 0"
-          :label="$t('MSG_BTN_PRTG')"
-          dense
-          icon="print"
-          secondary
-        />
+        <template #left>
+          <kw-paging-info
+            :total-count="pageInfo.totalCount"
+          />
+        </template>
         <kw-btn
           :disable="pageInfo.totalCount === 0"
           :label="$t('MSG_BTN_EXCEL_DOWN')"
@@ -260,12 +258,12 @@ const initGrdMain = defineGrid((data, view) => {
       header: t('MSG_TXT_PD_GRP'),
       width: '100',
       styleName: 'text-left',
-      footer: { text: t('MSG_TXT_SUM') } },
+      footer: { text: t('MSG_TXT_SUM'), styleName: 'text-left' } },
 
     { fieldName: 'totalCount',
       header: t('MSG_TXT_SUM'),
       width: '150',
-      styleName: 'text-right',
+      styleName: 'text-left',
       numberFormat: '#,##0',
       footer: { expression: 'sum', numberFormat: '#,##0', styleName: 'text-right' } },
 

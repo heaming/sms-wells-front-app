@@ -6,16 +6,39 @@
       </h3>
       <kw-input
         v-model="searchParams.filterText"
+        placeholder="상품명"
         @keydown.enter="onClickSearch"
       />
       <kw-select
+        v-if="searchExpaneded"
         v-model="searchParams.sellTpCd"
         class="mt8"
         :options="codes.SELL_TP_CD"
         first-option="select"
+        first-option-label="판매유형 선택"
         @change="onClickSearch"
       />
+      <kw-select
+        v-if="machineryCntrDtlOptions?.length && searchExpaneded"
+        v-model="machineryCntrDtlCntrNoSn"
+        class="mt8"
+        :options="machineryCntrDtlOptions"
+        first-option="select"
+        first-option-label="모종기기 선택"
+        @change="onChangeWellsFarmMachineCntrDtl"
+      />
       <div class="scoped-search-box__action">
+        <kw-btn
+          underline
+          secondary
+          :label="searchExpaneded ? '더보기' : '숨기기'"
+          dense
+          :icon-right="'arrow_down'"
+          size="12px"
+          class="scoped-expand-btn"
+          :class="{'scoped-expand-btn--expanded': searchExpaneded}"
+          @click="onClickExpansionToggleBtn"
+        />
         <kw-btn
           secondary
           label="초기화"
@@ -108,7 +131,7 @@
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
-import { alert, useDataService } from 'kw-lib';
+import { alert, useDataService, stringUtil } from 'kw-lib';
 import { useCtCode } from '~sms-common/contract/composable';
 import { vScrollbar } from '~sms-common/contract/util';
 import { PD_TP_CD, SELL_TP_CD } from '~sms-wells/contract/constants/ctConst';
@@ -121,12 +144,15 @@ const emit = defineEmits([
   'fetched',
 ]);
 const exposed = {};
+
 defineExpose(exposed);
 
+const { t } = useI18n();
 const dataService = useDataService();
 const { codes, addCode, getCodeName } = await useCtCode(
   'SELL_TP_DTL_CD',
   'PD_TP_CD',
+  'RGLR_SPP_MCHN_TP_CD',
 );
 await addCode('SELL_TP_CD', (code) => ([
   SELL_TP_CD.SPAY,
@@ -147,15 +173,23 @@ await addCode('PD_CLSF_CD', [
 const cntrNo = ref(props.cntrNo);
 
 const expansionItemRef = ref({});
+const searchExpaneded = ref(true);
 const products = ref([]);
 const classifyingProducts = ref({});
 const selectedProductCode = ref();
+const machineryCntrDtlOptions = ref();
+const machineryCntrDtlCntrNoSn = ref();
+const wellsFarmMchnCntrDtl = computed(() => {
+  const machineryCntrDtlOption = (machineryCntrDtlOptions.value ?? [])
+    .find((option) => option.codeId === machineryCntrDtlCntrNoSn.value);
+  return machineryCntrDtlOption?.cntrDtl;
+});
 
 const cachedParams = ref({});
 const searchParams = ref({
   filterText: '',
   sellTpCd: undefined,
-  rentalDscTpCd: undefined,
+  rglrSppMchnTpCd: undefined,
 });
 
 function getPdClsfCd(product) {
@@ -244,14 +278,18 @@ const filteredClassifyingProducts = computed(() => {
       return filtered;
     }
     const filterText = cachedParams.value.filterText?.toUpperCase() || '';
-    const { sellTpCd } = cachedParams.value;
+    const { sellTpCd, rglrSppMchnTpCd } = cachedParams.value;
     const filteredProducts = classified
       .filter((product) => (!filterText
-        || product.pdCd?.includes(filterText)
-        || product.pdNm?.toUpperCase().includes(filterText)
-        || product.cstBasePdAbbrNm?.toUpperCase().includes(filterText)
+            || product.pdCd?.includes(filterText)
+            || product.pdNm?.toUpperCase()
+              .includes(filterText)
+            || product.cstBasePdAbbrNm?.toUpperCase()
+              .includes(filterText)
       ))
-      .filter((product) => (!sellTpCd || product.sellTpCd === sellTpCd));
+      .filter((product) => (!sellTpCd || product.sellTpCd === sellTpCd))
+      .filter((product) => (rglrSppMchnTpCd ? product.rglrSppMchnTpCd === rglrSppMchnTpCd : (product.rglrSppMchnTpCd ?? '0') === '0'));
+
     if (filteredProducts.length) {
       filtered[pdClsfCd] = filteredProducts;
     }
@@ -271,6 +309,7 @@ async function fetchProducts() {
   const { data } = await dataService.get('sms/wells/contract/contracts/products', {
     params: {
       cntrNo: cntrNo.value,
+      rglrSppMchnTpCd: cachedParams.value.rglrSppMchnTpCd,
       rentalDscTpCd: cachedParams.value.rentalDscTpCd,
     },
   });
@@ -286,7 +325,27 @@ async function fetchProducts() {
   await emit('fetched', products.value);
 }
 
-watch(() => props.cntrNo, fetchProducts);
+async function fetchMachines() {
+  const params = {
+    cntrNo: props.cntrNo,
+  };
+  const { data } = await dataService.get('/sms/wells/contract/seeding/machinery', { params });
+  if (data?.length) {
+    machineryCntrDtlOptions.value = data.map((cntrDtl) => ({
+      codeId: `${cntrDtl.cntrNo}-${cntrDtl.cntrSn}`,
+      codeName: `${cntrDtl.pdNm
+      } / ${cntrDtl.cntrNo}-${cntrDtl.cntrSn
+      } / ${t('설치일')}:${stringUtil.getDateFormat(cntrDtl.istDt)
+      } / ${getCodeName('RGLR_SPP_MCHN_TP_CD', cntrDtl.rglrSppMchnTpCd)}`,
+      cntrDtl,
+    }));
+  }
+}
+
+watch(() => props.cntrNo, () => {
+  fetchProducts();
+  fetchMachines();
+});
 
 async function onClickSearch() {
   const shouldFetchProduct = cachedParams.value.rentalDscTpCd !== searchParams.value.rentalDscTpCd;
@@ -297,9 +356,9 @@ async function onClickSearch() {
   } else {
     await nextTick();
   }
-  const filteredClassifiedGroup = Object.keys(filteredClassifyingProducts.value);
+  const filteredClassifiedGroup = filteredPdClsfCds.value;
   if (filteredClassifiedGroup.length) {
-    expansionItemRef[filteredClassifiedGroup[0]]?.show();
+    expansionItemRef.value[filteredClassifiedGroup[0]]?.show();
   }
 }
 
@@ -311,14 +370,29 @@ function onClickReset() {
   onClickSearch();
 }
 
+function onChangeWellsFarmMachineCntrDtl() {
+  if (wellsFarmMchnCntrDtl.value) {
+    searchParams.value.rglrSppMchnTpCd = wellsFarmMchnCntrDtl.value?.rglrSppMchnTpCd;
+    searchParams.value.sellTpCd = SELL_TP_CD.RGLR_SPP;
+  } else {
+    searchParams.value.rglrSppMchnTpCd = undefined;
+  }
+  onClickSearch();
+}
+
 async function onClickProduct(product) {
-  await emit('select', product);
+  await emit('select', product, wellsFarmMchnCntrDtl.value);
+}
+
+function onClickExpansionToggleBtn() {
+  searchExpaneded.value = !searchExpaneded.value;
 }
 
 onMounted(() => {
   // step2 로 바로 접근하는 경우...
   if (!products.value?.length) {
     fetchProducts();
+    fetchMachines();
   }
 });
 
@@ -372,4 +446,22 @@ onActivated(() => {
   }
 }
 
+.scoped-expand-btn {
+  margin-right: auto;
+  font-size: 14px;
+
+  &.kw-btn {
+    :deep(.q-icon) {
+      transition: transform $button-transition;
+    }
+  }
+
+  &--expanded {
+    &.kw-btn {
+      :deep(.q-icon) {
+        transform: rotate(180deg);
+      }
+    }
+  }
+}
 </style>

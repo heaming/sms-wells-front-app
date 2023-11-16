@@ -24,6 +24,7 @@
       @search="onClickSearch"
     >
       <kw-search-row>
+        <!-- AS접수업체 -->
         <kw-search-item
           :label="$t('MSG_TXT_AS_RCP_BZS')"
         >
@@ -46,6 +47,7 @@
           @change="fetchData"
         />
       </template>
+      <!-- 삭제 버튼 -->
       <kw-btn
         v-permission:delete
         :label="$t('MSG_BTN_DEL')"
@@ -57,12 +59,14 @@
         inset
         spaced
       />
+      <!-- 행추가 버튼 -->
       <kw-btn
         v-permission:create
         :label="$t('MSG_BTN_ROW_ADD')"
         grid-action
         @click="onClickAddRow"
       />
+      <!-- 저장 버튼 -->
       <kw-btn
         v-permission:update
         :label="$t('MSG_BTN_SAVE')"
@@ -80,6 +84,7 @@
         secondary
         :label="$t('MSG_BTN_PRTG')"
       /> -->
+      <!-- 엑셀다운로드 버튼 -->
       <kw-btn
         v-permission:download
         icon="download_on"
@@ -94,6 +99,7 @@
         inset
         spaced
       />
+      <!-- AS접수업체선택 버튼 -->
       <kw-btn
         :label="$t('MSG_TXT_AS_RCP_BZS_SEL')"
         primary
@@ -101,7 +107,6 @@
         @click="onClickBzSelect"
       />
     </kw-action-top>
-
     <kw-grid
       ref="grdMainRef"
       name="grdMain"
@@ -109,7 +114,6 @@
       :total-count="pageInfo.totalCount"
       @init="initGrdMain"
     />
-
     <kw-pagination
       v-model:page-index="pageInfo.pageIndex"
       v-model:page-size="pageInfo.pageSize"
@@ -161,6 +165,7 @@ const pageInfo = ref({
 });
 
 const popupRef = ref();
+// 그리드 조회
 async function fetchData() {
   const res = await dataService.get('/sms/wells/service/outsourcedpd-as-receipts/business/paging', { params: { ...cachedParams, ...pageInfo.value } });
   const { list: receipts, pageInfo: pagingResult } = res.data;
@@ -171,13 +176,13 @@ async function fetchData() {
   view.getDataSource().setRows(receipts);
   view.clearCurrent();
 }
-
+// 조회버튼 클릭
 async function onClickSearch() {
   pageInfo.value.pageIndex = 1;
   cachedParams = cloneDeep(searchParams.value);
   await fetchData();
 }
-
+// 엑셀다운로드 버튼 클릭
 async function onClickExcelDownload() {
   const view = grdMainRef.value.getView();
 
@@ -190,7 +195,7 @@ async function onClickExcelDownload() {
     checkBar: 'hidden',
   });
 }
-
+// 삭제 버튼 클릭
 async function onClickDelete() {
   const view = grdMainRef.value.getView();
   if (!await gridUtil.confirmIfIsModified(view)) { return; }
@@ -200,39 +205,39 @@ async function onClickDelete() {
     // 삭제 controller
     await dataService.delete('/sms/wells/service/outsourcedpd-as-receipts/business', { data: [...deletedRows] });
 
-    notify(t('MSG_ALT_DELETED'));
+    notify(t('MSG_ALT_DELETED')); // 삭제 되었습니다.
     await fetchData();
   }
 }
-
+// 행추가 버튼 클릭
 function onClickAddRow() {
   const view = grdMainRef.value.getView();
   gridUtil.insertRowAndFocus(view, 0, {});
   view.checkItem(0, true);
 }
-
+// 저장 버튼 클릭
 async function onClickSave() {
   const view = grdMainRef.value.getView();
   const chkRows = gridUtil.getCheckedRowValues(view);
 
   if (chkRows.length === 0) {
-    notify(t('MSG_ALT_NOT_SEL_ITEM'));
+    notify(t('MSG_ALT_NOT_SEL_ITEM')); // 데이터를 선택해주세요.
   } else if (await gridUtil.validate(view, { isCheckedOnly: true })) {
     await dataService.post('/sms/wells/service/outsourcedpd-as-receipts/business', chkRows);
-    notify(t('MSG_ALT_SAVE_DATA'));
+    notify(t('MSG_ALT_SAVE_DATA')); // 저장되었습니다.
     await fetchData();
   }
 }
-
+// AS접수업체선택 버튼 클릭
 async function onClickBzSelect() {
   const view = grdMainRef.value.getView();
   const chkRows = gridUtil.getCheckedRowValues(view);
   if (chkRows.length === 0) {
-    notify(t('MSG_ALT_NOT_SEL_ITEM'));
+    notify(t('MSG_ALT_NOT_SEL_ITEM')); // 데이터를 선택해주세요.
     return;
   }
   if (chkRows.length > 1) {
-    notify(t('MSG_ALT_SELT_ONE_ITEM'));
+    notify(t('MSG_ALT_SELT_ONE_ITEM')); // 한 개만 선택해주세요.
     return;
   }
   const payload = {
@@ -250,18 +255,18 @@ async function onClickBzSelect() {
 // -------------------------------------------------------------------------------------------------
 const initGrdMain = defineGrid((data, view) => {
   const fields = [
-    { fieldName: 'svCnrSn' },
-    { fieldName: 'svCnrNm' },
-    { fieldName: 'svCnrLocaraTno' },
-    { fieldName: 'svCnrExnoEncr' },
-    { fieldName: 'svCnrIdvTno' },
-    { fieldName: 'svCnrTno' },
-    { fieldName: 'svCnrZip' },
-    { fieldName: 'button' },
-    { fieldName: 'svCnrAdr' },
-    { fieldName: 'svCnrDtlAdr' },
-    { fieldName: 'totAdr' },
-    { fieldName: 'svCnrIchrPrtnrNm' },
+    { fieldName: 'svCnrSn' }, // 서비스센터일련번호
+    { fieldName: 'svCnrNm' }, // 서비스센터명
+    { fieldName: 'svCnrLocaraTno' }, // 서비스센터지역전화번호
+    { fieldName: 'svCnrExnoEncr' }, // 서비스센터전화국번호암호화
+    { fieldName: 'svCnrIdvTno' }, // 서비스센터개별전화번호
+    { fieldName: 'svCnrTno' }, // 서비스센터전화번호 TOT
+    { fieldName: 'svCnrZip' }, // 서비스센터 우편번호
+    { fieldName: 'button' }, // 우편번호검색버튼
+    { fieldName: 'svCnrAdr' }, // 서비스센터주소
+    { fieldName: 'svCnrDtlAdr' }, // 서비스센터상세주소
+    { fieldName: 'totAdr' }, // 주소TOT
+    { fieldName: 'svCnrIchrPrtnrNm' }, // 서비스센터담당파트너번호
   ];
 
   const columns = [

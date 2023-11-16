@@ -3,7 +3,7 @@
  * 프로그램 개요
  ****************************************************************************************************
  1. 모듈 : SNA (재고관리)
- 2. 프로그램 ID : WsnaMonthClassifiedByStockActualMgtM(W-SV-U-0139M01) - 월별 재고실사 등록 관리
+ 2. 프로그램 ID : WwsnaMonthClassifiedByStockActualMgtM(W-SV-U-0139M01) - 월별 재고실사 등록 관리
  3. 작성자 : songTaeSung
  4. 작성일 : 2023.06.11
  ****************************************************************************************************
@@ -81,6 +81,7 @@
             :page-size-options="codes.COD_PAGE_SIZE_OPTIONS"
             @change="fetchData"
           />
+          <span class="ml8">({{ $t('MSG_TXT_UNIT') }} : EA)</span>
         </template>
         <!-- 저장버튼 -->
         <kw-btn
@@ -309,6 +310,7 @@ async function onClickExcelDownload() {
 
 // 조회버튼 클릭이벤트
 async function onClickSearch() {
+  pageInfo.value.pageIndex = 1;
   cachedParams = cloneDeep(searchParams.value);
   await fetchData();
 }
@@ -533,6 +535,7 @@ const initGrdMain = defineGrid((data, view) => {
         expression: 'sum',
         numberFormat: '#,##0',
       },
+      editor: { type: 'number', positiveOnly: true },
     },
     { fieldName: 'minusQty',
       header: t('MSG_TXT_STOC_GAP'),
@@ -542,7 +545,14 @@ const initGrdMain = defineGrid((data, view) => {
         expression: 'sum',
         numberFormat: '#,##0',
       } },
-    { fieldName: 'acinspRmkCn', header: t('MSG_TXT_NOTE'), width: '150', styleName: 'text-right', editable: true },
+    { fieldName: 'acinspRmkCn',
+      header: t('MSG_TXT_NOTE'),
+      width: '150',
+      styleName: 'text-right',
+      editable: true,
+      editor: {
+        maxLength: 4000 },
+    },
     { fieldName: 'cnfmdt', header: t('MSG_TXT_CNFM_DT'), width: '150', styleName: 'text-right', datetimeFormat: 'date' },
     { fieldName: 'cnfmPitmEotStocQty', header: t('MSG_TXT_CNFM_EOT'), width: '150', styleName: 'text-right' },
     { fieldName: 'diffQty', header: t('MSG_TXT_CNFM_GAP'), width: '150', styleName: 'text-right' },

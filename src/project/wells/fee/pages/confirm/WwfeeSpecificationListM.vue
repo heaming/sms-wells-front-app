@@ -164,6 +164,7 @@ const searchParams = ref({
   ogLevel1: '',
   ogLevel2: '',
   ogLevel3: '',
+  isSum: '', // 합계 표시 여부 (리포트)
 });
 
 const codes = await codeUtil.getMultiCodes('OG_TP_CD', 'RSB_DV_CD');
@@ -207,6 +208,7 @@ async function fetchData() {
 }
 
 async function onClickSearch() {
+  totalCount.value = 0;
   cachedParams = cloneDeep(searchParams.value);
   fetchData();
 }
@@ -251,84 +253,33 @@ async function onClickExcelDownload() {
 // 지급명세서 출력
 function onClickOzReport(div) {
   let _ozrPath = '';
-  let _odiPath = '';
 
-  if (searchParams.value.rsbDvCd === 'W0105') { // P추진단 - 플래너
-    if (div === 'tot') { // 본사 -- 총계
-      _ozrPath = '/ksswells/cmms/svPatSpec/V1.0/cmmsSvPatSpec202204_01.ozr';
-      _odiPath = '/ksswells/cmms/svPatSpec/V1.0/cmmsSvPatSpec202204_01.odi';
-    } else {
-      _ozrPath = '/ksswells/cmms/svPatSpec/V1.0/cmmsSvPatSpec202204_02.ozr';
-      _odiPath = '/ksswells/cmms/svPatSpec/V1.0/cmmsSvPatSpec202204_02.odi';
+  cachedParams.isSum = (div === 'tot') ? 'Y' : '';
+
+  if ('W0301,W0302'.indexOf(searchParams.value.rsbDvCd) > -1) { // 홈마스터
+    if (searchParams.value.rsbDvCd === 'W0302') { // 홈마스터
+      if (cachedParams.isSum === 'Y') {
+        _ozrPath = '/ksswells/hmCmms/patSpec/V4.1/cmmsHmPatSpec1_sum.ozr'; // 합계
+      } else {
+        _ozrPath = '/ksswells/hmCmms/patSpec/V4.1/cmmsHmPatSpec1.ozr';
+      }
+    } else if (searchParams.value.rsbDvCd === 'W0301') { // 홈마스터 - 지점장
+      if (cachedParams.isSum === 'Y') {
+        _ozrPath = '/ksswells/hmCmms/patSpec/V4.1/cmmsHmPatSpec3_sum.ozr'; // 합계
+      } else {
+        _ozrPath = '/ksswells/hmCmms/patSpec/V4.1/cmmsHmPatSpec3.ozr';
+      }
     }
-  } else if (searchParams.value.rsbDvCd === 'W0104') { // P 추진단 - 지점장
-    if (div === 'tot') { // 본사 -- 총계
-      _ozrPath = '/ksswells/cmms/svPatSpec/V1.0/cmmsSvPatSpec202204_03_03.ozr';
-      _odiPath = '/ksswells/cmms/svPatSpec/V1.0/cmmsSvPatSpec202204_03_03.odi';
-    } else {
-      _ozrPath = '/ksswells/cmms/svPatSpec/V1.0/cmmsSvPatSpec202204_04.ozr';
-      _odiPath = '/ksswells/cmms/svPatSpec/V1.0/cmmsSvPatSpec202204_04.odi';
-    }
-  } else if (searchParams.value.rsbDvCd === 'W0205') { // M추진단 - 플래너
-    if (div === 'tot') { // 본사 -- 총계
-      _ozrPath = '/ksswells/cmms/patSpec/V3.0/cmmsPatSpec202304_01.ozr';
-      _odiPath = '/ksswells/cmms/patSpec/V3.0/cmmsPatSpec202304_01.odi';
-    } else {
-      _ozrPath = '/ksswells/cmms/patSpec/V3.0/cmmsPatSpec202304_02.ozr';
-      _odiPath = '/ksswells/cmms/patSpec/V3.0/cmmsPatSpec202304_02.odi';
-    }
-  } else if (searchParams.value.rsbDvCd === 'W0204') { // M 추진단 - 지점장
-    if (div === 'tot') { // 본사 -- 총계
-      _ozrPath = '/ksswells/cmms/patSpec/V3.0/cmmsPatSpec202304_03.odi';
-      _odiPath = '/ksswells/cmms/patSpec/V3.0/cmmsPatSpec202304_03.odi';
-    } else {
-      _ozrPath = '/ksswells/cmms/patSpec/V3.0/cmmsPatSpec202304_04.odi';
-      _odiPath = '/ksswells/cmms/patSpec/V3.0/cmmsPatSpec202304_04.odi';
-    }
-  } else if (searchParams.value.rsbDvCd === 'W0302') { // 홈마스터
-    if (div === 'tot') {
-      _ozrPath = '/ksswells/hmCmms/patSpec/V2.0/cmmsHmPatSpec1_sum.ozr';
-      _odiPath = '/ksswells/hmCmms/patSpec/V2.0/cmmsHmPatSpec1_sum.odi';
-    } else {
-      _ozrPath = '/ksswells/hmCmms/patSpec/V2.0/cmmsHmPatSpec1.ozr';
-      _odiPath = '/ksswells/hmCmms/patSpec/V2.0/cmmsHmPatSpec1.odi';
-    }
-  } else if (searchParams.value.rsbDvCd === 'W0301') { // 홈마스터 - 지점장
-    if (div === 'tot') {
-      _ozrPath = '/ksswells/hmCmms/patSpec/V2.0/cmmsHmPatSpec2_sum.ozr';
-      _odiPath = '/ksswells/hmCmms/patSpec/V2.0/cmmsHmPatSpec2_sum.odi';
-    } else {
-      _ozrPath = 'ksswells/hmCmms/patSpec/V2.0/cmmsHmPatSpec2.ozr';
-      _odiPath = 'ksswells/hmCmms/patSpec/V2.0/cmmsHmPatSpec2.odi';
-    }
+  } else {
+    _ozrPath = '/ksswells/cmms/svPatSpec/V2.0/cmmsSvPatSpec202310_01.ozr';
   }
 
-  const ozParam = {
-    ozrPath: _ozrPath,
-    odiPath: _odiPath,
-    args:
-      {
-        userDiv: '0',
-        basYear: searchParams.value.perfDt.substring(0, 4),
-        basMonth: searchParams.value.perfDt.substring(4, 6),
-        userId: searchParams.value.prtnrNo ?? 0,
-        perfYm: searchParams.value.perfDt,
-        rsbDvCd: searchParams.value.rsbDvCd,
-        ogId: searchParams.value.ogId,
-        rsbCd: sessionUserInfo.rsbCd ?? '0',
-        pstn: '0',
-        deptCd: '0',
-        basYrmn: searchParams.value.perfDt,
-      },
-    height: 1100,
-    width: 1200,
-  };
+  const args = { searchApiUrl: '/api/v1/sms/wells/fee/fee-specifications/report', ...cachedParams };
 
   openReportPopup(
-    ozParam.ozrPath,
-    ozParam.odiPath,
-    JSON.stringify(ozParam.args),
-    { width: 1100, height: 1200 },
+    _ozrPath,
+    '',
+    JSON.stringify(args),
   );
 }
 
@@ -343,6 +294,7 @@ async function onChangeOgTpCd() {
     rsbDvCd.value = (await codeUtil.getSubCodes('RSB_DV_CD', 'W03')).filter((v) => ['W0302', 'W0301'].includes(v.codeId));
     searchParams.value.rsbDvCd = 'W0302';
   }
+  totalCount.value = 0;
 }
 
 // 직책구분에 따라 feeCalcUnitTpCd 세팅
@@ -360,6 +312,7 @@ function setUnitTpCd() {
 }
 
 async function onChangeDiv() {
+  totalCount.value = 0;
   setUnitTpCd(); // feeCalcUnitTpCd 변경
   await getFeeCodes();
   cashedFeeCodes = feeCodes.filter((obj) => (obj.feeCalcUnitTpCd === searchParams.value.feeCalcUnitTpCd)); // 수수료 코드 필터링
@@ -380,105 +333,105 @@ fieldsObj = {
     { fieldName: 'dgr1LevlOgNm', header: t('MSG_TXT_MANAGEMENT_DEPARTMENT'), width: '103.8', styleName: 'text-center' }, // 총괄단
     { fieldName: 'dgr2LevlOgNm', header: t('MSG_TXT_RGNL_GRP'), width: '103.8', styleName: 'text-center' }, // 지역단
     { fieldName: 'dgr3LevlOgNm', header: t('MSG_TXT_BRANCH'), width: '103.8', styleName: 'text-center' }, // 지점
-    { fieldName: 'prtNrNo', header: t('MSG_TXT_SEQUENCE_NUMBER'), width: '110.8', styleName: 'text-center' }, // 번호
-    { fieldName: 'prtNrKNm', header: t('MSG_TXT_EMPL_NM'), width: '110.8', styleName: 'text-center' }, // 성명
+    { fieldName: 'prtnrNo', header: t('MSG_TXT_SEQUENCE_NUMBER'), width: '110.8', styleName: 'text-center' }, // 번호
+    { fieldName: 'prtnrKnm', header: t('MSG_TXT_EMPL_NM'), width: '110.8', styleName: 'text-center' }, // 성명
     { fieldName: 'rsbDvCd', header: t('MSG_TXT_RSB'), width: '88.7', styleName: 'text-center', options: codes.RSB_DV_CD }, // 직책
     { fieldName: 'meetDates', header: t('MSG_TXT_METG_PRSC_DC'), width: '93.1', styleName: 'text-right', dataType: 'number' }, // 미팅참석일수
   ],
   mp: { // M추진단 / 플래너
     perfFields: [ // 실적부분
-      { fieldName: 'perf02', header: t('MSG_TXT_ELHM_ACKMT_CT'), width: '118.1', styleName: 'text-right', dataType: 'number' }, // 가전인정건수
-      { fieldName: 'perf03', header: t('MSG_TXT_ELHM_CHDVC_CT'), width: '111.9', styleName: 'text-right', dataType: 'number' }, // 가전기변건수
+      { fieldName: 'perfVal1', header: t('MSG_TXT_ELHM_ACKMT_CT'), width: '118.1', styleName: 'text-right', dataType: 'number' }, // 가전인정건수
+      { fieldName: 'perfVal2', header: t('MSG_TXT_ELHM_CHDVC_CT'), width: '111.9', styleName: 'text-right', dataType: 'number' }, // 가전기변건수
     ],
     deductionFields: [ // 공제 부분
-      { fieldName: 'ddtn02', header: t('MSG_TXT_ERNTX'), width: '142.8', styleName: 'text-right', dataType: 'number' }, // 소득세
-      { fieldName: 'ddtn03', header: t('MSG_TXT_RSDNTX'), width: '142.8', styleName: 'text-right', dataType: 'number' }, // 주민세
-      { fieldName: 'ddtn01', header: t('MSG_TXT_RDS'), width: '142.8', styleName: 'text-right', dataType: 'number' }, // 보증예치금
-      { fieldName: 'ddtn04', header: t('MSG_TXT_PNPYAM'), width: '142.8', styleName: 'text-right', dataType: 'number' }, // 가지급금
-      { fieldName: 'ddtn07', header: t('MSG_TXT_BU_DDTN'), width: '142.8', styleName: 'text-right', dataType: 'number' }, // 부담공제
-      { fieldName: 'ddtn05', header: t('MSG_TXT_HIR_INSR'), width: '142.8', styleName: 'text-right', dataType: 'number' }, // 고용보험
-      { fieldName: 'ddtn06', header: t('MSG_TXT_INDD_INSR'), width: '142.8', styleName: 'text-right', dataType: 'number' }, // 산재보험
+      { fieldName: 'ddtnVal1', header: t('MSG_TXT_ERNTX'), width: '142.8', styleName: 'text-right', dataType: 'number' }, // 소득세
+      { fieldName: 'ddtnVal2', header: t('MSG_TXT_RSDNTX'), width: '142.8', styleName: 'text-right', dataType: 'number' }, // 주민세
+      { fieldName: 'ddtnVal3', header: t('MSG_TXT_RDS'), width: '142.8', styleName: 'text-right', dataType: 'number' }, // 보증예치금
+      { fieldName: 'ddtnVal4', header: t('MSG_TXT_PNPYAM'), width: '142.8', styleName: 'text-right', dataType: 'number' }, // 가지급금
+      { fieldName: 'ddtnVal5', header: t('MSG_TXT_BU_DDTN'), width: '142.8', styleName: 'text-right', dataType: 'number' }, // 부담공제
+      { fieldName: 'ddtnVal6', header: t('MSG_TXT_HIR_INSR'), width: '142.8', styleName: 'text-right', dataType: 'number' }, // 고용보험
+      { fieldName: 'ddtnVal7', header: t('MSG_TXT_INDD_INSR'), width: '142.8', styleName: 'text-right', dataType: 'number' }, // 산재보험
     ],
   },
   pp: { // P추진단 / 플래너
     perfFields: [ // 실적부분
-      { fieldName: 'perf02', header: t('MSG_TXT_ELHM_PERF'), width: '118.1', styleName: 'text-right', dataType: 'number' }, // 가전실적
-      { fieldName: 'perf03', header: t('MSG_TXT_ELHM_EXCP_PERF'), width: '111.9', styleName: 'text-right', dataType: 'number' }, // 가전외 실적
-      { fieldName: 'perf04', header: t('MSG_TXT_ADP'), width: '111.9', styleName: 'text-right', dataType: 'number' }, // 합산
-      { fieldName: 'perf05', header: t('MSG_TXT_MCHN_CH_PERF'), width: '111.9', styleName: 'text-right', dataType: 'number' }, // 기변실적
+      { fieldName: 'perfVal1', header: t('MSG_TXT_ELHM_PERF'), width: '118.1', styleName: 'text-right', dataType: 'number' }, // 가전실적
+      { fieldName: 'perfVal2', header: t('MSG_TXT_ELHM_EXCP_PERF'), width: '111.9', styleName: 'text-right', dataType: 'number' }, // 가전외 실적
+      { fieldName: 'perfVal3', header: t('MSG_TXT_ADP'), width: '111.9', styleName: 'text-right', dataType: 'number' }, // 합산
+      { fieldName: 'perfVal4', header: t('MSG_TXT_MCHN_CH_PERF'), width: '111.9', styleName: 'text-right', dataType: 'number' }, // 기변실적
     ],
     deductionFields: [ // 공제 부분
-      { fieldName: 'ddtn02', header: t('MSG_TXT_ERNTX'), width: '142.8', styleName: 'text-right', dataType: 'number' }, // 소득세
-      { fieldName: 'ddtn03', header: t('MSG_TXT_RSDNTX'), width: '142.8', styleName: 'text-right', dataType: 'number' }, // 주민세
-      { fieldName: 'ddtn01', header: t('MSG_TXT_RDS'), width: '142.8', styleName: 'text-right', dataType: 'number' }, // 보증예치금
-      { fieldName: 'ddtn04', header: t('MSG_TXT_PNPYAM'), width: '142.8', styleName: 'text-right', dataType: 'number' }, // 가지급금
-      { fieldName: 'ddtn07', header: t('MSG_TXT_BU_DDTN'), width: '142.8', styleName: 'text-right', dataType: 'number' }, // 부담공제
-      { fieldName: 'ddtn05', header: t('MSG_TXT_HIR_INSR'), width: '142.8', styleName: 'text-right', dataType: 'number' }, // 고용보험
-      { fieldName: 'ddtn06', header: t('MSG_TXT_INDD_INSR'), width: '142.8', styleName: 'text-right', dataType: 'number' }, // 산재보험
+      { fieldName: 'ddtnVal1', header: t('MSG_TXT_ERNTX'), width: '142.8', styleName: 'text-right', dataType: 'number' }, // 소득세
+      { fieldName: 'ddtnVal2', header: t('MSG_TXT_RSDNTX'), width: '142.8', styleName: 'text-right', dataType: 'number' }, // 주민세
+      { fieldName: 'ddtnVal3', header: t('MSG_TXT_RDS'), width: '142.8', styleName: 'text-right', dataType: 'number' }, // 보증예치금
+      { fieldName: 'ddtnVal4', header: t('MSG_TXT_PNPYAM'), width: '142.8', styleName: 'text-right', dataType: 'number' }, // 가지급금
+      { fieldName: 'ddtnVal5', header: t('MSG_TXT_BU_DDTN'), width: '142.8', styleName: 'text-right', dataType: 'number' }, // 부담공제
+      { fieldName: 'ddtnVal6', header: t('MSG_TXT_HIR_INSR'), width: '142.8', styleName: 'text-right', dataType: 'number' }, // 고용보험
+      { fieldName: 'ddtnVal7', header: t('MSG_TXT_INDD_INSR'), width: '142.8', styleName: 'text-right', dataType: 'number' }, // 산재보험
     ],
   },
   mm: { // M추진단 / 지점장
     perfFields: [ // 실적부분
-      { fieldName: 'perf02', header: t('MSG_TXT_OG_ELHM_ACKMT_CT'), width: '118.1', styleName: 'text-right', dataType: 'number' }, // 조직 가전인정건수
-      { fieldName: 'perf03', header: t('MSG_TXT_ELHM_ACKMT_CT'), width: '111.9', styleName: 'text-right', dataType: 'number' }, // 가전인정건수
-      { fieldName: 'perf04', header: t('MSG_TXT_MCHN_CH_PERF'), width: '111.9', styleName: 'text-right', dataType: 'number' }, // 기변실적
+      { fieldName: 'perfVal1', header: t('MSG_TXT_OG_ELHM_ACKMT_CT'), width: '118.1', styleName: 'text-right', dataType: 'number' }, // 조직 가전인정건수
+      { fieldName: 'perfVal2', header: t('MSG_TXT_ELHM_ACKMT_CT'), width: '111.9', styleName: 'text-right', dataType: 'number' }, // 가전인정건수
+      { fieldName: 'perfVal3', header: t('MSG_TXT_MCHN_CH_PERF'), width: '111.9', styleName: 'text-right', dataType: 'number' }, // 기변실적
     ],
     deductionFields: [ // 공제 부분
-      { fieldName: 'ddtn02', header: t('MSG_TXT_ERNTX'), width: '142.8', styleName: 'text-right', dataType: 'number' }, // 소득세
-      { fieldName: 'ddtn03', header: t('MSG_TXT_RSDNTX'), width: '142.8', styleName: 'text-right', dataType: 'number' }, // 주민세
-      { fieldName: 'ddtn01', header: t('MSG_TXT_RDS'), width: '142.8', styleName: 'text-right', dataType: 'number' }, // 보증예치금
-      { fieldName: 'ddtn04', header: t('MSG_TXT_PNPYAM'), width: '142.8', styleName: 'text-right', dataType: 'number' }, // 가지급금
-      { fieldName: 'ddtn07', header: t('MSG_TXT_BU_DDTN'), width: '142.8', styleName: 'text-right', dataType: 'number' }, // 부담공제
-      { fieldName: 'ddtn88', header: t('MSG_TXT_DSC_SELL'), width: '142.8', styleName: 'text-right', dataType: 'number' }, // 할인판매
-      { fieldName: 'ddtn05', header: t('MSG_TXT_HIR_INSR'), width: '142.8', styleName: 'text-right', dataType: 'number' }, // 고용보험
-      { fieldName: 'ddtn06', header: t('MSG_TXT_INDD_INSR'), width: '142.8', styleName: 'text-right', dataType: 'number' }, // 산재보험
+      { fieldName: 'ddtnVal1', header: t('MSG_TXT_ERNTX'), width: '142.8', styleName: 'text-right', dataType: 'number' }, // 소득세
+      { fieldName: 'ddtnVal2', header: t('MSG_TXT_RSDNTX'), width: '142.8', styleName: 'text-right', dataType: 'number' }, // 주민세
+      { fieldName: 'ddtnVal3', header: t('MSG_TXT_RDS'), width: '142.8', styleName: 'text-right', dataType: 'number' }, // 보증예치금
+      { fieldName: 'ddtnVal4', header: t('MSG_TXT_PNPYAM'), width: '142.8', styleName: 'text-right', dataType: 'number' }, // 가지급금
+      { fieldName: 'ddtnVal5', header: t('MSG_TXT_BU_DDTN'), width: '142.8', styleName: 'text-right', dataType: 'number' }, // 부담공제
+      { fieldName: 'ddtnVal6', header: t('MSG_TXT_DSC_SELL'), width: '142.8', styleName: 'text-right', dataType: 'number' }, // 할인판매
+      { fieldName: 'ddtnVal7', header: t('MSG_TXT_HIR_INSR'), width: '142.8', styleName: 'text-right', dataType: 'number' }, // 고용보험
+      { fieldName: 'ddtnVal8', header: t('MSG_TXT_INDD_INSR'), width: '142.8', styleName: 'text-right', dataType: 'number' }, // 산재보험
     ],
   },
   pm: { // P추진단 / 지점장
     perfFields: [ // 실적부분
-      { fieldName: 'perf01', header: t('MSG_TXT_ELHM_PERF'), width: '118.1', styleName: 'text-right', dataType: 'number' }, // 조직 - 가전인정건수
-      { fieldName: 'perf02', header: t('MSG_TXT_ELHM_EXCP_PERF'), width: '111.9', styleName: 'text-right', dataType: 'number' }, // 조직 - 가전외
-      { fieldName: 'perf03', header: t('MSG_TXT_ADP'), width: '111.9', styleName: 'text-right', dataType: 'number' }, // 조직 - 합산
+      { fieldName: 'perfVal1', header: t('MSG_TXT_ELHM_PERF'), width: '118.1', styleName: 'text-right', dataType: 'number' }, // 조직 - 가전인정건수
+      { fieldName: 'perfVal2', header: t('MSG_TXT_ELHM_EXCP_PERF'), width: '111.9', styleName: 'text-right', dataType: 'number' }, // 조직 - 가전외
+      { fieldName: 'perfVal3', header: t('MSG_TXT_ADP'), width: '111.9', styleName: 'text-right', dataType: 'number' }, // 조직 - 합산
 
-      { fieldName: 'perf04', header: t('MSG_TXT_ELHM_PERF'), width: '118.1', styleName: 'text-right', dataType: 'number' }, // 개인 - 가전실적
-      { fieldName: 'perf05', header: t('MSG_TXT_ELHM_EXCP_PERF'), width: '111.9', styleName: 'text-right', dataType: 'number' }, // 개인 - 가전외 실적
-      { fieldName: 'perf06', header: t('MSG_TXT_ADP'), width: '111.9', styleName: 'text-right', dataType: 'number' }, // 개인 - 합산
-      { fieldName: 'perf07', header: t('MSG_TXT_MCHN_CH_PERF'), width: '111.9', styleName: 'text-right', dataType: 'number' }, // 개인 - 기변실적
+      { fieldName: 'perfVal4', header: t('MSG_TXT_ELHM_PERF'), width: '118.1', styleName: 'text-right', dataType: 'number' }, // 개인 - 가전실적
+      { fieldName: 'perfVal5', header: t('MSG_TXT_ELHM_EXCP_PERF'), width: '111.9', styleName: 'text-right', dataType: 'number' }, // 개인 - 가전외 실적
+      { fieldName: 'perfVal6', header: t('MSG_TXT_ADP'), width: '111.9', styleName: 'text-right', dataType: 'number' }, // 개인 - 합산
+      { fieldName: 'perfVal7', header: t('MSG_TXT_MCHN_CH_PERF'), width: '111.9', styleName: 'text-right', dataType: 'number' }, // 개인 - 기변실적
     ],
     deductionFields: [ // 공제 부분
-      { fieldName: 'ddtn02', header: t('MSG_TXT_ERNTX'), width: '142.8', styleName: 'text-right', dataType: 'number' }, // 소득세
-      { fieldName: 'ddtn03', header: t('MSG_TXT_RSDNTX'), width: '142.8', styleName: 'text-right', dataType: 'number' }, // 주민세
-      { fieldName: 'ddtn01', header: t('MSG_TXT_RDS'), width: '142.8', styleName: 'text-right', dataType: 'number' }, // 보증예치금
-      { fieldName: 'ddtn04', header: t('MSG_TXT_PNPYAM'), width: '142.8', styleName: 'text-right', dataType: 'number' }, // 가지급금
-      { fieldName: 'ddtn07', header: t('MSG_TXT_BU_DDTN'), width: '142.8', styleName: 'text-right', dataType: 'number' }, // 부담공제
-      { fieldName: 'ddtn05', header: t('MSG_TXT_HIR_INSR'), width: '142.8', styleName: 'text-right', dataType: 'number' }, // 고용보험
-      { fieldName: 'ddtn06', header: t('MSG_TXT_INDD_INSR'), width: '142.8', styleName: 'text-right', dataType: 'number' }, // 산재보험
+      { fieldName: 'ddtnVal1', header: t('MSG_TXT_ERNTX'), width: '142.8', styleName: 'text-right', dataType: 'number' }, // 소득세
+      { fieldName: 'ddtnVal2', header: t('MSG_TXT_RSDNTX'), width: '142.8', styleName: 'text-right', dataType: 'number' }, // 주민세
+      { fieldName: 'ddtnVal3', header: t('MSG_TXT_RDS'), width: '142.8', styleName: 'text-right', dataType: 'number' }, // 보증예치금
+      { fieldName: 'ddtnVal4', header: t('MSG_TXT_PNPYAM'), width: '142.8', styleName: 'text-right', dataType: 'number' }, // 가지급금
+      { fieldName: 'ddtnVal5', header: t('MSG_TXT_BU_DDTN'), width: '142.8', styleName: 'text-right', dataType: 'number' }, // 부담공제
+      { fieldName: 'ddtnVal6', header: t('MSG_TXT_HIR_INSR'), width: '142.8', styleName: 'text-right', dataType: 'number' }, // 고용보험
+      { fieldName: 'ddtnVal7', header: t('MSG_TXT_INDD_INSR'), width: '142.8', styleName: 'text-right', dataType: 'number' }, // 산재보험
     ],
   },
   hp: { // 홈마스터 / 플래너
     perfFields: [], // 실적부분
     deductionFields: [ // 공제 부분
-      { fieldName: 'ddtn01', header: t('MSG_TXT_RDS'), width: '142.8', styleName: 'text-right', dataType: 'number' }, // 보증예치금
-      { fieldName: 'ddtn02', header: t('MSG_TXT_ERNTX'), width: '142.8', styleName: 'text-right', dataType: 'number' }, // 소득세
-      { fieldName: 'ddtn03', header: t('MSG_TXT_RSDNTX'), width: '142.8', styleName: 'text-right', dataType: 'number' }, // 주민세
-      { fieldName: 'ddtn05', header: t('MSG_TXT_HIR_INSR'), width: '142.8', styleName: 'text-right', dataType: 'number' }, // 고용보험
-      { fieldName: 'ddtn04', header: t('MSG_TXT_PNPYAM'), width: '142.8', styleName: 'text-right', dataType: 'number' }, // 가지급금
-      { fieldName: 'ddtn07', header: t('MSG_TXT_BU_DDTN'), width: '142.8', styleName: 'text-right', dataType: 'number' }, // 부담공제
-      { fieldName: 'ddtn99', header: t('MSG_TXT_EDDTN'), width: '142.8', styleName: 'text-right', dataType: 'number' }, // 기타공제
-      { fieldName: 'ddtn06', header: t('MSG_TXT_INDD_INSR'), width: '142.8', styleName: 'text-right', dataType: 'number' }, // 산재보험
+      { fieldName: 'ddtnVal1', header: t('MSG_TXT_RDS'), width: '142.8', styleName: 'text-right', dataType: 'number' }, // 보증예치금
+      { fieldName: 'ddtnVal2', header: t('MSG_TXT_ERNTX'), width: '142.8', styleName: 'text-right', dataType: 'number' }, // 소득세
+      { fieldName: 'ddtnVal3', header: t('MSG_TXT_RSDNTX'), width: '142.8', styleName: 'text-right', dataType: 'number' }, // 주민세
+      { fieldName: 'ddtnVal4', header: t('MSG_TXT_HIR_INSR'), width: '142.8', styleName: 'text-right', dataType: 'number' }, // 고용보험
+      { fieldName: 'ddtnVal5', header: t('MSG_TXT_PNPYAM'), width: '142.8', styleName: 'text-right', dataType: 'number' }, // 가지급금
+      { fieldName: 'ddtnVal6', header: t('MSG_TXT_BU_DDTN'), width: '142.8', styleName: 'text-right', dataType: 'number' }, // 부담공제
+      { fieldName: 'ddtnVal7', header: t('MSG_TXT_EDDTN'), width: '142.8', styleName: 'text-right', dataType: 'number' }, // 기타공제
+      { fieldName: 'ddtnVal8', header: t('MSG_TXT_INDD_INSR'), width: '142.8', styleName: 'text-right', dataType: 'number' }, // 산재보험
     ],
   },
   hm: { // 홈마스터 / 지점장
     perfFields: [], // 실적부분
     deductionFields: [ // 공제 부분
-      { fieldName: 'ddtn01', header: t('MSG_TXT_RDS'), width: '142.8', styleName: 'text-right', dataType: 'number' }, // 보증예치금
-      { fieldName: 'ddtn02', header: t('MSG_TXT_ERNTX'), width: '142.8', styleName: 'text-right', dataType: 'number' }, // 소득세
-      { fieldName: 'ddtn03', header: t('MSG_TXT_RSDNTX'), width: '142.8', styleName: 'text-right', dataType: 'number' }, // 주민세
-      { fieldName: 'ddtn05', header: t('MSG_TXT_HIR_INSR'), width: '142.8', styleName: 'text-right', dataType: 'number' }, // 고용보험
-      { fieldName: 'ddtn04', header: t('MSG_TXT_PNPYAM'), width: '142.8', styleName: 'text-right', dataType: 'number' }, // 가지급금
-      { fieldName: 'ddtn07', header: t('MSG_TXT_BU_DDTN'), width: '142.8', styleName: 'text-right', dataType: 'number' }, // 부담공제
-      { fieldName: 'ddtn99', header: t('MSG_TXT_EDDTN'), width: '142.8', styleName: 'text-right', dataType: 'number' }, // 기타공제
-      { fieldName: 'ddtn06', header: t('MSG_TXT_INDD_INSR'), width: '142.8', styleName: 'text-right', dataType: 'number' }, // 산재보험
+      { fieldName: 'ddtnVal1', header: t('MSG_TXT_RDS'), width: '142.8', styleName: 'text-right', dataType: 'number' }, // 보증예치금
+      { fieldName: 'ddtnVal2', header: t('MSG_TXT_ERNTX'), width: '142.8', styleName: 'text-right', dataType: 'number' }, // 소득세
+      { fieldName: 'ddtnVal3', header: t('MSG_TXT_RSDNTX'), width: '142.8', styleName: 'text-right', dataType: 'number' }, // 주민세
+      { fieldName: 'ddtnVal4', header: t('MSG_TXT_HIR_INSR'), width: '142.8', styleName: 'text-right', dataType: 'number' }, // 고용보험
+      { fieldName: 'ddtnVal5', header: t('MSG_TXT_PNPYAM'), width: '142.8', styleName: 'text-right', dataType: 'number' }, // 가지급금
+      { fieldName: 'ddtnVal6', header: t('MSG_TXT_BU_DDTN'), width: '142.8', styleName: 'text-right', dataType: 'number' }, // 부담공제
+      { fieldName: 'ddtnVal7', header: t('MSG_TXT_EDDTN'), width: '142.8', styleName: 'text-right', dataType: 'number' }, // 기타공제
+      { fieldName: 'ddtnVal8', header: t('MSG_TXT_INDD_INSR'), width: '142.8', styleName: 'text-right', dataType: 'number' }, // 산재보험
     ],
   },
 
@@ -486,11 +439,13 @@ fieldsObj = {
   setFields() {
     let columns = fieldsObj.defaultFields;
     let layoutColumns = [];
-    const feeSumField = { fieldName: 'feeSum', header: t('MSG_TXT_FEE_SUM'), width: '142.8', styleName: 'text-right', dataType: 'number' }; // 수수료 합계
-    const ddenSumFields = { fieldName: 'ddtnsum', header: t('MSG_TXT_DDTN_SUM'), width: '142.8', styleName: 'text-right', dataType: 'number' }; // 공제계
-    const dsbAmtFields = { fieldName: 'dsbamt', header: t('MSG_TXT_PAYOUTS'), width: '142.8', styleName: 'text-right', dataType: 'number' }; // 지급액
+    const feeSumField = { fieldName: 'feeVal0', header: t('MSG_TXT_FEE_SUM'), width: '142.8', styleName: 'text-right', dataType: 'number' }; // 수수료 합계
+    const ddenSumFields = { fieldName: 'ddtnVal0', header: t('MSG_TXT_DDTN_SUM'), width: '142.8', styleName: 'text-right', dataType: 'number' }; // 공제계
+    const dsbAmtFields = { fieldName: 'dsbVal0', header: t('MSG_TXT_PAYOUTS'), width: '142.8', styleName: 'text-right', dataType: 'number' }; // 지급액
 
-    const tmpFeeFields = cashedFeeCodes.map((obj) => ({ fieldName: obj.feeCd.toUpperCase(), header: obj.feeNm, width: '142.8', styleName: 'text-right', dataType: 'number' }));
+    // console.log('cashedFeeCodes : ', cashedFeeCodes);
+
+    const tmpFeeFields = cashedFeeCodes.map((obj) => ({ fieldName: `fee${obj.feeCd.toUpperCase()}`, header: obj.feeNm, width: '142.8', styleName: 'text-right', dataType: 'number' }));
 
     if (searchParams.value.rsbDvCd === 'W0104') { // P추진단 / 지점장
       const { perfFields } = fieldsObj.pm;
@@ -498,17 +453,18 @@ fieldsObj = {
 
       columns = [...fieldsObj.defaultFields, ...perfFields,
         ...tmpFeeFields, feeSumField, ...deductionFields, ddenSumFields, dsbAmtFields];
+
       // 헤더 부분 merge
       layoutColumns = [...fieldsObj.getColumnNameArr(fieldsObj.defaultFields),
         {
           header: t('MSG_TXT_OG_PERF'),
           direction: 'horizontal', // merge type
-          items: ['perf01', 'perf02', 'perf03'],
+          items: ['perfVal1', 'perfVal2', 'perfVal3'],
         },
         {
           header: t('MSG_TXT_INDV_PERF'),
           direction: 'horizontal', // merge type
-          items: ['perf04', 'perf05', 'perf06', 'perf07'],
+          items: ['perfVal4', 'perfVal5', 'perfVal6', 'perfVal7'],
         },
         {
           header: t('MSG_TXT_FEE'),
@@ -532,8 +488,9 @@ fieldsObj = {
 
       const personalFees = cashedFeeCodes.filter((obj) => obj.feeClsfCd === '04'); // 조직수수료
       const ogFees = cashedFeeCodes.filter((obj) => obj.feeClsfCd !== '04'); // 개인수수료
-      const personalFeeFields = personalFees.map((obj) => ({ fieldName: obj.feeNm, header: obj.feeNm, width: '142.8', styleName: 'text-right', dataType: 'number' }));
-      const ogFeeFields = ogFees.map((obj) => ({ fieldName: obj.feeNm, header: obj.feeNm, width: '142.8', styleName: 'text-right', dataType: 'number' }));
+      const personalFeeFields = personalFees.map((obj) => ({ fieldName: `fee${obj.feeCd}`, header: obj.feeNm, width: '142.8', styleName: 'text-right', dataType: 'number' }));
+      const ogFeeFields = ogFees.map((obj) => ({ fieldName: `fee${obj.feeCd}`, header: obj.feeNm, width: '142.8', styleName: 'text-right', dataType: 'number' }));
+
       // 헤더 부분 merge
       layoutColumns = [...fieldsObj.getColumnNameArr(fieldsObj.defaultFields),
         {
@@ -617,7 +574,8 @@ fieldsObj = {
   },
   // 리스트에 담겨진 항목 중 fieldName 배열로 가져옴
   getColumnNameArr(objList) {
-    return objList.map((v) => v.fieldName);
+    if (objList && objList.length > 0) return objList.map((v) => v.fieldName);
+    return [];
   },
 
 };

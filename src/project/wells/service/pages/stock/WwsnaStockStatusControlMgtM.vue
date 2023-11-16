@@ -27,6 +27,7 @@
           <kw-date-range-picker
             v-model:from="searchParams.stFromYmd"
             v-model:to="searchParams.edToYmd"
+            :label="$t('MSG_TXT_STR_HOP_DT')"
             rules="date_range_months:1"
           />
         </kw-search-item>
@@ -470,6 +471,11 @@ async function onClickSave() {
       notify(t('MSG_ALT_MISSING_VALUE_PLEASE_CHECK'));
       return;
     }
+
+    if (checkedCtrQty <= 0) {
+      notify(t('MSG_ALT_ZERO_IS_BIG', [t('MSG_TXT_CTR_QTY')]));
+      return;
+    }
   }
 
   await dataService.post('/sms/wells/service/stock-status-control', checkedRows);
@@ -573,6 +579,7 @@ const initGrdMain = defineGrid((data, view) => {
       styleName: 'text-center',
       width: '150',
       editor: { type: 'list' },
+      rules: 'required',
       options: itmGdCtrTpCds.value,
       editable: true,
     },
@@ -592,6 +599,7 @@ const initGrdMain = defineGrid((data, view) => {
       styleName: 'text-center',
       width: '200',
       editable: true,
+      rules: 'required',
       editor: { type: 'dropdown' },
       options: product.value,
       styleCallback: (grid, dataCell) => {
@@ -614,6 +622,11 @@ const initGrdMain = defineGrid((data, view) => {
       styleName: 'text-right',
       width: '99',
       editable: true,
+      rules: 'required',
+      editor: {
+        type: 'number',
+        positiveOnly: true,
+      },
     },
     { fieldName: 'itmGdCtrRsonNm',
       header: {
@@ -623,6 +636,7 @@ const initGrdMain = defineGrid((data, view) => {
       styleName: 'text-left',
       width: '99',
       editable: true,
+      rules: 'required',
       editor: {
         type: 'dropdown' },
       options: codes.CTR_RSON_CD,
@@ -631,7 +645,11 @@ const initGrdMain = defineGrid((data, view) => {
       header: t('MSG_TXT_NOTE'),
       styleName: 'text-center',
       width: '99',
-      editable: true },
+      editable: true,
+      editor: {
+        maxLength: 4000,
+      },
+    },
     { fieldName: 'mgtUnit' },
   ];
 

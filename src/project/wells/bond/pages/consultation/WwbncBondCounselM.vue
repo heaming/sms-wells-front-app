@@ -471,8 +471,10 @@ function onClickPhoneYn(type) {
 }
 
 async function onUpdateMgtValue(tNo) {
-  searchParams.value.tno = tNo.replaceAll('-', '');
-  onClickPhoneYn('Y');
+  if (tNo !== undefined) {
+    searchParams.value.tno = tNo;
+    onClickPhoneYn('Y');
+  }
 }
 
 // TODO: 콜백 조회 팝업

@@ -348,14 +348,14 @@ const initGrid = defineGrid((data, view) => {
   view.sortingOptions.enabled = false;
   view.filteringOptions.enabled = false;
 
-  view.onCellButtonClicked = async (grid, { column, itemIndex }) => {
+  view.onCellButtonClicked = async (grid, { column, dataRow }) => {
     if (column === 'chPdctPdCd' || column === 'chPdctPdNm') {
       const searchParams = column === 'chPdctPdCd' ? {
         searchType: pdConst.PD_SEARCH_CODE,
-        searchValue: grid.getValue(itemIndex, 'chPdctPdCd'),
+        searchValue: grid.getValue(dataRow, 'chPdctPdCd'),
       } : {
         searchType: pdConst.PD_SEARCH_NAME,
-        searchValue: grid.getValue(itemIndex, 'chPdctPdNm'),
+        searchValue: grid.getValue(dataRow, 'chPdctPdNm'),
       };
       searchParams.selectType = pdConst.PD_SEARCH_SINGLE;
 
@@ -365,8 +365,8 @@ const initGrid = defineGrid((data, view) => {
       });
       if (payload) {
         const row = Array.isArray(payload) ? payload[0] : payload;
-        data.setValue(itemIndex, 'chPdctPdCd', row.pdCd);
-        data.setValue(itemIndex, 'chPdctPdNm', row.pdNm);
+        data.setValue(dataRow, 'chPdctPdCd', row.pdCd);
+        data.setValue(dataRow, 'chPdctPdNm', row.pdNm);
       }
     }
   };

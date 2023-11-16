@@ -253,12 +253,21 @@ async function onClickCntr(item) {
 }
 
 async function onClickSearchPopup(item) {
-  // notify('견적서 리포트 완료 후 연결됩니다.'); // TODO : 추후 확인 후 팝업 추가
-  // const { paramCntrNo } = item.value.cntrNo;
-  // console.log(paramCntrNo);
+  console.log(item);
+
+  // 일자에 해당하는 리포트의 버전을 받아온다.
+  const paramDtm = !isEmpty(item.cntrTempSaveDt) ? item.cntrTempSaveDt.replaceAll('-', '') : ''; // 견적주문일자를 기간으로 받는다.
+  console.log(paramDtm);
+
+  const res = await dataService.get(
+    '/sms/wells/contract/report/search-path',
+    { params: { rdId: 'ESDC01', dtm: paramDtm } },
+  );
+  const paramOzrPath = res.data;
+  console.log(paramOzrPath);
 
   await openReportPopup(
-    '/kstation-w/ord/esdc/V1.0/esdcOrdr.ozr',
+    paramOzrPath,
     null,
     JSON.stringify(
       {

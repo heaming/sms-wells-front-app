@@ -362,6 +362,7 @@ import dayjs from 'dayjs';
 import ZctzContractDetailNumber from '~sms-common/contract/components/ZctzContractDetailNumber.vue';
 import { openReportPopup, openReportPopupWithOptions } from '~common/utils/cmPopupUtil';
 import { openOzReport } from '~sms-common/contract/util/CtPopupUtil';
+import { buildUrlForNoSession } from '~sms-common/contract/util';
 
 const dataService = useDataService();
 const { t } = useI18n();
@@ -903,6 +904,7 @@ async function onClickCntrwMlFw() {
 // 알림톡 발송 버튼 클릭 이벤트
 async function onClickNotakfW() {
   let view;
+  // eslint-disable-next-line no-unused-vars
   let res;
   let arrCstKnm = '';
   let rowCnt = 0;
@@ -929,43 +931,55 @@ async function onClickNotakfW() {
     notify(t('MSG_ALT_BEFORE_SELECT_IT', [t('MSG_TXT_ITEM')]));
   } else {
     const cntrs = gridUtil.getCheckedRowValues(view);
-    cntrs.forEach((row) => {
+    for (let i = 0; i < cntrs.length; i += 1) { // forEach((row) =>
       // 확정인 계약에 한해서만 가능, 계약진행상태코드 == 60 (확정)
       if (['A', 'N', 'U'].includes(searchParams.value.cntrDv)
-        && row.cntrPrgsStatCd !== '60') {
+        && cntrs[i].cntrPrgsStatCd !== '60') {
         notify(t('MSG_ALT_CNTR_PRGS_STAT_CD_NOT_CNFM')); // 계약진행상태가 확정이 아닙니다.
         return;
       }
+      let paramUrl = '';
+      // eslint-disable-next-line no-await-in-loop
+      const promises = await buildUrlForNoSession( // 계약서 URL 생성
+        undefined,
+        'WwctaContractDocumentM',
+        { cntrNo: String(cntrs[i].cntrDtlNo).split('-')[0] },
+        false,
+        false,
+      );
+      paramUrl = promises;
 
       // 신규/변경일 경우
       if (['A', 'N', 'U'].includes(searchParams.value.cntrDv)) {
         saveData.push({
-          cntrNo: String(row.cntrDtlNo).split('-')[0],
-          cntrSn: String(row.cntrDtlNo).split('-')[1].substr(0, 1),
+          cntrNo: String(cntrs[i].cntrDtlNo).split('-')[0],
+          cntrSn: String(cntrs[i].cntrDtlNo).split('-')[1].substr(0, 1),
           cntrDv: searchParams.value.cntrDv,
+          cntrUrl: paramUrl,
         });
       } else if (searchParams.value.cntrDv === 'R') { // 재약정
         saveData.push({
-          cntrNo: row.cntrNo,
-          cntrSn: row.cntrSn,
+          cntrNo: cntrs[i].cntrNo,
+          cntrSn: cntrs[i].cntrSn,
           cntrDv: searchParams.value.cntrDv,
-          stplRcpDt: row.stplRcpDt,
-          stplPtrm: row.stplPtrm,
+          stplRcpDt: cntrs[i].stplRcpDt,
+          stplPtrm: cntrs[i].stplPtrm,
+          cntrUrl: paramUrl,
         });
       }
 
       // 알림톡 발송 대상 고객명을 조합
       if (rowCnt === 0) {
-        arrCstKnm = row.cstKnm;
+        arrCstKnm = cntrs[i].cstKnm;
       } else {
-        arrCstKnm += `,${row.cstKnm}`;
+        arrCstKnm += `,${cntrs[i].cstKnm}`;
       }
 
       // eslint-disable-next-line no-plusplus
       rowCnt++;
-    });
+    } // });
 
-    // console.log(saveData);
+    console.log(saveData);
     if (isEmpty(arrCstKnm)) return;
     if (await confirm(t('MSG_ALT_CNFM_NOTAK_FW', [`[${arrCstKnm}]`]))) {
       res = await dataService.put('/sms/wells/contract/contracts/managements/notification-talk-forwarding', saveData);
@@ -996,134 +1010,111 @@ async function onClickSearchCntrCst() {
   }
 }
 
-// oz리포트 이벤트(공통유틸) - 현재 미사용중이나, 공통사용에 참고
+// oz리포트 이벤트(공통유틸) - unused
 // eslint-disable-next-line no-unused-vars
 async function onClickOzReportHello(cntrNo) {
   const { data: reports } = await dataService.get('sms/wells/contract/report/contract', { params: { cntrNo } });
   return openOzReport(...reports);
 } /* 231106 공통유틸 확인완료 */
 
-async function onClickOzReport(cntrNo) {
-  const res = await dataService.get('sms/wells/contract/report/contract', { params: { cntrNo } });
+async function onClickOzReport(cntrNo) { // oz리포트 신규/변경 계약
+  // ****************** local test 주의사항 ************************
+  // 리포트서비스(공통)을 이용해, ozrPath, odiPath는 받아서 파라미터로 사용해야하므로 서비스를 한번은 부른다.
+  // local에서 테스트 할때에는 매핑에 /annoymous를 추가해서 searchapiurl을 파라미터로 써도 로컬에서 확인가능
+  // ex) const args
+  // = { searchApiUrl: '/api/v1/sms/wells/contract/contracts/managements/anonymous/search-api-url'
+  // , cntrNo };
 
-  if (res.data.length < 2) { // 단건 처리
-    console.log(res.data[0]);
+  const res = await dataService.get('/sms/wells/contract/contracts/managements/search-api-url', { params: { cntrNo } });
+  console.log(res);
 
+  const args = { searchApiUrl: '/api/v1/sms/wells/contract/contracts/managements/search-api-url', cntrNo };
+
+  if (isEmpty(res.data.options)) { // 단건
     await openReportPopup(
-      res.data[0].ozrPath,
-      res.data[0].odiPath,
-      JSON.stringify(res.data[0].args),
+      res.data.ozrPath,
+      res.data.odiPath,
+      JSON.stringify(args),
     );
   }
 
-  if (res.data.length > 1) { // 다건 처리
-    const children = []; // 자식트리의 리스트
-
-    for (let i = 1; i < res.data.length; i += 1) { // 부모가 될 단건을 제외한 나머지 다건을 children args로
-      const childParams = {
-        ozrPath: res.data[i].ozrPath, // childParamOzrPath,
-        odiPath: res.data[i].odiPath, // childParamOdiPath,
-        args: JSON.stringify(res.data[i].args), // { ctnrNo: childParamCntrNo, histStrtDtm: childParamHistStrtDtm }
-        displayName: res.data[i].displayName,
-      };
-
-      children.push(childParams);
-    }
-    console.log(children); // 자식리스트
-    console.log(res.data[0]);
-
-    // 부모트리의 파라미터
+  if (!isEmpty(res.data.options)) { // 다건
     await openReportPopupWithOptions(
-      res.data[0].ozrPath, // ozrPath
-      res.data[0].odiPath, // odiPath
-      JSON.stringify(res.data[0].args), /* parantParamArgs), // args */
+      res.data.ozrPath,
+      res.data.odiPath,
+      JSON.stringify(args),
       { // options
-        treeViewTitle: '청약서목록',
-        displayName: res.data[0].displayName,
-        children,
+        treeViewTitle: res.data.options.treeViewTitle,
+        displayName: res.data.options.displayName,
+        children: res.data.options.children,
       },
     );
   }
 
-  /*  -------------------------------- 임시 -------------------------------------
-  // if (res.data.length > 1) { // 다건 처리
+  // // ref) 파라미터 방식 전송
+  // const res2 = await dataService.get('sms/wells/contract/report/contract', { params: { cntrNo } });
+
+  // if (res2.data.length < 2) { // 단건 처리
+  //   // console.log(res.data[0]);
+
+  //   await openReportPopup(
+  //     res2.data[0].ozrPath,
+  //     res2.data[0].odiPath,
+  //     JSON.stringify(res2.data[0].args),
+  //   );
+  // }
+
+  // if (res2.data.length > 1) { // 다건 처리
   //   const children = []; // 자식트리의 리스트
 
-  //   for (let i = 1; i < res.data.length; i += 1) { // 부모가 될 단건을 제외한 나머지 다건을 children args로
-  //     const childParamOzrPath = `${res.data[i].ozrPath}`;
-  //     let childParamOdiPath = '';
-
-  //     if (!isEmpty(res.data[i].odiPath)) {
-  //       childParamOdiPath = `${res.data[i].odiPath}`;
-  //     }
-
-  //     const paramHistStrtDtm = isEmpty(res.data[i].args.histStrtDtm) ? '' : res.data[i].args.histStrtDtm;
-  //     console.log(paramHistStrtDtm);
+  //   for (let i = 1; i < res2.data.length; i += 1) { // 부모가 될 단건을 제외한 나머지 다건을 children args로
   //     const childParams = {
-  //       ozrPath: childParamOzrPath,
-  //       odiPath: childParamOdiPath,
-  //       args: JSON.stringify({
-  //         ctnrNo: res.data[i].args.cntrNo,
-  //         histStrtDtm: paramHistStrtDtm,
-  //       }),
-  //       displayName: res.data[i].displayName,
+  //       ozrPath: res2.data[i].ozrPath, // childParamOzrPath,
+  //       odiPath: res2.data[i].odiPath, // childParamOdiPath,
+  //       args: JSON.stringify(res2.data[i].args), // { ctnrNo: childParamCntrNo, histStrtDtm: childParamHistStrtDtm }
+  //       displayName: res2.data[i].displayName,
   //     };
 
   //     children.push(childParams);
   //   }
-  //   console.log(children);
+  //   // console.log(children); // 자식리스트
+  //   // console.log(res.data[0]);
 
   //   // 부모트리의 파라미터
-  //   const parantParamOzrPath = `/${res.data[0].ozrPath}.ozr`;
-  //   let parantParamOdiPath = '';
-  //   if (!isEmpty(res.data[0].odiPath)) {
-  //     parantParamOdiPath = `/${res.data[0].odiPath}.odi`;
-  //   }
-
-  //   const parantParamHistStrtDtm = isEmpty(res.data[0].args.histStrtDtm) ? '' : res.data[0].args.histStrtDtm;
-  //   const parantParamArgs = [{
-  //     cntrNo: res.data[0].args.cntrNo,
-  //     histStrtDtm: parantParamHistStrtDtm,
-  //   }];
-
   //   await openReportPopupWithOptions(
-  //     parantParamOzrPath, // ozrPath
-  //     parantParamOdiPath, // odiPath
-  //     JSON.stringify(parantParamArgs), // args
+  //     res2.data[0].ozrPath, // ozrPath
+  //     res2.data[0].odiPath, // odiPath
+  //     JSON.stringify(res2.data[0].args), /* parantParamArgs), // args */
   //     { // options
   //       treeViewTitle: '청약서목록',
-  //       displayName: res.data[0].displayName,
+  //       displayName: res2.data[0].displayName,
   //       children,
   //     },
   //   );
-  */
+  //  }
+}
 
-  // --------------- 임시 ---------------
-  /*
-      // switch (cntrwTpCd[0]) { // 단건의 계약유형코드에 따라 path
-      //     paramOzrPath = '/kstation-w/ord/ef/Ver1.0/contractL11.ozr';
-      //     break;
-      //   case '2': // 일시불(BH) {
-      //     paramOzrPath = '/kstation-w/ord/bh/Ver1.0/contractBH.ozr';
-      //     break;
-      //   case '3': // 렌탈
-      //     paramOzrPath = '/kstation-w/ord/er/Ver1.0/contractL23.ozr';
-      //     break;
-      //   case '4': // 멤버십
-      //     paramOzrPath = '/kstation-w/ord/mb/Ver1.0/contractL30.ozr';
-      //     break;
-      //   case '5': // 홈케어서비스
-      //     paramOzrPath = '/ksswells/ord/hcs/Ver1.0/hcsCndc.ozr';
-      //     break;
-      //   case '6': // 모종일시불
-      //     paramOzrPath = '/kstation-w/ord/plnt/Ver1.0/contractPLNT.ozr';
-      //     break;
-      //   case '7': // 정기배송
-      //     paramOzrPath = '/kstation-w/ord/ef/Ver1.0/contractL11.ozr';
-      //     break;
-      // }
-    */
-  //--------------------------------
+// eslint-disable-next-line no-unused-vars
+async function onClickOzReportRstl(paramCntrNo, paramCntrSn, paramRstlCnfmDtm, paramCntrwTpCd) { // oz리포트 재약정 계약
+  const params = ref({
+    cntrNo: paramCntrNo, // 계약번호
+    cntrSn: paramCntrSn, // 일련번호
+    rstlCnfmDtm: isEmpty(paramRstlCnfmDtm) || paramRstlCnfmDtm === 'null' ? '' : paramRstlCnfmDtm, // 재약정확정일자
+    cntrwTpCd: paramCntrwTpCd, // 계약서유형코드
+  });
+  console.log(params.value);
+
+  const res = await dataService.get('/sms/wells/contract/contracts/managements/search-api-url/rstl', { params: { ...params.value } });
+  console.log(res);
+
+  const args = { searchApiUrl: '/api/v1/sms/wells/contract/contracts/managements/search-api-url/rstl', ...params.value };
+  console.log(args);
+
+  await openReportPopup(
+    res.data.ozrPath,
+    null,
+    JSON.stringify(args),
+  );
 }
 onMounted(async () => {
 });
@@ -1528,6 +1519,7 @@ const initGrdMstRstlList = defineGrid((data, view) => {
     { fieldName: 'talkRcvYn' }, // 알림톡 수신여부
     { fieldName: 'notakFwDt' }, // 알림톡 발송일자
     { fieldName: 'basePdCd' }, // 상품코드
+    { fieldName: 'cntrwTpCd' }, // 계약서유형코드 rev:231115 재약정 사인 관련 추가
   ];
 
   const columns = [
@@ -1569,22 +1561,15 @@ const initGrdMstRstlList = defineGrid((data, view) => {
     const paramCntrDtlNo = `${gridUtil.getCellValue(g, dataRow, 'cntrNo')}-${gridUtil.getCellValue(g, dataRow, 'cntrSn')}`;
     const paramCntrNo = `${gridUtil.getCellValue(g, dataRow, 'cntrNo')}`;
     const paramCntrSn = `${gridUtil.getCellValue(g, dataRow, 'cntrSn')}`;
+    const paramDtm = `${gridUtil.getCellValue(g, dataRow, 'stplCnfmDt')}`; // 재약정확정일시
+    const paramCntrwTpCd = `${gridUtil.getCellValue(g, dataRow, 'cntrwTpCd')}`; // 계약서 유형코드
 
     if (['notakFwIz'].includes(column)) { // 알림톡 발송 내역 버튼 클릭
       await modal({ component: 'WwKakaotalkSendListP', componentProps: { cntrDtlNo: paramCntrDtlNo, concDiv: searchParams.cntrDv } }); // 카카오톡 발송 내역 조회
     }
 
     if (['cntrwBrws'].includes(column)) { // 리포트 보기 버튼 클릭
-      await openReportPopup(
-        '/kstation-w/ord/rp/V1.0/contractRPView.ozr',
-        null,
-        JSON.stringify(
-          {
-            cntrNo: paramCntrNo,
-            cntrSn: paramCntrSn,
-          },
-        ),
-      );
+      onClickOzReportRstl(paramCntrNo, paramCntrSn, paramDtm, paramCntrwTpCd);
     }
   };
 

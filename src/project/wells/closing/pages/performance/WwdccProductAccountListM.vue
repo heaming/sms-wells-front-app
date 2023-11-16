@@ -240,14 +240,11 @@ async function onClickExportView() {
 // 상세내역 다운로드
 async function onClickDetailExportView() {
   const view = grdExcelRef.value.getView();
-  const response = await dataService.get('/sms/wells/closing/product-account/excel-download', { params: cachedParams, timeout: 200000 });
-  const dataSource = view.getDataSource();
-  dataSource.addRows(response.data);
-
-  await gridUtil.exportView(view, {
-    fileName: currentRoute.value.meta.menuName,
-    timePostfix: true,
-    exportData: response.data,
+  gridUtil.exportBulkView(view, {
+    url: '/sms/wells/closing/product-account/bulk-excel-download', // url 지정
+    parameter: { // 검색 조건을 그대로 넣어준다. 없을 경우 추가하지 않아도 됨
+      ...cachedParams,
+    },
   });
 }
 
@@ -322,8 +319,8 @@ const initGrdProduct = defineGrid((data, view) => {
     { fieldName: 'baseYm', header: t('MSG_TXT_BASE_YM'), width: '120', styleName: 'text-center', datetimeFormat: 'yyyy-MM' }, // 기준년월
     { fieldName: 'sellTpCd', header: t('MSG_TXT_SEL_TYPE'), width: '120', styleName: 'text-center', options: codes.SELL_TP_CD }, // 판매유형
     { fieldName: 'sellTpDtlCd', header: t('MSG_TXT_SELL_TP_DTL'), width: '116', styleName: 'text-center', options: codes.SELL_TP_DTL_CD }, // 판매유형상세
-    { fieldName: 'pdHclsfId', header: t('MSG_TXT_PD_HCLSF'), width: '116', styleName: 'text-center' }, // 상품대분류
-    { fieldName: 'pdMclsfId', header: t('MSG_TXT_PD_MCLSF'), width: '116', styleName: 'text-center' }, // 상품중분류
+    { fieldName: 'pdHclsfNm', header: t('MSG_TXT_PD_HCLSF'), width: '116', styleName: 'text-center' }, // 상품대분류
+    { fieldName: 'pdMclsfNm', header: t('MSG_TXT_PD_MCLSF'), width: '116', styleName: 'text-center' }, // 상품중분류
     { fieldName: 'pdCd', header: t('MSG_TXT_PRDT_CODE'), width: '116', styleName: 'text-center' }, // 상품코드
     { fieldName: 'pdNm', header: t('MSG_TXT_PRDT_NM'), width: '239', styleName: 'text-left' }, // 상품명
     { fieldName: 'agrgCt1', header: t('MSG_TXT_CRDOVR'), width: '120', styleName: 'text-right', dataType: 'number' }, // 이월
@@ -356,8 +353,8 @@ const initGrdProduct = defineGrid((data, view) => {
     'baseYm',
     'sellTpCd',
     'sellTpDtlCd',
-    'pdHclsfId',
-    'pdMclsfId',
+    'pdHclsfNm',
+    'pdMclsfNm',
     'pdCd',
     'pdNm',
     {

@@ -16,6 +16,7 @@
   <kw-page>
     <kw-search
       @search="onClickSearch"
+      @reset="onClickReset"
     >
       <kw-search-row>
         <!-- 출고요청창고 -->
@@ -125,7 +126,7 @@
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
 import { codeUtil, getComponentType, useGlobal, useDataService, useMeta, gridUtil } from 'kw-lib';
-import { cloneDeep } from 'lodash-es';
+import { cloneDeep, isEmpty } from 'lodash-es';
 import dayjs from 'dayjs';
 import useSnCode from '~sms-wells/service/composables/useSnCode';
 
@@ -202,6 +203,7 @@ async function fetchData() {
 
 // 조회버튼 클릭이벤트
 async function onClickSearch() {
+  pageInfo.value.pageIndex = 1;
   cachedParams = cloneDeep(searchParams.value);
   await fetchData();
 }
@@ -216,6 +218,8 @@ async function onClickExcelDownload() {
     timePostfix: true,
     checkBar: 'hidden',
     exportData: res.data,
+    allColumns: false,
+    hideColumns: ['itmNm'],
   });
 }
 
@@ -227,7 +231,7 @@ async function onClickRegistration() {
 
   if (isChanged) {
     notify(t('MSG_ALT_REGISTERED'));
-    await fetchData();
+    await onClickSearch();
   }
 }
 
@@ -238,7 +242,9 @@ async function fetchDefaultData() {
   const { userId } = wharehouseParams.value;
 
   warehouses.value = await getMonthWarehouse(userId, apyYm);
-  searchParams.value.strOjWareNo = warehouses.value[0].codeId;
+  if (!isEmpty(warehouses.value)) {
+    searchParams.value.strOjWareNo = warehouses.value[0].codeId;
+  }
 }
 
 async function openOutOfStorageP(g, { column, dataRow }) {
@@ -255,6 +261,13 @@ async function openOutOfStorageP(g, { column, dataRow }) {
 
   if (result) {
     await fetchData();
+  }
+}
+
+// 초기화 버튼 클릭
+function onClickReset() {
+  if (!isEmpty(warehouses.value)) {
+    searchParams.value.strOjWareNo = warehouses.value[0].codeId;
   }
 }
 
@@ -283,8 +296,29 @@ function initGrdMain(data, view) {
   const columns = [
     { fieldName: 'strHopDt', header: t('MSG_TXT_STR_HOP_D'), width: '150', styleName: 'text-center', datetimeFormat: 'date' },
     { fieldName: 'ostrAkTpNm', header: t('MSG_TXT_OSTR_AK_TP'), width: '150', styleName: 'text-center' },
-    { fieldName: 'ostrAkNo', header: t('MSG_TXT_OSTR_AK_NO'), width: '250', styleName: 'text-center' },
-    { fieldName: 'lgstOstrAkNo', header: t('MSG_TXT_LGST_OSTR_AK_NO'), width: '250', styleName: 'text-center' },
+    { fieldName: 'ostrAkNo',
+      header: t('MSG_TXT_OSTR_AK_NO'),
+      width: '250',
+      styleName: 'text-center',
+      displayCallback: (g, i, v) => {
+        if (isEmpty(v)) {
+          return v;
+        }
+        const regExp = /^(\d{3})(\d{8})(\d{7}).*/;
+        return v.replace(regExp, '$1-$2-$3');
+      },
+    },
+    { fieldName: 'lgstOstrAkNo',
+      header: t('MSG_TXT_LGST_OSTR_AK_NO'),
+      width: '250',
+      styleName: 'text-center',
+      displayCallback: (g, i, v) => {
+        if (isEmpty(v)) {
+          return v;
+        }
+        const regExp = /^(\w{4})(\d{8})(\d{4}).*/;
+        return v.replace(regExp, '$1-$2-$3');
+      } },
     { fieldName: 'wareNm', header: t('MSG_TXT_OSTR_AK_RCP_WARE'), width: '150', styleName: 'text-center' },
     { fieldName: 'rectOstrDt', header: t('MSG_TXT_RECT_STR_DT'), width: '150', styleName: 'text-center', datetimeFormat: 'date' },
     { fieldName: 'itmNm',

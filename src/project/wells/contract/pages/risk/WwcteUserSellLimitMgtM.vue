@@ -79,6 +79,7 @@
         <kw-search-item :label="t('MSG_TXT_SLS_RSTR')">
           <kw-select
             v-model="searchParams.sellLimit"
+            first-option="all"
             :options="salesTypeOptions"
           />
         </kw-search-item>

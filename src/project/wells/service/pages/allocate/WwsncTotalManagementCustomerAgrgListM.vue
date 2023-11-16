@@ -19,7 +19,7 @@
       @search="onClickSearch"
     >
       <kw-search-row>
-        <kw-search-item :label="$t('MSG_TXT_BASE_YM')">
+        <kw-search-item :label="$t('MSG_TXT_BASE_YEAR')">
           <kw-field-wrap>
             <kw-date-picker
               v-model="searchParams.year"
@@ -63,7 +63,7 @@
 
             :total-count="pageInfo.totalCount"
           />
-          <span class="ml8">(단위:명)</span>
+          <span class="ml8">{{ t('MSG_TXT_UNIT_PEOPLE') }}</span>
         </template>
         <kw-btn
           :label="$t('MSG_BTN_EXCEL_DOWN')"
@@ -207,10 +207,19 @@ async function onClickExcelDownload() {
     'acol12',
   ];
 
+  let tcntTotal = 0;
+  const totalCustomers = response.data;
+  totalCustomers.forEach((item) => {
+    tcntTotal += item.tcnt;
+  });
+  totalCustomers.forEach((item, idx) => {
+    totalCustomers[idx].per = ((item.tcnt / tcntTotal) * 100).toFixed(2);
+  });
+
   await gridUtil.exportView(view, {
     fileName: currentRoute.value.meta.menuName,
     timePostfix: true,
-    exportData: response.data,
+    exportData: totalCustomers,
     exportLayout,
   });
 }
@@ -239,7 +248,7 @@ const initGrdMain = defineGrid((data, view) => {
 
   const columns = [
     { fieldName: 'yyyy',
-      header: '년도',
+      header: t('MSG_TXT_Y'),
       width: '80',
       styleName: 'text-center',
       footer: {
@@ -252,74 +261,74 @@ const initGrdMain = defineGrid((data, view) => {
     },
     { fieldName: 'acol1',
       header: `1${t('MSG_TXT_MON')}`,
-      width: '50',
+      width: '80',
       styleName: 'text-right',
       numberFormat: '#,##0',
       footer: { expression: 'sum', numberFormat: '#,##0', styleName: 'text-right' } },
     { fieldName: 'acol2',
       header: `2${t('MSG_TXT_MON')}`,
-      width: '50',
+      width: '80',
       styleName: 'text-right',
       numberFormat: '#,##0',
       footer: { expression: 'sum', numberFormat: '#,##0', styleName: 'text-right' } },
     { fieldName: 'acol3',
       header: `3${t('MSG_TXT_MON')}`,
-      width: '50',
+      width: '80',
       styleName: 'text-right',
       numberFormat: '#,##0',
       footer: { expression: 'sum', numberFormat: '#,##0', styleName: 'text-right' } },
     { fieldName: 'acol4',
       header: `4${t('MSG_TXT_MON')}`,
-      width: '50',
+      width: '80',
       styleName: 'text-right',
       numberFormat: '#,##0',
       footer: { expression: 'sum', numberFormat: '#,##0', styleName: 'text-right' } },
     { fieldName: 'acol5',
       header: `5${t('MSG_TXT_MON')}`,
-      width: '50',
+      width: '80',
       styleName: 'text-right',
       numberFormat: '#,##0',
       footer: { expression: 'sum', numberFormat: '#,##0', styleName: 'text-right' } },
     { fieldName: 'acol6',
       header: `6${t('MSG_TXT_MON')}`,
-      width: '50',
+      width: '80',
       styleName: 'text-right',
       numberFormat: '#,##0',
       footer: { expression: 'sum', numberFormat: '#,##0', styleName: 'text-right' } },
     { fieldName: 'acol7',
       header: `7${t('MSG_TXT_MON')}`,
-      width: '50',
+      width: '80',
       styleName: 'text-right',
       numberFormat: '#,##0',
       footer: { expression: 'sum', numberFormat: '#,##0', styleName: 'text-right' } },
     { fieldName: 'acol8',
       header: `8${t('MSG_TXT_MON')}`,
-      width: '50',
+      width: '80',
       styleName: 'text-right',
       numberFormat: '#,##0',
       footer: { expression: 'sum', numberFormat: '#,##0', styleName: 'text-right' } },
     { fieldName: 'acol9',
       header: `9${t('MSG_TXT_MON')}`,
-      width: '50',
+      width: '80',
       styleName: 'text-right',
       numberFormat: '#,##0',
       footer: { expression: 'sum', numberFormat: '#,##0', styleName: 'text-right' } },
     { fieldName: 'acol10',
       header: `10${t('MSG_TXT_MON')}`,
-      width: '50',
+      width: '80',
       styleName: 'text-right',
       numberFormat: '#,##0',
       footer: { expression: 'sum', numberFormat: '#,##0', styleName: 'text-right' } },
     { fieldName: 'acol11',
       header: `11${t('MSG_TXT_MON')}`,
-      width: '50',
+      width: '80',
       styleName: 'text-right',
       numberFormat: '#,##0',
       footer: { expression: 'sum', numberFormat: '#,##0', styleName: 'text-right' },
     },
     { fieldName: 'acol12',
       header: `12${t('MSG_TXT_MON')}`,
-      width: '50',
+      width: '80',
       styleName: 'text-right',
       numberFormat: '#,##0',
       footer: { expression: 'sum', numberFormat: '#,##0', styleName: 'text-right' } },

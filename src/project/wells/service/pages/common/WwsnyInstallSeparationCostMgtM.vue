@@ -33,8 +33,8 @@
         <kw-search-item
           :label="$t('MSG_TXT_PRDT_NM')"
           :colspan="2"
+          required
         >
-          <!--            rules="required"-->
           <kw-select
             v-model="searchParams.pdCd"
             :options="pds"
@@ -115,7 +115,8 @@
       <kw-grid
         ref="grdMainRef"
         name="grdMain"
-        :visible-rows="pageInfo.pageSize"
+        :page-size="pageInfo.pageSize"
+        :total-count="pageInfo.totalCount"
         @init="initGrdMain"
       />
 
@@ -142,6 +143,7 @@ import {
   useDataService,
   gridUtil,
   notify,
+  // useGlobal,
 } from 'kw-lib';
 import { cloneDeep, isEmpty } from 'lodash-es';
 import smsCommon from '~sms-wells/service/composables/useSnCode';
@@ -150,6 +152,7 @@ const { t } = useI18n();
 const { getConfig } = useMeta();
 const dataService = useDataService();
 const { getPartMaster } = smsCommon();
+// const { confirm } = useGlobal();
 
 // -------------------------------------------------------------------------------------------------
 // Function & Event
@@ -257,9 +260,11 @@ async function onClickDelete() {
   const view = grdMainRef.value.getView();
   const deleteRows = await gridUtil.confirmDeleteCheckedRows(view);
 
-  if (deleteRows.length > 0) {
-    await dataService.delete('/sms/wells/service/installation-separation-costs', { data: [...deleteRows] });
-  }
+  if (deleteRows.length <= 0) { return; }
+
+  // if (await confirm(t('MSG_ALT_WANT_DEL'))) {
+  await dataService.delete('/sms/wells/service/installation-separation-costs', { data: [...deleteRows] });
+  // }
   if (isEmpty(pageInfo)) {
     await fetchData();
   }
@@ -269,7 +274,7 @@ async function onClickDelete() {
 const { currentRoute } = useRouter();
 async function onClickExcelDownload() {
   const view = grdMainRef.value.getView();
-  const res = await dataService.get('/sms/wells/service/installation-separation-costs/excel-download', { params: searchParams.value });
+  const res = await dataService.get('/sms/wells/service/installation-separation-costs/excel-download', { params: cachedParams });
   await gridUtil.exportView(view, {
     fileName: currentRoute.value.meta.menuName,
     timePostfix: true,
@@ -282,6 +287,11 @@ async function onClickSave() {
   const view = grdMainRef.value.getView();
   const realChkRows = gridUtil.getCheckedRowValues(view);
   const chkRows = gridUtil.getCheckedRowValues(view, { isChangedOnly: true });
+  const { apyStrtdt } = view.getJsonRows()[0];
+
+  if (await gridUtil.alertIfIsNotModified(view)) { return; }
+
+  if (Number(now.format('YYYYMMDD')) > Number(apyStrtdt)) { notify('최종건보다 큰 날짜를 선택하세요.'); return; }
 
   if (chkRows.length === 0 && realChkRows.length === 0) {
     notify(t('MSG_ALT_NOT_SEL_ITEM'));
@@ -293,7 +303,6 @@ async function onClickSave() {
     return;
   }
 
-  if (await gridUtil.alertIfIsNotModified(view)) { return; }
   if (!await gridUtil.validate(view)) { return; }
 
   await dataService.post('sms/wells/service/installation-separation-costs', chkRows);
@@ -413,7 +422,7 @@ const initGrdMain = defineGrid((data, view) => {
         inputCharacters: '0-9',
       },
       styleName: 'text-right',
-      rules: 'required',
+      rules: 'required|min_value:0',
       numberFormat: '#,##0',
     }, // 단가(원)
     {

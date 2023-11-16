@@ -141,6 +141,12 @@
             :page-size-options="codes.COD_PAGE_SIZE_OPTIONS"
             @change="fetchData"
           />
+          <kw-separator
+            vertical
+            inset
+            spaced
+          />
+          <span>(단위:원)</span>
         </template>
 
         <kw-btn
@@ -245,6 +251,8 @@ const codes = await codeUtil.getMultiCodes(
   'WK_PRGS_STAT_CD',
 );
 
+codes.SV_BIZ_DCLSF_CD.sort((a, b) => a.codeName.localeCompare(b.codeName));
+
 const { data: serviceCenters } = await dataService.get('/sms/wells/service/organizations/service-center', { params: { authYn: 'N' } });
 const engineerRes = await dataService.get('/sms/wells/service/organizations/engineer', { params: { authYn: 'N' } });
 const engineers = ref(engineerRes.data);
@@ -329,7 +337,7 @@ const initGrdMain = defineGrid((data, view) => {
       header: t('MSG_TXT_CNTR_DTL_NO'),
       width: '150',
       styleName: 'text-center rg-button-link',
-      footer: { text: t('MSG_TXT_SUM') },
+      footer: { text: t('MSG_TXT_SUM'), styleName: 'text-center' },
       renderer: { type: 'button' },
       // preventCellItemFocus: true,
     },
@@ -463,7 +471,7 @@ const initGrdMain = defineGrid((data, view) => {
       header: t('MSG_BTN_CST_SIGN'),
       width: '100',
       styleName: 'text-center',
-      renderer: { type: 'button', hideWhenEmpty: false },
+      renderer: { type: 'button', hideWhenEmpty: true },
       displayCallback: () => t('MSG_BTN_CST_SIGN'),
     },
   ];

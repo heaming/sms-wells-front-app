@@ -21,7 +21,8 @@
   >
     <kw-action-top class="mb20">
       <template #left>
-        <h3>신청정보</h3>
+        <!-- 신청정보 -->
+        <h3>{{ $t('MSG_TXT_APLC_INF') }}</h3>
       </template>
       <!-- 컨텍이력조회 -->
       <kw-btn
@@ -456,20 +457,20 @@ async function onClickContect() {
 
 async function onValidRfndCheck() {
   if (isEmpty(saveParams.value.bankCode)) {
-    // 은행코드를 확인하십시오
-    notify(`환불정보의 ${t('MSG_ALT_BNK_CD_CHECK')}`);
+    // 환불정보의 은행코드를 확인하십시오!
+    notify(`${t('MSG_ALT_RFND_INFOR')} ${t('MSG_ALT_BNK_CD_CHECK')}`);
     return false;
   }
 
   if (isEmpty(saveParams.value.acnoEncr)) {
-    // 계좌번호를 확인하십시오！
-    notify(`환불정보의 ${t('MSG_ALT_AC_NO_CHECK')}`);
+    // 환불정보의 계좌번호를 확인하십시오！
+    notify(`${t('MSG_ALT_RFND_INFOR')} ${t('MSG_ALT_AC_NO_CHECK')}`);
     return false;
   }
 
   if (isEmpty(saveParams.value.cstNm)) {
-    // 계좌번호를 확인하십시오！
-    notify('환불정보의 계좌 유효성 체크를 해주세요');
+    // 환불정보의 계좌 유효성 체크를 해주세요
+    notify(t('MSG_ALT_TAR_DO_VALID_CHK', [t('MSG_ALT_RFND_INFOR') + t('MSG_TXT_AC')]));
     return false;
   }
   return true;
@@ -592,6 +593,7 @@ async function onClickExcel2() {
   });
 }
 
+// 환불 구분 체크시 변경
 async function onClickArfndYn() {
   const { arfndYn } = saveParams.value;
 
@@ -685,7 +687,7 @@ async function onClickSave() {
   // await onClickRefundAsk(saveParams.value.procsDv);
   if (!await onSaveValidation()) { return false; }
 
-  if (!await confirm('저장하시겠습니까?')) { return false; }
+  if (!await confirm(t('MSG_ALT_IS_SAV_DATA'))) { return false; } // 저장하시겠습니까?
 
   const view2 = grdPopRef2.value.getView();
   const view3 = grdPopRef2.value.getView();
@@ -730,8 +732,8 @@ onMounted(async () => {
   await fetchData();
   onClickArfndYn();
 });
-/** ****************환불상세 function *********************** */
 
+/** ****************환불상세 function *********************** */
 // 단일행추가
 async function insertMainData(cntrNo, cntrSn) {
   let dataParams = {
@@ -1241,6 +1243,7 @@ const initGrid3 = defineGrid((data, view) => {
     { fieldName: 'bltfOjCntrDtlNo',
       width: '140',
       header: t('MSG_TXT_BLTF_CNTR_DTL_NO'),
+      // 전금계약상세번호
       styleName: 'text-center',
       editable: false,
       displayCallback(grid, index) {
@@ -1348,7 +1351,7 @@ const initGrid3 = defineGrid((data, view) => {
     const { cntrDtlNo, bltfOjCntrDtlNo } = g.getValues(index.dataRow);
     if (cntrDtlNo === bltfOjCntrDtlNo) {
       // g.setValue(index.dataRow, 'bltfRfndMbDvCd', '01');
-      return t('계약번호와 전금계약번호가 동일합니다.');
+      return t('MSG_ALT_BLTF_CNTR_NO_SMD'); // 계약번호와 전금계약번호가 동일합니다.
     }
     // g.setValue(index.dataRow, 'bltfRfndMbDvCd', '02');
   };

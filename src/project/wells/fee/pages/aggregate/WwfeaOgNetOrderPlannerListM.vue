@@ -60,7 +60,6 @@
           </kw-search-item>
           <kw-search-item
             :label="$t('MSG_TXT_PDCT_TP')"
-            required
           >
             <kw-select
               v-model="searchParams.pdctTpCd"
@@ -124,10 +123,10 @@
         </kw-search-row>
         <kw-search-row>
           <kw-search-item
-            :label="$t('MSG_TXT_PKG_CD')"
+            :label="$t('MSG_TXT_PKG_PD_NO')"
           >
             <kw-input
-              v-model="searchParams.pdEndCd"
+              v-model="searchParams.pkgStrtCd"
             />
             <span>~</span>
             <kw-input
@@ -157,11 +156,6 @@
               :maxlength="10"
               :on-click-icon="onClickSearchNo"
               :placeholder="$t('MSG_TXT_SEQUENCE_NUMBER')"
-            />
-            <kw-input
-              v-model="searchParams.prtnrKnm"
-              :placeholder="$t('MSG_TXT_EMPL_NM')"
-              readonly
             />
           </kw-search-item>
         </kw-search-row>
@@ -240,11 +234,6 @@
               :on-click-icon="onClickSearchNo"
               :placeholder="$t('MSG_TXT_SEQUENCE_NUMBER')"
             />
-            <kw-input
-              v-model="searchParams.prtnrKnm"
-              :placeholder="$t('MSG_TXT_EMPL_NM')"
-              readonly
-            />
           </kw-search-item>
         </kw-search-row>
       </div>
@@ -319,11 +308,6 @@
               :maxlength="10"
               :on-click-icon="onClickSearchNo"
               :placeholder="$t('MSG_TXT_SEQUENCE_NUMBER')"
-            />
-            <kw-input
-              v-model="searchParams.prtnrKnm"
-              :placeholder="$t('MSG_TXT_EMPL_NM')"
-              readonly
             />
           </kw-search-item>
         </kw-search-row>
@@ -477,7 +461,6 @@ const searchParams = ref({
   prtnrNo: '',
   perfYm: now.add(-1, 'month').format('YYYYMM'),
   rsbDvCd: '00',
-  prtnrKnm: '',
   ogTpCd: 'W01',
   pdCd: '',
   feeBatWkId: 'WSM_FE_OA0003', /* 수수료배치작업ID= 조직별실적집계 */
@@ -505,14 +488,12 @@ async function onClickSearchNo() {
       baseYm: searchParams.value.perfYm,
       prtnrNo: searchParams.value.prtnrNo,
       ogTpCd: 'W01',
-      prtnrKnm: undefined,
     },
   });
 
   if (result) {
     if (!isEmpty(payload)) {
       searchParams.value.prtnrNo = payload.prtnrNo;
-      searchParams.value.prtnrKnm = payload.prtnrKnm;
     }
   }
 }
@@ -826,9 +807,8 @@ const initGrd1Main = defineGrid((data, view) => {
     { fieldName: 'mngtPrd', header: t('MSG_TXT_MNGT_PRD'), width: '84', styleName: 'text-right' },
     { fieldName: 'pdAccRslt', header: `${t('MSG_TXT_PD_ACC_RSLT')}(P)`, width: '142', numberFormat: '#,###,##0', styleName: 'text-right' },
     { fieldName: 'pmotNo', header: t('MSG_TXT_PMOT_NO'), width: '104.3', styleName: 'text-right' },
-    { fieldName: 'pkgSn', header: t('MSG_TXT_PKG_SN'), width: '135.1', styleName: 'text-center' },
-    { fieldName: 'pkgNo', header: t('MSG_TXT_PKG') + t('MSG_TXT_SEQUENCE_NUMBER'), width: '113', styleName: 'text-center' },
-    { fieldName: 'ntorMm', header: t('MSG_TXT_NTOR_MM'), width: '113', styleName: 'text-center' },
+    { fieldName: 'pkgNo', header: t('MSG_TXT_PKG_PD_NO'), width: '113', styleName: 'text-center' },
+    { fieldName: 'ntorMm', header: t('MSG_TXT_NTOR_MM'), width: '113', styleName: 'text-center', datetimeFormat: 'yyyy-MM' },
     { fieldName: 'mchnPd', header: t('MSG_TXT_MCHN') + t('MSG_TXT_CODE'), width: '113', styleName: 'text-center' },
     { fieldName: 'perfExcd', header: t('MSG_TXT_PERF_EXCD') + t('MSG_TXT_RGST_YN'), width: '113', styleName: 'text-center' },
     { fieldName: 'bizRgstMm', header: t('MSG_TXT_BIZ_RGST_MM'), width: '113', styleName: 'text-center', datetimeFormat: 'yyyy-MM' },
@@ -925,9 +905,8 @@ const initGrd2Main = defineGrid((data, view) => {
     { fieldName: 'mngtPrd', header: t('MSG_TXT_MNGT_PRD'), width: '84', styleName: 'text-right' },
     { fieldName: 'pdAccRslt', header: `${t('MSG_TXT_PD_ACC_RSLT')}(P)`, width: '142', numberFormat: '#,###,##0', styleName: 'text-right' },
     { fieldName: 'pmotNo', header: t('MSG_TXT_PMOT_NO'), width: '104.3', styleName: 'text-right' },
-    { fieldName: 'pkgSn', header: t('MSG_TXT_PKG_SN'), width: '135.1', styleName: 'text-center' },
-    { fieldName: 'pkgNo', header: t('MSG_TXT_PKG') + t('MSG_TXT_SEQUENCE_NUMBER'), width: '113', styleName: 'text-center' },
-    { fieldName: 'ntorMm', header: t('MSG_TXT_NTOR_MM'), width: '113', styleName: 'text-center' },
+    { fieldName: 'pkgNo', header: t('MSG_TXT_PKG_PD_NO'), width: '113', styleName: 'text-center' },
+    { fieldName: 'ntorMm', header: t('MSG_TXT_NTOR_MM'), width: '113', styleName: 'text-center', datetimeFormat: 'yyyy-MM' },
     { fieldName: 'mchnPd', header: t('MSG_TXT_MCHN') + t('MSG_TXT_CODE'), width: '113', styleName: 'text-center' },
     { fieldName: 'perfExcd', header: t('MSG_TXT_PERF_EXCD') + t('MSG_TXT_RGST_YN'), width: '113', styleName: 'text-center' },
     { fieldName: 'bizRgstMm', header: t('MSG_TXT_BIZ_RGST_MM'), width: '113', styleName: 'text-center', datetimeFormat: 'yyyy-MM' },

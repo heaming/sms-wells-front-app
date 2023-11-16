@@ -74,12 +74,6 @@
       >
         <kw-item-label class="flex gap-xs">
           <kw-btn
-            v-if="!isLkSding && isSeeding"
-            label="기기선택"
-            dense
-            @click="onSelectMachineCntrDtl"
-          />
-          <kw-btn
             v-if="isSeeding"
             :disable="!isFreePackage"
             :primary="!sdingCapsls?.length"
@@ -169,15 +163,6 @@
             </div>
           </kw-item-label>
         </kw-item-section>
-        <kw-item-section side>
-          <kw-btn
-            v-if="cntrRel.cntrRelDtlCd === CNTR_REL_DTL_CD.LK_RGLR_SHP_BASE"
-            borderless
-            icon="close_24"
-            class="w24 kw-font-pt24"
-            @click="onDeleteCntrRel(cntrRel)"
-          />
-        </kw-item-section>
       </kw-item>
       <!-- 모종캡슐 -->
       <kw-item
@@ -206,15 +191,12 @@ import { alert, useDataService } from 'kw-lib';
 import PromotionSelect from '~sms-wells/contract/components/ordermgmt/WwctaPromotionSelect.vue';
 import usePriceSelect, { EMPTY_ID } from '~sms-wells/contract/composables/usePriceSelect';
 import { getDisplayedPrice, getPromotionAppliedPrice } from '~sms-wells/contract/utils/CtPriceUtil';
-import { CNTR_REL_DTL_CD } from '~sms-wells/contract/constants/ctConst';
 
 const props = defineProps({
   modelValue: { type: Object, default: undefined },
   bas: { type: Object, default: undefined },
 });
 const emit = defineEmits([
-  'select:machine',
-  'delete:machine',
   'select:seeding',
   'select:capsule',
   'select:precontract',
@@ -248,10 +230,6 @@ let sdingCapsls;
 
 const precontractRequired = computed(() => dtl.value?.pdSellLimit?.pcntrMndtYn === 'Y');
 
-function onSelectMachineCntrDtl() {
-  emit('select:machine', props.modelValue);
-}
-
 function onClickSelectSeeding() {
   emit('select:seeding', props.modelValue);
 }
@@ -278,8 +256,6 @@ function connectReactivities() {
 
 connectReactivities();
 
-const isLkSding = computed(() => (cntrRels.value || [])
-  .find((cntrRel) => cntrRel.cntrRelDtlCd === CNTR_REL_DTL_CD.LK_SDING));
 const isSeeding = computed(() => dtl.value?.sellTpDtlCd === '62');
 const isCapsule = computed(() => dtl.value?.sellTpDtlCd === '63');
 const isFreePackage = computed(() => dtl.value?.pdChoLmYn === 'Y'); // TODO FIX... dtl 에 없음..
@@ -441,12 +417,6 @@ function onChangeSelectedFinalPrice() {
 }
 
 watch(selectedFinalPrice, onChangeSelectedFinalPrice, { immediate: true });
-
-function onDeleteCntrRel(cntrRel) {
-  if (cntrRel.cntrRelDtlCd === CNTR_REL_DTL_CD.LK_RGLR_SHP_BASE) {
-    emit('delete:machine', props.modelValue);
-  }
-}
 
 function onClickDelete() {
   emit('delete');

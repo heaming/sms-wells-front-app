@@ -184,8 +184,8 @@
           <kw-date-picker
             v-model="safetyAccident.rcpdt"
             :label="$t('MSG_TXT_AS_RCP_DT')"
-            rules="required"
             class="w330"
+            rules="required"
           />
         </kw-form-item>
         <!-- 사고일시 -->
@@ -465,7 +465,7 @@ import { isEmpty } from 'lodash-es';
 const { t } = useI18n();
 const { modal, notify } = useGlobal();
 const dataService = useDataService();
-const { cancel: onClickCancel } = useModal();
+const { ok, cancel: onClickCancel } = useModal();
 const { getUserInfo } = useMeta();
 const props = defineProps({
   acdnRcpId: {
@@ -635,15 +635,27 @@ async function onClickAgreementFoward() {
     Object.assign(safetyAccident.value, res);
   }
 }
-async function fetchData() {
-  const res = await dataService.get(`/sms/wells/service/safety-accidents/${props.acdnRcpId}`);
-  Object.assign(safetyAccident.value, res.data);
-  isDisable.value = (res.data.cpsDvCd === '5' && res.data.agrDocFwYn === 'N'); // 보상완료 && 합의서발송여부 'N'
-  await frmMainRef1.value.init();
-  await frmMainRef2.value.init();
-  await frmMainRef3.value.init();
-  await frmMainRef4.value.init();
-  await frmMainRef5.value.init();
+// async function fetchData() {
+//   const res = await dataService.get(`/sms/wells/service/safety-accidents/${props.acdnRcpId}`);
+//   Object.assign(safetyAccident.value, res.data);
+//   isDisable.value = (res.data.cpsDvCd === '5' && res.data.agrDocFwYn === 'N'); // 보상완료 && 합의서발송여부 'N'
+//   await frmMainRef1.value.init();
+//   await frmMainRef2.value.init();
+//   await frmMainRef3.value.init();
+//   await frmMainRef4.value.init();
+//   await frmMainRef5.value.init();
+// }
+
+// 안전사고일자 < a/s접수일자 체크
+function acdnDateValidate() {
+  const { acdnDt, rcpdt } = safetyAccident.value;
+  if (isEmpty(acdnDt) || isEmpty(rcpdt)) {
+    return false;
+  }
+  if (acdnDt > rcpdt) {
+    notify(t('MSG_ALT_ACND_DT_CHECK')); // 안전사고 발생일은 a/s 접수일보다 클 수 없습니다.
+    return true;
+  }
 }
 
 // 저장버튼 클릭
@@ -655,7 +667,9 @@ async function onClickSave() {
     notify(t('MSG_ALT_CHK_REQ_VAL')); // "필수 입력값이 입력되지 않았습니다.필수입력값을 확인하시길 바랍니다."
     return;
   }
-
+  if (acdnDateValidate()) {
+    return;
+  }
   // 저장할 값 세팅.
   const svCnrNm = (svcCode.filter((v) => v.ogId === safetyAccident.value.svCnrOgId))[0].ogNm;
   safetyAccident.value.krnTotCpsAmtMrkNm = convertToKoreanNumber(safetyAccident.value.totCpsAmt);
@@ -680,7 +694,7 @@ async function onClickSave() {
   await dataService.post('/sms/wells/service/safety-accidents', safetyAccident.value);
 
   notify(t('MSG_ALT_SAVE_DATA')); // 저장되었습니다.
-  await fetchData();
+  ok();
 }
 // 교원부담액 변경 시 총합 변경 + 보상진행값 변경
 function onChangeKwCpsAmt() {
@@ -704,12 +718,30 @@ async function onChangeSvCnrOgId() {
   const cnrldNm = (await dataService.get(`/sms/wells/service/safety-accidents/cnrldNm/${ogId}`)).data;
   safetyAccident.value.cnrldNm = cnrldNm;
 }
+
+// 안전사고일 변경시
+// watch(() => safetyAccident.value.acdnDt, async () => {
+//   if (safetyAccident.value.acdnDt < safetyAccident.value.rcpdt) {
+//     notify('a/s 접수일은 안전사고 발생일보다 클 수 없습니다.');
+//     safetyAccident.value.acdnDt = null;
+//     safetyAccident.value.acdnTm = null;
+//   }
+// });
+
+// watch(() => safetyAccident.value.rcpdt, async () => {
+//   if (safetyAccident.value.acdnDt < safetyAccident.value.rcpdt) {
+//     notify('a/s 접수일은 안전사고 발생일보다 클 수 없습니다.');
+//     safetyAccident.value.acdnDt = null;
+//     safetyAccident.value.acdnTm = null;
+//   }
+// });
+
 // 사고접수번호 존재하면 조회
 onMounted(async () => {
   if (props.acdnRcpId !== '') {
     const res = await dataService.get(`/sms/wells/service/safety-accidents/${props.acdnRcpId}`);
     Object.assign(safetyAccident.value, res.data);
-    isDisable.value = (res.data.cpsDvCd === '5' && res.data.agrDocFwYn === 'N'); // 보상완료 && 합의서발송여부 'N'
+    isDisable.value = (res.data.cpsDvCd === '5'); // 보상완료면 알림톡버튼 on
   }
   await frmMainRef1.value.init();
   await frmMainRef2.value.init();

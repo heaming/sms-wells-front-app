@@ -73,6 +73,11 @@
           grid-action
           @click="onClickSave"
         />
+        <kw-separator
+          inset
+          spaced
+          vertical
+        />
         <kw-btn
           :disable="isDisable"
           :label="$t('MSG_BTN_ROW_ADD')"
@@ -133,7 +138,8 @@
       </ul>
       <kw-grid
         ref="grdMainRef"
-        :visible-rows="pageInfo.pageSize"
+        :page-size="pageInfo.pageSize"
+        :total-count="pageInfo.totalCount"
         @init="initGrdMain"
       />
       <kw-action-bottom />
@@ -259,12 +265,12 @@ async function onClickDelete() {
   if (checkedRows[0].isLast === 'Y') {
     gridUtil.deleteCheckedRows(view);
     isDisable.value = false;
-  } else alert('현재적용자재만 삭제 가능합니다.');
+  } else alert('MSG_TXT_CRTL_APY_MAT_USE_OK');
 }
 
 async function onClickAdd() {
   if (isEmpty(searchParams.value.pdGrpCd) || isEmpty(searchParams.value.pdCd)) {
-    alert('상품그룹 및 제품을 선택해주세요');
+    alert('MSG_TXT_PD_GRP_PDCT_CHO');
     return false;
   }
 

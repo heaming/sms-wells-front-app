@@ -71,11 +71,7 @@
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
-import {
-  useDataService,
-  useGlobal,
-  useModal,
-} from 'kw-lib';
+import { useDataService, useGlobal, useModal } from 'kw-lib';
 
 const {
   notify,
@@ -105,7 +101,7 @@ const biztalkParams = ref({
   cstTno: '',
 });
 
-const templateCn = (await dataService.post('/sflex/common/common/templates/TMP_SNC_WELLS17952/previews', biztalkParams.value)).data;
+const templateCn = (await dataService.post('/sflex/common/common/templates/TMP_SNZ_W_SNC_B0100/previews', biztalkParams.value)).data; // TMP_SNC_WELLS17952
 // 알림톡발송 버튼 클릭
 async function onClicBiztalkSend() {
   if (!await frmMainRef.value.validate()) { return; }
@@ -114,6 +110,6 @@ async function onClicBiztalkSend() {
   await dataService.post('/sms/wells/service/outsourcedpd-as-receipts/biztalk', biztalkParams.value);
 
   ok();
-  notify(t('MSG_ALT_SEND_SUCCESS'));
+  notify(t('MSG_ALT_SEND_SUCCESS')); // 발송되었습니다.
 }
 </script>

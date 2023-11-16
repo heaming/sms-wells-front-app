@@ -34,13 +34,11 @@
         </kw-search-item>
         <kw-search-item
           :label="$t('MSG_TXT_DIV2')"
-          required
         >
           <kw-select
             v-model="searchParams.bzHdqDvCd"
             :options="codes.BZ_HDQ_DV_CD"
             :label="$t('MSG_TXT_DIV2')"
-            rules="required"
             readonly
           />
         </kw-search-item>

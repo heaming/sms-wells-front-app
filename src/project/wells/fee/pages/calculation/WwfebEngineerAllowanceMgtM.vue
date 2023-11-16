@@ -950,18 +950,7 @@ const initEgerMain = defineGrid((data, view) => {
       } },
 
     { fieldName: 'totFee',
-      header: `${t('MSG_TXT_CTR_BF')} ${t('MSG_TXT_AW')}${t('MSG_TXT_SUM')}`,
-      width: '180',
-      styleName: 'text-right',
-      dataType: 'number',
-      numberFormat: '#,##0',
-      editable: false,
-      headerSummary: {
-        numberFormat: '#,##0',
-        expression: 'sum',
-      } },
-    { fieldName: 'totAfFee',
-      header: `${t('MSG_TXT_CTR_AF')} ${t('MSG_TXT_AW')}${t('MSG_TXT_SUM')}`,
+      header: `${t('MSG_TXT_AW')}${t('MSG_TXT_SUM')}`,
       width: '180',
       styleName: 'text-right',
       dataType: 'number',
@@ -1245,7 +1234,7 @@ const initEgerMain = defineGrid((data, view) => {
             },
           ],
         },
-        'totFee', 'totAfFee',
+        'totFee',
       ],
     },
     {

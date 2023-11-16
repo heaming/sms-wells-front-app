@@ -17,6 +17,7 @@
     <kw-search
       :cols="4"
       @search="onClickSearch"
+      @reset="onClickReset"
     >
       <kw-search-row>
         <!-- 입고창고 -->
@@ -32,9 +33,9 @@
           />
         </kw-search-item>
 
-        <!-- 접수유형 -->
+        <!-- 입고유형 -->
         <kw-search-item
-          :label="$t('MSG_TXT_RCP_TP')"
+          :label="$t('MSG_TXT_STR_TP')"
         >
           <kw-select
             v-model="searchParams.strTpCd"
@@ -43,9 +44,9 @@
           />
         </kw-search-item>
 
-        <!-- 출고기간 -->
+        <!-- 입고기간 -->
         <kw-search-item
-          :label="$t('MSG_TXT_OSTR_PTRM')"
+          :label="$t('MSG_TXT_STR_PTRM')"
           :colspan="2"
           required
         >
@@ -53,7 +54,7 @@
             v-model:from="searchParams.stStrDt"
             v-model:to="searchParams.edStrDt"
             rules="required|date_range_months:1"
-            :label="$t('MSG_TXT_OSTR_PTRM')"
+            :label="$t('MSG_TXT_STR_PTRM')"
           />
         </kw-search-item>
       </kw-search-row>
@@ -201,6 +202,7 @@ async function fetchDefaultData() {
 
 // 조회버튼 클릭이벤트
 async function onClickSearch() {
+  pageInfo.value.pageIndex = 1;
   cachedParams = cloneDeep(searchParams.value);
   await fetchData();
 }
@@ -214,6 +216,13 @@ async function onClickExcelDownload() {
     timePostfix: true,
     exportData: res.data,
   });
+}
+
+// 초기화 버튼 클릭
+function onClickReset() {
+  if (!isEmpty(warehouses.value)) {
+    searchParams.value.strOjWareNo = warehouses.value[0].codeId;
+  }
 }
 
 onMounted(async () => {
@@ -234,7 +243,7 @@ const initGrdMain = defineGrid((data, view) => {
         const regExp = /^(\d{3})(\d{8})(\d{7}).*/;
         return v.replace(regExp, '$1-$2-$3');
       } }, // 품목입고번호
-    { fieldName: 'wareNm', header: t('MSG_TXT_STR_WARE'), width: '150', styleName: 'text-left' }, // 창고번호
+    { fieldName: 'wareNm', header: t('MSG_TXT_STR_WARE'), width: '150', styleName: 'text-center' }, // 창고번호
     { fieldName: 'itmPdNm', header: t('MSG_TXT_STR_ITM'), width: '250', styleName: 'text-left' }, // 품목상품명
     { fieldName: 'strSn',
       header: t('MSG_TXT_NOTE'),
@@ -253,6 +262,7 @@ const initGrdMain = defineGrid((data, view) => {
     { fieldName: 'itmPdNo' }, // 품목상품번호
     { fieldName: 'ostrWareNo' }, // 출고창고번호
     { fieldName: 'ostrWareNm' }, // 출고창고명
+    { fieldName: 'wareDtlDvCd' }, // 입고창고상세구분
   ];
 
   data.setFields(fields);
@@ -260,7 +270,7 @@ const initGrdMain = defineGrid((data, view) => {
   view.checkBar.visible = false;
   view.rowIndicator.visible = true;
 
-  view.onCellItemClicked = async (g, { column, dataRow }) => {
+  view.onCellItemClicked = async (g, { dataRow }) => {
     const {
       strRgstDt,
       strTpCd,
@@ -274,8 +284,8 @@ const initGrdMain = defineGrid((data, view) => {
       ostrSn,
       strSn,
       strHopDt,
+      wareDtlDvCd,
     } = gridUtil.getRowValue(g, dataRow);
-    console.log(g, column, dataRow);
 
     const { result: isChanged } = await modal({
       component: 'WwsnaMovementStoreRegP',
@@ -294,6 +304,7 @@ const initGrdMain = defineGrid((data, view) => {
         itmPdNm,
         strHopDt,
         flagChk: 0,
+        strWareDtlDvCd: wareDtlDvCd,
       },
     });
 

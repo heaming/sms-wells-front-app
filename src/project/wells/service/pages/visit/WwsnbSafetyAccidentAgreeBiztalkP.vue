@@ -153,7 +153,7 @@
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
-import { useDataService, codeUtil, useGlobal, useModal } from 'kw-lib';
+import { codeUtil, useDataService, useGlobal, useModal } from 'kw-lib';
 import ZwcmTelephoneNumber from '~common/components/ZwcmTelephoneNumber.vue';
 import { split } from 'lodash-es';
 
@@ -228,7 +228,7 @@ const telNos = ref({
 const templateCn = ref([]);
 // 템플릿 내용 조회
 async function getTemplateContent() {
-  const res = await dataService.post('/sflex/common/common/templates/TMP_SNB_WELLS18387/previews', biztalkParams.value);
+  const res = await dataService.post('/sflex/common/common/templates/TMP_SNZ_W_SNB_B0072/previews', biztalkParams.value); // TMP_SNB_WELLS18387
   templateCn.value = split(res.data, '\n');
 }
 // 발송버튼 클릭시
