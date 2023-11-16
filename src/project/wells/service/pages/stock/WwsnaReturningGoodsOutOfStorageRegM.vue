@@ -334,18 +334,21 @@ function validateIsApplyRowExists() {
   return true;
 }
 
+let viewCurrentLength = 0;
+
 // 시점재고 조회
 async function fetchPitmStoc(rows, itmGdCd, index) {
   const view = grdMainRef.value.getView();
   const itmPdCds = rows.map((v) => v.itmPdCd);
   const res = await dataService.post(`/sms/wells/service/returning-goods-out-of-storages/${searchParams.value.ostrWareNo}`, { itmPdCds, itmGdCd });
+  let startRow = 0;
+
+  if (isIndexEmpty(index)) {
+    startRow = viewCurrentLength;
+  }
   for (let i = 0; i < rows.length; i += 1) {
     if (res.data[i].itmPdCd === rows[i].itmPdCd) {
-      if (isIndexEmpty(index)) {
-        view.setValue(i, 'onQty', res.data[i].pitmQty);
-      } else {
-        view.setValue(index, 'onQty', res.data[i].pitmQty);
-      }
+      view.setValue(startRow + i, 'onQty', res.data[i].pitmQty);
     }
   }
 }
@@ -402,6 +405,7 @@ async function openItemBasePopup(type, row) {
         target.push(obj);
         return false;
       });
+      viewCurrentLength = view.getJsonRows().length;
       view.getDataSource().addRows(target.map((v) => getRowData(v)));
       view.checkAll(false);
       view.resetCurrent();
