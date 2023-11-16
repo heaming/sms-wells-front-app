@@ -348,7 +348,11 @@ async function fetchPitmStoc(rows, itmGdCd, index) {
   }
   for (let i = 0; i < rows.length; i += 1) {
     if (res.data[i].itmPdCd === rows[i].itmPdCd) {
-      view.setValue(startRow + i, 'onQty', res.data[i].pitmQty);
+      if (isIndexEmpty(index)) {
+        view.setValue(startRow + i, 'onQty', res.data[i].pitmQty);
+      } else {
+        view.setValue(index, 'onQty', res.data[i].pitmQty);
+      }
     }
   }
 }
@@ -787,7 +791,7 @@ const initGrdMain = defineGrid((data, view) => {
     const changedFieldName = grid.getDataSource().getOrgFieldName(field);
 
     if (changedFieldName === 'itmGdCd') {
-      await fetchPitmStoc(dataRow, itmGdCd, row);
+      await fetchPitmStoc(dataRow, itmGdCd, itemIndex);
     }
   };
 });
