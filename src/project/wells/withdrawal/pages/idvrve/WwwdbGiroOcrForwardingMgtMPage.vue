@@ -387,7 +387,9 @@ async function onClickPrintCreate() {
     giroRglrDvCd: searchParams.value.giroRglrDvCd,
   };
 
-  await dataService.post('/sms/wells/withdrawal/idvrve/giro-ocr-forwardings/print', paramData);
+  await dataService.post('/sms/wells/withdrawal/idvrve/giro-ocr-forwardings/print', paramData, {
+    responseType: 'blob',
+  });
 
   notify(t('MSG_ALT_CRT_FSH'));
 
