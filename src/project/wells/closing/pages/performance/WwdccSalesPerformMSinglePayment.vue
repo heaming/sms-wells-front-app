@@ -36,7 +36,7 @@
 
   <div class="result-area">
     <h3 class="mb0">
-      {{ $t('MSG_TIT_DEFAULT_INFO') }}
+      {{ $t('MSG_TIT_DEFAULT_INFO') }}{{ baseInformation.slClYm }}
     </h3>
     <p class="kw-font--14 kw-fc--black3 text-right mb12">
       <span>{{ t('MSG_TXT_UNIT_WON') }}</span>
@@ -405,6 +405,9 @@ async function fetchBaseData() {
   isShow.value = true;
   console.log(res.data);
   baseInformation.value = res.data;
+  if (baseInformation.value.slClYm) {
+    baseInformation.value.slClYm = `(${stringUtil.getDateFormat(baseInformation.value.slClYm, 'YYYYMMDD', 'YYYY.MM')} ${t('MSG_TXT_BASE')})`;
+  }
 }
 
 async function fetchSalesData() {
