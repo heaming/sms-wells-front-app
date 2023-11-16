@@ -144,23 +144,24 @@ async function onChangeCenter() {
 }
 
 // 출고일자 유효성 체크
-async function validOstrDt(dow) {
-  const isValidDow = daysOfWeek.includes(dow);
-  if (!isValidDow) {
-    // 출고 예정 요일이 아닙니다.
-    await alert(t('MSG_ALT_OSTR_EXP_DOW'));
-    return false;
+async function validOstrDt() {
+  const { ostrDt } = searchParams.value;
+  if (!isEmpty(ostrDt)) {
+    const dow = dayjs(ostrDt).format('d');
+    const isValidDow = daysOfWeek.includes(dow);
+    if (!isValidDow) {
+      // 출고 예정 요일이 아닙니다.
+      await alert(t('MSG_ALT_OSTR_EXP_DOW'));
+      return false;
+    }
   }
   return true;
 }
 
 // 출고일자 변경 시
 async function onChangeOstrDt() {
-  const { ostrDt } = searchParams.value;
-  if (!isEmpty(ostrDt)) {
-    const dow = dayjs(ostrDt).format('d');
-    await validOstrDt(dow);
-  }
+  // 출고일자 유효성 체크
+  await validOstrDt();
 }
 
 const totalCount = ref(0);
@@ -178,10 +179,8 @@ async function fetchData() {
 
 // 조회버튼 클릭
 async function onClickSearch() {
-  const { ostrDt } = searchParams.value;
-  const dow = dayjs(ostrDt).format('d');
   // 출고일자 유효성 체크
-  if (!await validOstrDt(dow)) return;
+  if (!await validOstrDt()) return;
 
   cachedParams = cloneDeep(searchParams.value);
   await fetchData();
