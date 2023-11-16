@@ -333,8 +333,8 @@ fieldsObj = {
     { fieldName: 'dgr1LevlOgNm', header: t('MSG_TXT_MANAGEMENT_DEPARTMENT'), width: '103.8', styleName: 'text-center' }, // 총괄단
     { fieldName: 'dgr2LevlOgNm', header: t('MSG_TXT_RGNL_GRP'), width: '103.8', styleName: 'text-center' }, // 지역단
     { fieldName: 'dgr3LevlOgNm', header: t('MSG_TXT_BRANCH'), width: '103.8', styleName: 'text-center' }, // 지점
-    { fieldName: 'prtNrNo', header: t('MSG_TXT_SEQUENCE_NUMBER'), width: '110.8', styleName: 'text-center' }, // 번호
-    { fieldName: 'prtNrKNm', header: t('MSG_TXT_EMPL_NM'), width: '110.8', styleName: 'text-center' }, // 성명
+    { fieldName: 'prtnrNo', header: t('MSG_TXT_SEQUENCE_NUMBER'), width: '110.8', styleName: 'text-center' }, // 번호
+    { fieldName: 'prtnrKnm', header: t('MSG_TXT_EMPL_NM'), width: '110.8', styleName: 'text-center' }, // 성명
     { fieldName: 'rsbDvCd', header: t('MSG_TXT_RSB'), width: '88.7', styleName: 'text-center', options: codes.RSB_DV_CD }, // 직책
     { fieldName: 'meetDates', header: t('MSG_TXT_METG_PRSC_DC'), width: '93.1', styleName: 'text-right', dataType: 'number' }, // 미팅참석일수
   ],
@@ -453,7 +453,7 @@ fieldsObj = {
 
       columns = [...fieldsObj.defaultFields, ...perfFields,
         ...tmpFeeFields, feeSumField, ...deductionFields, ddenSumFields, dsbAmtFields];
-      console.log(columns);
+
       // 헤더 부분 merge
       layoutColumns = [...fieldsObj.getColumnNameArr(fieldsObj.defaultFields),
         {
@@ -488,8 +488,9 @@ fieldsObj = {
 
       const personalFees = cashedFeeCodes.filter((obj) => obj.feeClsfCd === '04'); // 조직수수료
       const ogFees = cashedFeeCodes.filter((obj) => obj.feeClsfCd !== '04'); // 개인수수료
-      const personalFeeFields = personalFees.map((obj) => ({ fieldName: obj.feeNm, header: obj.feeNm, width: '142.8', styleName: 'text-right', dataType: 'number' }));
-      const ogFeeFields = ogFees.map((obj) => ({ fieldName: obj.feeNm, header: obj.feeNm, width: '142.8', styleName: 'text-right', dataType: 'number' }));
+      const personalFeeFields = personalFees.map((obj) => ({ fieldName: `fee${obj.feeCd}`, header: obj.feeNm, width: '142.8', styleName: 'text-right', dataType: 'number' }));
+      const ogFeeFields = ogFees.map((obj) => ({ fieldName: `fee${obj.feeCd}`, header: obj.feeNm, width: '142.8', styleName: 'text-right', dataType: 'number' }));
+
       // 헤더 부분 merge
       layoutColumns = [...fieldsObj.getColumnNameArr(fieldsObj.defaultFields),
         {
@@ -573,7 +574,8 @@ fieldsObj = {
   },
   // 리스트에 담겨진 항목 중 fieldName 배열로 가져옴
   getColumnNameArr(objList) {
-    return objList.map((v) => v.fieldName);
+    if (objList && objList.length > 0) return objList.map((v) => v.fieldName);
+    return [];
   },
 
 };
