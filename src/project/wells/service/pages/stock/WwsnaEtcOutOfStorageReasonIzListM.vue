@@ -95,11 +95,17 @@
           <kw-input
             v-model="searchParams.startItemCd"
             upper-case
+            type="text"
+            :label="$t('MSG_TXT_ITM_CD')"
+            rules="alpha_num|max:10"
           />
           <span>~</span>
           <kw-input
             v-model="searchParams.endItemCd"
             upper-case
+            type="text"
+            :label="$t('MSG_TXT_ITM_CD')"
+            rules="alpha_num|max:10"
           />
         </kw-search-item>
       </kw-search-row>
