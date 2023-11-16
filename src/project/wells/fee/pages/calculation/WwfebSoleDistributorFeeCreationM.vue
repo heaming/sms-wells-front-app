@@ -365,6 +365,7 @@ const initGridDetail = defineGrid((data, view) => {
   const columns = [
     { fieldName: 'baseYm', header: t('MSG_TXT_BASE_YM'), visible: false }, // 기준년월
     { fieldName: 'coCdNm', header: t('MSG_TXT_CORP_NAME'), width: '127' }, // 업체명
+    // { fieldName: 'brchNm', header: t('MSG_TXT_BRCH_NM'), width: '127' }, // 지점명
     { fieldName: 'prtnrKnm', header: t('MSG_TXT_SELLER_PERSON'), width: '98' }, // 판매자
     { fieldName: 'prtnrNo', header: t('MSG_TXT_SEQUENCE_NUMBER'), width: '127', styleName: 'text-center' }, // 번호
     { fieldName: 'cntrNo', header: t('MSG_TXT_CNTR_DTL_NO'), width: '151', styleName: 'text-center' }, // 계약상세번호
@@ -488,8 +489,8 @@ const initGridDetail = defineGrid((data, view) => {
 const initGridBase = defineGrid((data, view) => {
   const columns = [
     { fieldName: 'baseYm', visible: false }, // 기준년월
-    { fieldName: 'coCd', visible: false }, // 회사코드
     { fieldName: 'feeTcntDvCd', visible: false }, // 차수
+    { fieldName: 'coCd', visible: false }, // 회사코드
     {
       fieldName: 'coCdNm',
       header: t('MSG_TXT_CORP_NAME'),
