@@ -117,6 +117,13 @@
           vertical
           inset
         />
+        <!-- 복사 -->
+        <kw-btn
+          v-permission:create
+          :label="$t('MSG_BTN_CNTN_COPY')"
+          grid-action
+          @click="onClickRowCopy"
+        />
         <kw-btn
           v-permission:create
           :label="$t('MSG_BTN_ROW_ADD')"
@@ -268,6 +275,31 @@ async function onClickRowDelete() {
     notify(t('MSG_ALT_DELETED'));
     await fetchPage();
   }
+}
+
+// 행 복사
+async function onClickRowCopy() {
+  const view = grdRef.value.getView();
+  const checkedRows = cloneDeep(gridUtil.getCheckedRowValues(view));
+  if (checkedRows.length < 1) {
+    // 데이터를 선택해주세요.
+    notify(t('MSG_ALT_NOT_SEL_ITEM'));
+    return;
+  }
+  if (checkedRows.length > 1) {
+    // 한 개만 선택해주세요.
+    notify(t('MSG_ALT_SELT_ONE_ITEM'));
+    return;
+  }
+  checkedRows.forEach((rowItem) => {
+    rowItem.fstRgstDtm = '';
+    rowItem.fstRgstUsrId = '';
+    rowItem.fnlMdfcDtm = '';
+    rowItem.fnlMdfcUsrId = '';
+  });
+  // await gridUtil.insertRowAndFocus(view, 0, checkedRows[0]);
+  view.getDataSource().insertRow(0, checkedRows[0]);
+  gridUtil.focusCellInput(view, 0, 'basePdCd');
 }
 
 // 그리드행추가
