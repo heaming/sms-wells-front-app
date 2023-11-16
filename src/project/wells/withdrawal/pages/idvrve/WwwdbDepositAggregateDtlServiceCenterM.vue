@@ -70,7 +70,7 @@
           <kw-option-group
             v-model="searchParams.stlmDvCd"
             type="radio"
-            :options="STLM_DV_CD"
+            :options="codes.STLM_DV_CD"
           />
         </kw-search-item>
       </kw-search-row>
@@ -190,7 +190,7 @@ const codes = await codeUtil.getMultiCodes(
 
 const centerOptions = ref();
 
-const STLM_DV_CD = codes.STLM_DV_CD.filter((e) => ['01', '02', '03'].includes(e.codeId));
+// const STLM_DV_CD = codes.STLM_DV_CD.filter((e) => ['01', '02', '03'].includes(e.codeId));
 
 const grdMainRef = ref(getComponentType('KwGrid'));
 
@@ -248,11 +248,15 @@ async function fetchData() {
 // 합계
 let bilAmtTot = 0;
 let dpSumAmtTot = 0;
+let rfndEtAmtTot = 0;
+let blamTot = 0;
 async function fetchSumData() {
   const res = await dataService.get('/sms/wells/withdrawal/idvrve/deposit-aggregate-service/total-sum', { params: cachedParams });
 
   bilAmtTot = Number(res.data.bilAmtTot);
   dpSumAmtTot = Number(res.data.dpSumAmtTot);
+  rfndEtAmtTot = Number(res.data.rfndEtAmtTot);
+  blamTot = Number(res.data.blamTot);
 }
 
 // 조회 버튼
@@ -337,6 +341,8 @@ const initGrid = defineGrid((data, view) => {
     { fieldName: 'svBizDclsfCd' }, /* 고객서비스as설치배정내역 */ /* 서비스유형 */
     { fieldName: 'bilAmt', dataType: 'number' }, /* 청구금액 */
     { fieldName: 'dpSumAmt', dataType: 'number' }, /* 대사금액 */
+    { fieldName: 'totRfndEtAmt', dataType: 'number' }, /* 환불금액 */
+    { fieldName: 'blam', dataType: 'number' }, /* 잔액 */
     { fieldName: 'stlmDvCd' }, /* 결제구분코드 */
     { fieldName: 'stlmDvNo' }, /* 입금번호 */
     { fieldName: 'iscmpCd' }, /* 결제처 */
@@ -479,6 +485,42 @@ const initGrid = defineGrid((data, view) => {
           return dpSumAmtTot;
         } },
     },
+    { fieldName: 'totRfndEtAmt',
+      header: t('MSG_TXT_RFND_AMT'),
+      // '환불금액',
+      numberFormat: '#,##0',
+      width: '100',
+      styleName: 'text-right',
+      groupFooter: {
+        numberFormat: '#,##0',
+        expression: 'sum',
+        styleName: 'text-right',
+      },
+      footer: { expression: 'sum',
+        numberFormat: '#,##0',
+        styleName: 'text-right',
+        valueCallback() {
+          return rfndEtAmtTot;
+        } },
+    },
+    { fieldName: 'blam',
+      header: t('MSG_TXT_BLAM'),
+      // '잔액',
+      numberFormat: '#,##0',
+      width: '100',
+      styleName: 'text-right',
+      groupFooter: {
+        numberFormat: '#,##0',
+        expression: 'sum',
+        styleName: 'text-right',
+      },
+      footer: { expression: 'sum',
+        numberFormat: '#,##0',
+        styleName: 'text-right',
+        valueCallback() {
+          return blamTot;
+        } },
+    },
     { fieldName: 'stlmDvCd',
       header: t('MSG_TXT_PMT_TYP'),
       // '결제유형',
@@ -533,7 +575,7 @@ const initGrid = defineGrid((data, view) => {
     {
       header: t('MSG_TXT_STLM') + t('MSG_TXT_INF'), // 결제정보
       direction: 'horizontal',
-      items: ['bilAmt', 'dpSumAmt', 'stlmDvCd', 'iscmpCd', 'stlmDvNo', 'cardAprno', 'taxBll'],
+      items: ['bilAmt', 'dpSumAmt', 'totRfndEtAmt', 'blam', 'stlmDvCd', 'iscmpCd', 'stlmDvNo', 'cardAprno', 'taxBll'],
     },
   ]);
 });
