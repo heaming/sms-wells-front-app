@@ -489,9 +489,14 @@ async function fetchPitmStoc(rows, itmGdCd, index) {
   if (isIndexEmpty(index)) {
     startRow = viewCurrentLength;
   }
+
   for (let i = 0; i < rows.length; i += 1) {
     if (res.data[i].itmPdCd === rows[i].itmPdCd) {
-      view.setValue(startRow + i, 'onQty', res.data[i].pitmQty);
+      if (isIndexEmpty(index)) {
+        view.setValue(startRow + i, 'onQty', res.data[i].pitmQty);
+      } else {
+        view.setValue(index, 'onQty', res.data[i].pitmQty);
+      }
     }
   }
 }
@@ -566,7 +571,6 @@ function onClickAllSet() {
 
   const view = grdMainRef.value.getView();
   const checkedRows = gridUtil.getCheckedRowValues(view);
-  console.log(checkedRows);
   for (let i = 0; i < checkedRows.length; i += 1) {
     if (!isEmpty(etcInfo.value.ostrQty)) {
       setCheckedGridValue(view, checkedRows[i].dataRow, etcInfo.value.ostrQty, 'ostrQty');
@@ -703,7 +707,6 @@ const initGrdMain = defineGrid((data, view) => {
     if (canEdit()) {
       return { styleName: 'rg-button-hide' };
     }
-    console.log(itemIndex);
     if (column === 'itmPdCd') {
       const itmPdCd = grid.getValue(itemIndex, 'itmPdCd');
       const { result, payload } = await modal({
@@ -726,7 +729,7 @@ const initGrdMain = defineGrid((data, view) => {
     const changedFieldName = grid.getDataSource().getOrgFieldName(field);
 
     if (changedFieldName === 'itmGdCd') {
-      await fetchPitmStoc(dataRow, itmGdCd, row);
+      await fetchPitmStoc(dataRow, itmGdCd, itemIndex);
     }
   };
 
