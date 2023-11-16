@@ -20,6 +20,7 @@
     <kw-search
       :cols="2"
       @search="onClickSearch"
+      @reset="onClickReset"
     >
       <kw-search-row>
         <!-- 서비스센터 -->
@@ -32,6 +33,7 @@
             :options="codes.GG_LCT_CD"
             :label="$t('MSG_TXT_SV_CNR')"
             rules="required"
+            @change="onChangeCenter"
           />
         </kw-search-item>
         <!-- 출고일자 -->
@@ -44,6 +46,7 @@
             type="date"
             rules="required"
             :label="$t('MSG_TXT_OSTR_DT')"
+            @change="onChangeOstrDt"
           />
         </kw-search-item>
       </kw-search-row>
@@ -126,6 +129,40 @@ const codes = await codeUtil.getMultiCodes(
   'GG_LCT_CD',
 );
 
+let daysOfWeek;
+
+// 서비스센터 변경 시
+async function onChangeCenter() {
+  daysOfWeek = [];
+  const { dgGgLctCd } = searchParams.value;
+
+  if (!isEmpty(dgGgLctCd)) {
+    // 센터별 요일 조회
+    const res = await dataService.get('/sms/wells/service/seeding-package-ctr-qtys-reg/days-of-week', { params: { dgGgLctCd } });
+    daysOfWeek = res.data;
+  }
+}
+
+// 출고일자 유효성 체크
+async function validOstrDt(dow) {
+  const isValidDow = daysOfWeek.includes(dow);
+  if (!isValidDow) {
+    // 출고 예정 요일이 아닙니다.
+    await alert(t('MSG_ALT_OSTR_EXP_DOW'));
+    return false;
+  }
+  return true;
+}
+
+// 출고일자 변경 시
+async function onChangeOstrDt() {
+  const { ostrDt } = searchParams.value;
+  if (!isEmpty(ostrDt)) {
+    const dow = dayjs(ostrDt).format('d');
+    await validOstrDt(dow);
+  }
+}
+
 const totalCount = ref(0);
 // 조회
 async function fetchData() {
@@ -141,6 +178,11 @@ async function fetchData() {
 
 // 조회버튼 클릭
 async function onClickSearch() {
+  const { ostrDt } = searchParams.value;
+  const dow = dayjs(ostrDt).format('d');
+  // 출고일자 유효성 체크
+  if (!await validOstrDt(dow)) return;
+
   cachedParams = cloneDeep(searchParams.value);
   await fetchData();
 }
@@ -203,6 +245,15 @@ async function onClickExcelDownload() {
     exportData: res.data,
   });
 }
+
+// 초기화 버튼 클릭
+async function onClickReset() {
+  await onChangeCenter();
+}
+
+onMounted(async () => {
+  await onChangeCenter();
+});
 
 // -------------------------------------------------------------------------------------------------
 // Initialize Grid
