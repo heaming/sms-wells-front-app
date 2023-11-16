@@ -269,7 +269,7 @@ async function reAryGrid() {
     { fieldName: 'bdtIndv', header: t('MSG_TXT_BDT_INDV'), width: '90', styleName: 'text-right', editable: false },
     { fieldName: 'bdtCrp', header: t('MSG_TXT_BDT_CRP'), width: '90', styleName: 'text-right', editable: false },
     { fieldName: 'arcleIndv', header: t('MSG_TXT_ARCLE_INDV'), width: '120', styleName: 'text-right', editable: false },
-    { fieldName: 'arcleCrp', header: t('MSG_TXT_ARCLE_INDV'), width: '120', styleName: 'text-right', editable: false },
+    { fieldName: 'arcleCrp', header: t('MSG_TXT_ARCLE_CRP'), width: '120', styleName: 'text-right', editable: false },
     { fieldName: 'wtrSftnr', header: t('MSG_TXT_WTST'), width: '70', styleName: 'text-right', editable: false },
     { fieldName: 'cffMchn', header: t('MSG_TXT_CFF_MCHN'), width: '80', styleName: 'text-right', editable: false },
     { fieldName: 'msgcr', header: t('MSG_TXT_MSGCR'), width: '80', styleName: 'text-right', editable: false },
@@ -736,7 +736,7 @@ const initGrdMain = defineGrid(async (data, view) => {
     { fieldName: 'bdtIndv', header: t('MSG_TXT_BDT_INDV'), width: '90', styleName: 'text-right', editable: false },
     { fieldName: 'bdtCrp', header: t('MSG_TXT_BDT_CRP'), width: '90', styleName: 'text-right', editable: false },
     { fieldName: 'arcleIndv', header: t('MSG_TXT_ARCLE_INDV'), width: '120', styleName: 'text-right', editable: false },
-    { fieldName: 'arcleCrp', header: t('MSG_TXT_ARCLE_INDV'), width: '120', styleName: 'text-right', editable: false },
+    { fieldName: 'arcleCrp', header: t('MSG_TXT_ARCLE_CRP'), width: '120', styleName: 'text-right', editable: false },
     { fieldName: 'wtrSftnr', header: t('MSG_TXT_WTST'), width: '70', styleName: 'text-right', editable: false },
     { fieldName: 'cffMchn', header: t('MSG_TXT_CFF_MCHN'), width: '80', styleName: 'text-right', editable: false },
     { fieldName: 'msgcr', header: t('MSG_TXT_MSGCR'), width: '80', styleName: 'text-right', editable: false },
@@ -875,13 +875,12 @@ const initGrdMain = defineGrid(async (data, view) => {
   view.setColumnLayout(columnLayout);
 
   view.onCellEditable = (grid, itemIndex) => {
-    const nowDateTime = Number(dayjs().format('YYYYMMDDHHmmss'));
-    const strtDtHh = Number(aplcCloseData.value.bizStrtdt + aplcCloseData.value.bizStrtHh);
-    const endDtHh = Number(aplcCloseData.value.bizEnddt + aplcCloseData.value.bizEndHh);
+    const nowDateTime = Number(dayjs().format('YYYYMMDDHHmm'));
+    const strtDtHh = `${aplcCloseData.value.bizStrtdt}${aplcCloseData.value.bizStrtHh ?? ''}`;
+    const endDtHh = `${aplcCloseData.value.bizEnddt}${aplcCloseData.value.bizEndHh ?? ''}`;
     const { bfsvcCsmbDdlvStatCd } = grid.getValues(itemIndex.itemIndex);
 
-    // TODO: 권한조회 후 빌딩 업무담당일 경우 본인 소속 빌딩 외 수정불가 로직 추가해야함
-    if ((!isBusinessSupportTeam.value && !(nowDateTime >= strtDtHh && nowDateTime <= endDtHh)) || bfsvcCsmbDdlvStatCd === '30') {
+    if ((!isBusinessSupportTeam.value && !(nowDateTime >= Number(strtDtHh) && nowDateTime <= Number(endDtHh))) || bfsvcCsmbDdlvStatCd === '30') {
       return false;
     }
   };
