@@ -209,7 +209,7 @@ const saveParams = ref({
   rsbDvCd: searchParams.value.rsbDvCd,
   ddlnDvId: '',
   ddlnId: '',
-  templateCode: 'FEE_DSB_SPCSH_W01',
+  templateCode: '',
   feeMessagePk: '',
 });
 
@@ -450,27 +450,33 @@ async function openFeeReportPopup() {
  *  Event - 수수료 조회기간 기간설정 버튼 클릭
  */
 async function onClickFeeDsbSpcsh() {
-  const ddlnDvId = 'DLD_FEE_DSB_SPCSH';
+  let ddlnDvId = '';
   let ddlnId = '';
   if (searchParams.value.ogTpCd === 'W01') { /* P조직 */
     if (searchParams.value.rsbDvCd === 'W0104') {
-      ddlnId = 'DLN_00009';
+      ddlnDvId = 'DLD_W01_FEE_DSB_SPCSH1';
+      ddlnId = 'DLN_00081';
     } else if (searchParams.value.rsbDvCd === 'W0105') {
-      ddlnId = 'DLN_00010';
+      ddlnDvId = 'DLD_W01_FEE_DSB_SPCSH2';
+      ddlnId = 'DLN_00082';
     }
     saveParams.value.templateCode = 'FEE_DSB_SPCSH_W01';
   } else if (searchParams.value.ogTpCd === 'W02') { /* M조직 */
     if (searchParams.value.rsbDvCd === 'W0204') {
-      ddlnId = 'DLN_00011';
+      ddlnDvId = 'DLD_W02_FEE_DSB_SPCSH1';
+      ddlnId = 'DLN_00083';
     } else if (searchParams.value.rsbDvCd === 'W0205') {
-      ddlnId = 'DLN_00069';
+      ddlnDvId = 'DLD_W02_FEE_DSB_SPCSH2';
+      ddlnId = 'DLN_00084';
     }
     saveParams.value.templateCode = 'FEE_DSB_SPCSH_W02';
   } else if (searchParams.value.ogTpCd === 'W03') { /* 홈마스터 */
     if (searchParams.value.rsbDvCd === 'W0301') {
-      ddlnId = 'DLN_00070';
+      ddlnDvId = 'DLD_W03_FEE_DSB_SPCSH1';
+      ddlnId = 'DLN_00085';
     } else if (searchParams.value.rsbDvCd === 'W0302') {
-      ddlnId = 'DLN_00071';
+      ddlnDvId = 'DLD_W03_FEE_DSB_SPCSH2';
+      ddlnId = 'DLN_00086';
     }
     saveParams.value.templateCode = 'FEE_DSB_SPCSH_W03';
   }
