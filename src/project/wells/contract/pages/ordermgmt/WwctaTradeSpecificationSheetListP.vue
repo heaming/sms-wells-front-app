@@ -179,7 +179,7 @@ import dayjs from 'dayjs';
 const dataService = useDataService();
 const { t } = useI18n();
 const { getConfig } = useMeta();
-const { modal, notify } = useGlobal();
+const { alert, modal, notify } = useGlobal();
 const ozParamsList = ref({});
 const props = defineProps({
   cntrNo: { type: String, required: false, default: '' },
@@ -508,7 +508,7 @@ async function onClickPblPrnt() {
   let outputDataYN;
   let pblcSearchSttDt; // 발행년월시
   let custNm; // 고객명
-  // let rfndYn = false; // 거래명세서(일시불패키지 상품)
+  let rfndYn = false; // 거래명세서(일시불패키지 상품)
 
   if (searchParams.value.cntrDvCd === '1') {
     if (searchParams.value.docDvCd === '1') {
@@ -581,6 +581,11 @@ async function onClickPblPrnt() {
       // eslint-disable-next-line no-case-declarations
       const cntrs = gridUtil.getCheckedRowValues(view);
       cntrs.forEach((row) => {
+        // 거래명새서 판매할인율코드(6:패키지)일 경우
+        if (searchParams.value.docDvCd === '2'
+         && row.dscApyDtlCd === '6') {
+          rfndYn = true;
+        }
         outputDataYN = true;
         cntrDtlNoList.push(row.cntrDtlNo);
       });
@@ -616,6 +621,11 @@ async function onClickPblPrnt() {
         );
         break;
       case '2': // 거래명세서
+        if (rfndYn) {
+          // 일시불 패키지 상품이 포함되어  출력하실 수 없습니다. [문의 : Wells마케팅전략팀 고의엽매니저(02-397-9312)]
+          await alert(t('MSG_ALT_SPAY_PKG_PRDT_INC_PRNT_IMP'));
+          return;
+        }
         // OZ 리포트 팝업 파라미터 설정
         cachedParams.reportHeaderTitle = '거래명세서 조회'; // 레포트 제목
 

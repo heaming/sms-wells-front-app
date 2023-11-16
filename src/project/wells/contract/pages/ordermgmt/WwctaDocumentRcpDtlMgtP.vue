@@ -2148,7 +2148,10 @@ async function onClickEtcEnd() {
   const paramMexnoEncr = frmMainData.value.mexnoEncr;
   const paramCralIdvTno = frmMainData.value.cralIdvTno;
 
-  await modal({ component: 'WwctaDocumentRcpEtcEndChoDtlP', componentProps: { cntrChRcpId: paramCntrChRcpId, cstKnm: paramCstKnm, cralLocaraTno: paramCralLocaraTno, mexnoEncr: paramMexnoEncr, cralIdvTno: paramCralIdvTno } });
+  const { result } = await modal({ component: 'WwctaDocumentRcpEtcEndChoDtlP', componentProps: { cntrChRcpId: paramCntrChRcpId, cstKnm: paramCstKnm, cralLocaraTno: paramCralLocaraTno, mexnoEncr: paramMexnoEncr, cralIdvTno: paramCralIdvTno } });
+  if (result) {
+    await fetchData();
+  }
 }
 
 // 이미지 뷰어 호출 이벤트
