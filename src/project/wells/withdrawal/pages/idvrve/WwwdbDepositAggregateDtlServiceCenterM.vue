@@ -70,7 +70,7 @@
           <kw-option-group
             v-model="searchParams.stlmDvCd"
             type="radio"
-            :options="STLM_DV_CD"
+            :options="codes.STLM_DV_CD"
           />
         </kw-search-item>
       </kw-search-row>
@@ -190,7 +190,7 @@ const codes = await codeUtil.getMultiCodes(
 
 const centerOptions = ref();
 
-const STLM_DV_CD = codes.STLM_DV_CD.filter((e) => ['01', '02', '03'].includes(e.codeId));
+// const STLM_DV_CD = codes.STLM_DV_CD.filter((e) => ['01', '02', '03'].includes(e.codeId));
 
 const grdMainRef = ref(getComponentType('KwGrid'));
 
