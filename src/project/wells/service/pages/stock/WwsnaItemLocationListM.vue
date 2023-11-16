@@ -85,7 +85,9 @@
           <kw-input
             v-model="searchParams.itmPdCd"
             upper-case
+            type="text"
             :label="$t('TXT_MSG_AS_ITM_CD')"
+            rules="alpha_num|max:10"
           />
         </kw-search-item>
       </kw-search-row>
