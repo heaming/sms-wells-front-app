@@ -111,7 +111,6 @@ import 'dayjs/locale/ko';
 const { t } = useI18n();
 const now = dayjs();
 const { modal } = useGlobal();
-// const { getters } = useStore();
 const { currentRoute } = useRouter();
 const dataService = useDataService();
 
@@ -172,9 +171,6 @@ const getDateColumnsFields = (searchDt) => {
       header: baseDt.add(i, 'day').format('MM/DD(ddd)'),
       width: '100',
       styleName: 'text-right',
-      dataType: 'number',
-      nanText: 0,
-      zeroText: 0,
     };
 
     const stockDateField = {
@@ -186,9 +182,6 @@ const getDateColumnsFields = (searchDt) => {
       header: baseDt.add(i, 'day').format('MM/DD(ddd)'),
       width: '100',
       styleName: 'text-right',
-      dataType: 'number',
-      nanText: 0,
-      zeroText: 0,
     };
 
     const installDateField = {
@@ -208,18 +201,17 @@ async function fetchData() {
   // eslint-disable-next-line max-len
 
   const view = grdPdRef.value.getView();
-  console.log(view);
+
   const res = await dataService.get('/sms/wells/service/installation-stock-by-day/product/paging', { params: { ...cachedParams, ...pageInfo.value } });
   const { list: state, pageInfo: pagingResult } = res.data;
 
   pageInfo.value = pagingResult;
 
   getDateColumnsFields(cachedParams.baseDt);
-  console.log(stockDateItems);
-  console.log(installDateItems);
+
   const columns = [
-    { fieldName: 'pdCd', header: t('MSG_TXT_ITM_CD'), width: '160', styleName: 'text-center' },
-    { fieldName: 'pdNm,', header: t('MSG_TXT_ITM_NM'), width: '160', styleName: 'text-center' },
+    { fieldName: 'pdCd', header: t('MSG_TXT_ITM_CD'), width: '200', styleName: 'text-center' },
+    { fieldName: 'pdNm', header: t('MSG_TXT_ITM_NM'), width: '200', styleName: 'text-center' },
     { fieldName: 'pajuQty', header: t('MSG_TXT_LGST'), width: '100', styleName: 'text-right' },
     { fieldName: 'centerQty', header: t('MSG_TXT_CENTER_DIVISION'), width: '100', styleName: 'text-right' },
     { fieldName: 'engQty', header: t('MSG_TXT_EGER'), width: '100', styleName: 'text-right' },
@@ -229,7 +221,6 @@ async function fetchData() {
     { fieldName: 'istTotal', header: t('MSG_TXT_AGG'), width: '100', styleName: 'text-right' },
   ];
 
-  console.log(columns);
   view.setColumns(columns);
   view.getDataSource().setRows(state);
   view.setColumnLayout([
@@ -253,7 +244,7 @@ async function fetchData() {
     },
     'istTotal',
   ]);
-  view.resetCurrent();
+  // view.resetCurrent();
 }
 
 /*
@@ -282,7 +273,6 @@ async function onClickExcelDownload() {
 /*
  *  Event - 설치배정세팅 팝업창 // W-SV-U-0171P01
  */
-// TODO: 팝업창 개발하시면 추가 예정
 async function onClickCntctPopup() {
   const { result } = await modal({
     component: 'WwsnaInstallationAssignSettingP',
@@ -352,10 +342,6 @@ const initGrid = defineGrid((data, view) => {
     'istTotal',
   ]);
   view.setFixedOptions({ colCount: 2 });
-
-  data.setFields(fields);
-  view.setColumns(columns);
-  view.rowIndicator.visible = true;
 });
 
 </script>

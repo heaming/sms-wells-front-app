@@ -323,7 +323,6 @@ async function onClickExcelDownload() {
 /*
  *  Event - 설치배정세팅 팝업창 // W-SV-U-0171P01
  */
-// TODO: 팝업창 개발하시면 추가 예정
 async function onClickCntctPopup() {
   const { result } = await modal({
     component: 'WwsnaInstallationAssignSettingP',
