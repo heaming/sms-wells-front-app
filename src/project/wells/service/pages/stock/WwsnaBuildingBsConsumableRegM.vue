@@ -174,7 +174,7 @@ const isBusinessSupportTeam = computed(() => hasRoleNickName('ROL_W1580'));
 const bldCode = ref();
 let items1 = [];
 let items2 = [];
-const saveData = [];
+let saveData = [];
 let requestData = [];
 
 const itemsData = ref({
@@ -515,6 +515,7 @@ async function onClickSave() {
     await dataService.post('/sms/wells/service/building-bsconsumables', saveData);
     notify(t('MSG_ALT_SAVE_DATA'));
     await fetchData();
+    saveData = [];
   }
 }
 
@@ -600,6 +601,7 @@ async function onClickOstrAk() {
     await dataService.post('/sms/wells/service/building-bsconsumables/request', requestData);
     notify(t('MSG_ALT_AK_FSH'));
     await fetchData();
+    requestData = [];
   } else {
     requestData = [];
   }
