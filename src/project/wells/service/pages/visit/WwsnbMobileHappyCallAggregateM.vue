@@ -176,7 +176,6 @@ async function fetchData() {
   console.log('fetchData START');
   const res = await dataService.get('/sms/wells/service/mobile-happy-call-agrg/get-mobile-happy-call-agrg', { params: { ...cachedParams } });
   console.log('res.data >>>', res.data);
-
   totalCount.value = res.data.length;
 
   const view = grdMainRef.value.getView();
