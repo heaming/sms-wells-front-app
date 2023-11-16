@@ -898,9 +898,7 @@ const initGrid1 = defineGrid((data, view) => {
         const ret = {};
         const { slCtrTpCd, dummySlCtrAmt } = grid.getValues(dataCell.index.itemIndex);
         if (dataCell.item.rowState === 'created') {
-          if (slCtrTpCd !== '2') {
-            view.setValue(dataCell.index.itemIndex, 'slCtrAmt', 0);
-          } else {
+          if (slCtrTpCd === '2') {
             ret.editable = false;
             view.setValue(dataCell.index.itemIndex, 'slCtrAmt', dummySlCtrAmt);
           }
