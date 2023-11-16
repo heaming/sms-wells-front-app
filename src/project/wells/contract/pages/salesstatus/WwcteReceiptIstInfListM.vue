@@ -67,20 +67,37 @@
           />
         </kw-search-item>
       </kw-search-row>
+
       <kw-search-row>
         <!-- 조직구분 -->
+        <!-- 고객 요청에 의해 조직 유형 코드로 변경 20231116-->
         <kw-search-item
-          :label="t('MSG_TXT_OG_DV')"
+          :label="t('MSG_TXT_OG_TP')"
         >
-          <kw-option-group
-            v-model="fieldParams.sellInflwChnlDtlCd"
-            type="radio"
+          <kw-select
+            v-model="fieldParams.ogTpCd"
+            :options="commonCodes.OG_TP_CD"
             first-option="all"
             first-option-val=""
-            :options="codes.sellInflwChnlDtlCd"
           />
-          <!-- if essential case please add 'date_range_required' ex.rules="date_range_required|date_range_months:1" -->
         </kw-search-item>
+        <kw-search-item
+          :label="t('MSG_TXT_SEL_CHNL')"
+        >
+          <kw-select
+            v-model="fieldParams.sellChnlDvCd"
+            :options="commonCodes.SELL_CHNL_DV_CD"
+            first-option="all"
+            first-option-val=""
+          />
+          <kw-select
+            v-model="fieldParams.sellChnlDtlCd"
+            :options="commonCodes.SELL_CHNL_DTL_CD"
+            first-option="all"
+            first-option-val=""
+          />
+        </kw-search-item>
+        <!-- 고객 요청에 의해 조직 유형 코드로 변경 end 20231116-->
         <!-- 조직레벨 -->
         <kw-search-item
           :label="t('MSG_TXT_OG_LEVL')"
@@ -111,14 +128,6 @@
             first-option-val=""
             option-value="dgr3LevlOgId"
             option-label="dgr3LevlOgNm"
-          />
-        </kw-search-item>
-        <!-- 인센티브 대상 -->
-        <kw-search-item :label="`${t('MSG_TXT_ICT_OJ')}`">
-          <kw-option-group
-            v-model="fieldParams.incentiveYn"
-            type="checkbox"
-            :options="codes.incentiveYn"
           />
         </kw-search-item>
       </kw-search-row>
@@ -198,6 +207,18 @@
           />
         </kw-search-item>
       </kw-search-row>
+      <!-- 고객 요청에 의해 조직 유형 코드로 변경 20231116-->
+      <kw-search-row>
+        <!-- 인센티브 대상 -->
+        <kw-search-item :label="`${t('MSG_TXT_ICT_OJ')}`">
+          <kw-option-group
+            v-model="fieldParams.incentiveYn"
+            type="checkbox"
+            :options="codes.incentiveYn"
+          />
+        </kw-search-item>
+      </kw-search-row>
+      <!-- 고객 요청에 의해 조직 유형 코드로 변경 end 20231116-->
     </kw-search>
 
     <div class="result-area">
@@ -274,6 +295,9 @@ const fieldParams = ref({
   mngSv: '', // 관리서비스
   pdNm: '', // 상품명
   pdDvs: ['1', '2', '3'], // 제품구분
+  ogTpCd: '',
+  sellChnlDvCd: '',
+  sellChnlDtlCd: '',
 });
 
 const srchMainRef = ref(getComponentType('KwSearch'));
@@ -285,6 +309,8 @@ const isSppDuedtYn = ref(false);
 const commonCodes = await codeUtil.getMultiCodes(
   'COPN_DV_CD', // 법인격구분코드
   'SELL_TP_CD', // 판매유형코드
+  'OG_TP_CD', // 조직유형코드
+  'SELL_CHNL_DV_CD', // 판매채널구분코드
   'SELL_CHNL_DTL_CD', // 판매채널상세코드
   'COD_PAGE_SIZE_OPTIONS',
 );
@@ -515,7 +541,7 @@ onMounted(async () => {
   fetchCodes();
 });
 
-watch(() => fieldParams.value.sppDuedtYn, async (val) => {
+watch(() => fieldParams.value.sppDuedtYn, (val) => {
   isSppDuedtYn.value = val;
 }, { immediate: true });
 
