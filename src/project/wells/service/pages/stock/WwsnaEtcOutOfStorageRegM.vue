@@ -536,7 +536,6 @@ async function openItemBasePopup(type, row) {
         await fetchPitmStoc(target, 'A'); // 시점재고 조회
       }
     } else if (type === 'U') {
-      debugger;
       const rowData = payload?.[0] || {};
       view.setValues(row, getRowData(rowData), true);
       await fetchPitmStoc([rowData], 'A');
