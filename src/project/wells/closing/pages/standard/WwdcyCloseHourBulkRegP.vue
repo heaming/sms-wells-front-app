@@ -275,8 +275,11 @@
 // -------------------------------------------------------------------------------------------------
 import { codeUtil, useDataService, useGlobal, useModal } from 'kw-lib';
 import { cloneDeep, isEmpty } from 'lodash-es';
-// import dayjs from 'dayjs';
+import dayjs from 'dayjs';
+import isSameOrAfter from 'dayjs/plugin/isSameOrAfter';
 import clConst from '~sms-common/closing/constants/clConst';
+
+dayjs.extend(isSameOrAfter);
 
 const { ok } = useModal();
 const { t } = useI18n();
@@ -390,17 +393,40 @@ async function onClickIcon() {
 
 async function onClickSave() {
   if (frmMainData.value.clPsicNo !== '0' && isEmpty(frmMainData.value.prtnrNo)) {
-    notify('담당자를 입력해 주세요.');
+    notify(t('MSG_ALT_CHK_NCSR', [t('MSG_TXT_PIC')]));
     return;
   }
   if (!await frmMainRef.value.validate()) { return; }
+
+  if (dayjs(frmMainData.value.crtDtTmFrom).isSameOrAfter(frmMainData.value.crtDtTmTo)) {
+    await alert(t('MSG_ALT_ABLE_START_DT_PREC_FINS_DT'));
+    return;
+  }
+  if (dayjs(frmMainData.value.ddClDtTmFrom).isSameOrAfter(frmMainData.value.ddClDtTmTo)) {
+    await alert(t('MSG_ALT_ABLE_START_DT_PREC_FINS_DT'));
+    return;
+  }
+  if (dayjs(frmMainData.value.rentalRcpClDdTmFrom).isSameOrAfter(frmMainData.value.rentalRcpClDdTmTo)) {
+    await alert(t('MSG_ALT_ABLE_START_DT_PREC_FINS_DT'));
+    return;
+  }
+  if (dayjs(frmMainData.value.rentalRcpClNxdTmForm).isSameOrAfter(frmMainData.value.rentalRcpClNxdTmTo)) {
+    await alert(t('MSG_ALT_ABLE_START_DT_PREC_FINS_DT'));
+    return;
+  }
+  if (dayjs(frmMainData.value.spayRcpClDdTmFrom).isSameOrAfter(frmMainData.value.spayRcpClDdTmTo)) {
+    await alert(t('MSG_ALT_ABLE_START_DT_PREC_FINS_DT'));
+    return;
+  }
+  if (dayjs(frmMainData.value.spayRcpClNxdTmFrom).isSameOrAfter(frmMainData.value.spayRcpClNxdTmTo)) {
+    await alert(t('MSG_ALT_ABLE_START_DT_PREC_FINS_DT'));
+    return;
+  }
   const { clPsicNo } = frmMainData.value;
   // 담당자구분이 담당자이면 파트너 번호로
   frmMainData.value.clPsicNo = isEmpty(clPsicNo) ? frmMainData.value.prtnrNo : clPsicNo;
   const data = cloneDeep(frmMainData.value);
-
   const res = await dataService.post('/sms/wells/closing/standard', data);
-
   notify(t('MSG_ALT_SAVE_DATA'));
   ok(res);
 }
