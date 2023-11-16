@@ -87,10 +87,7 @@
 // -------------------------------------------------------------------------------------------------
 import { useGlobal, useModal } from 'kw-lib';
 import { useCtCode } from '~sms-common/contract/composable';
-
-const RENTAL_DSC_TP_CD_PACKAGE_2 = '14';
-const RENTAL_DSC_TP_CD_PACKAGE_3 = '15';
-const RENTAL_DSC_TP_CD_PACKAGE_OVER_4 = '16';
+import { RENTAL_DSC_TP_CD } from '~sms-wells/contract/constants/ctConst';
 
 /* 주의: 그대로 가져가서 선택만 해서 그대로 넘길 것. 그리드에 때려 넣으면 새 객체 됨. ㅎ. 시간나면 뜯어 고치자. */
 const props = defineProps({
@@ -129,15 +126,15 @@ function onClickSave() {
     notify(t('MSG_ALT_RENTAL_MULTI_DSC_PRCHS_SELT')); // 렌탈 다건구매 할인 대상건을 선택해 주세요.
     return;
   }
-  if (props.rentalDscTpCd === RENTAL_DSC_TP_CD_PACKAGE_2 && selectedRentals.value.length !== 1) {
+  if (props.rentalDscTpCd === RENTAL_DSC_TP_CD.PACKAGE_2 && selectedRentals.value.length !== 1) {
     notify(t('TODO', [1], '{0} 건 이상 선택해 주세요.')); // 2건 이상만 렌탈 다건 할인이 가능합니다.
     return;
   }
-  if (props.rentalDscTpCd === RENTAL_DSC_TP_CD_PACKAGE_3 && selectedRentals.value.length !== 2) {
-    notify(t('TODO', [2], '{0} 건 이상 선택해 주세요.')); // 3건 이상만 렌탈 다건 할인이 가능합니다.
+  if (props.rentalDscTpCd === RENTAL_DSC_TP_CD.PACKAGE_3 && selectedRentals.value.length !== 2) {
+    notify(t('TODO', [2], '{0} 건 이상 선택해 주세요.')); // 3건 이상만 렌탈 다건 할인이 가능합니다.`
     return;
   }
-  if (props.rentalDscTpCd === RENTAL_DSC_TP_CD_PACKAGE_OVER_4 && selectedRentals.value.length < 3) {
+  if (props.rentalDscTpCd === RENTAL_DSC_TP_CD.PACKAGE_OVER_4 && selectedRentals.value.length < 3) {
     notify(t('TODO', [3], '{0} 건 이상 선택해 주세요.')); // 4건 이상만 렌탈 다건 할인이 가능합니다.
     return;
   }
