@@ -459,7 +459,7 @@ const initGrd = defineGrid((data, view) => {
             values: codes.RENTAL_MCHD_DSC_APY_DTL_CD.map((v) => v.codeId),
             labels: codes.RENTAL_MCHD_DSC_APY_DTL_CD.map((v) => `[${v.codeId}] ${v.codeName}`),
           };
-        } else if (sellTpCd === '2' && ['1', '8'].includes(sellDscDvCd)) {
+        } else if (sellTpCd === '2' && ['1', '3', '8'].includes(sellDscDvCd)) {
           ret.editor = {
             type: 'list',
             textReadOnly: true,
@@ -493,7 +493,7 @@ const initGrd = defineGrid((data, view) => {
           const v = codes.RENTAL_MCHD_DSC_APY_DTL_CD.find((r) => r.codeId === value);
           retValue = v ? `[${v.codeId}] ${v.codeName}` : retValue;
         }
-        if (sellTpCd === '2' && ['1', '8'].includes(sellDscDvCd)) {
+        if (sellTpCd === '2' && ['1', '3', '8'].includes(sellDscDvCd)) {
           const v = codes.RENTAL_CRP_DSC_APY_DTL_CD.find((r) => r.codeId === value);
           retValue = v ? `[${v.codeId}] ${v.codeName}` : retValue;
         }
