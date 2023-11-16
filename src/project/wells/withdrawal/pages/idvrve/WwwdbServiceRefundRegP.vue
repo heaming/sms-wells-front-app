@@ -634,7 +634,7 @@
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
 // eslint-disable-next-line no-unused-vars
-import { defineGrid, codeUtil, gridUtil, getComponentType, useGlobal, useDataService, stringUtil } from 'kw-lib';
+import { defineGrid, codeUtil, gridUtil, getComponentType, useGlobal, useDataService, stringUtil, useModal } from 'kw-lib';
 import dayjs from 'dayjs';
 import { cloneDeep, isEmpty } from 'lodash-es';
 
@@ -642,6 +642,8 @@ const now = dayjs();
 const { notify, confirm } = useGlobal();
 const { t } = useI18n();
 const dataService = useDataService();
+
+const { ok } = useModal();
 
 // 테스트 데이터 W20226001983-1
 const props = defineProps({
@@ -712,6 +714,7 @@ const infomation = ref({
   rfndRsonCn: '', // 환불사유내영(기타일경우 입력)
   cardAprno: props.checkItem[0]?.cardAprno, // 승인번호
   cstNm: '', // 예금주
+  dpSn: props.checkItem[0]?.dpSn, // 입금일련번호
 
   cardRfndCrcdnoEncr1: props.checkItem[0].crcdnoEncr?.substring(0, 4), // 카드번호1
   cardRfndCrcdnoEncr2: props.checkItem[0].crcdnoEncr?.substring(4, 8), // 카드번호2
@@ -852,6 +855,7 @@ async function onClickSave() {
       dpDtm: props.checkItem[0].dpDtm, // 결제일
       itgDpNo: props.checkItem[0].itgDpNo, // 통합입금번호
       cardAprno: props.checkItem[0].cardAprno, // 승인번호
+      dpSn: props.checkItem[0]?.dpSn, // 입금일련번호
     },
     // 서비스 환불 정보
     serviceRefundInfo: {
@@ -883,6 +887,7 @@ async function onClickSave() {
   const res = await dataService.post('/sms/wells/withdrawal/idvrve/service-refund', params);
   if (!isEmpty(res.data.data) && !isEmpty(res.data.data.rfndRcpNo)) {
     notify(t('MSG_ALT_EXCUTE_IT', [t('MSG_BTN_APLC_RFND')]));
+    ok();
     btnDisable.value = true;
   }
 }

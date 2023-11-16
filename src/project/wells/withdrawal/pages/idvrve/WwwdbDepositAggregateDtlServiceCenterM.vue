@@ -274,13 +274,15 @@ async function onClickRefundRegP() {
 
   const checkItem = gridUtil.getCheckedRowValues(view);
   if (checkItem.length === 0) return notify(t('MSG_ALT_NO_CHECK_DATA')); // 선택된 데이터가 없습니다.
+  if (Number(checkItem[0].blam) < 1) return notify(t('잔액이 존재하지 않습니다.'));
+
   const { result } = await modal({
     component: 'WwwdbServiceRefundRegP',
     componentProps: { checkItem },
   });
 
   if (result) {
-    console.log('checkItem', checkItem);
+    onClickSearch();
   }
 }
 
@@ -359,6 +361,7 @@ const initGrid = defineGrid((data, view) => {
     { fieldName: 'itgDpNo' },
     { fieldName: 'csBilNo' },
     { fieldName: 'cstSvAsnNo' },
+    { fieldName: 'dpSn' },
     { fieldName: 'adpBilOjYn' },
   ];
 
