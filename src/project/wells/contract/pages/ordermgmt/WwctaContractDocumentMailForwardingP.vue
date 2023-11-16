@@ -84,7 +84,7 @@ async function onClickSend() {
       undefined,
       'WwctaContractDocumentM',
       { cntrNo: index.cntrNo },
-      false,
+      true,
       false,
     )).then((paramUrl) => {
     index.pdfUrl = paramUrl;
