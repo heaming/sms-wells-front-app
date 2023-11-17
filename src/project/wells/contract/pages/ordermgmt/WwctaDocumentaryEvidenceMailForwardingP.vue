@@ -30,7 +30,6 @@
             <kw-date-range-picker
               v-model:from="fieldParams.firstDt"
               v-model:to="fieldParams.lastDt"
-              disable
               :label="t('MSG_TXT_PRD')"
             />
           </kw-form-item>
@@ -128,12 +127,14 @@ const props = defineProps({
   cntrList: { type: Array, default: () => [] },
   isPrntYn: { type: String, required: false, default: '' },
   cntrCstKnm: { type: String, required: false, default: '' },
+  firstDt: { type: String, required: false, default: '' },
+  lastDt: { type: String, required: false, default: '' },
 });
 
 const fieldParams = ref({
   docDvCd: props.docDvCd,
-  firstDt: now.startOf('year').format('YYYYMMDD'),
-  lastDt: now.endOf('year').format('YYYYMMDD'),
+  firstDt: isEmpty(props.firstDt) ? now.startOf('year').format('YYYYMMDD') : props.firstDt,
+  lastDt: isEmpty(props.lastDt) ? now.endOf('year').format('YYYYMMDD') : props.lastDt,
   pblDt: now.format('YYYYMMDD'),
   recpMail: '',
   cstKnm: '',
@@ -176,8 +177,12 @@ async function fetchCstNm() {
 async function onClickSendEmail() {
   if (props.isPrntYn === 'Y') {
     // 발행일시와 고객명을 반환한다.
-    const payload = { pblcSearchSttDt: fieldParams.value.pblDt,
-      custNm: fieldParams.value.cstKnm };
+    const payload = {
+      pblcSearchSttDt: fieldParams.value.pblDt,
+      custNm: fieldParams.value.cstKnm,
+      firstDt: fieldParams.value.firstDt,
+      lastDt: fieldParams.value.lastDt,
+    };
     ok(payload);
   } else if (props.isPrntYn === 'N') {
     const { docDvCd } = fieldParams.value;
