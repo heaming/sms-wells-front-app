@@ -32,6 +32,7 @@
             v-model:to="workNotice.vlEnddt"
             :name="$t('MSG_TXT_NOTICE_PERIOD')"
             rules="date_range_required"
+            :min-date="dayjs().format('YYYY-MM-DD')"
           />
         </kw-form-item>
       </kw-form-row>
