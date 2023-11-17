@@ -89,6 +89,7 @@
             type="number"
             maxlength="10"
             rules="min_value:0"
+            :label="$t('MSG_TXT_UPRC_WON')"
             :disable="isDisable"
           />
         </kw-form-item>
@@ -439,8 +440,8 @@ const { t } = useI18n();
 const { cancel: onClickCancel, ok } = useModal();
 
 const props = defineProps({
-  mngtYm: { type: String, default: '' },
-  csmbPdCd: { type: String, default: '' },
+  mngtYm: { type: String, default: undefined },
+  csmbPdCd: { type: String, default: undefined },
 });
 
 // -------------------------------------------------------------------------------------------------
@@ -463,8 +464,8 @@ const codes = await codeUtil.getMultiCodes(
 );
 
 const basData = ref({
-  mngtYm: props.mngtYm === '' ? dayjs().format('YYYYMM') : props.mngtYm,
-  csmbPdCd: props.csmbPdCd === '' ? '' : props.csmbPdCd,
+  mngtYm: props.mngtYm ?? dayjs().format('YYYYMM'),
+  csmbPdCd: props.csmbPdCd,
   itmKnm: '',
   mngtUnitCd: '',
   goDvCd: '',
@@ -474,8 +475,8 @@ const basData = ref({
 });
 
 const ddlvOjCd1Data = ref({
-  mngtYm: basData.value.mngtYm === '' ? '' : basData.value.mngtYm,
-  csmbPdCd: basData.value.csmbPdCd === '' ? '' : basData.value.csmbPdCd,
+  mngtYm: basData.value.mngtYm,
+  csmbPdCd: basData.value.csmbPdCd,
   bfsvcCsmbDdlvOjCd: '1',
   bfsvcCsmbDdlvOrtYn: '',
   bfsvcCsmbDdlvTpCd: '',
@@ -489,8 +490,8 @@ const ddlvOjCd1Data = ref({
 });
 
 const ddlvOjCd2Data = ref({
-  mngtYm: basData.value.mngtYm === '' ? '' : basData.value.mngtYm,
-  csmbPdCd: basData.value.csmbPdCd === '' ? '' : basData.value.csmbPdCd,
+  mngtYm: basData.value.mngtYm,
+  csmbPdCd: basData.value.csmbPdCd,
   bfsvcCsmbDdlvOjCd: '2',
   bfsvcCsmbDdlvOrtYn: '',
   bfsvcCsmbDdlvTpCd: '',
@@ -504,8 +505,8 @@ const ddlvOjCd2Data = ref({
 });
 
 const ddlvOjCd3Data = ref({
-  mngtYm: basData.value.mngtYm === '' ? '' : basData.value.mngtYm,
-  csmbPdCd: basData.value.csmbPdCd === '' ? '' : basData.value.csmbPdCd,
+  mngtYm: basData.value.mngtYm,
+  csmbPdCd: basData.value.csmbPdCd,
   bfsvcCsmbDdlvOjCd: '3',
   bfsvcCsmbDdlvOrtYn: '',
   bfsvcCsmbDdlvTpCd: '',
@@ -627,6 +628,10 @@ const isRequiredUnitQty1 = async (val, options) => {
     errors.push(
       ...(await validate(val, 'required|min_value:0', options)).errors,
     );
+  } else {
+    errors.push(
+      ...(await validate(val, 'min_value:0', options)).errors,
+    );
   }
 
   return errors[0] || true;
@@ -639,6 +644,10 @@ const isRequiredLmQty1 = async (val, options) => {
     errors.push(
       ...(await validate(val, 'required|min_value:0', options)).errors,
     );
+  } else {
+    errors.push(
+      ...(await validate(val, 'min_value:0', options)).errors,
+    );
   }
 
   return errors[0] || true;
@@ -650,6 +659,10 @@ const isRequiredAccPrpnYn1 = async (val, options) => {
   if (ddlvOjCd1Data.value.bfsvcCsmbDdlvCmptBaseCd === '1') {
     errors.push(
       ...(await validate(val, 'required|min_value:0', options)).errors,
+    );
+  } else {
+    errors.push(
+      ...(await validate(val, 'min_value:0', options)).errors,
     );
   }
 
@@ -687,6 +700,10 @@ const isRequiredUnitQty2 = async (val, options) => {
     errors.push(
       ...(await validate(val, 'required|min_value:0', options)).errors,
     );
+  } else {
+    errors.push(
+      ...(await validate(val, 'min_value:0', options)).errors,
+    );
   }
 
   return errors[0] || true;
@@ -699,6 +716,10 @@ const isRequiredLmQty2 = async (val, options) => {
     errors.push(
       ...(await validate(val, 'required|min_value:0', options)).errors,
     );
+  } else {
+    errors.push(
+      ...(await validate(val, 'min_value:0', options)).errors,
+    );
   }
 
   return errors[0] || true;
@@ -710,6 +731,10 @@ const isRequiredAccPrpnYn2 = async (val, options) => {
   if (ddlvOjCd2Data.value.bfsvcCsmbDdlvCmptBaseCd === '1') {
     errors.push(
       ...(await validate(val, 'required|min_value:0', options)).errors,
+    );
+  } else {
+    errors.push(
+      ...(await validate(val, 'min_value:0', options)).errors,
     );
   }
 
@@ -747,6 +772,10 @@ const isRequiredUnitQty3 = async (val, options) => {
     errors.push(
       ...(await validate(val, 'required|min_value:0', options)).errors,
     );
+  } else {
+    errors.push(
+      ...(await validate(val, 'min_value:0', options)).errors,
+    );
   }
 
   return errors[0] || true;
@@ -759,6 +788,10 @@ const isRequiredLmQty3 = async (val, options) => {
     errors.push(
       ...(await validate(val, 'required|min_value:0', options)).errors,
     );
+  } else {
+    errors.push(
+      ...(await validate(val, 'min_value:0', options)).errors,
+    );
   }
 
   return errors[0] || true;
@@ -770,6 +803,10 @@ const isRequiredAccPrpnYn3 = async (val, options) => {
   if (ddlvOjCd3Data.value.bfsvcCsmbDdlvCmptBaseCd === '1') {
     errors.push(
       ...(await validate(val, 'required', options)).errors,
+    );
+  } else {
+    errors.push(
+      ...(await validate(val, 'min_value:0', options)).errors,
     );
   }
 
@@ -861,10 +898,12 @@ async function getDeliveryBase() {
   ddlvOjCd3Data.value.sortOdr = res.data.bldSortOdr;
 
   isNewMode = false;
+
+  frmMainRef.value.init();
 }
 
 onMounted(async () => {
-  if (props.mngtYm !== '' && props.csmbPdCd !== '') {
+  if (props.mngtYm && props.csmbPdCd) {
     await getDeliveryBase();
   }
 });
