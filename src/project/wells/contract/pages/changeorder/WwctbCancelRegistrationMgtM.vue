@@ -442,15 +442,16 @@ async function onClickSpcshView() {
   const cntrDtlNoList = [];
   cntrs.forEach((row) => { cntrDtlNoList.push(`${row.cntrNo}-${row.cntrSn}`); });
 
-  cachedParams1.cntrCnfmStrtDt = dayjs(searchParams.value.dm).startOf('month').format('YYYYMMDD');
-  cachedParams1.cntrCnfmEndDt = dayjs(searchParams.value.dm).endOf('month').format('YYYYMMDD');
+  // cachedParams1.cntrCnfmStrtDt = dayjs(searchParams.value.dm).startOf('month').format('YYYYMMDD');
+  // cachedParams1.cntrCnfmEndDt = dayjs(searchParams.value.dm).endOf('month').format('YYYYMMDD');
+  cachedParams1.cntrCnfmStrtDt = payload.firstDt;
+  cachedParams1.cntrCnfmEndDt = payload.lastDt;
   cachedParams1.pblcSearchSttDt = payload.pblcSearchSttDt; // 발행년월시(현재일자)
   cachedParams1.custNm = payload.custNm; // 고객명
   cachedParams1.reportHeaderTitle = '거래명세서 조회'; // 레포트 제목
   console.log(cachedParams1);
 
   // OZ 리포트 호출 Api 설정
-  // eslint-disable-next-line no-case-declarations
   const args2 = { searchApiUrl: '/api/v1/sms/wells/contract/contracts/order-details/specification/trade-specification/oz', ...cachedParams1, cntrDtlNoList };
 
   // OZ 레포트 팝업호출
