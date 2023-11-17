@@ -453,13 +453,13 @@
           align="right"
           :readonly="searchDetail.ccamExmptDvCd!=='4'"
         />
-        <kw-btn
+        <!-- <kw-btn
           :label="$t('MSG_TXT_CCAM_IZ_DOC')+' '+$t('MSG_BTN_VIEW')"
           secondary
           class="px12"
           icon="report"
           @click="onClickCcamView"
-        />
+        /> -->
       </kw-form-item>
       <!-- 분실손료 -->
       <kw-form-item :label="$t('MSG_TXT_PD_LENT_LOST_LOG')">
@@ -638,7 +638,7 @@
         :label="$t('MSG_TXT_RENTAL_RSG_CFDG')+$t('MSG_BTN_VIEW')"
         class="ml8"
         icon="report"
-        @click="onClickTodo('렌탈계약해지확인서 보기')"
+        @click="onClickRentalReport"
       />
       <!--삭제 - 매출마감이 되었으면 DISABLE -->
       <kw-btn
@@ -677,6 +677,7 @@
 import { codeUtil, getComponentType, stringUtil, store, useDataService, useGlobal } from 'kw-lib';
 import dayjs from 'dayjs';
 import { isEmpty, isEqual } from 'lodash';
+import { openReportPopup } from '~common/utils/cmPopupUtil';
 
 const { t } = useI18n();
 const dataService = useDataService();
@@ -749,12 +750,6 @@ function onChangeTextforSelect(div) {
   }
 }
 
-// 위약금 내역서 보기
-function onClickCcamView() {
-  // 위약금 내역서 보기 : 해당 계약번호에 대한 '위약금 내역' OZ뷰 팝업을 호출 합니다.
-  notify('TODO : 위약금 내역서 OZ뷰 호출 ');
-}
-
 // 분실손료 계산
 function onClickCalculate() {
   // 분실손료 : '계산'버튼을 클릭하면 입력란에 계산된 금액이 표시 됩니
@@ -822,8 +817,6 @@ async function onClickVacIssue() {
     if (!isEmpty(res.data)) {
       // 3. 가상계좌 팝업 호출
       const rveAkNo = res.data.receiveAskNumber;
-      console.log(rveAkNo);
-
       const component = (isEqual(payload, 'Face')) ? 'ZwwdbIndvVirtualAccountIssueMgtP'
         : 'ZwwdbIndvVirtualAccountNoContactIssueMgtP';
 
@@ -861,6 +854,26 @@ async function onClickRefund() {
     component: 'WwwdbRefundApplicationRegP',
     componentProps: { cntrNo, cntrSn },
   });
+}
+
+async function onClickRentalReport() {
+  const args = {
+    MasterInfo: [{
+      custNm: searchDetail.cntrCstKnm,
+      slsDt: searchDetail.cntrPdStrtdt,
+      addr: searchDetail.cstAdr,
+      prdtNm: searchDetail.pdNm,
+      ordrNo: searchDetail.cntrCstNo,
+      cancDt: searchDetail.rsgFshDt,
+    }],
+  };
+
+  // OZ 레포트 팝업호출
+  openReportPopup(
+    '/kstation-w/cust/reprt/rntlCustTrmtAtsh.ozr',
+    '',
+    JSON.stringify(args),
+  );
 }
 
 async function onClickTodo(param) {
