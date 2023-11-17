@@ -369,9 +369,18 @@ const ozReportParam = ref({
       RES_MON: '', // 조회월
       CNTR_NO: '', // 계약번호
       CNTR_SN: '', // 계약일련번호
-      OG_ID: '', // 담당자 OG_ID
-      OG_TP_CD: '', // 담당자 조직유형코드
+      // OG_ID: '', // 담당자 OG_ID
+      // OG_TP_CD: '', // 담당자 조직유형코드
       PRTNR_NO: '', // 담당자 파트너번호
+
+      MNGT_DPTMT_CD: '', // 총괄단
+      RGNL_GRP_CD: '', // 지역단
+      BRANCH_CD: '', // 지점
+      SVC_CNTR_CD: '', // 서비스센터
+
+      MNGR_DV_CD: '', // 관리구분
+      PD_PRP_VAL20: '', // 상품그룹
+      RPBL_YN: '', // 재발행여부
     },
   height: 1100,
   width: 1200,
@@ -466,12 +475,12 @@ async function onClickExcelDownload() {
 /*
  *  NVL
  */
-function getNvl(str1, str2) {
-  if (isEmpty(str1)) {
-    return str2;
-  }
-  return str1;
-}
+// function getNvl(str1, str2) {
+//   if (isEmpty(str1)) {
+//     return str2;
+//   }
+//   return str1;
+// }
 
 /*
  * Event - QR재발행 버튼 클릭
@@ -492,18 +501,38 @@ async function onClickQrRpbl() {
     RES_MON: '', // 조회월
     CNTR_NO: '', // 계약번호
     CNTR_SN: '', // 계약일련번호
-    OG_ID: '', // 담당자 OG_ID
-    OG_TP_CD: '', // 담당자 조직유형코드
+    // OG_ID: '', // 담당자 OG_ID
+    // OG_TP_CD: '', // 담당자 조직유형코드
     PRTNR_NO: '', // 담당자 파트너번호
+
+    MNGT_DPTMT_CD: '', // 총괄단
+    RGNL_GRP_CD: '', // 지역단
+    BRANCH_CD: '', // 지점
+    SVC_CNTR_CD: '', // 서비스센터
+
+    MNGR_DV_CD: '', // 관리구분
+    PD_PRP_VAL20: '', // 상품그룹
+    RPBL_YN: '', // 재발행여부
   };
   ozReportParam.value.args.RES_YR = cachedParams.baseYm.substring(0, 4);
   ozReportParam.value.args.RES_MON = cachedParams.baseYm.substring(4, 6);
   ozReportParam.value.args.CNTR_NO = cachedParams.cntrNo;
   ozReportParam.value.args.CNTR_SN = cachedParams.cntrSn;
 
+  // 2023.11.17 ::: Parameter 추가
+  ozReportParam.value.args.MNGT_DPTMT_CD = cachedParams.mngtDptmtCd;
+  ozReportParam.value.args.RGNL_GRP_CD = cachedParams.rgnlGrpCd;
+  ozReportParam.value.args.BRANCH_CD = cachedParams.branchCd;
+  ozReportParam.value.args.SVC_CNTR_CD = cachedParams.svcCntrCd;
+  ozReportParam.value.args.MNGR_DV_CD = cachedParams.mngrDvCd;
+  ozReportParam.value.args.PD_PRP_VAL20 = cachedParams.pdPrpVal20;
+  ozReportParam.value.args.RPBL_YN = cachedParams.rpblYn;
+
+  /*
   if (!isEmpty(cachedParams.mngrDvCd)) {
     if (cachedParams.mngrDvCd === '1') {
-      ozReportParam.value.args.OG_ID = getNvl(cachedParams.branchCd, getNvl(cachedParams.rgnlGrpCd, getNvl(cachedParams.mngtDptmtCd, '')));
+      ozReportParam.value.args.OG_ID
+      = getNvl(cachedParams.branchCd, getNvl(cachedParams.rgnlGrpCd, getNvl(cachedParams.mngtDptmtCd, '')));
       ozReportParam.value.args.OG_TP_CD = getNvl(cachedParams.ogTpCd, '');
       ozReportParam.value.args.PRTNR_NO = getNvl(cachedParams.mngrCd, '');
     } else if (cachedParams.mngrDvCd === '2') {
@@ -512,6 +541,9 @@ async function onClickQrRpbl() {
       ozReportParam.value.args.PRTNR_NO = getNvl(cachedParams.engineerCd, '');
     }
   }
+  */
+
+  console.log(`cherro ::: ${ozReportParam.value.args}`);
 
   openReportPopup(
     ozReportParam.value.ozrPath,
