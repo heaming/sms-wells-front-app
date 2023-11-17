@@ -388,6 +388,7 @@ const initGrdMain = defineGrid((data, view) => {
     { fieldName: 'adr' }, // 주소
     { fieldName: 'istLctDtlCn' }, // 설치위치상세정보
     { fieldName: 'ogNm' }, // 조직명
+    { fieldName: 'ogTpCd' }, // 조직유형코드
     { fieldName: 'prtnrKnm' }, // 담당자명
     { fieldName: 'wkPrtnrNo' }, // 담당자사번
     { fieldName: 'regDtm' }, // 요청일자

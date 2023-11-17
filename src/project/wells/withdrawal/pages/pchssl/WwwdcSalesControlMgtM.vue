@@ -302,6 +302,7 @@ const pageInfo = ref({
 });
 
 let cachedParams;
+let cachedParams2;
 // -------------------------------------------------------------------------------------------------
 // Function & Event
 // -------------------------------------------------------------------------------------------------
@@ -394,7 +395,7 @@ async function onClickRemove() {
   const view = grdMainRef.value.getView();
 
   if (!gridUtil.getCheckedRowValues(view).length > 0) {
-    notify(t('MSG_ALT_NOT_SEL_ITEM'));
+    notify(t('MSG_ALT_NOT_SEL_ITEM')); // 데이터를 선택해주세요.
     return;
   }
   if (!await gridUtil.confirmIfIsModified(view)) { return; }
@@ -423,9 +424,9 @@ async function onClickExcelDownload() {
 // 엑셀업로드
 async function onClickExcelUpload() {
   const apiUrl = `${apiUri}/${searchParams.value.exmpYn}/excel-upload`;
-  // const templateId = 'FOM_WDC_0001';
   const templateId = 'FOM_WDC_0001';
 
+  // const templateId = 'FOM_WDC_0001';
   // if (searchParams.value.exmpYn === 'N') {
   //   templateId = 'FOM_WDC_0001';
   // } else {
@@ -440,7 +441,7 @@ async function onClickExcelUpload() {
   });
 
   if (payload.status === 'S') {
-    notify(t('MSG_ALT_SAVE_DATA'));
+    notify(t('MSG_ALT_SAVE_DATA')); // 저장되었습니다.
     await fetchData();
   }
 
@@ -485,7 +486,7 @@ async function onClickSave() {
 
   if (!await gridUtil.validate(view)) { return false; }
   await dataService.post(`${apiUri}/save`, changedRows);
-  notify(t('MSG_ALT_SAVE_DATA'));
+  notify(t('MSG_ALT_SAVE_DATA')); // 저장되었습니다.
   await fetchData();
 }
 
@@ -519,12 +520,14 @@ const initGrid1 = defineGrid((data, view) => {
 
     { fieldName: 'canAfOjYn' }, /* 취소후적용 */
     { fieldName: 'slCtrAmt', dataType: 'number' }, /* 조정금액 */
+    { fieldName: 'dummySlCtrAmt', dataType: 'number' }, /* 조정금액 */
     { fieldName: 'slCtrWoExmpAmt', dataType: 'number' }, /* 전액면제금액 */
     { fieldName: 'slCtrPtrmExmpAmt', dataType: 'number' }, /* 조회기간면제금액 */
     { fieldName: 'slCtrRmkCn' }, /* 조정사유 */
     { fieldName: 'fstRgstDtm' }, /* 등록일자 */
     { fieldName: 'usrNm' }, /* 등록자 */
     { fieldName: 'fnlMdfcUsrId' }, /* 번호 */
+    { fieldName: 'mdfyYn' }, /* 번호 */
   ];
 
   const columns = [
@@ -578,12 +581,23 @@ const initGrid1 = defineGrid((data, view) => {
       header: {
         text: t('MSG_TXT_MTR_DV'), // 자료구분
         styleName: 'essential',
-        // 자료구분
       },
       width: '100',
       rules: 'required',
       editor: { type: 'dropdown' },
       options: codes.SL_CTR_MTR_DV_CD,
+      styleCallback(grid, dataCell) {
+        const mdfyYn = grid.getValue(dataCell.index.itemIndex, 'mdfyYn');
+        let ret = {};
+        if (mdfyYn === 'N') {
+          ret.editable = false;
+        } else {
+          ret = {
+            editor: { type: 'dropdown' },
+          };
+        }
+        return ret;
+      },
     },
     {
       fieldName: 'slCtrSellTpCd',
@@ -769,6 +783,18 @@ const initGrid1 = defineGrid((data, view) => {
       rules: 'required',
       editor: { type: 'dropdown' },
       options: codes.SL_CTR_DV_CD,
+      styleCallback(grid, dataCell) {
+        const mdfyYn = grid.getValue(dataCell.index.itemIndex, 'mdfyYn');
+        let ret = {};
+        if (mdfyYn === 'N') {
+          ret.editable = false;
+        } else {
+          ret = {
+            editor: { type: 'dropdown' },
+          };
+        }
+        return ret;
+      },
     },
     {
       fieldName: 'slCtrMtrTpCd',
@@ -780,6 +806,18 @@ const initGrid1 = defineGrid((data, view) => {
       rules: 'required',
       editor: { type: 'dropdown' },
       options: codes.SL_CTR_MTR_TP_CD,
+      styleCallback(grid, dataCell) {
+        const mdfyYn = grid.getValue(dataCell.index.itemIndex, 'mdfyYn');
+        let ret = {};
+        if (mdfyYn === 'N') {
+          ret.editable = false;
+        } else {
+          ret = {
+            editor: { type: 'dropdown' },
+          };
+        }
+        return ret;
+      },
     },
     {
       fieldName: 'slCtrTpCd',
@@ -792,6 +830,18 @@ const initGrid1 = defineGrid((data, view) => {
       editor: { type: 'dropdown' },
       editable: true,
       options: codes.SL_CTR_TP_CD,
+      styleCallback(grid, dataCell) {
+        const mdfyYn = grid.getValue(dataCell.index.itemIndex, 'mdfyYn');
+        let ret = {};
+        if (mdfyYn === 'N') {
+          ret.editable = false;
+        } else {
+          ret = {
+            editor: { type: 'dropdown' },
+          };
+        }
+        return ret;
+      },
     },
     {
       fieldName: 'slCtrDscTpCd',
@@ -803,14 +853,39 @@ const initGrid1 = defineGrid((data, view) => {
       rules: 'required',
       editor: { type: 'dropdown' },
       options: codes.SL_CTR_DSC_TP_CD,
+      styleCallback(grid, dataCell) {
+        const mdfyYn = grid.getValue(dataCell.index.itemIndex, 'mdfyYn');
+        let ret = {};
+        if (mdfyYn === 'N') {
+          ret.editable = false;
+        } else {
+          ret = {
+            editor: { type: 'dropdown' },
+          };
+        }
+        return ret;
+      },
     },
     { fieldName: 'canAfOjYn',
       header: t('MSG_TXT_CAN_AFT_APY'), // 취소 후 적용
       width: '100',
       editor: { type: 'dropdown' },
       editable: true,
+      styleCallback(grid, dataCell) {
+        const mdfyYn = grid.getValue(dataCell.index.itemIndex, 'mdfyYn');
+        let ret = {};
+        if (mdfyYn === 'N') {
+          ret.editable = false;
+        } else {
+          ret = {
+            editor: { type: 'dropdown' },
+          };
+        }
+        return ret;
+      },
       options: [{ codeId: 'Y', codeName: 'Y' },
         { codeId: 'N', codeName: 'N' }],
+
     },
     { fieldName: 'slCtrAmt',
       rules: 'required',
@@ -819,6 +894,17 @@ const initGrid1 = defineGrid((data, view) => {
       styleName: 'text-right',
       numberFormat: '#,##0',
       editable: true,
+      styleCallback: (grid, dataCell) => {
+        const ret = {};
+        const { slCtrTpCd, dummySlCtrAmt } = grid.getValues(dataCell.index.itemIndex);
+        if (dataCell.item.rowState === 'created') {
+          if (slCtrTpCd === '2') {
+            ret.editable = false;
+            view.setValue(dataCell.index.itemIndex, 'slCtrAmt', dummySlCtrAmt);
+          }
+          return ret;
+        }
+      },
     },
     { fieldName: 'slCtrWoExmpAmt',
       header: t('MSG_TXT_FULL_EXMP_AMT'), // 전액면제금액
@@ -842,6 +928,18 @@ const initGrid1 = defineGrid((data, view) => {
       },
       rules: 'required',
       width: '208',
+      styleCallback(grid, dataCell) {
+        const mdfyYn = grid.getValue(dataCell.index.itemIndex, 'mdfyYn');
+        let ret = {};
+        if (mdfyYn === 'N') {
+          ret.editable = false;
+        } else {
+          ret = {
+            editor: { type: 'dropdown' },
+          };
+        }
+        return ret;
+      },
     },
     { fieldName: 'fstRgstDtm',
       header: t('MSG_TXT_FST_RGST_DT'), // 등록일자
@@ -903,6 +1001,15 @@ const initGrid1 = defineGrid((data, view) => {
         view.setValue(itemIndex, 'cstKnm', cntrCstKnm);
         view.setValue(itemIndex, 'pdNm', pdNm);
         view.setValue(itemIndex, 'pdCd', pdCd);
+
+        const searchDtl = ref({
+          cntrNo: payload.cntrNo, // 판매유형
+          cntrSn: payload.cntrSn, // 계약일련번호(Int)
+        });
+        cachedParams2 = cloneDeep(searchDtl.value);
+        const res = await dataService.get('/sms/common/common/codes/contract/detail/paging', { params: cachedParams2 });
+        view.setValue(itemIndex, 'slCtrAmt', res.data.list[0].thmSlSumAmt);
+        view.setValue(itemIndex, 'dummySlCtrAmt', res.data.list[0].thmSlSumAmt);
       }
     }
   };

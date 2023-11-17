@@ -16,6 +16,7 @@
   <kw-page>
     <kw-search
       @search="onClickSearch"
+      @reset="onClickReset"
     >
       <kw-search-row>
         <!-- 출고요청창고 -->
@@ -125,7 +126,7 @@
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
 import { codeUtil, getComponentType, useGlobal, useDataService, useMeta, gridUtil } from 'kw-lib';
-import { cloneDeep } from 'lodash-es';
+import { cloneDeep, isEmpty } from 'lodash-es';
 import dayjs from 'dayjs';
 import useSnCode from '~sms-wells/service/composables/useSnCode';
 
@@ -202,6 +203,7 @@ async function fetchData() {
 
 // 조회버튼 클릭이벤트
 async function onClickSearch() {
+  pageInfo.value.pageIndex = 1;
   cachedParams = cloneDeep(searchParams.value);
   await fetchData();
 }
@@ -240,7 +242,9 @@ async function fetchDefaultData() {
   const { userId } = wharehouseParams.value;
 
   warehouses.value = await getMonthWarehouse(userId, apyYm);
-  searchParams.value.strOjWareNo = warehouses.value[0].codeId;
+  if (!isEmpty(warehouses.value)) {
+    searchParams.value.strOjWareNo = warehouses.value[0].codeId;
+  }
 }
 
 async function openOutOfStorageP(g, { column, dataRow }) {
@@ -257,6 +261,13 @@ async function openOutOfStorageP(g, { column, dataRow }) {
 
   if (result) {
     await fetchData();
+  }
+}
+
+// 초기화 버튼 클릭
+function onClickReset() {
+  if (!isEmpty(warehouses.value)) {
+    searchParams.value.strOjWareNo = warehouses.value[0].codeId;
   }
 }
 
@@ -290,6 +301,9 @@ function initGrdMain(data, view) {
       width: '250',
       styleName: 'text-center',
       displayCallback: (g, i, v) => {
+        if (isEmpty(v)) {
+          return v;
+        }
         const regExp = /^(\d{3})(\d{8})(\d{7}).*/;
         return v.replace(regExp, '$1-$2-$3');
       },
@@ -299,6 +313,9 @@ function initGrdMain(data, view) {
       width: '250',
       styleName: 'text-center',
       displayCallback: (g, i, v) => {
+        if (isEmpty(v)) {
+          return v;
+        }
         const regExp = /^(\w{4})(\d{8})(\d{4}).*/;
         return v.replace(regExp, '$1-$2-$3');
       } },

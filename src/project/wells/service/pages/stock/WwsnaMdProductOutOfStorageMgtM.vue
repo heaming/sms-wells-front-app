@@ -230,19 +230,16 @@ const totalCount = ref(0);
 const isCompStatus = ref(false);
 async function onChangeCompStatus() {
   const { findGb } = searchParams.value;
-  const view = grdMainRef.value.getView();
 
   /* 작업완료 */
   if (findGb === '1') {
     isCompStatus.value = true;
-    view.checkBar.visible = false;
     searchParams.value.firstSppGb = 'ALL';
   }
 
   /* 작업대기 */
   if (findGb === '2') {
     isCompStatus.value = false;
-    view.checkBar.visible = true;
   }
 }
 async function fetchData() {
@@ -399,6 +396,7 @@ const initGrdMain = defineGrid((data, view) => {
     { fieldName: 'pcsvCompNm', header: t('MSG_TXT_PCSV_CO'), width: '110', styleName: 'text-center' },
     { fieldName: 'sppIvcNo', header: t('MSG_TXT_IVC_NO'), width: '150', styleName: 'text-center' },
     { fieldName: 'sppBzsPdId', header: t('MSG_TXT_SR_NO'), width: '150', styleName: 'text-center' },
+    { fieldName: 'wkPrgsStatCd', visible: false },
     { fieldName: 'wkPrgsStatNm', header: t('MSG_TXT_WK_STS'), width: '80', styleName: 'text-center' },
     { fieldName: 'ostrCnfmDt', header: t('MSG_TXT_OSTR_CNFM_DT'), width: '100', styleName: 'text-center', datetimeFormat: 'date' },
     {
@@ -528,6 +526,7 @@ const initGrdMain = defineGrid((data, view) => {
   columns.push(...columnPdTotals);
   const fields = columns.map(({ fieldName, dataType }) => (dataType ? { fieldName, dataType } : { fieldName }));
   data.setFields(fields);
+  view.setCheckableExpression("((value['wkPrgsStatCd']='00') or (value['wkPrgsStatCd']='10'))", true);
   view.setColumns(columns);
   view.setColumnLayout(layout);
   view.setFixedOptions({ colCount: 8, resizable: true });
@@ -539,7 +538,19 @@ const initGrdMain = defineGrid((data, view) => {
 const initGrdSppIvc = defineGrid((data, view) => {
   const columns = [
     { fieldName: 'cstSvAsnNo', header: t('MSG_TXT_ASGN_NO'), width: 160 },
-    { fieldName: 'cntrDtlNo', header: t('MSG_TXT_CNTR_DTL_NO'), width: 150 },
+    {
+      fieldName: 'cntrNo',
+      header: t('MSG_TXT_CNTR_DTL_NO'),
+      width: '150',
+      styleName: 'text-center',
+      displayCallback(grid, index) {
+        const { cntrNo, cntrSn } = grid.getValues(index.itemIndex);
+        if (!isEmpty(cntrNo)) {
+          return `${cntrNo}-${cntrSn}`;
+        }
+      },
+    },
+    { fieldName: 'cntrSn', visible: false },
     { fieldName: 'pcsvCompDv', header: `${t('MSG_TXT_PCSV_CO')}`, width: 120 },
     { fieldName: 'sppIvcNo', header: t('MSG_TXT_IVC_NO'), width: 150 },
     { fieldName: 'sppBzsPdId', header: t('MSG_TXT_SR_NO'), width: 130 },

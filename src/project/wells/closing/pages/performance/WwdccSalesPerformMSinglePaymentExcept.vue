@@ -50,7 +50,7 @@
         <kw-action-top>
           <template #left>
             <h3 class="mb0">
-              {{ $t('MSG_TXT_BASIC_INFO') }}
+              {{ $t('MSG_TXT_BASIC_INFO') }}{{ singlePaymentDetail.slClYm }}
             </h3>
           </template>
           <span class="kw-fc--black3 text-weight-regular">{{ $t('MSG_TXT_UNIT_WON') }}</span>
@@ -504,12 +504,12 @@
               <p>{{ stringUtil.getNumberWithComma(toInteger(singlePaymentDetail.slDpAggAmt)) }}</p>
             </kw-form-item>
             <kw-form-item
-              :label="$t('MSG_TXT_UC_AMT')"
+              :label="$t('MSG_TXT_SL_UC_AMT')"
             >
               <p>{{ stringUtil.getNumberWithComma(toInteger(singlePaymentDetail.eotUcAmt)) }}</p>
             </kw-form-item>
             <kw-form-item
-              :label="$t('MSG_TXT_BIL_UC_AMT')"
+              :label="$t('MSG_TXT_OC_UC_AMT')"
             >
               <p>{{ stringUtil.getNumberWithComma(toInteger(singlePaymentDetail.eotBilUcAmt)) }}</p>
             </kw-form-item>
@@ -640,6 +640,9 @@ const contractInfo = ref({
   sellTpDtlCd: '',
   islease: '',
 });
+const gridAddSetupInfo = ref({
+  sellTpCd: '',
+});
 
 const singlePaymentDetail = ref({});
 const isShowRental = ref(false);
@@ -687,6 +690,9 @@ async function fetchDetailData(slClYm, sellTpCd) {
   if (!isEmpty(singlePaymentDetail.value.pkgCd)) {
     singlePaymentDetail.value.pkgCd = `(${singlePaymentDetail.value.pkgCd})`;
   }
+  if (singlePaymentDetail.value.slClYm) {
+    singlePaymentDetail.value.slClYm = `(${stringUtil.getDateFormat(singlePaymentDetail.value.slClYm, 'YYYYMMDD', 'YYYY.MM')} ${t('MSG_TXT_BASE')})`;
+  }
   singlePaymentDetail.value.fntInfView = (singlePaymentDetail.value.mpyBsdt) ? `${replaceNull(singlePaymentDetail.value.dpTpCdNm)}/${singlePaymentDetail.value.mpyBsdt}/${replaceNull(singlePaymentDetail.value.fnitAprRsCd)}`
     : `${replaceNull(singlePaymentDetail.value.dpTpCdNm)}/${replaceNull(singlePaymentDetail.value.fnitAprRsCd)}`;
 }
@@ -730,7 +736,8 @@ async function setGridColumnLayout(data, view) { // 일시불
     { fieldName: 'slStpYn', header: t('MSG_TXT_SL_STP'), width: '100', styleName: 'text-center' }, // 매출중지
     { fieldName: 'rentalTn', header: t('MSG_TXT_RENTAL_NMN'), width: '100', styleName: 'text-center' }, // 렌탈차월
     { fieldName: 'prmMcn', header: t('MSG_TXT_PRM_MCNT'), width: '100', styleName: 'text-center' }, // 선납개월
-    { fieldName: 'thmSlSumAmt', header: ((contractInfo.value.sellTpCd === '2' && contractInfo.value.islease === 'N') || contractInfo.value.sellTpCd === '3') ? t('MSG_TXT_SL_AMT') : t('MSG_TXT_BIL_AMT'), width: '134', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' }, // 매출금액 or 청구금액
+    { fieldName: 'thmSlOcAmt', header: t('MSG_TXT_SL_AMT'), width: '100', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0', visable: (gridAddSetupInfo.value.sellTpCd === '6') }, // 매출금액
+    { fieldName: 'thmSlSumAmt', header: t('MSG_TXT_OCCR_AMT'), width: '134', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' }, // 발생금액
     { fieldName: 'dpAmt',
       header: t('MSG_TXT_DP'),
       width: '134',
@@ -747,7 +754,7 @@ async function setGridColumnLayout(data, view) { // 일시불
     { fieldName: 'thmDlqAddDpSumAmt', header: t('MSG_TXT_DP_AMT'), width: '100', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' }, // 입금금액
     { fieldName: 'thmDlqAddRfndSumAmt', header: t('MSG_TXT_RFND_AMT'), width: '100', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' }, // 환불금액
     { fieldName: 'eotDlqAddAmt', header: t('MSG_TXT_EOT_AMT'), width: '100', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' }, // 기말금액
-    { fieldName: 'eotUcAmt', header: ((contractInfo.value.sellTpCd === '2' && contractInfo.value.islease === 'N') || contractInfo.value.sellTpCd === '3') ? t('MSG_TXT_UC_AMT') : t('MSG_TXT_BIL_UC_AMT'), width: '100', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' }, // 미수금액
+    { fieldName: 'eotUcAmt', header: t('MSG_TXT_OC_UC_AMT'), width: '100', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' }, // 미수금액
     { fieldName: 'borAmt', header: t('MSG_TXT_CCAM'), width: '134', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' }, // 위약금
     { fieldName: 'slStpAmt', header: t('MSG_TXT_SL_STP_AMT'), width: '180', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' }, // 매출중지금액
   ];
@@ -758,9 +765,8 @@ async function setGridColumnLayout(data, view) { // 일시불
   view.checkBar.visible = true; // create checkbox column
   view.rowIndicator.visible = true; // create number indicator column
 
-  // multi row header setting
-  view.setColumnLayout([
-    'cntrNo', 'slClYm', 'slStpYn', 'rentalTn', 'prmMcn', 'thmSlSumAmt', 'dpAmt', 'eotAtam', 'eotDlqAmt', 'dlqMcn', // single
+  const layoutMain = [
+    'cntrNo', 'slClYm', 'slStpYn', 'rentalTn', 'prmMcn', 'thmSlOcAmt', 'thmSlSumAmt', 'dpAmt', 'eotAtam', 'eotDlqAmt', 'dlqMcn', // single
     {
       header: t('MSG_TXT_ADD_AM'), // 가산금
       direction: 'horizontal', // merge type
@@ -769,19 +775,30 @@ async function setGridColumnLayout(data, view) { // 일시불
     'eotUcAmt',
     'borAmt',
     'slStpAmt',
-  ]);
+  ];
+  if (gridAddSetupInfo.value.sellTpCd !== '6') {
+    // SELL_TP_CD(판매유형코드) = '6'(정기배송)인 경우에만 매출금액 표시
+    layoutMain.splice(5, 1);
+  }
+  console.log(layoutMain);
+  view.setColumnLayout(layoutMain);
 }
 
 async function fetchData() {
   cachedParams = cloneDeep(searchParams.value);
   await fetchContractData();
-  await setGridColumnLayout();
 
   const res = await dataService.get('/sms/wells/closing/sales-performs/paging', { params: { ...cachedParams, ...pageInfo.value } });
   const { list: singlePayments, pageInfo: pagingResult } = res.data;
 
   pageInfo.value = pagingResult;
 
+  if (!isEmpty(singlePayments)) {
+    // 그리드 항목 출력 시 필요한 정보 설정
+    gridAddSetupInfo.value.sellTpCd = singlePayments[0].sellTpCd;
+  }
+
+  await setGridColumnLayout();
   const view = grdSinglePaymentExceptRef.value.getView();
   view.getDataSource().setRows(singlePayments);
 

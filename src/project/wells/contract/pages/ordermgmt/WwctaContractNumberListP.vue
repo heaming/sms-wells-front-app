@@ -21,6 +21,7 @@
       @search="onClickSearch"
     >
       <kw-search-row>
+        <!-- 계약자명 -->
         <kw-search-item
           :label="$t('MSG_TXT_CNTOR_NM')"
         >
@@ -30,6 +31,7 @@
             maxlength="50"
           />
         </kw-search-item>
+        <!-- 설치자명 -->
         <kw-search-item
           :label="$t('MSG_TXT_IST_NM')"
         >
@@ -39,6 +41,7 @@
             maxlength="50"
           />
         </kw-search-item>
+        <!-- 휴대전화번호 -->
         <kw-search-item
           :label="$t('MSG_TXT_MPNO')"
         >
@@ -53,6 +56,7 @@
         </kw-search-item>
       </kw-search-row>
       <kw-search-row>
+        <!-- 판매유형코드 -->
         <kw-search-item
           :label="$t('MSG_TXT_SELL_TP_CD')"
         >
@@ -63,6 +67,7 @@
             first-option="all"
           />
         </kw-search-item>
+        <!-- 고객번호 -->
         <kw-search-item
           :label="$t('MSG_TXT_CST_NO')"
         >
@@ -77,6 +82,7 @@
             @keydown.enter="onClickSearch"
           />
         </kw-search-item>
+        <!-- 계약상세번호 -->
         <kw-search-item
           :label="$t('MSG_TXT_CNTR_DTL_NO')"
         >
@@ -88,6 +94,7 @@
         </kw-search-item>
       </kw-search-row>
       <template #action>
+        <!-- 초기화 -->
         <kw-btn
           ref="resetBtn"
           v-permission:read
@@ -97,6 +104,7 @@
           dense
           @click="onClickReset"
         />
+        <!-- 조회 -->
         <kw-btn
           ref="searchBtn"
           v-permission:read
@@ -138,6 +146,7 @@
     />
 
     <template #action>
+      <!-- 닫기 -->
       <kw-btn
         :label="$t('MSG_BTN_CLOSE')"
         negative
@@ -227,7 +236,7 @@ async function onClickReset() {
 function checkSearchParamIsNotEmpty(needAlertWhenEmpty) {
   const notEmpty = Object.values(searchParams.value).some((val) => !isEmpty(val));
   if (needAlertWhenEmpty && !notEmpty) {
-    alert(t('MSG_ALT_INQR_CNDT_AT_LEAST_ONE'));
+    alert(t('MSG_ALT_INQR_CNDT_AT_LEAST_ONE')); // 최소 1개의 조회조건을 입력해야 합니다.
   }
   return notEmpty;
 }
@@ -247,6 +256,7 @@ async function fetchData() {
   }
 }
 
+// 조회
 async function onClickSearch() {
   // 조회조건 검증
   if (!checkSearchParamIsNotEmpty(true)) { return; }
@@ -256,6 +266,7 @@ async function onClickSearch() {
   await fetchData();
 }
 
+// 고객 조회
 async function onClickSearchCntrCst() {
   const res = await modal({
     component: 'ZwcsaCustomerListP',
@@ -295,10 +306,10 @@ const initGrid = defineGrid((data, view) => {
   ];
 
   const columns = [
-    { fieldName: 'cntrCnfmDtm', header: t('MSG_TXT_CNTR_DATE'), width: 100, styleName: 'text-center', datetimeFormat: 'date' },
-    { fieldName: 'sellTpCd', header: t('MSG_TXT_SEL_TYPE'), width: 100, options: codes.SELL_TP_CD },
+    { fieldName: 'cntrCnfmDtm', header: t('MSG_TXT_CNTR_DATE'), width: 100, styleName: 'text-center', datetimeFormat: 'date' }, // 계약일자
+    { fieldName: 'sellTpCd', header: t('MSG_TXT_SEL_TYPE'), width: 100, options: codes.SELL_TP_CD }, // 판매유형
     { fieldName: 'cntrNo',
-      header: t('MSG_TXT_CNTR_DTL_NO'),
+      header: t('MSG_TXT_CNTR_DTL_NO'), // 계약상세번호
       width: 140,
       styleName: 'text-center',
       displayCallback(grid, index) {
@@ -306,10 +317,10 @@ const initGrid = defineGrid((data, view) => {
         return `${cntrNo}-${cntrSn}`;
       },
     },
-    { fieldName: 'cntrCstKnm', header: t('MSG_TXT_CNTOR_NM'), width: 80, styleName: 'text-center' },
-    { fieldName: 'istCstKnm', header: t('MSG_TXT_IST_NM'), width: 80, styleName: 'text-center' },
+    { fieldName: 'cntrCstKnm', header: t('MSG_TXT_CNTOR_NM'), width: 80, styleName: 'text-center' }, // 계약자명
+    { fieldName: 'istCstKnm', header: t('MSG_TXT_IST_NM'), width: 80, styleName: 'text-center' }, // 설치자명
     { fieldName: 'memCntrNo',
-      header: '멤버십번호',
+      header: t('MSG_TXT_MMBR') + t('MSG_TXT_PRTNR_NO'), // 멤버십번호
       width: 140,
       styleName: 'text-center',
       displayCallback(grid, index) {
@@ -317,7 +328,7 @@ const initGrid = defineGrid((data, view) => {
         return (memCntrNo && memCntrSn) ? `${memCntrNo}-${memCntrSn}` : '';
       },
     },
-    { fieldName: 'pdNm', header: t('MSG_TXT_PRDT_NM'), width: 250 },
+    { fieldName: 'pdNm', header: t('MSG_TXT_PRDT_NM'), width: 250 }, // 상품명
   ];
 
   data.setFields(fields);

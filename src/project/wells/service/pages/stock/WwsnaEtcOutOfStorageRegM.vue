@@ -31,6 +31,7 @@
               :readonly="isPropsNullChk()"
               :label="$t('MSG_TXT_OSTR_WARE')"
               rules="required"
+              @change="onChangeOstrWareNo"
             />
           </kw-form-item>
           <!-- 출고일자 -->
@@ -428,7 +429,8 @@ async function onClickSave() {
 
   notify(t('MSG_ALT_SAVE_DATA'));
 
-  await fetchData();
+  view.getDataSource().clearRows();
+  view.setAllCheck(false);
 }
 
 // 삭제
@@ -469,6 +471,36 @@ async function onClickDelete() {
   }
 }
 
+// 인덱스가 null 인지 체크
+function isIndexEmpty(obj) {
+  return (obj === undefined || obj === null || obj === '');
+}
+
+let viewCurrentLength = 0;
+
+// 시점재고 조회
+async function fetchPitmStoc(rows, itmGdCd, index) {
+  const view = grdMainRef.value.getView();
+  const itmPdCds = rows.map((v) => v.itmPdCd);
+  const res = await dataService.post(`/sms/wells/service/returning-goods-out-of-storages/${searchParams.value.ostrWareNo}`, { itmPdCds, itmGdCd });
+
+  let startRow = 0;
+
+  if (isIndexEmpty(index)) {
+    startRow = viewCurrentLength;
+  }
+
+  for (let i = 0; i < rows.length; i += 1) {
+    if (res.data[i].itmPdCd === rows[i].itmPdCd) {
+      if (isIndexEmpty(index)) {
+        view.setValue(startRow + i, 'onQty', res.data[i].pitmQty);
+      } else {
+        view.setValue(index, 'onQty', res.data[i].pitmQty);
+      }
+    }
+  }
+}
+
 // 그리드 데이터 체크
 function setCheckedGridValue(view, row, value, column) {
   view.setValue(row, column, value);
@@ -488,15 +520,30 @@ async function openItemBasePopup(type, row) {
     componentProps: { chk, wareDvCd: searchParams.value.wareDvCd, wareNo: searchParams.value.ostrWareNo },
   });
 
+  const target = [];
   if (result) {
     const view = grdMainRef.value.getView();
+    const list = gridUtil.getAllRowValues(view, false);
     if (type === 'C') {
-      view.getDataSource().addRows(payload.map((v) => getRowData(v)));
+      payload.forEach((obj) => {
+        if (list.find((i) => i.itmPdCd === obj.itmPdCd)) {
+          return true;
+        }
+        target.push(obj);
+        return false;
+      });
+      viewCurrentLength = view.getJsonRows().length;
+      view.getDataSource().addRows(target.map((v) => getRowData(v)));
       view.checkAll(false);
       view.resetCurrent();
+
+      if (!isEmpty(target)) {
+        await fetchPitmStoc(target, 'A'); // 시점재고 조회
+      }
     } else if (type === 'U') {
       const rowData = payload?.[0] || {};
       view.setValues(row, getRowData(rowData), true);
+      await fetchPitmStoc([rowData], 'A');
     }
     setTotalCount();
   }
@@ -507,13 +554,23 @@ async function onClickItemAdd() {
   await openItemBasePopup('C');
 }
 
+// 출고창고 변경 시 시점재고 변경
+async function onChangeOstrWareNo() {
+  const view = grdMainRef.value.getView();
+  const list = gridUtil.getAllRowValues(view, false);
+
+  // 출고창고 변경시 시점재고 재조회
+  if (list.length > 0) {
+    await fetchPitmStoc(list, 'A'); // 시점재고 조회
+  }
+}
+
 // 일괄변경 버튼클릭 이벤트
 function onClickAllSet() {
   if (!validateIsApplyRowExists()) return;
 
   const view = grdMainRef.value.getView();
   const checkedRows = gridUtil.getCheckedRowValues(view);
-  console.log(checkedRows);
   for (let i = 0; i < checkedRows.length; i += 1) {
     if (!isEmpty(etcInfo.value.ostrQty)) {
       setCheckedGridValue(view, checkedRows[i].dataRow, etcInfo.value.ostrQty, 'ostrQty');
@@ -650,7 +707,6 @@ const initGrdMain = defineGrid((data, view) => {
     if (canEdit()) {
       return { styleName: 'rg-button-hide' };
     }
-    console.log(itemIndex);
     if (column === 'itmPdCd') {
       const itmPdCd = grid.getValue(itemIndex, 'itmPdCd');
       const { result, payload } = await modal({
@@ -659,9 +715,21 @@ const initGrdMain = defineGrid((data, view) => {
       });
 
       if (result) {
-        console.log(payload);
-        view.getDataSource().updateRows(itemIndex, payload);
+        const rowData = payload?.[0] || {};
+        view.setValues(itemIndex, getRowData(rowData), true);
+        await fetchPitmStoc([rowData], 'A');
       }
+    }
+  };
+
+  view.onCellEdited = async (grid, itemIndex, row, field) => {
+    const { itmGdCd } = grid.getValues(itemIndex);
+    const dataRow = [grid.getValues(itemIndex)];
+
+    const changedFieldName = grid.getDataSource().getOrgFieldName(field);
+
+    if (changedFieldName === 'itmGdCd') {
+      await fetchPitmStoc(dataRow, itmGdCd, itemIndex);
     }
   };
 

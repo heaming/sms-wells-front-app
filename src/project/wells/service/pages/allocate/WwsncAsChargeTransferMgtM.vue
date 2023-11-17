@@ -261,7 +261,12 @@ const codes = await codeUtil.getMultiCodes(
   'TF_AK_RSON_CD',
   'COD_PAGE_SIZE_OPTIONS',
 );
-
+// 방문 시간 list 생성
+const vstTms = [];
+for (let i = 9; i <= 16; i += 1) {
+  const value = i.toString();
+  vstTms.push({ codeId: `${value.padStart(2, '0')}00`, codeName: `${value.padStart(2, '0')}:00` });
+}
 let cachedParams;
 
 // 엑셀다운로드 버튼 클릭
@@ -291,7 +296,11 @@ async function onClickExcelDownload() {
     'tno',
     'mpno',
     'wkPrgsDvNm',
-    'vstCnfmDtm',
+    {
+      header: t('MSG_TXT_VST_CNFM_DT'), // colspan title
+      direction: 'horizontal', // merge type
+      items: ['vstCnfmdt', 'vstCnfmHh'],
+    },
     'asnDtm',
     'rcst',
     {
@@ -505,6 +514,12 @@ const initGrdMain = defineGrid((data, view) => {
   });
   view.addLookupSource(lookupTreeSubCodes);
 
+  const btOpt = {
+    startView: 0,
+    language: 'ko',
+    todayHighlight: true,
+  };
+
   const fields = [
     { fieldName: 'cstSvAsnNo' }, // 설치배정번호
     { fieldName: 'cntrNo' }, // 계약번호
@@ -530,7 +545,8 @@ const initGrdMain = defineGrid((data, view) => {
     { fieldName: 'tno' }, // 전화번호
     { fieldName: 'mpno' }, // 휴대전화번호
     { fieldName: 'wkPrgsDvNm' }, // 진행구분
-    { fieldName: 'vstCnfmDtm' }, // 방문확정일자
+    { fieldName: 'vstCnfmdt' }, // 방문확정일자
+    { fieldName: 'vstCnfmHh' }, // 방문확정시간
     { fieldName: 'asnDtm' }, // 배정일자
     { fieldName: 'rcst' }, // 접수자
     { fieldName: 'bfchBlgCd' }, // 소속조직ID(이관전)
@@ -681,11 +697,25 @@ const initGrdMain = defineGrid((data, view) => {
       styleName: 'text-center',
     },
     {
-      fieldName: 'vstCnfmDtm',
-      header: t('MSG_TXT_VST_CNFM_DT'),
-      width: '150',
+      fieldName: 'vstCnfmdt',
+      width: '100',
       styleName: 'text-center',
-      datetimeFormat: 'datetime',
+      datetimeFormat: 'date',
+      editable: true,
+      editor: {
+        type: 'btdate',
+        datetimeFormat: 'date', // default value, 생략 가능
+        btOptions: btOpt,
+        mindate: dayjs().format('YYYYMMDD'),
+      },
+    },
+    {
+      fieldName: 'vstCnfmHh',
+      width: '100',
+      styleName: 'text-center',
+      editable: true,
+      editor: { type: 'dropdown' },
+      options: vstTms,
     },
     {
       fieldName: 'asnDtm',
@@ -797,7 +827,12 @@ const initGrdMain = defineGrid((data, view) => {
     'tno',
     'mpno',
     'wkPrgsDvNm',
-    'vstCnfmDtm',
+    {
+      header: t('MSG_TXT_VST_CNFM_DT'), // colspan title
+      direction: 'horizontal', // merge type
+      items: ['vstCnfmdt', 'vstCnfmHh'],
+      hideChildHeaders: true,
+    },
     'asnDtm',
     'rcst',
     {

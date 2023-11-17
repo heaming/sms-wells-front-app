@@ -290,6 +290,7 @@ const initGrdMain = defineGrid((data, view) => {
     { fieldName: 'changeCodes' }, /* 책임지역변경코드 list(콤보박스생성용) */
     { fieldName: 'chLocaraCd' }, /* 변경 책임지역코드 */
     { fieldName: 'apyStrtdt' }, /* 적용시작일자 */
+    { fieldName: 'apyStrtdtOrigin' }, /* 적용시작일자Origin */
     { fieldName: 'apyEnddt' }, /* 적용종료일자 */
     { fieldName: 'rpbLocaraGrpCd' }, /* 책임지역그룹코드 */
     { fieldName: 'ogNm' }, /* 조직명 */
@@ -408,7 +409,7 @@ const initGrdMain = defineGrid((data, view) => {
     },
     {
       fieldName: 'mmtAvLdtm',
-      header: t('MSG_TXT_MMT_AV_NED_HH'),
+      header: `${t('MSG_TXT_MMT_AV_NED_HH')}(${t('MSG_TXT_M')})`,
       width: '100',
     },
     {
@@ -454,7 +455,13 @@ const initGrdMain = defineGrid((data, view) => {
   view.onCellEdited = (grid, itemIndex, row, field) => {
     grid.checkItem(itemIndex, true);
 
-    const { apyStrtdt, apyEnddt } = grid.getValues(itemIndex);
+    const { apyStrtdt, apyStrtdtOrigin, apyEnddt } = grid.getValues(itemIndex);
+
+    if (apyStrtdt < apyStrtdtOrigin) {
+      notify(t('MSG_ALT_APY_STRT_D_CONF_BFDT'));
+      grid.setValue(itemIndex, 'apyStrtdt', apyStrtdtOrigin);
+    }
+
     if (field === 10 && apyStrtdt > apyEnddt) {
       grid.setValue(itemIndex, 'apyEnddt', apyStrtdt);
     } else if (field === 11 && apyStrtdt > apyEnddt) {

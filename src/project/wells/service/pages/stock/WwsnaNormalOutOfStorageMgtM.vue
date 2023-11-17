@@ -70,6 +70,7 @@
             v-model:from="searchParams.strHopDtStr"
             v-model:to="searchParams.strHopDtEnd"
             rules="date_range_months:1|required"
+            :label="$t('MSG_TXT_STR_HOP_DT')"
             @update:from="fetchDefaultData"
           />
         </kw-search-item>
@@ -309,6 +310,9 @@ const initGrdMain = defineGrid((data, view) => {
       width: '200',
       styleName: 'text-center',
       displayCallback: (g, i, v) => {
+        if (isEmpty(v)) {
+          return v;
+        }
         const regExp = /^(\d{3})(\d{8})(\d{7}).*/;
         return v.replace(regExp, '$1-$2-$3');
       },

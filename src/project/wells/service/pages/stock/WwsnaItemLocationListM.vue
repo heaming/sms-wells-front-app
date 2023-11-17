@@ -17,6 +17,7 @@
   <kw-page>
     <kw-search
       @search="onClickSearch"
+      @reset="onClickReset"
     >
       <kw-search-row>
         <!-- 관리창고 -->
@@ -84,7 +85,9 @@
           <kw-input
             v-model="searchParams.itmPdCd"
             upper-case
+            type="text"
             :label="$t('TXT_MSG_AS_ITM_CD')"
+            rules="alpha_num|max:10"
           />
         </kw-search-item>
       </kw-search-row>
@@ -398,6 +401,13 @@ async function onCheckedStckNoStdGb() {
 // 창고변경 이벤트
 async function onChangeWareNo() {
   await stckStdGbFetchData();
+}
+
+// 초기화 버튼 클릭
+function onClickReset() {
+  if (!isEmpty(loginWare.value)) {
+    searchParams.value.wareNo = loginWare.value[0].hgrWareNo;
+  }
 }
 
 onMounted(async () => {

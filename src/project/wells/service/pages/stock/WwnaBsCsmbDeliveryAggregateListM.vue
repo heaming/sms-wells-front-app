@@ -152,14 +152,14 @@ const searchParams = ref({
 
 const bldCodes = ref();
 const itmCodes = ref();
-const itemQtys = ref();
+// const itemQtys = ref();
 let colItems = [];
 
 async function getItemCode() {
   const res = await dataService.get('/sms/wells/service/delivery-bases/item-information');
   const items = res.data;
 
-  itmCodes.value = items.map((v) => ({ codeId: v.pdNm, codeName: v.pdNm }));
+  itmCodes.value = items.map((v) => ({ codeId: v.pdCd, codeName: v.pdNm }));
 }
 
 async function getBldCode() {
@@ -170,14 +170,15 @@ async function getBldCode() {
 }
 
 let cachedParams;
-async function getItemQtys() {
-  // cachedParams = cloneDeep(searchParams.value);
-  const res = await dataService.get('/sms/wells/service/delivery-aggregates/item-quantity', { params: { ...cachedParams, ...pageInfo.value, timeout: 300000 } });
-  itemQtys.value = res.data;
-}
+// async function getItemQtys() {
+//   // cachedParams = cloneDeep(searchParams.value);
+//   const res = await dataService.get('/sms/wells/service/delivery-aggregates/
+// item-quantity', { params: { ...cachedParams, ...pageInfo.value, timeout: 300000 } });
+//   itemQtys.value = res.data;
+// }
 
 async function fetchData() {
-  await getItemQtys();
+  // await getItemQtys();
 
   const res = await dataService.get('/sms/wells/service/delivery-aggregates/paging', { params: { ...cachedParams, ...pageInfo.value, timeout: 300000 } });
   const { list: bsCsmbDdlvAgrgs, pageInfo: pagingResult } = res.data;
@@ -187,21 +188,21 @@ async function fetchData() {
 
   view.getDataSource().setRows(bsCsmbDdlvAgrgs);
 
-  const data = view.getDataSource();
+  // const data = view.getDataSource();
 
-  if (bsCsmbDdlvAgrgs.length > 0) {
-    for (let i = 0; i < bsCsmbDdlvAgrgs.length; i += 1) {
-      for (let j = 0; j < itemQtys.value.length; j += 1) {
-        if (bsCsmbDdlvAgrgs[i].aclBldCd === itemQtys.value[j].bldCd
-            && bsCsmbDdlvAgrgs[i].csmbPdCd === itemQtys.value[j].csmbPdCd) {
-          const yyyy = Number(itemQtys.value[j].mngtYm.substring(0, 4));
-          const mm = Number(itemQtys.value[j].mngtYm.substring(4));
+  // if (bsCsmbDdlvAgrgs.length > 0) {
+  //   for (let i = 0; i < bsCsmbDdlvAgrgs.length; i += 1) {
+  //     for (let j = 0; j < itemQtys.value.length; j += 1) {
+  //       if (bsCsmbDdlvAgrgs[i].aclBldCd === itemQtys.value[j].bldCd
+  //           && bsCsmbDdlvAgrgs[i].csmbPdCd === itemQtys.value[j].csmbPdCd) {
+  //         const yyyy = Number(itemQtys.value[j].mngtYm.substring(0, 4));
+  //         const mm = Number(itemQtys.value[j].mngtYm.substring(4));
 
-          data.setValue(i, `${yyyy}${mm}`, itemQtys.value[j].bfsvcCsmbDdlvQty);
-        }
-      }
-    }
-  }
+  //         data.setValue(i, `${yyyy}${mm}`, itemQtys.value[j].bfsvcCsmbDdlvQty);
+  //       }
+  //     }
+  //   }
+  // }
 
   view.rowIndicator.indexOffset = gridUtil.getPageIndexOffset(pageInfo);
 }
@@ -209,12 +210,13 @@ async function fetchData() {
 async function onClickExcelDownload() {
   const view = grdMainRef.value.getView();
 
-  // const res = await dataService.get('/sms/wells/service/delivery-aggregates', { params: cachedParams });
+  const res = await dataService.get('/sms/wells/service/delivery-aggregates', { params: cachedParams, timeout: 300000 });
 
   await gridUtil.exportView(view, {
     fileName: currentRoute.value.meta.menuName,
     timePostfix: true,
-    exportData: gridUtil.getAllRowValues(view),
+    // exportData: gridUtil.getAllRowValues(view),
+    exportData: res.data,
   });
 }
 
@@ -280,7 +282,13 @@ async function onChangeMngtYm() {
     { fieldName: 'nwcmr' },
     { fieldName: 'indv' },
     { fieldName: 'bld' },
-    { fieldName: 'bfsvcCsmbDdlvSum' },
+    { fieldName: 'ddlvQtySum' },
+    // { fieldName: 'mm1Qty' },
+    // { fieldName: 'mm2Qty' },
+    // { fieldName: 'mm3Qty' },
+    // { fieldName: 'mm4Qty' },
+    // { fieldName: 'mm5Qty' },
+    // { fieldName: 'mm6Qty' },
     { fieldName: 'vstAccSum' },
     { fieldName: 'bdtIndv' },
     { fieldName: 'bdtCrp' },
@@ -300,12 +308,12 @@ async function onChangeMngtYm() {
     { fieldName: 'bldCd', header: t('MSG_TXT_BLD_CD'), width: '100', styleName: 'text-left' },
     { fieldName: 'bldNm', header: t('MSG_TXT_BLD_NM'), width: '100', styleName: 'text-left' },
     { fieldName: 'sapMatCd', header: t('MSG_TXT_SAP_CD'), width: '180', styleName: 'text-center' },
-    { fieldName: 'csmbPdCd', header: t('TXT_MSG_AS_ITM_CD'), width: '150', styleName: 'text-center' },
-    { fieldName: 'pdNm', header: t('MSG_TXT_ITM_NM'), width: '150', styleName: 'text-left' },
+    { fieldName: 'csmbPdCd', header: t('TXT_MSG_AS_ITM_CD'), width: '120', styleName: 'text-center' },
+    { fieldName: 'pdNm', header: t('MSG_TXT_ITM_NM'), width: '200', styleName: 'text-left' },
     { fieldName: 'nwcmr', header: t('MSG_TXT_NWCMR'), width: '80', styleName: 'text-center' },
     { fieldName: 'indv', header: t('MSG_TXT_INDV'), width: '80', styleName: 'text-center' },
     { fieldName: 'bld', header: t('MSG_TXT_BUILDING'), width: '80', styleName: 'text-center' },
-    { fieldName: 'bfsvcCsmbDdlvSum', header: t('MSG_TXT_AGG'), width: '80', styleName: 'text-right' },
+    { fieldName: 'ddlvQtySum', header: t('MSG_TXT_AGG'), width: '80', styleName: 'text-right' },
     { fieldName: 'vstAccSum', header: t('MSG_TXT_AGG'), width: '80', styleName: 'text-right' },
     { fieldName: 'wrfr', header: t('MSG_TXT_WRFR'), width: '80', styleName: 'text-right' },
     { fieldName: 'bdtIndv', header: t('MSG_TXT_BDT_INDV'), width: '80', styleName: 'text-right' },
@@ -326,16 +334,16 @@ async function onChangeMngtYm() {
   const strtMonth = Number(searchParams.value.mngtYmFrom.substring(4));
   const endMonth = Number(searchParams.value.mngtYmTo.substring(4));
 
-  const monthCount = (endYear - strtYear) * 12 + (endMonth - strtMonth);
+  const monthCount = ((endYear - strtYear) * 12 + (endMonth - strtMonth)) + 1;
   let yy = Number(searchParams.value.mngtYmFrom.substring(2, 4));
-  let yyyy = strtYear;
   let mm = strtMonth;
+  let mmCnt = (6 - monthCount);
 
-  colItems.push('bfsvcCsmbDdlvSum');
+  colItems.push('ddlvQtySum');
 
-  for (let i = 1; i <= monthCount + 1; i += 1) {
+  for (let i = 1; i <= monthCount; i += 1) {
     const headerNm = `${yy}년 ${mm}월`;
-    const fieldNm = `${yyyy}${mm}`;
+    const fieldNm = `mm${mmCnt + 1}Qty`;
 
     fields.push({ fieldName: fieldNm });
     columns.push({
@@ -348,11 +356,11 @@ async function onChangeMngtYm() {
     colItems.push(fieldNm);
 
     mm += 1;
+    mmCnt += 1;
 
     if (mm > 12) {
       mm = 1;
       yy += 1;
-      yyyy += 1;
     }
   }
 
@@ -404,7 +412,13 @@ const initGrdMain = defineGrid(async (data, view) => {
     { fieldName: 'nwcmr' },
     { fieldName: 'indv' },
     { fieldName: 'bld' },
-    { fieldName: 'bfsvcCsmbDdlvSum' },
+    { fieldName: 'ddlvQtySum' },
+    // { fieldName: 'mm1Qty' },
+    // { fieldName: 'mm2Qty' },
+    // { fieldName: 'mm3Qty' },
+    // { fieldName: 'mm4Qty' },
+    // { fieldName: 'mm5Qty' },
+    // { fieldName: 'mm6Qty' },
     { fieldName: 'vstAccSum' },
     { fieldName: 'bdtIndv' },
     { fieldName: 'bdtCrp' },
@@ -424,12 +438,12 @@ const initGrdMain = defineGrid(async (data, view) => {
     { fieldName: 'bldCd', header: t('MSG_TXT_BLD_CD'), width: '100', styleName: 'text-left' },
     { fieldName: 'bldNm', header: t('MSG_TXT_BLD_NM'), width: '100', styleName: 'text-left' },
     { fieldName: 'sapMatCd', header: t('MSG_TXT_SAP_CD'), width: '180', styleName: 'text-center' },
-    { fieldName: 'csmbPdCd', header: t('TXT_MSG_AS_ITM_CD'), width: '100', styleName: 'text-center' },
-    { fieldName: 'pdNm', header: t('MSG_TXT_ITM_NM'), width: '150', styleName: 'text-left' },
+    { fieldName: 'csmbPdCd', header: t('TXT_MSG_AS_ITM_CD'), width: '120', styleName: 'text-center' },
+    { fieldName: 'pdNm', header: t('MSG_TXT_ITM_NM'), width: '200', styleName: 'text-left' },
     { fieldName: 'nwcmr', header: t('MSG_TXT_NWCMR'), width: '80', styleName: 'text-center' },
     { fieldName: 'indv', header: t('MSG_TXT_INDV'), width: '80', styleName: 'text-center' },
     { fieldName: 'bld', header: t('MSG_TXT_BUILDING'), width: '80', styleName: 'text-center' },
-    { fieldName: 'bfsvcCsmbDdlvSum', header: t('MSG_TXT_AGG'), width: '80', styleName: 'text-right' },
+    { fieldName: 'ddlvQtySum', header: t('MSG_TXT_AGG'), width: '80', styleName: 'text-right' },
     { fieldName: 'vstAccSum', header: t('MSG_TXT_AGG'), width: '80', styleName: 'text-right' },
     { fieldName: 'wrfr', header: t('MSG_TXT_WRFR'), width: '80', styleName: 'text-right' },
     { fieldName: 'bdtIndv', header: t('MSG_TXT_BDT_INDV'), width: '80', styleName: 'text-right' },
@@ -450,16 +464,16 @@ const initGrdMain = defineGrid(async (data, view) => {
   const strtMonth = Number(searchParams.value.mngtYmFrom.substring(4));
   const endMonth = Number(searchParams.value.mngtYmTo.substring(4));
 
-  const monthCount = (endYear - strtYear) * 12 + (endMonth - strtMonth);
+  const monthCount = ((endYear - strtYear) * 12 + (endMonth - strtMonth)) + 1;
   let yy = Number(searchParams.value.mngtYmFrom.substring(2, 4));
-  let yyyy = strtYear;
   let mm = strtMonth;
+  let mmCnt = (6 - monthCount);
 
-  colItems.push('bfsvcCsmbDdlvSum');
+  colItems.push('ddlvQtySum');
 
-  for (let i = 1; i <= monthCount + 1; i += 1) {
+  for (let i = 1; i <= monthCount; i += 1) {
     const headerNm = `${yy}년 ${mm}월`;
-    const fieldNm = `${yyyy}${mm}`;
+    const fieldNm = `mm${mmCnt + 1}Qty`;
 
     fields.push({ fieldName: fieldNm });
     columns.push({
@@ -472,11 +486,11 @@ const initGrdMain = defineGrid(async (data, view) => {
     colItems.push(fieldNm);
 
     mm += 1;
+    mmCnt += 1;
 
     if (mm > 12) {
       mm = 1;
       yy += 1;
-      yyyy += 1;
     }
   }
 

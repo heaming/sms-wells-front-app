@@ -27,6 +27,7 @@
           <kw-date-range-picker
             v-model:from="searchParams.stFromYmd"
             v-model:to="searchParams.edToYmd"
+            :label="$t('MSG_TXT_STR_HOP_DT')"
             rules="date_range_months:1"
           />
         </kw-search-item>
