@@ -31,7 +31,7 @@
         <kw-btn
           underline
           secondary
-          :label="searchExpaneded ? '더보기' : '숨기기'"
+          :label="searchExpaneded ? '숨기기' : '더보기'"
           dense
           :icon-right="'arrow_down'"
           size="12px"
