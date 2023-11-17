@@ -574,6 +574,14 @@ const initGrdMain = defineGrid((data, view) => {
     { fieldName: 'woThmChramAmt', dataType: 'number' },
     { fieldName: 'woDlqAddAmt', dataType: 'number' },
     { fieldName: 'woRsgBorAmt', dataType: 'number' },
+
+    { fieldName: 'indvCstCt', dataType: 'number' },
+    { fieldName: 'indvCntrCt', dataType: 'number' },
+    { fieldName: 'indvObjAmt', dataType: 'number' },
+    { fieldName: 'crpCstCt', dataType: 'number' },
+    { fieldName: 'crpCntrCt', dataType: 'number' },
+    { fieldName: 'crpObjAmt', dataType: 'number' },
+
     { fieldName: 'rentalCstCt', dataType: 'number' },
     { fieldName: 'rentalCntrCt', dataType: 'number' },
     { fieldName: 'rentalObjAmt', dataType: 'number' },
@@ -625,15 +633,22 @@ const initGrdMain = defineGrid((data, view) => {
     { fieldName: 'woCntrCt', header: t('MSG_TXT_CNTR_N'), width: '65', numberFormat: '#,##0', styleName: 'text-right' }, // 계약수
     { fieldName: 'woObjAmt', header: t('MSG_TXT_THM_OJ'), width: '110', numberFormat: '#,##0', styleName: 'text-right' }, // 당월대상
     { fieldName: 'woDlqAmt', header: t('MSG_TXT_DLQ_AMT'), width: '110', numberFormat: '#,##0', styleName: 'text-right' }, // 연체금액
-    { fieldName: 'woThmChramAmt', header: t('MSG_TXT_THM_CHRAM'), width: '110', numberFormat: '#,##0', styleName: 'text-right' }, // 당월요금
+    { fieldName: 'woThmChramAmt', header: t('MSG_TXT_FTM'), width: '110', numberFormat: '#,##0', styleName: 'text-right' }, // 당월분
     { fieldName: 'woDlqAddAmt', header: t('MSG_TXT_DLQ_ADAMT'), width: '110', numberFormat: '#,##0', styleName: 'text-right' }, // 연체가산금
     { fieldName: 'woRsgBorAmt', header: t('MSG_TXT_BOR_AMT'), width: '110', numberFormat: '#,##0', styleName: 'text-center' }, // 위약금액
+
+    { fieldName: 'indvCstCt', header: t('MSG_TXT_CST_N'), width: '65', numberFormat: '#,##0', styleName: 'text-right' }, // 개인고객 고객수
+    { fieldName: 'indvCntrCt', header: t('MSG_TXT_CNTR_N'), width: '65', numberFormat: '#,##0', styleName: 'text-right' }, // 개인고객 계약수
+    { fieldName: 'indvObjAmt', header: t('MSG_TXT_THM_OJ'), width: '110', numberFormat: '#,##0', styleName: 'text-right' }, // 개인고객 당월대상
+    { fieldName: 'crpCstCt', header: t('MSG_TXT_CST_N'), width: '65', numberFormat: '#,##0', styleName: 'text-right' }, // 법인고객 고개수
+    { fieldName: 'crpCntrCt', header: t('MSG_TXT_CNTR_N'), width: '65', numberFormat: '#,##0', styleName: 'text-right' }, // 법인고객 계약수
+    { fieldName: 'crpObjAmt', header: t('MSG_TXT_THM_OJ'), width: '110', numberFormat: '#,##0', styleName: 'text-right' }, // 법인고객 당월대상
 
     { fieldName: 'rentalCstCt', header: t('MSG_TXT_CST_N'), width: '65', numberFormat: '#,##0', styleName: 'text-right' },
     { fieldName: 'rentalCntrCt', header: t('MSG_TXT_CNTR_N'), width: '65', numberFormat: '#,##0', styleName: 'text-right' },
     { fieldName: 'rentalObjAmt', header: t('MSG_TXT_THM_OJ'), width: '110', numberFormat: '#,##0', styleName: 'text-right' },
     { fieldName: 'rentalDlqAmt', header: t('MSG_TXT_DLQ_AMT'), width: '111', numberFormat: '#,##0', styleName: 'text-right' },
-    { fieldName: 'rentalThmChramAmt', header: t('MSG_TXT_THM_CHRAM'), width: '110', numberFormat: '#,##0', styleName: 'text-right' },
+    { fieldName: 'rentalThmChramAmt', header: t('MSG_TXT_FTM'), width: '110', numberFormat: '#,##0', styleName: 'text-right' },
     { fieldName: 'rentalDlqAddAmt', header: t('MSG_TXT_DLQ_ADAMT'), width: '110', numberFormat: '#,##0', styleName: 'text-right' },
     { fieldName: 'rentalRsgBorAmt', header: t('MSG_TXT_BOR_AMT'), width: '110', numberFormat: '#,##0', styleName: 'text-right' },
 
@@ -641,7 +656,7 @@ const initGrdMain = defineGrid((data, view) => {
     { fieldName: 'leaseCntrCt', header: t('MSG_TXT_CNTR_N'), width: '65', numberFormat: '#,##0', styleName: 'text-right' },
     { fieldName: 'leaseObjAmt', header: t('MSG_TXT_THM_OJ'), width: '110', numberFormat: '#,##0', styleName: 'text-right' },
     { fieldName: 'leaseDlqAmt', header: t('MSG_TXT_DLQ_AMT'), width: '110', numberFormat: '#,##0', styleName: 'text-right' },
-    { fieldName: 'leaseThmChramAmt', header: t('MSG_TXT_THM_CHRAM'), width: '110', numberFormat: '#,##0', styleName: 'text-right' },
+    { fieldName: 'leaseThmChramAmt', header: t('MSG_TXT_FTM'), width: '110', numberFormat: '#,##0', styleName: 'text-right' },
     { fieldName: 'leaseDlqAddAmt', header: t('MSG_TXT_DLQ_ADAMT'), width: '110', numberFormat: '#,##0', styleName: 'text-right' },
     { fieldName: 'leaseRsgBorAmt', header: t('MSG_TXT_BOR_AMT'), width: '110', numberFormat: '#,##0', styleName: 'text-right' },
 
@@ -649,7 +664,7 @@ const initGrdMain = defineGrid((data, view) => {
     { fieldName: 'mshCntrCt', header: t('MSG_TXT_CNTR_N'), width: '65', numberFormat: '#,##0', styleName: 'text-right' },
     { fieldName: 'mshObjAmt', header: t('MSG_TXT_THM_OJ'), width: '110', numberFormat: '#,##0', styleName: 'text-right' },
     { fieldName: 'mshDlqAmt', header: t('MSG_TXT_DLQ_AMT'), width: '110', numberFormat: '#,##0', styleName: 'text-right' },
-    { fieldName: 'mshThmChramAmt', header: t('MSG_TXT_THM_CHRAM'), width: '110', numberFormat: '#,##0', styleName: 'text-right' },
+    { fieldName: 'mshThmChramAmt', header: t('MSG_TXT_FTM'), width: '110', numberFormat: '#,##0', styleName: 'text-right' },
     { fieldName: 'mshDlqAddAmt', header: t('MSG_TXT_DLQ_ADAMT'), width: '110', numberFormat: '#,##0', styleName: 'text-right' },
     { fieldName: 'mshRsgBorAmt', header: t('MSG_TXT_BOR_AMT'), width: '110', numberFormat: '#,##0', styleName: 'text-right' },
 
@@ -657,7 +672,7 @@ const initGrdMain = defineGrid((data, view) => {
     { fieldName: 'hcrCntrCt', header: t('MSG_TXT_CNTR_N'), width: '65', numberFormat: '#,##0', styleName: 'text-right' },
     { fieldName: 'hcrObjAmt', header: t('MSG_TXT_THM_OJ'), width: '110', numberFormat: '#,##0', styleName: 'text-right' },
     { fieldName: 'hcrDlqAmt', header: t('MSG_TXT_DLQ_AMT'), width: '110', numberFormat: '#,##0', styleName: 'text-right' },
-    { fieldName: 'hcrThmChramAmt', header: t('MSG_TXT_THM_CHRAM'), width: '110', numberFormat: '#,##0', styleName: 'text-right' },
+    { fieldName: 'hcrThmChramAmt', header: t('MSG_TXT_FTM'), width: '110', numberFormat: '#,##0', styleName: 'text-right' },
     { fieldName: 'hcrDlqAddAmt', header: t('MSG_TXT_DLQ_ADAMT'), width: '110', numberFormat: '#,##0', styleName: 'text-right' },
     { fieldName: 'hcrRsgBorAmt', header: t('MSG_TXT_BOR_AMT'), width: '110', numberFormat: '#,##0', styleName: 'text-right' },
 
@@ -665,7 +680,7 @@ const initGrdMain = defineGrid((data, view) => {
     { fieldName: 'spayCntrCt', header: t('MSG_TXT_CNTR_N'), width: '65', numberFormat: '#,##0', styleName: 'text-right' },
     { fieldName: 'spayObjAmt', header: t('MSG_TXT_THM_OJ'), width: '110', numberFormat: '#,##0', styleName: 'text-right' },
     { fieldName: 'spayDlqAmt', header: t('MSG_TXT_DLQ_AMT'), width: '110', numberFormat: '#,##0', styleName: 'text-right' },
-    { fieldName: 'spayThmChramAmt', header: t('MSG_TXT_THM_CHRAM'), width: '110', numberFormat: '#,##0', styleName: 'text-right' },
+    { fieldName: 'spayThmChramAmt', header: t('MSG_TXT_FTM'), width: '110', numberFormat: '#,##0', styleName: 'text-right' },
     { fieldName: 'spayDlqAddAmt', header: t('MSG_TXT_DLQ_ADAMT'), width: '110', numberFormat: '#,##0', styleName: 'text-right' },
     { fieldName: 'spayRsgBorAmt', header: t('MSG_TXT_BOR_AMT'), width: '110', numberFormat: '#,##0', styleName: 'text-right' },
 
@@ -673,7 +688,7 @@ const initGrdMain = defineGrid((data, view) => {
     { fieldName: 'rglrSppCntrCt', header: t('MSG_TXT_CNTR_N'), width: '65', numberFormat: '#,##0', styleName: 'text-right' },
     { fieldName: 'rglrSppObjAmt', header: t('MSG_TXT_THM_OJ'), width: '110', numberFormat: '#,##0', styleName: 'text-right' },
     { fieldName: 'rglrSppDlqAmt', header: t('MSG_TXT_DLQ_AMT'), width: '110', numberFormat: '#,##0', styleName: 'text-right' },
-    { fieldName: 'rglrSppThmChramAmt', header: t('MSG_TXT_THM_CHRAM'), width: '110', numberFormat: '#,##0', styleName: 'text-right' },
+    { fieldName: 'rglrSppThmChramAmt', header: t('MSG_TXT_FTM'), width: '110', numberFormat: '#,##0', styleName: 'text-right' },
     { fieldName: 'rglrSppDlqAddAmt', header: t('MSG_TXT_DLQ_ADAMT'), width: '110', numberFormat: '#,##0', styleName: 'text-right' },
     { fieldName: 'rglrSppRsgBorAmt', header: t('MSG_TXT_BOR_AMT'), width: '110', numberFormat: '#,##0', styleName: 'text-right' },
 
@@ -689,6 +704,16 @@ const initGrdMain = defineGrid((data, view) => {
       direction: 'horizontal',
       items: ['woCstCt', 'woCntrCt', 'woObjAmt', 'woDlqAmt', 'woThmChramAmt', 'woDlqAddAmt', 'woRsgBorAmt'],
     }, // 전체
+    {
+      header: t('MSG_TXT_INDV_CST'),
+      direction: 'horizontal',
+      items: ['indvCstCt', 'indvCntrCt', 'indvObjAmt'],
+    }, // 개인고객
+    {
+      header: t('MSG_TXT_CRP_CST'),
+      direction: 'horizontal',
+      items: ['crpCstCt', 'crpCntrCt', 'crpObjAmt'],
+    }, // 법인고객
     {
       header: t('MSG_TXT_RENTAL'),
       direction: 'horizontal',
@@ -744,6 +769,7 @@ const initGrdSub = defineGrid((data, view) => {
     { fieldName: 'bfClctamPrtnrKnm' },
     { fieldName: 'cntrNo' },
     { fieldName: 'cstNm' },
+    { fieldName: 'cstDv' },
     { fieldName: 'cstNo' },
     { fieldName: 'pdDvKnm' },
     { fieldName: 'pdDvCd' },
@@ -785,12 +811,13 @@ const initGrdSub = defineGrid((data, view) => {
         return `${cntrNo}-${cntrSn}`;
       } }, // 계약상세번호
     { fieldName: 'cstNm', header: t('MSG_TXT_CST_NM'), width: '90', styleName: 'text-center', editable: false }, // 고객명
+    { fieldName: 'cstDv', header: t('MSG_TXT_CST_DV'), width: '90', styleName: 'text-center', editable: false }, // 고객구분
     { fieldName: 'cstNo', header: t('MSG_TXT_CST_NO'), width: '130', styleName: 'text-center', editable: false }, // 고객번호
     { fieldName: 'pdDvKnm', header: t('MSG_TXT_PRDT_GUBUN'), width: '90', styleName: 'text-center', editable: false }, // 상품구분
     { fieldName: 'dlqMcn', header: t('MSG_TXT_DLQ_MCNT'), width: '86', styleName: 'text-right', editable: false }, // 연체개월
     { fieldName: 'objAmt', header: t('MSG_TXT_THM_OJ'), width: '110', numberFormat: '#,##0', styleName: 'text-right', editable: false }, // 당월대상
     { fieldName: 'dlqAmt', header: t('MSG_TXT_DLQ_AMT'), width: '110', numberFormat: '#,##0', styleName: 'text-right', editable: false }, // 연체금액
-    { fieldName: 'thmChramAmt', header: t('MSG_TXT_THM_CHRAM'), width: '110', numberFormat: '#,##0', styleName: 'text-right', editable: false }, // 당월요금
+    { fieldName: 'thmChramAmt', header: t('MSG_TXT_FTM'), width: '110', numberFormat: '#,##0', styleName: 'text-right', editable: false }, // 당월분
     { fieldName: 'dlqAddAmt', header: t('MSG_TXT_DLQ_ADD_AMT'), width: '116', numberFormat: '#,##0', styleName: 'text-right', editable: false }, // 연체가산금액
     { fieldName: 'rsgBorAmt', header: t('MSG_TXT_BOR_AMT'), width: '110', numberFormat: '#,##0', styleName: 'text-right', editable: false }, // 위약금액
     { fieldName: 'cujNm', header: t('MSG_TXT_CUJ_NM'), width: '110', styleName: 'text-center', editable: false }, // 법원명

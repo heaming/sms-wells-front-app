@@ -591,7 +591,7 @@ const initGrdSub = defineGrid((data, view) => {
     { fieldName: 'addr' },
   ];
   const columns = [
-    { fieldName: 'clctamDvCd', header: t('MSG_TXT_CLCTAM_DV'), options: filteredCodes.value.CLCTAM_DV_CD, optionValue: 'codeId', optionLabel: 'codeName', editor: { type: 'list' }, width: '100' }, // 집금구분
+    { fieldName: 'clctamDvCd', header: t('MSG_TXT_CLCTAM_DV'), options: filteredCodes.value.CLCTAM_DV_CD, optionValue: 'codeId', optionLabel: 'codeName', editor: { type: 'list' }, width: '100', styleName: 'text-center' }, // 집금구분
     { fieldName: 'originClctamDvCd', visible: false },
     { fieldName: 'bfPrtnrKnm', header: t('MSG_TXT_LSTMM_PSIC'), width: '100', styleName: 'text-center', editable: false }, // 전월담당자
     { fieldName: 'cntrNo',
