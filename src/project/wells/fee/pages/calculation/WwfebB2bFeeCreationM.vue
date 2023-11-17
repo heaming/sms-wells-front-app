@@ -399,9 +399,9 @@ const initGridDetail = defineGrid((data, view) => {
     { fieldName: 'prtnrNo', header: t('MSG_TXT_SEQUENCE_NUMBER'), width: '127', styleName: 'text-center' }, // 번호
     { fieldName: 'cntrNo', header: t('MSG_TXT_CNTR_DTL_NO'), width: '151', styleName: 'text-center' }, // 계약상세번호
     { fieldName: 'cstKnm', header: t('MSG_TXT_CUST_STMT'), width: '98' }, // 고객성명
+    { fieldName: 'sellTpCd', header: t('MSG_TXT_SEL_TYPE'), width: '150', styleName: 'text-center', options: codes.SELL_TP_CD }, // 판매유형
     { fieldName: 'basePdCd', header: t('MSG_TXT_PRDT_CODE'), width: '106', styleName: 'text-center' }, // 상품모드
     { fieldName: 'pdNm', header: t('MSG_TXT_PRDT_NM'), width: '210' }, // 상품명
-    { fieldName: 'sellTpCd', header: t('MSG_TXT_SEL_TYPE'), width: '150', styleName: 'text-center', options: codes.SELL_TP_CD, visible: false }, // 판매유형
     {
       fieldName: 'sellDscDvCd',
       header: t('MSG_TXT_PD_DC_CLASS'),
@@ -527,7 +527,7 @@ const initGridBase = defineGrid((data, view) => {
     { fieldName: 'coCd', visible: false }, // 회사코드
     {
       fieldName: 'prtnrKnm',
-      header: t('MSG_TXT_CORP_NAME'),
+      header: t('MSG_TXT_BRCH_NM'),
       width: '127',
       headerSummary: {
         styleName: 'text-center',
