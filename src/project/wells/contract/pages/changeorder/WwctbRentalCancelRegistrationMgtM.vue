@@ -638,7 +638,7 @@
         :label="$t('MSG_TXT_RENTAL_RSG_CFDG')+$t('MSG_BTN_VIEW')"
         class="ml8"
         icon="report"
-        @click="onClickTodo('렌탈계약해지확인서 보기')"
+        @click="onClickRentalReport"
       />
       <!--삭제 - 매출마감이 되었으면 DISABLE -->
       <kw-btn
@@ -677,6 +677,7 @@
 import { codeUtil, getComponentType, stringUtil, store, useDataService, useGlobal } from 'kw-lib';
 import dayjs from 'dayjs';
 import { isEmpty, isEqual } from 'lodash';
+import { openReportPopup } from '~common/utils/cmPopupUtil';
 
 const { t } = useI18n();
 const dataService = useDataService();
@@ -861,6 +862,27 @@ async function onClickRefund() {
     component: 'WwwdbRefundApplicationRegP',
     componentProps: { cntrNo, cntrSn },
   });
+}
+
+async function onClickRentalReport() {
+  console.log(searchDetail);
+  const args = {
+    MasterInfo: [{
+      custNm: searchDetail.cntrCstKnm,
+      slsDt: searchDetail.cntrPdStrtdt,
+      addr: searchDetail.cstAdr,
+      prdtNm: searchDetail.pdNm,
+      ordrNo: searchDetail.cntrCstNo,
+      cancDt: searchDetail.rsgFshDt,
+    }],
+  };
+
+  // OZ 레포트 팝업호출
+  openReportPopup(
+    '/kstation-w/cust/reprt/rntlCustTrmtAtsh.ozr',
+    '',
+    JSON.stringify(args),
+  );
 }
 
 async function onClickTodo(param) {
