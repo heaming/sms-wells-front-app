@@ -169,7 +169,10 @@ const codes = await codeUtil.getMultiCodes(
   'COD_PAGE_SIZE_OPTIONS',
   'ICPT_SELL_PROCS_TP_CD',
 );
-codes.APY_CLS = [{ codeId: 1, codeName: t('MSG_TXT_FST_RGST_DT') }, { codeId: 2, codeName: t('MSG_TXT_YEAR_OCCURNCE') }];
+codes.APY_CLS = [
+  { codeId: 1, codeName: t('MSG_TXT_AVAIL_TM') }, // 적발년월
+  { codeId: 2, codeName: t('MSG_TXT_YEAR_OCCURNCE') }, // 발생년월
+];
 codes.ICPT_SELL_PROCS_TP_CD = [{ codeId: '030', codeName: '보류' }, { codeId: '040', codeName: '보류해제' }];
 const pageInfo = ref({
   totalCount: 0,
