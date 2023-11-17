@@ -493,7 +493,7 @@ const initGridBase = defineGrid((data, view) => {
     { fieldName: 'coCd', visible: false }, // 회사코드
     {
       fieldName: 'coCdNm',
-      header: t('MSG_TXT_BRCH_NM'),
+      header: t('MSG_TXT_CORP_NAME'),
       width: '127',
       headerSummary: {
         styleName: 'text-center',
