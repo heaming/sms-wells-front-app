@@ -542,9 +542,6 @@ async function onClickQrRpbl() {
     }
   }
   */
-
-  console.log(`cherro ::: ${ozReportParam.value.args}`);
-
   openReportPopup(
     ozReportParam.value.ozrPath,
     ozReportParam.value.odiPath,
