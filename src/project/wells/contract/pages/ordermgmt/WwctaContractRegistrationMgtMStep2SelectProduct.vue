@@ -161,13 +161,13 @@ await addCode('SELL_TP_CD', (code) => ([
   SELL_TP_CD.RGLR_SPP,
 ].includes(code.codeId) && code));
 await addCode('PD_CLSF_CD', [
-  { codeId: '1', codeName: '정수기' },
-  { codeId: '2', codeName: '청정기' },
-  { codeId: '3', codeName: '비데' },
-  { codeId: '4', codeName: '삼성가전' },
-  { codeId: '5', codeName: '정기배송' },
-  { codeId: '6', codeName: '기타' },
-  { codeId: '7', codeName: '복합상품' },
+  { codeId: 'CLSF_CD_1', codeName: '정수기' },
+  { codeId: 'CLSF_CD_2', codeName: '청정기' },
+  { codeId: 'CLSF_CD_3', codeName: '비데' },
+  { codeId: 'CLSF_CD_4', codeName: '삼성가전' },
+  { codeId: 'CLSF_CD_5', codeName: '정기배송' },
+  { codeId: 'CLSF_CD_6', codeName: '기타' },
+  { codeId: 'CLSF_CD_7', codeName: '복합상품' },
 ]);
 
 const cntrNo = ref(props.cntrNo);
@@ -197,24 +197,24 @@ function getPdClsfCd(product) {
     return;
   }
   if (product.pdTpCd === PD_TP_CD.COMPOSITION) {
-    return '7';
+    return 'CLSF_CD_7';
   }
   if (product.istBzsCd === 'S') {
-    return '4';
+    return 'CLSF_CD_4';
   }
   if (product.sellTpCd === SELL_TP_CD.RGLR_SPP) {
-    return '5';
+    return 'CLSF_CD_5';
   }
   if (product.pdMclsfId === 'PDC000000000002') {
-    return '1';
+    return 'CLSF_CD_1';
   }
   if (product.pdMclsfId === 'PDC000000000026') {
-    return '2';
+    return 'CLSF_CD_2';
   }
   if (product.pdMclsfId === 'PDC000000000056') {
-    return '3';
+    return 'CLSF_CD_3';
   }
-  return '6';
+  return 'CLSF_CD_6';
 }
 
 function labelForSellTpCd(product) {
@@ -238,13 +238,13 @@ function classifying() {
   }
 
   const mappingObj = {
-    1: undefined,
-    2: undefined,
-    3: undefined,
-    4: undefined,
-    5: undefined,
-    6: undefined,
-    7: undefined,
+    CLSF_CD_1: undefined,
+    CLSF_CD_2: undefined,
+    CLSF_CD_3: undefined,
+    CLSF_CD_4: undefined,
+    CLSF_CD_5: undefined,
+    CLSF_CD_6: undefined,
+    CLSF_CD_7: undefined,
   };
 
   const addPdToMapping = (product) => {
