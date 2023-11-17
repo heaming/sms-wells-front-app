@@ -214,6 +214,8 @@
 // -------------------------------------------------------------------------------------------------
 import { getComponentType, gridUtil, stringUtil, useDataService, useGlobal, useMeta } from 'kw-lib';
 import { cloneDeep, isEmpty } from 'lodash-es';
+import { openReportPopup } from '~common/utils/cmPopupUtil';
+import dayjs from 'dayjs';
 import ZctzContractDetailNumber from '~sms-common/contract/components/ZctzContractDetailNumber.vue';
 
 import WwctbRentalCancelRegistrationMgtM from './WwctbRentalCancelRegistrationMgtM.vue';
@@ -228,6 +230,7 @@ const { getUserInfo } = useMeta();
 const sessionUserInfo = getUserInfo();
 const grdMain = ref(getComponentType('KwGrid'));
 const grdMainView = computed(() => grdMain.value?.getView());
+const now = dayjs();
 
 const props = defineProps({
   cntrNo: { type: String, default: '' },
@@ -407,17 +410,80 @@ function onClickRegistCancel() {
 }
 
 // 1. 계약리스트 > 거래명세서 보기 클릭
-function onClickSpcshView() {
-  /*
-  - 해당 버튼은 해당 계약상세번호가 가상계좌를 발급한 경우에만 노출이 됩니다.
-  가상계좌 발급 이력이 없으 면 버튼이 노출이 되지 않습니다.
-  */
-  notify('TODO : 거래명세서 OZ뷰 호출 ');
+async function onClickSpcshView() {
+  if (isEmpty(grdMainView.value.getCheckedRows())) {
+    notify(t('MSG_ALT_LIST_CHO'));
+    return;
+  }
+
+  const cachedParams1 = [];
+  const cntrList = [];
+  const cntrs = gridUtil.getCheckedRowValues(grdMainView.value);
+  cntrs.forEach((row) => { cntrList.push({ cntrNoFull: row.cntrNo }); });
+
+  const searchPopupParams = {
+    docDvCd: '2', // 증빙서류종류 : 2. 거래명세서
+    cntrList,
+    firstDt: dayjs(searchParams.value.dm).startOf('month').format('YYYYMMDD'), // 기간(시작일자)
+    lastDt: dayjs(searchParams.value.dm).endOf('month').format('YYYYMMDD'), // 기간(종료일자)
+    isPrntYn: 'Y',
+    cntrCstKnm: '', // 고객명
+  };
+  const { result, payload } = await modal({
+    component: 'WwctaDocumentaryEvidenceMailForwardingP', // 증빙서류
+    componentProps: searchPopupParams,
+  });
+
+  if (!result) {
+    return;
+  }
+
+  // 계약/고객번호 구분 : case '1': // 계약상세번호
+  const cntrDtlNoList = [];
+  cntrs.forEach((row) => { cntrDtlNoList.push(`${row.cntrNo}-${row.cntrSn}`); });
+
+  cachedParams1.cntrCnfmStrtDt = dayjs(searchParams.value.dm).startOf('month').format('YYYYMMDD');
+  cachedParams1.cntrCnfmEndDt = dayjs(searchParams.value.dm).endOf('month').format('YYYYMMDD');
+  cachedParams1.pblcSearchSttDt = payload.pblcSearchSttDt; // 발행년월시(현재일자)
+  cachedParams1.custNm = payload.custNm; // 고객명
+  cachedParams1.reportHeaderTitle = '거래명세서 조회'; // 레포트 제목
+  console.log(cachedParams1);
+
+  // OZ 리포트 호출 Api 설정
+  // eslint-disable-next-line no-case-declarations
+  const args2 = { searchApiUrl: '/api/v1/sms/wells/contract/contracts/order-details/specification/trade-specification/oz', ...cachedParams1, cntrDtlNoList };
+
+  // OZ 레포트 팝업호출
+  openReportPopup(
+    '/kstation-w/dpst/dealSpec.ozr',
+    '',
+    JSON.stringify(args2),
+  );
 }
 
 // 1. 계약리스트 > 가상계좌확인서 보기 클릭
-function onClickVirtualAccountView() {
-  notify('TODO : 가상계좌확인서 OZ뷰 호출 ');
+async function onClickVirtualAccountView() {
+  const { cntrNo, cntrSn } = cancelDetailList.value[idx.value];
+  const res = await dataService.get(`/sms/wells/contract/changeorder/cancel/vacc-info/${cntrNo}/${cntrSn}`);
+  if (isEmpty(res.data)) {
+    alert(t('MSG_ALT_NO_SRCH_DATA'));
+    return;
+  }
+
+  // OZ 레포트 팝업호출
+  openReportPopup(
+    '/kstation-w/sldp/vrtlAcntCnft.ozr',
+    '',
+    JSON.stringify({
+      BANKNM: res.data.vacBnkNm,
+      ACNO: res.data.vacNo,
+      CUSTNM: res.data.vacAcownNm,
+      CURRENTYY: now.format('YYYY'),
+      CURRENTMM: now.format('MM'),
+      CURRENTDD: now.format('DD'),
+      ISNCPATH: '',
+    }),
+  );
 }
 
 // 환불총액 재계산
