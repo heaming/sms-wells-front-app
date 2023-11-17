@@ -474,14 +474,15 @@ async function onClickVirtualAccountView() {
   openReportPopup(
     '/kstation-w/sldp/vrtlAcntCnft.ozr',
     '',
-    JSON.stringify({
+    JSON.stringify({ jsonData: [{
       BANKNM: res.data.vacBnkNm,
       ACNO: res.data.vacNo,
       CUSTNM: res.data.vacAcownNm,
       CURRENTYY: now.format('YYYY'),
       CURRENTMM: now.format('MM'),
       CURRENTDD: now.format('DD'),
-      ISNCPATH: '',
+      ISNCPATH: res.data.isncPath,
+    }],
     }),
   );
 }
