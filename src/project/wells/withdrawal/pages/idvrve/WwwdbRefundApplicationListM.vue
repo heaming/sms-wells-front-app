@@ -221,7 +221,7 @@ let cachedParams;
 // -------------------------------------------------------------------------------------------------
 async function fetchData() {
   cachedParams = { ...cachedParams, ...pageInfo.value };
-  const res = await dataService.get('/sms/wells/withdrawal/idvrve/refund-applications/paging', { params: cachedParams });
+  const res = await dataService.get('/sms/wells/withdrawal/idvrve/refund-applications/paging', { params: cachedParams, timeout: 6000000 });
   const { list: pages, pageInfo: pagingResult } = res.data;
 
   pageInfo.value = pagingResult;
