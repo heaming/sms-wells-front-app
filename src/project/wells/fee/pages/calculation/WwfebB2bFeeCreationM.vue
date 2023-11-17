@@ -393,8 +393,8 @@ async function onClickOpenReport(baseYm, prtnrNo) {
 const initGridDetail = defineGrid((data, view) => {
   const columns = [
     { fieldName: 'baseYm', header: t('MSG_TXT_BASE_YM'), visible: false }, // 기준년월
-    { fieldName: 'coCdNm', header: t('MSG_TXT_CORP_NAME'), width: '127' }, // 업체명(지구명)
-    // { fieldName: 'brchNm', header: t('MSG_TXT_BRCH_NM'), width: '127' }, // 지점명
+    // { fieldName: 'coCdNm', header: t('MSG_TXT_CORP_NAME'), width: '127' }, // 업체명(지구명) 20231117 고객요청 지점명으로통합
+    { fieldName: 'brchNm', header: t('MSG_TXT_BRCH_NM'), width: '127' }, // 지점명
     { fieldName: 'prtnrKnm', header: t('MSG_TXT_SELLER_PERSON'), width: '98' }, // 판매자
     { fieldName: 'prtnrNo', header: t('MSG_TXT_SEQUENCE_NUMBER'), width: '127', styleName: 'text-center' }, // 번호
     { fieldName: 'cntrNo', header: t('MSG_TXT_CNTR_DTL_NO'), width: '151', styleName: 'text-center' }, // 계약상세번호
