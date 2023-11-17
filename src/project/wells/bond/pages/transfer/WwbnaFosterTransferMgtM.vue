@@ -783,6 +783,37 @@ const initGridDetail = ((data, view) => {
       grid.setValue(index.itemIndex, 'clctamPrtnrNo', '');
     }
   };
+
+  // 집금담당자 enter 키 => 팝업 open
+  view.onKeyDown = async (grid, event) => {
+    const current = view.getCurrent();
+    const dataProvider = view.getDataSource();
+    const currentColumn = current.column;
+    let currentValue = '';
+    const key = event.key || event.keyCode;
+    if (currentColumn === 'clctamPrtnrNm' && (key === 'Enter' || key === 13)) {
+      grid.commit();
+      currentValue = dataProvider.getValue(current.dataRow, 'clctamPrtnrNm');
+    }
+    if (currentColumn === 'clctamPrtnrNm' && (key === 'Enter' || key === 13)) {
+      const { result, payload } = await modal({
+        component: 'ZwbnyCollectorListP',
+        componentProps: {
+          clctamPrtnrNm: currentValue,
+          is1RowClose: false,
+        },
+      });
+      if (result) {
+        const { prtnrNo, prtnrKnm, clctamDvCd } = payload;
+        if (cachedParams.clctamDvCd !== clctamDvCd && !isEmpty(prtnrNo)) {
+          await alert(t('MSG_ALT_CNTR_CLCTAM_DV_PSIC_FIT')); // 해당 계약의 집금구분과 맞는 담당자를 선택해 주세요.
+          return false;
+        }
+        grid.setValue(current.itemIndex, 'clctamPrtnrNo', prtnrNo);
+        grid.setValue(current.itemIndex, 'clctamPrtnrNm', prtnrKnm);
+      }
+    }
+  };
 });
 
 </script>
