@@ -230,6 +230,7 @@ const { getUserInfo } = useMeta();
 const sessionUserInfo = getUserInfo();
 const grdMain = ref(getComponentType('KwGrid'));
 const grdMainView = computed(() => grdMain.value?.getView());
+const now = dayjs();
 
 const props = defineProps({
   cntrNo: { type: String, default: '' },
@@ -240,8 +241,8 @@ const props = defineProps({
 const searchParams = ref({
   cntrNo: '', // 계약번호
   cntrSn: '', // 계약일련번호
-  cstNo: '041169462', // 고객번호
-  dm: '202311', // 조회년월
+  cstNo: '', // 고객번호
+  dm: '', // 조회년월
 });
 
 const totalCount = ref(0);
@@ -446,12 +447,11 @@ async function onClickSpcshView() {
   cachedParams1.pblcSearchSttDt = payload.pblcSearchSttDt; // 발행년월시(현재일자)
   cachedParams1.custNm = payload.custNm; // 고객명
   cachedParams1.reportHeaderTitle = '거래명세서 조회'; // 레포트 제목
-
   console.log(cachedParams1);
 
   // OZ 리포트 호출 Api 설정
   // eslint-disable-next-line no-case-declarations
-  const args2 = { searchApiUrl: '/api/v1/sms/wells/contract/contracts/order-details/specification/trade-specification/anonymous/oz', ...cachedParams1, cntrDtlNoList };
+  const args2 = { searchApiUrl: '/api/v1/sms/wells/contract/contracts/order-details/specification/trade-specification/oz', ...cachedParams1, cntrDtlNoList };
 
   // OZ 레포트 팝업호출
   openReportPopup(
@@ -462,8 +462,28 @@ async function onClickSpcshView() {
 }
 
 // 1. 계약리스트 > 가상계좌확인서 보기 클릭
-function onClickVirtualAccountView() {
-  notify('TODO : 가상계좌확인서 OZ뷰 호출 ');
+async function onClickVirtualAccountView() {
+  const { cntrNo, cntrSn } = cancelDetailList.value[idx.value];
+  const res = await dataService.get(`/sms/wells/contract/changeorder/cancel/vacc-info/${cntrNo}/${cntrSn}`);
+  if (isEmpty(res.data)) {
+    alert(t('MSG_ALT_NO_SRCH_DATA'));
+    return;
+  }
+
+  // OZ 레포트 팝업호출
+  openReportPopup(
+    '/kstation-w/sldp/vrtlAcntCnft.ozr',
+    '',
+    JSON.stringify({
+      BANKNM: res.data.vacBnkNm,
+      ACNO: res.data.vacNo,
+      CUSTNM: res.data.vacAcownNm,
+      CURRENTYY: now.format('YYYY'),
+      CURRENTMM: now.format('MM'),
+      CURRENTDD: now.format('DD'),
+      ISNCPATH: '',
+    }),
+  );
 }
 
 // 환불총액 재계산
