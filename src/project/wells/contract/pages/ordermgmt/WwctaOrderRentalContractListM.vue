@@ -204,15 +204,32 @@
       </kw-search-item>
     </kw-search-row>
     <kw-search-row>
-      <!-- 조직구분 -->
+      <!-- 조직유형 -->
       <kw-search-item
-        :label="$t('MSG_TXT_OG_DV')"
+        :label="$t('MSG_TXT_OG_TP')"
       >
         <kw-select
           v-model="searchParams.sellOgTpCd"
           :options="codes.OG_TP_CD"
           :model-value="searchParams.sellOgTpCd ? searchParams.sellOgTpCd : []"
           :multiple="true"
+        />
+      </kw-search-item>
+      <!-- 판매채널 -->
+      <kw-search-item
+        :label="t('MSG_TXT_SEL_CHNL')"
+      >
+        <kw-select
+          v-model="searchParams.sellChnlDvCd"
+          :options="codes.SELL_CHNL_DV_CD"
+          first-option="all"
+          first-option-val=""
+        />
+        <kw-select
+          v-model="searchParams.sellChnlDtlCd"
+          :options="codes.SELL_CHNL_DTL_CD"
+          first-option="all"
+          first-option-val=""
         />
       </kw-search-item>
       <!-- 자료구분 -->
@@ -299,7 +316,9 @@ const searchParams = ref({
   alncmpCd: '', // 제휴코드
   sellEvCd: '', // 행사코드
   sellPrtnrNo: '', // 파트너코드
-  sellOgTpCd: [], // 조직구분
+  sellOgTpCd: [], // 조직유형
+  sellChnlDvCd: '', // 판매채널구분코드
+  sellChnlDtlCd: '', // 판매유형상세코드
   booSellYn: '', // 자료구분-예약자료
   canYn: '', // 자료구분-취소제외
   slYn: '', // 자료구분-매출생성
@@ -317,10 +336,12 @@ const searchParams = ref({
 
 const codes = await codeUtil.getMultiCodes(
   'COD_PAGE_SIZE_OPTIONS',
-  'ALNCMP_CD',
-  'SELL_EV_CD',
-  'OG_TP_CD',
-  'SELL_TP_DTL_CD',
+  'ALNCMP_CD', // 제휴코드
+  'SELL_EV_CD', // 행사코드
+  'OG_TP_CD', // 조직유형코드
+  'SELL_CHNL_DV_CD', // 판매채널구분코드
+  'SELL_CHNL_DTL_CD', // 판매채널상세코드
+  'SELL_TP_DTL_CD', // 판매유형상세코드
 );
 
 const pageInfo = ref({
