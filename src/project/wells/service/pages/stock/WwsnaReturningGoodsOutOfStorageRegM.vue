@@ -769,10 +769,10 @@ const initGrdMain = defineGrid((data, view) => {
   view.rowIndicator.visible = true;
   view.editOptions.columnEditableFirst = true;
 
-  view.onCellClicked = async (grid, { column, dataRow }) => {
+  view.onCellButtonClicked = async (grid, { column, itemIndex }) => {
     if (canEdit()) return;
     if (column === 'itmPdNm') {
-      await openItemBasePopup('U', dataRow);
+      await openItemBasePopup('U', itemIndex);
     }
   };
 
