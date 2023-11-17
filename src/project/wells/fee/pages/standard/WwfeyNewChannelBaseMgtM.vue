@@ -300,6 +300,7 @@ async function onClickRowCopy() {
   // await gridUtil.insertRowAndFocus(view, 0, checkedRows[0]);
   view.getDataSource().insertRow(0, checkedRows[0]);
   gridUtil.focusCellInput(view, 0, 'basePdCd');
+  view.checkItem(0, true, true);
 }
 
 // 그리드행추가
@@ -315,6 +316,7 @@ async function onClickRowAdd() {
   };
   view.getDataSource().insertRow(0, defaultRow);
   gridUtil.focusCellInput(view, 0, 'basePdCd');
+  view.checkItem(0, true, true);
 }
 
 // 저장
