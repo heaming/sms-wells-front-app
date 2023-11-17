@@ -86,7 +86,6 @@
             :on-click-icon="openSearchUserPopup"
             clearable
             :on-keydown-no-click="true"
-            regex="alpha_hangul"
             maxlength="25"
             :rules="validateSearchCstNo"
             @keydown="isCustomer($event, 'type2')"
