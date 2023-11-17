@@ -1264,29 +1264,33 @@ async function fetchCustomerDetail() {
   selectedGridRow.value = null;
 
   const res = await dataService.get('/sms/wells/bond/bond-counsel/counsel_registration', { params: cachedParams });
-  if (!isEmpty(res.data.cnslPh)) {
-    customer.value.cnslPh = res.data.cnslPh;
-  }
-  if (!isEmpty(res.data.crncyRs)) {
-    customer.value.crncyRs = res.data.crncyRs;
-  }
-  if (!isEmpty(res.data.cstPrp)) {
-    customer.value.cstPrp = res.data.cstPrp;
-  }
-  if (!isEmpty(res.data.dprNm)) {
-    customer.value.dpr = res.data.dprNm;
-  }
-  if (!isEmpty(res.data.cnslTp)) {
-    customer.value.bndCnslMtrDvCd = res.data.cnslTp;
-  }
-  if (!isEmpty(res.data.cstStat)) {
-    customer.value.cstStat = res.data.cstStat;
-  }
-  if (!isEmpty(res.data.clnPsbl)) {
-    customer.value.clnPsbl = res.data.clnPsbl;
-  }
-  if (!isEmpty(res.data.clnPrcs)) {
-    customer.value.clnPrcs = res.data.clnPrcs;
+
+  customer.value.cnslPh = 'O';
+  if (isEmpty(res.data.cnslId)) {
+    customer.value.cstPrp = '01';
+    customer.value.bndCnslMtrDvCd = 'TM';
+    customer.value.cstStat = '01';
+    customer.value.clnPsbl = '02';
+    customer.value.clnPrcs = '01';
+  } else {
+    if (!isEmpty(res.data.cstPrp)) {
+      customer.value.cstPrp = res.data.cstPrp;
+    }
+    if (!isEmpty(res.data.dprNm)) {
+      customer.value.dpr = res.data.dprNm;
+    }
+    if (!isEmpty(res.data.cnslTp)) {
+      customer.value.bndCnslMtrDvCd = res.data.cnslTp;
+    }
+    if (!isEmpty(res.data.cstStat)) {
+      customer.value.cstStat = res.data.cstStat;
+    }
+    if (!isEmpty(res.data.clnPsbl)) {
+      customer.value.clnPsbl = res.data.clnPsbl;
+    }
+    if (!isEmpty(res.data.clnPrcs)) {
+      customer.value.clnPrcs = res.data.clnPrcs;
+    }
   }
 }
 
