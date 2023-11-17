@@ -151,12 +151,10 @@ async function setEngineers() {
   engineers.value = cloneDeep(engineerList.data);
 
   if (!isEmpty(searchParams.value.ogId)) {
-    console.log('setEngineers 0001');
     engineers.value = engineers.value.filter((v) => v.ogId === searchParams.value.ogId);
   }
 
   if (searchParams.value.rgsnYn === 'Y') {
-    console.log('setEngineers 0002');
     engineers.value = engineers.value.filter((v) => v.cltnDt === null || v.cltnDt === '');
   }
   console.log('engineers.value >>>>', engineers.value);
