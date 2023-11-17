@@ -202,6 +202,11 @@ const aplcCloseData = ref({
   bizEndHh: '',
 });
 
+const aplcLmQtyData = ref({
+  sapMatCd: '',
+  bfsvcCsmbAplcLmQty: '',
+});
+
 const isDisableSave = computed(() => {
   const nowDateTime = Number(dayjs().format('YYYYMMDDHHmm'));
   const strtDtHh = `${aplcCloseData.value.bizStrtdt}${aplcCloseData.value.bizStrtHh ?? ''}`;
@@ -251,16 +256,17 @@ async function reAryGrid() {
     { fieldName: 'bldNm' },
     { fieldName: 'prtnrNmNo' },
     { fieldName: 'prtnrNo' },
-    { fieldName: 'blank' },
-    { fieldName: 'bfsvcCsmbDdlvStatCd' },
+    // { fieldName: 'blank' },
+    // { fieldName: 'bfsvcCsmbDdlvStatCd' },
   ];
 
   const columns = [
     { fieldName: 'reqYn', header: t('MSG_TXT_STT'), width: '110', styleName: 'text-center', editable: false },
     { fieldName: 'bldCd', header: t('MSG_TXT_BLD_CD'), width: '120', styleName: 'text-center', editable: false },
     { fieldName: 'bldNm', header: t('MSG_TXT_BLD_NM'), width: '150', styleName: 'text-center', editable: false },
-    { fieldName: 'prtnrNmNo', header: t('MSG_TXT_MANAGER'), width: '150', styleName: 'text-center', editable: false },
-    { fieldName: 'blank', header: '', width: '80', styleName: 'text-center', editable: false }, // 헤더 정상 생성을 위한 필드, 사용은 안함
+    { fieldName: 'prtnrNmNo', header: t('MSG_TXT_MANAGER'), width: '150', styleName: 'text-center', editable: true },
+    // { fieldName: 'blank', header: t('SAP'),
+    // width: '80', styleName: 'text-center', editable: true }, // 헤더 정상 생성을 위한 필드, 사용은 안함
   ];
 
   const gridData = await getItems(); // 고정/신청품목 그리드 헤더를 위해 조회
@@ -333,6 +339,8 @@ async function reAryGrid() {
     k += 1;
   }
 
+  fields.push({ fieldName: 'bfsvcCsmbDdlvStatCd' });
+
   data.setFields(fields);
   view.setColumns(columns);
   view.setColumnLayout([
@@ -344,24 +352,25 @@ async function reAryGrid() {
         'bldCd',
         'bldNm',
         'prtnrNmNo',
-        {
-          header: t('MSG_TXT_ACTI_GDS'),
-          direction: 'horizontal',
-          items: [
-            {
-              header: t('MSG_TXT_PCKNG_UNIT'),
-              direction: 'horizontal',
-              items: [
-                {
-                  header: t('MSG_TXT_SAP'),
-                  direction: 'horizontal',
-                  hideChildHeaders: true,
-                  items: ['blank'], // 최하위 그리드 헤더(SAP) 아래 컬럼이 있어야 헤더 생성됨
-                },
-              ],
-            },
-          ],
-        },
+        // {
+        //   header: t('MSG_TXT_ACTI_GDS'),
+        //   direction: 'horizontal',
+        //   items: [
+        //     {
+        //       header: t('MSG_TXT_PCKNG_UNIT'),
+        //       direction: 'horizontal',
+        //       items: [
+        //         // {
+        //         //   header: t('MSG_TXT_SAP'),
+        //         //   direction: 'horizontal',
+        //         //   hideChildHeaders: true,
+        //         //   items: ['blank'], // 최하위 그리드 헤더(SAP) 아래 컬럼이 있어야 헤더 생성됨
+        //         // },
+        //         'blank',
+        //       ],
+        //     },
+        //   ],
+        // },
       ],
     },
     {
@@ -375,19 +384,18 @@ async function reAryGrid() {
       items: items2,
     },
   ]);
+}
 
-  const editFields = [];
+async function getApplicationLimitQty() {
+  const res = await dataService.get(`/sms/wells/service/newmanager-bsconsumables/${cachedParams.mngtYm}/application-limit-qty`);
 
-  for (let i = 0; i < aplcItems.length; i += 1) {
-    let l = i + 1;
-    editFields.push(`aplcQty${l}`);
-    l += 1;
-  }
+  aplcLmQtyData.value = res.data;
 }
 
 async function fetchData() {
   await reAryGrid();
   await getNewMCsmbAplcClose();
+  await getApplicationLimitQty();
 
   const res = await dataService.get('/sms/wells/service/newmanager-bsconsumables', { params: { ...cachedParams, timeout: 300000 } });
   // const { list: bldCsmbDeliveries } = res.data;
@@ -619,8 +627,8 @@ const initGrdMain = defineGrid(async (data, view) => {
     { fieldName: 'bldNm' },
     { fieldName: 'prtnrNmNo' },
     { fieldName: 'prtnrNo' },
-    { fieldName: 'blank' },
-    { fieldName: 'bfsvcCsmbDdlvStatCd' },
+    // { fieldName: 'blank' },
+    // { fieldName: 'bfsvcCsmbDdlvStatCd' },
   ];
 
   const columns = [
@@ -628,7 +636,8 @@ const initGrdMain = defineGrid(async (data, view) => {
     { fieldName: 'bldCd', header: t('MSG_TXT_BLD_CD'), width: '120', styleName: 'text-center', editable: false },
     { fieldName: 'bldNm', header: t('MSG_TXT_BLD_NM'), width: '150', styleName: 'text-center', editable: false },
     { fieldName: 'prtnrNmNo', header: t('MSG_TXT_MANAGER'), width: '150', styleName: 'text-center', editable: false },
-    { fieldName: 'blank', header: '', width: '80', styleName: 'text-center', editable: false }, // 헤더 정상 생성을 위한 필드, 사용은 안함
+    // { fieldName: 'blank', header: '',
+    // width: '80', styleName: 'text-center', editable: false }, // 헤더 정상 생성을 위한 필드, 사용은 안함
   ];
 
   const gridData = await getItems(); // 고정/신청품목 그리드 헤더를 위해 조회
@@ -710,24 +719,24 @@ const initGrdMain = defineGrid(async (data, view) => {
         'bldCd',
         'bldNm',
         'prtnrNmNo',
-        {
-          header: t('MSG_TXT_ACTI_GDS'),
-          direction: 'horizontal',
-          items: [
-            {
-              header: t('MSG_TXT_PCKNG_UNIT'),
-              direction: 'horizontal',
-              items: [
-                {
-                  header: t('MSG_TXT_SAP'),
-                  direction: 'horizontal',
-                  hideChildHeaders: true,
-                  items: ['blank'], // 최하위 그리드 헤더(SAP) 아래 컬럼이 있어야 헤더 생성됨
-                },
-              ],
-            },
-          ],
-        },
+        // {
+        //   header: t('MSG_TXT_ACTI_GDS'),
+        //   direction: 'horizontal',
+        //   items: [
+        //     {
+        //       header: t('MSG_TXT_PCKNG_UNIT'),
+        //       direction: 'horizontal',
+        //       items: [
+        //         {
+        //           header: t('MSG_TXT_SAP'),
+        //           direction: 'horizontal',
+        //           hideChildHeaders: true,
+        //           items: ['blank'], // 최하위 그리드 헤더(SAP) 아래 컬럼이 있어야 헤더 생성됨
+        //         },
+        //       ],
+        //     },
+        //   ],
+        // },
       ],
     },
     {
@@ -741,6 +750,8 @@ const initGrdMain = defineGrid(async (data, view) => {
       items: items2,
     },
   ];
+
+  fields.push({ fieldName: 'bfsvcCsmbDdlvStatCd' });
 
   data.setFields(fields);
   view.setColumns(columns);
@@ -765,8 +776,27 @@ const initGrdMain = defineGrid(async (data, view) => {
     }
   };
 
-  view.onCellEdited = (grid, itemIndex) => {
+  view.onCellEdited = async (grid, itemIndex, row, fieldIndex) => {
     grid.checkItem(itemIndex, true);
+
+    const fixedFieldIndex = fieldIndex - 1;
+    const { fieldName } = grid.getColumn(fixedFieldIndex);
+    const sapMatCd = grid.getColumn(fixedFieldIndex).header.text;
+    const aplcQty = view.getValue(row, fieldIndex);
+    const aplcLmQty = aplcLmQtyData.value.find((obj) => obj.sapMatCd === sapMatCd)?.bfsvcCsmbAplcLmQty;
+
+    if (fieldName.indexOf('aplcQty') !== -1) {
+      if (!aplcLmQty || Number(aplcLmQty) === 0) {
+        await alert(t(`${sapMatCd}의 신청 제한 갯수가 0개입니다.`));
+        view.setValue(row, fieldIndex, 0);
+        return;
+      }
+
+      if (Number(aplcQty) > Number(aplcLmQty)) {
+        await alert(t(`${sapMatCd}은 ${aplcLmQty}개까지 신청 가능합니다.`));
+        view.setValue(row, fieldIndex, 0);
+      }
+    }
   };
 
   view.setCheckableCallback((dataSource, item) => {
