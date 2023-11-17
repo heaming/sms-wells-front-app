@@ -967,6 +967,31 @@ async function onEditRfnd(cntrNo, rveNo, rveSn) {
   }
   totBltfAkAmt.value = temp;
 }
+// 전금상세 - 전금요청금액 변경시 실시간으로 환불상세 데이터의 전금요청금액변동
+async function onDeleteEditRfnd(cntrNo, rveNo, rveSn) {
+  const grdView2 = grdPopRef2.value.getView();
+  const grdView3 = grdPopRef3.value.getView();
+  const grd2 = gridUtil.getAllRowValues(grdView2);
+  const grd3 = gridUtil.getAllRowValues(grdView3);
+  let temp = 0;
+
+  for (let i = 0; i < grd3.length; i += 1) {
+    if (grd3[i].cntrNo === cntrNo
+        && grd3[i].rveNo === rveNo
+        && grd3[i].rveSn === rveSn) {
+      temp -= Number(grd3[i].rfndBltfAkAmt);
+    }
+  }
+
+  for (let i = 0; i < grd2.length; i += 1) {
+    if (grd2[i].cntrNo === cntrNo
+        && grd2[i].rveNo === rveNo
+        && grd2[i].rveSn === rveSn) {
+      grdView2.setValue(i, 'rfndBltfAkAmt', Number(temp));
+    }
+  }
+  totBltfAkAmt.value = temp;
+}
 
 /** *************************************** */
 // 그리드4 (환불접수총액 실시간 계산) - 자동계산 및 기입
@@ -1002,7 +1027,7 @@ async function onCheckTotalData() {
 // eslint-disable-next-line max-len
 async function onClickRfndAddRow(cntrNo, cntrSn, cntrDtlNo, dpDt, dpMesCd, dpAmt, sellTpCd, cstNo, rveNo, rveSn, rfndAkNo) {
   const view = grdPopRef3.value.getView();
-  gridUtil.insertRowAndFocus(view, 0, {
+  view.getDataSource().addRows([{
     cntrNo,
     cntrSn,
     cntrDtlNo,
@@ -1016,19 +1041,60 @@ async function onClickRfndAddRow(cntrNo, cntrSn, cntrDtlNo, dpDt, dpMesCd, dpAmt
     rveNo,
     rveSn,
     rfndAkNo,
-  });
+  }]);
+  view.commit();
+
+  // data.addRows({
+  //   cntrNo,
+  //   cntrSn,
+  //   cntrDtlNo,
+  //   dpDt,
+  //   dpMesCd,
+  //   dpAmt,
+  //   sellTpCd,
+  //   rfndBltfAkAmt: Number(0),
+  //   cstNo,
+  //   rfndEvidMtrFileNm: '파일찾기', // rfndEvidMtrFileId가 아니라 FileNm으로 사용시 필요
+  //   rveNo,
+  //   rveSn,
+  //   rfndAkNo,
+  // });
+
+  // gridUtil.insertRowAndFocus(view, 0, {
+  //   cntrNo,
+  //   cntrSn,
+  //   cntrDtlNo,
+  //   dpDt,
+  //   dpMesCd,
+  //   dpAmt,
+  //   sellTpCd,
+  //   rfndBltfAkAmt: Number(0),
+  //   cstNo,
+  //   rfndEvidMtrFileNm: '파일찾기', // rfndEvidMtrFileId가 아니라 FileNm으로 사용시 필요
+  //   rveNo,
+  //   rveSn,
+  //   rfndAkNo,
+  // });
 }
 
 // 그리드3 - 전금상세 행삭제
 async function onClickRfndDelete() {
   const view = grdPopRef3.value.getView();
-  await gridUtil.confirmDeleteCheckedRows(view);
+  const deleteRows = await gridUtil.confirmDeleteCheckedRows(view, true);
+  console.log(deleteRows);
   const bltfData = gridUtil.getAllRowValues(view);
   pageInfo3.value.totalCount = bltfData.length;
 
-  bltfData.forEach((obj) => {
-    onEditRfnd(obj.cntrNo, obj.rveNo, obj.rveSn);
-  });
+  if (deleteRows.length > 0) {
+    deleteRows.forEach((obj) => {
+      onDeleteEditRfnd(obj.cntrNo, obj.rveNo, obj.rveSn);
+    });
+  } else {
+    bltfData.forEach((obj) => {
+      onEditRfnd(obj.cntrNo, obj.rveNo, obj.rveSn);
+    });
+  }
+
   await onCheckTotalData();
 }
 // -------------------------------------------------------------------------------------------------
