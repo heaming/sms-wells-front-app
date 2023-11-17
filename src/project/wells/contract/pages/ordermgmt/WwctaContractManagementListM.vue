@@ -1018,14 +1018,14 @@ async function onClickOzReport(cntrNo) { // oz리포트 신규/변경 계약
   // = { searchApiUrl: '/api/v1/sms/wells/contract/contracts/managements/anonymous/search-api-url'
   // , cntrNo };
 
-  const res = await dataService.get('/sms/wells/contract/contracts/managements/anonymous/search-api-url', { params: { cntrNo } });
+  const res = await dataService.get('/sms/wells/contract/contracts/managements/search-api-url', { params: { cntrNo } });
   // eslint-disable-next-line max-len
   // const childrenRes = await dataService.get('/sms/wells/contract/contracts/managements/anonymous/search-api-url/children', { params: { cntrNo } });
   // console.log(res);
   // console.log(childrenRes);
 
-  const args = { searchApiUrl: '/api/v1/sms/wells/contract/contracts/managements/anonymous/search-api-url', cntrNo };
-  const childrenArgs = { searchApiUrl: '/api/v1/sms/wells/contract/contracts/managements/anonymous/search-api-url/children', cntrNo };
+  const args = { searchApiUrl: '/api/v1/sms/wells/contract/contracts/managements/search-api-url', cntrNo };
+  const childrenArgs = { searchApiUrl: '/api/v1/sms/wells/contract/contracts/managements/search-api-url/children', cntrNo };
 
   if (isEmpty(res.data.options)) { // 단건
     await openReportPopup(
