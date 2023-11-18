@@ -28,13 +28,13 @@
           <!-- label="고객명" -->
           <kw-input
             v-model="searchParams.cstFnm"
-            icon="search"
             clearable
             :label="t('MSG_TXT_CST_NM')"
             rules="required"
-            @click-icon="onClickSearchUser"
           />
+          <!-- icon="search" -->
           <!-- :readonly="true" -->
+          <!-- @click-icon="onClickSearchUser" -->
         </kw-search-item>
         <kw-search-item
           :label="t('MSG_TXT_WRTE_DT')"
@@ -214,14 +214,14 @@ async function onClickRegP() {
 }
 
 // 고객명 찾기 이벤트
-async function onClickSearchUser() {
-  const { result, payload } = await modal({ component: 'ZwcsaCustomerListP',
-    componentProps: { cstNm: searchParams.value.cstFnm, cstType: '1' } });
+// async function onClickSearchUser() {
+//   const { result, payload } = await modal({ component: 'ZwcsaCustomerListP',
+//     componentProps: { cstNm: searchParams.value.cstFnm, cstType: '1' } });
 
-  if (result) {
-    searchParams.value.cstFnm = payload.name;
-  }
-}
+//   if (result) {
+//     searchParams.value.cstFnm = payload.name;
+//   }
+// }
 // -------------------------------------------------------------------------------------------------
 // Initialize Grid
 // -------------------------------------------------------------------------------------------------
