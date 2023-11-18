@@ -108,6 +108,7 @@ const productInfos = computed(() => {
     sellTpCd,
     sellTpDtlCd,
     stplPtrm,
+    cntrPtrm,
     fnlAmt,
     sellAmt,
     dscAmt,
@@ -119,6 +120,9 @@ const productInfos = computed(() => {
     infos.push({ label: labelForFnlAmt.value, value: `${stringUtil.getNumberWithComma(fnlAmt || 0)}원` });
     infos.push({ label: '정상가', value: `${stringUtil.getNumberWithComma(sellAmt || 0)}원` });
     infos.push({ label: '할인가', value: `${stringUtil.getNumberWithComma(dscAmt || 0)}원` });
+    if (cntrPtrm && Number(cntrPtrm) > 0) {
+      infos.push({ label: '유상멤버십', value: `${stringUtil.getNumberWithComma(cntrPtrm || 0)}개월` });
+    }
   }
   if (sellTpCd === '2') { /* 렌탈 */
     if (stplPtrm) {
