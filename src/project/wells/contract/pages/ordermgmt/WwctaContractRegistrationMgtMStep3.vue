@@ -300,7 +300,7 @@
           >
             <!-- 법인계약시 세금계산서 발행 선택 가능-->
             <kw-form-row
-              v-if="step3.bas?.copnDvCd === '2'"
+              v-if="step3.bas?.copnDvCd === COPN_DV_CD.COOPERATION"
             >
               <kw-form-item
                 :label="t('MSG_TXT_TXINV_PBL')"
@@ -313,7 +313,7 @@
               </kw-form-item>
             </kw-form-row>
             <template
-              v-if="item.sellTpCd === '1'"
+              v-if="item.sellTpCd === SELL_TP_CD.SPAY"
             >
               <kw-form-row>
                 <kw-form-item
@@ -349,7 +349,8 @@
               </kw-form-row>
               <!-- 법인 환경가전 일시불계약시, 법인미수금 선택 가능-->
               <kw-form-row
-                v-if="step3.bas?.copnDvCd === '2' && item.sellTpDtlCd === '13'"
+                v-if="step3.bas?.copnDvCd === COPN_DV_CD.COOPERATION
+                  && item.sellTpDtlCd === SELL_TP_DTL_CD.SPAY_ENVR_ELHM"
               >
                 <kw-form-item label="법인미수금">
                   <kw-input
@@ -361,29 +362,33 @@
                   />
                 </kw-form-item>
               </kw-form-row>
-              <kw-form-row
-                v-if="item.recapMshPtrm > 0"
-              >
-                <kw-form-item label="멤버십계좌이체">
-                  <kw-option-group
-                    v-model="item.dpTpCdMsh"
-                    type="radio"
-                    :options="step3.bas?.copnDvCd === '2' ? codes.DP_TP_CD_AFTN_CRP : codes.DP_TP_CD_AFTN"
-                  />
-                </kw-form-item>
-              </kw-form-row>
-              <kw-form-row
-                v-if="item.recapMshPtrm > 0"
-              >
-                <kw-form-item
-                  no-label
-                  :colspan="2"
+              <template v-if="Number(item.cntrPtrm) && Number(item.cntrPtrm) > 0">
+                <kw-form-row
+                  v-if="Number(item.cntrPtrm) && Number(item.cntrPtrm) > 0"
                 >
-                  <h3 class="my0">
-                    멤버십 금액 : {{ getNumberWithComma(item.mshAmt || 0) }}원
-                  </h3>
-                </kw-form-item>
-              </kw-form-row>
+                  <kw-form-item label="멤버십계좌이체">
+                    <kw-option-group
+                      v-model="item.dpTpCdMshAftn"
+                      type="radio"
+                      :options="step3.bas?.copnDvCd === COPN_DV_CD.COOPERATION ?
+                        codes.DP_TP_CD_AFTN_CRP :
+                        codes.DP_TP_CD_AFTN"
+                    />
+                  </kw-form-item>
+                </kw-form-row>
+                <kw-form-row
+                  v-if="item.recapMshPtrm > 0"
+                >
+                  <kw-form-item
+                    no-label
+                    :colspan="2"
+                  >
+                    <h3 class="my0">
+                      멤버십 금액 : {{ getNumberWithComma(item.mshAmt || 0) }}원
+                    </h3>
+                  </kw-form-item>
+                </kw-form-row>
+              </template>
             </template>
             <template
               v-else
@@ -398,7 +403,9 @@
                   <kw-option-group
                     v-model="item.dpTpCdAftn"
                     type="radio"
-                    :options="step3.bas?.copnDvCd === '2' ? codes.DP_TP_CD_AFTN_CRP : codes.DP_TP_CD_AFTN"
+                    :options="step3.bas?.copnDvCd === COPN_DV_CD.COOPERATION ?
+                      codes.DP_TP_CD_AFTN_CRP :
+                      codes.DP_TP_CD_AFTN"
                   />
                 </kw-form-item>
                 <kw-form-item no-label>
@@ -462,7 +469,7 @@ import ZwcmPostCode from '~common/components/ZwcmPostCode.vue';
 import { alert, codeUtil, notify, useDataService } from 'kw-lib';
 import { cloneDeep } from 'lodash-es';
 import { getNumberWithComma } from '~sms-common/contract/util';
-import { SELL_TP_CD } from '~sms-wells/contract/constants/ctConst';
+import { COPN_DV_CD, SELL_TP_CD, SELL_TP_DTL_CD } from '~sms-wells/contract/constants/ctConst';
 import { getDisplayPriceByCntrDtl } from '~sms-wells/contract/utils/CtPriceUtil';
 
 const props = defineProps({
