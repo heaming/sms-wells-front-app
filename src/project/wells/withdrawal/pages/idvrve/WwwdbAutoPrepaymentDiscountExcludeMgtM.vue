@@ -123,7 +123,7 @@
       <kw-grid
         ref="grdMainRef"
         name="grdMain"
-        :visible-rows="10"
+        :visible-rows="30"
         :page-size="pageInfo.pageSize"
         :total-count="pageInfo.totalCount"
         @init="initGrid"
