@@ -656,7 +656,7 @@ async function openNtorAgrgPopup() {
 
   const res = await dataService.get('/sms/common/fee/net-order-status/cntr', { params: statusParams });
 
-  if (!isEmpty(res)) {
+  if (!isEmpty(res.data)) {
     if (!await confirm(t('MSG_ALT_AGRG_PERF_ALREADY_DATA'))) { return; }
   }
 
@@ -704,7 +704,7 @@ async function openNtorConfirmPopup() {
 
   const res = await dataService.get('/sms/common/fee/net-order-status/cntr', { params: statusParams });
 
-  if (!isEmpty(res)) {
+  if (!isEmpty(res.data)) {
     if (!await confirm(t('MSG_ALT_MSG_ALT_CNFM_PERF_ALREADY_DATA'))) { return; }
   }
 
