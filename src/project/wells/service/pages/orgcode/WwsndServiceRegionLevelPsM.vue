@@ -212,69 +212,6 @@ async function onClickSearch() {
 // Initialize Grid
 // -------------------------------------------------------------------------------------------------
 const initGrdMain = defineGrid((data, view) => {
-  // 51ea
-  const fields = [
-    { fieldName: 'ogCd' }, // 서비스센터 코드
-    { fieldName: 'sapMatCd' }, // SAP코드
-    { fieldName: 'ogNm' }, // 서비스센터명
-    { fieldName: 'ichrPrtnrNo' }, // 담당자 사번
-    { fieldName: 'prtnrKnm' }, // 담당자 명
-    { fieldName: 'ac025EmpOr' }, // 직책
-    { fieldName: 'custCd' }, // 계약번호+일련번호 화면표시용
-    { fieldName: 'newAdrZip' }, // 신우편번호
-    { fieldName: 'ctpvNm' }, // 시도명
-    { fieldName: 'ctctyNm' }, // 시군구명
-    { fieldName: 'amtdNm' }, // 행정동명
-    { fieldName: 'ac112EmdKorNm' }, // 읍면동명
-    { fieldName: 'itemNm' }, // 상품명
-    { fieldName: 'co410FeeGb' }, // 수당항목 명
-    { fieldName: 'arrDttm' }, // 작업도착
-    { fieldName: 'wkFshDt' }, // 작업완료일자
-    { fieldName: 'wkFshHh' }, // 작업완료시간
-    { fieldName: 'orgShpNm' }, // 기본출고지명
-    { fieldName: 'orgShpAdd' }, // 기본출고지 주소
-    { fieldName: 'chuljangNm' }, // 출장출고지 명
-    { fieldName: 'chuljangAdd' }, // 출장출고지 주소
-    { fieldName: 'strShpNm' }, // 출발출고지명
-    { fieldName: 'strShpAdd' }, // 출발주소
-    { fieldName: 'strIslandYn' }, // 출발 섬구분
-    { fieldName: 'endShpNm' }, // 도착출고지명
-    { fieldName: 'endShpAdd' }, // 도착출고지주소
-    { fieldName: 'endIslandYn' }, // 도착 섬구분
-    { fieldName: 'timeStand' }, // 시간대 (작업)
-    { fieldName: 'al170MvDistance' }, // 경로 - 이동거리
-    { fieldName: 'al170MvTime' }, // 경로 - 이동시간
-    { fieldName: 'al170MvFee' }, // 경로  - 요금
-    { fieldName: 'mvGrd' }, // 이동급지 - 등급
-    { fieldName: 'mvGrdAmt' }, // 이동급지 - 급지수당
-    { fieldName: 'grdTotAmt' }, // 급지합계
-    { fieldName: 'mvDistance' }, // 이동합계
-    { fieldName: 'wrkGrd' }, // 업무급지 - 등급
-    { fieldName: 'wrkGrdAmt' }, // 업무급지 - 급지수당
-    { fieldName: 'regNm' }, // 접수자
-    { fieldName: 'regOgNm' }, // 접수자소속
-    { fieldName: 'bsdt' }, // 기준일자
-    { fieldName: 'dgr1LevlOgNm' }, // 상위 조직명
-    { fieldName: 'dgr1LevlOgCd' }, // 상위 조직코드
-    { fieldName: 'dgr1LevlOgId' }, // 상위 조직 ID
-    { fieldName: 'ogId' }, // 서비스센터 조직 ID  참조용
-    { fieldName: 'rglvlSn' }, // 급지일련번호
-    { fieldName: 'ogTpCd' }, // 조직유형코드 W06
-    { fieldName: 'cntrNo' }, // 계약번호
-    { fieldName: 'cntrSn' }, // 계약일련번호
-    { fieldName: 'rcgvpKnm' }, // 고객명
-    { fieldName: 'procStusNm' }, // 작업상태   작업진행상태
-    { fieldName: 'al170BasePdlvNo' }, // 기본출고지번호
-    { fieldName: 'dptuPdlvNo' }, // 출장출고지번호
-    { fieldName: 'arvPdlvNo' }, // 도착출고지번호
-    { fieldName: 'mvSisock' }, // 시속(경로)
-    { fieldName: 'mvTime' }, // 시속(경로)
-    { fieldName: 'regId' },
-  ];
-  /**------------------------------------------------------------------
-   * 확인필요 컬럼
-   * 직책, 작업상태
-  **------------------------------------------------------------------*/
   const columns = [
     // 배정정보..1dept
     /**
@@ -379,7 +316,7 @@ const initGrdMain = defineGrid((data, view) => {
     { fieldName: 'regId', visible: false },
   ];
 
-  data.setFields(fields);
+  data.setFields(columns.map(({ fieldName, dataType }) => (dataType ? { fieldName, dataType } : { fieldName })));
   view.setColumns(columns);
 
   view.checkBar.visible = false; // create checkbox column

@@ -111,8 +111,8 @@ const grdfrontMainRef = ref(getComponentType('KwGrid'));
 
 let cachedParams;
 const searchParams = ref({
-  baseDateFrom: dayjs().format('YYYYMMDD'),
-  baseDateTo: dayjs().format('YYYYMMDD'),
+  baseDateFrom: dayjs().subtract(0, 'month').startOf('month').format('YYYYMMDD'),
+  baseDateTo: dayjs().subtract(0, 'month').endOf('day').format('YYYYMMDD'),
   fxnPrtnrNo: '',
 });
 
