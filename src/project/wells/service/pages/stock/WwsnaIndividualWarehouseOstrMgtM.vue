@@ -149,7 +149,6 @@
             :label="$t('MSG_TXT_ITM_DV')"
             option-value="pdCd"
             option-label="pdNm"
-            first-option="all"
             :multiple="true"
           />
         </kw-search-item>
