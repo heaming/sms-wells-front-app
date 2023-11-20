@@ -508,7 +508,7 @@ async function onClickUpgrades(type) {
       const view = grdMain1Ref.value.getView();
       searchParams.value.prtnrNo = currentRowPrtnrNo;
       searchParams.value.prtnrKnm = currentRowPrtnrKnm;
-      searchParams.value.qlfDvCd = [qualification.targetQlfDvCd];
+      // searchParams.value.qlfDvCd = [qualification.targetQlfDvCd];
       await init();
       gridUtil.focusCellInput(view, 0);
     }
@@ -524,6 +524,7 @@ async function onClickSave() {
 
   const params = changedRows.map((obj) => {
     const data = {
+      usrId: obj.usrId,
       ogTpCd: obj.ogTpCd,
       prtnrNo: obj.prtnrNo,
       bizUseIdvTno: getPhoneNumber(obj.biztelephone, 1),
@@ -719,6 +720,10 @@ const initGrid1 = defineGrid((data, view) => {
     },
     {
       fieldName: 'ogId', // 조직ID
+      visible: false,
+    },
+    {
+      fieldName: 'usrId', // 사용자ID
       visible: false,
     },
   ];
