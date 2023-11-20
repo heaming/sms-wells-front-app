@@ -186,7 +186,6 @@ async function onClickSave() {
 
 // 엑셀 다운로드 버튼
 async function onClickExcelDownload(flag) {
-  console.log('flag : ', flag);
   if (flag === 'adjustObject') {
     const view = grdFirstRef.value.getView();
     const res = await dataService.get('/sms/wells/closing/expense/marketable-securities-exclude/adjust-object', { params: cachedParams });
