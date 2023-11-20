@@ -264,7 +264,7 @@ async function reAryGrid() {
     { fieldName: 'reqYn', header: t('MSG_TXT_STT'), width: '110', styleName: 'text-center', editable: false },
     { fieldName: 'bldCd', header: t('MSG_TXT_BLD_CD'), width: '120', styleName: 'text-center', editable: false },
     { fieldName: 'bldNm', header: t('MSG_TXT_BLD_NM'), width: '150', styleName: 'text-center', editable: false },
-    { fieldName: 'prtnrNmNo', header: t('MSG_TXT_MANAGER'), width: '150', styleName: 'text-center', editable: true },
+    { fieldName: 'prtnrNmNo', header: t('MSG_TXT_MANAGER'), width: '150', styleName: 'text-center', editable: false },
     // { fieldName: 'blank', header: t('SAP'),
     // width: '80', styleName: 'text-center', editable: true }, // 헤더 정상 생성을 위한 필드, 사용은 안함
   ];
