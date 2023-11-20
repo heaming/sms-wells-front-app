@@ -13,7 +13,7 @@
 ****************************************************************************************************
 --->
 <template>
-  <kw-page v-if="!isEqual(rptIdGbn, 'noCertification')">
+  <kw-page>
     <kw-form
       ref="frmRef"
       class="pa20"
@@ -46,7 +46,7 @@
           />
         </slot>
       </template>
-      <!-- 그 외 -->
+      <!-- 명세서 -->
       <template v-if="isEqual(rptIdGbn, 'email')">
         <p class="kw-font-pt18 text-weight-medium mt20">
           {{ `${params?.custNm} ${t('MSG_TXT_CST')}.` }} <br>
@@ -60,6 +60,13 @@
           :maxlength="50"
         />
       </template>
+      <!-- 견적서 발송 -->
+      <template v-if="isEqual(rptIdGbn, 'noCertification')">
+        <p class="kw-font-pt18 text-weight-medium mt20">
+          {{ `${params?.custNm} ${t('MSG_TXT_CST')}.` }} <br>
+          {{ t('MSG_ALT_CHK_CONFIRM', [t('MSG_TXT_QUOT')]) }}
+        </p>
+      </template>
     </kw-form>
     <template #action>
       <kw-btn
@@ -68,6 +75,7 @@
         @click="onClickClose"
       />
       <kw-btn
+        v-if="!isEqual(rptIdGbn, 'noCertification')"
         primary
         :label="$t('MSG_BTN_CONFIRM')"
         @click="onClickConfirm"
@@ -80,7 +88,7 @@
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
-import { postMessage } from '~sms-common/contract/util';
+import { postMessage, decryptEncryptedParam } from '~sms-common/contract/util';
 import { /* alert, */ useDataService } from 'kw-lib';
 import { isEqual, isEmpty } from 'lodash-es';
 import { COPN_DV_CD } from '~sms-wells/contract/constants/ctConst';
@@ -105,7 +113,7 @@ const props = defineProps({
 });
 
 // props에서 받은 파라미터들
-const params = {
+const params = decryptEncryptedParam(props.encryptedParam, {
   notyFwId: props.notyFwId,
   rprtDvCd: props.rprtDvCd,
   pblcSearchSttDt: props.pblcSearchSttDt,
@@ -117,7 +125,7 @@ const params = {
   spectxGrpNo: props.spectxGrpNo,
   cntrCnfmStrtDt: props.cntrCnfmStrtDt,
   cntrTempSaveDt: props.cntrTempSaveDt,
-};
+});
 
 const searchParams = ref({
   cntrNo: isEmpty(params.cntrNo) && !isEmpty(params.cntrDtlNoList) ? params.cntrDtlNoList[0].split('-')[0] : props.cntrNo,
@@ -132,11 +140,11 @@ const isCooperation = computed(() => isEqual(searchParams.value.copnDvCd, COPN_D
 
 const frmRef = ref();
 const rptIdGbn = computed(() => { // 리포트 종류 구분 처리 computed
-  if (isEmpty(props.rptId)) { return ''; }
+  if (isEmpty(params.rptId)) { return ''; }
 
-  if (['ESDC01'].includes(props.rptId)) { return 'noCertification'; }
+  if (['ESDC01'].includes(params.rptId)) { return 'noCertification'; }
 
-  if (!['DPSTMAIL', 'DEAL001', 'CARD001', 'CONC001'].includes(props.rptId)) { return 'bryymmdd'; }
+  if (!['DPSTMAIL', 'DEAL001', 'CARD001', 'CONC001'].includes(params.rptId)) { return 'bryymmdd'; }
 
   return 'email';
 });
@@ -245,7 +253,7 @@ onMounted(async () => {
   if (isEqual(rptIdGbn.value, 'bryymmdd')) {
     await fetchBasicContractInfo();
   } else if (isEqual(rptIdGbn.value, 'noCertification')) {
-    await openCntrOZReport();
+    openCntrOZReport();
   }
 });
 </script>
