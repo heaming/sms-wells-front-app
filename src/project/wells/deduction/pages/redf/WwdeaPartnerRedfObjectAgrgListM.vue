@@ -1173,7 +1173,7 @@ function initGrid(data, view) {
     { fieldName: 'brchDec', header: t('MSG_TXT_BRCH_DCL'), width: '100', styleName: 'text-center' },
     { fieldName: 'marchDstrcYn', header: t('MSG_TXT_MAR_DSTRC'), width: '100', styleName: 'text-center' },
     { fieldName: 'chYm', header: t('MSG_TXT_TOPMR_UPGR_BASE_MM'), width: '120', styleName: 'text-center', datetimeFormat: 'YYYY-MM' },
-    { fieldName: 'educCpcMm', header: t('MSG_TXT_TOPMR_SETTLE_CPC_MM'), width: '120', styleName: 'text-center' },
+    { fieldName: 'educCpcMm', header: t('MSG_TXT_TOPMR_SETTLE_CPC_MM'), width: '120', styleName: 'text-center', datetimeFormat: 'YYYY-MM' },
     { fieldName: 'aksd48Yn', header: t('MSG_TXT_SETTLE_DSB_YN'), width: '120', styleName: 'text-center' },
     { fieldName: 'edu17Yn', header: t('MSG_TXT_PLAR_PRTIC_CPC_YN'), width: '140', styleName: 'text-center' },
     { fieldName: 'sellAmt', header: t('MSG_TXT_BLNG_MM_SL'), width: '100', styleName: 'text-right', numberFormat: '#,##0' },
