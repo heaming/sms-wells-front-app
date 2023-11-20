@@ -109,13 +109,6 @@
       </kw-search-item>
     </kw-search-row>
     <kw-search-row>
-      <kw-search-item :label="$t('MSG_TXT_SAP_SLPNO')">
-        <kw-input
-          v-model="searchParams.sapSlpno"
-          regex="alpha_num"
-          maxlength="14"
-        />
-      </kw-search-item>
       <kw-search-item
         :label="$t('MSG_TXT_SAP_PD_DV_CD_NM')"
       >
@@ -214,7 +207,6 @@ const searchParams = ref({
   cntrNo: '', // 계약번호
   cntrSn: '', // 계약상세번호
   cstNo: '', // 고객번호
-  sapSlpno: '', // SAP전표번호
   sapPdDvCd: '', // SAP상품구분코드
 });
 
