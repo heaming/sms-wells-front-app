@@ -772,7 +772,7 @@ const initGrdSub = defineGrid((data, view) => {
     { fieldName: 'cstNo' },
     { fieldName: 'pdDvKnm' },
     { fieldName: 'pdDvCd' },
-    { fieldName: 'dlqMcn' },
+    { fieldName: 'dlqMcn', dataType: 'number' },
     { fieldName: 'objAmt', dataType: 'number' },
     { fieldName: 'dlqAmt', dataType: 'number' },
     { fieldName: 'thmChramAmt', dataType: 'number' },
