@@ -377,7 +377,7 @@
 // -------------------------------------------------------------------------------------------------
 
 // eslint-disable-next-line no-unused-vars
-import { codeUtil, useGlobal, useMeta, defineGrid, getComponentType, gridUtil, alert, useDataService, fileUtil, modal, useModal, stringUtil } from 'kw-lib';
+import { codeUtil, useGlobal, useMeta, defineGrid, getComponentType, gridUtil, alert, confirm, useDataService, fileUtil, modal, useModal, stringUtil } from 'kw-lib';
 // eslint-disable-next-line no-unused-vars
 import { cloneDeep, isEqual, isEmpty } from 'lodash-es';
 import ZctzContractDetailNumber from '~sms-common/contract/components/ZctzContractDetailNumber.vue';
@@ -399,6 +399,10 @@ const props = defineProps({
     default: null,
   },
   rfndAkNo: { // 환불번호
+    type: String,
+    default: null,
+  },
+  cstNo: { // 고객번호
     type: String,
     default: null,
   },
@@ -469,6 +473,7 @@ const codes = await codeUtil.getMultiCodes(
   /* 환불상세 */
   'DP_MES_CD', /* 입금수단코드 */
   'DP_TP_CD', /* 입금유형코드 */
+  'DP_DV_CD', /* 입금구분코드 */
   'RFND_RSON_CD', /* 환불사유코드 */
 
   'RVE_DV_CD', /* 입금유형 */
@@ -525,6 +530,7 @@ async function fetchData2() {
   const propsData = {
     rfndAkNo: props.rfndAkNo,
     rfndAkStatCd: props.rfndAkStatCd,
+    cstNo: props.cstNo,
   };
   const res3 = await dataService.get('/sms/wells/withdrawal/idvrve/refund-applications/reg/balance-transfer', { params: { ...propsData } });
 
@@ -853,10 +859,17 @@ async function onClickRefundAsk(stateCode) {
     return false;
   }
 
+  let rfndAmt = 0;
+
   const checkedRows1 = gridUtil.getCheckedRowValues(view1);
   checkedRows1.forEach((element) => {
     element.rfndAkNo = props.rfndAkNo;
+    rfndAmt += Number(element.rfndPsbAmt);
   });
+
+  if (rfndAmt < changedRows4[0].totRfndEtAmt) {
+    if (!await confirm(t('환불 요청금액이 가능 금액 보다 큰 초과 환불 요청 건입니다. 진행하시겠습니까?'))) { return; }
+  }
 
   const params = {
     saveBaseReq: {
@@ -911,10 +924,11 @@ async function insertMainData(cntrNo, cntrSn, cntrStartDay, cntrEndDay) {
 
   const rfndRes = await dataService.get('/sms/wells/withdrawal/idvrve/refund-applications/reg/refund-detail', { params: dataParams });
 
-  pageInfo2.value.totalCount = rfndRes.data.length;
+  // pageInfo2.value.totalCount = rfndRes.data.length;
 
   const view2 = grdPopRef2.value.getView();
   view2.getDataSource().addRows(rfndRes.data);
+  pageInfo2.value.totalCount = view2.getDataSource().getRowCount();
 }
 
 // 단일행삭제
@@ -1141,7 +1155,8 @@ const initGrid = defineGrid((data, view) => {
       header: t('MSG_TXT_CNTR_DTL_NO'),
       // header: '계약상세번호',
       width: '150',
-      styleName: 'text-center',
+      renderer: { type: 'button' },
+      styleName: 'text-center , rg-button-link',
       displayCallback(grid, index) {
         const { cntrNo, cntrSn } = grid.getValues(index.itemIndex);
         return `${cntrNo}-${cntrSn}`;
@@ -1222,6 +1237,20 @@ const initGrid = defineGrid((data, view) => {
   view.checkBar.visible = true;
   view.rowIndicator.visible = true;
 
+  view.onCellItemClicked = async (g, { column, itemIndex }) => {
+    if (column === 'cntrDtlNo') {
+      console.log(itemIndex);
+
+      let url = '';
+      if (window.location.href.includes('localhost')) {
+        url = 'http://localhost:3000';
+      } else {
+        url = window.location.origin;
+      }
+      await window.open(`${url}/#/closing/wwdcc-sales-perform`);
+    }
+  };
+
   // 단일 선택 , 해제시
   view.onItemChecked = async (grid, itemIndex) => {
     const checkState = grid.isCheckedItem(itemIndex);
@@ -1230,7 +1259,7 @@ const initGrid = defineGrid((data, view) => {
     const cntrSn = grid.getValue(itemIndex, 'cntrSn');
     const cntrStartDay = grid.getValue(itemIndex, 'cntrStartDay');
     const cntrEndDay = grid.getValue(itemIndex, 'cntrEndDay');
-    const rfndPsbAmt = grid.getValue(itemIndex, 'rfndPsbAmt');
+    // const rfndPsbAmt = grid.getValue(itemIndex, 'rfndPsbAmt');
 
     const cntrDtlNo = {
       cntrNo,
@@ -1239,11 +1268,11 @@ const initGrid = defineGrid((data, view) => {
     const grdRef2 = grdPopRef2.value.getView();
     const grdRef3 = grdPopRef3.value.getView();
     if (checkState === true) {
-      if (Number(rfndPsbAmt) < 1) {
-        alert(t('MSG_ALT_RFND_PSB_AMT_NEX')); // 환불가능금액이 없습니다.
-        view.checkItem(itemIndex, false);
-        return;
-      }
+      // if (Number(rfndPsbAmt) < 1) {
+      //   alert(t('MSG_ALT_RFND_PSB_AMT_NEX')); // 환불가능금액이 없습니다.
+      //   view.checkItem(itemIndex, false);
+      //   return;
+      // }
       insertMainData(cntrNo, cntrSn, cntrStartDay, cntrEndDay);
     } else {
       removeMainData(grdRef2, cntrDtlNo, grdRef3);
@@ -1261,17 +1290,18 @@ const initGrid = defineGrid((data, view) => {
     if (grid.isAllChecked()) {
       for (let i = 0; i < indexLength; i += 1) {
         // insertMainData(grdRef2, grid, i);
-        const rfndPsbAmt = grid.getValue(i, 'rfndPsbAmt');
+        // const rfndPsbAmt = grid.getValue(i, 'rfndPsbAmt');
         const cntrNo = grid.getValue(i, 'cntrNo');
         const cntrSn = grid.getValue(i, 'cntrSn');
         const cntrStartDay = grid.getValue(i, 'cntrStartDay');
         const cntrEndDay = grid.getValue(i, 'cntrEndDay');
 
-        if (Number(rfndPsbAmt) > 0) {
-          insertMainData(cntrNo, cntrSn, cntrStartDay, cntrEndDay);
-        } else {
-          view.checkItem(i, false);
-        }
+        insertMainData(cntrNo, cntrSn, cntrStartDay, cntrEndDay);
+        // if (Number(rfndPsbAmt) > 0) {
+        //   insertMainData(cntrNo, cntrSn, cntrStartDay, cntrEndDay);
+        // } else {
+        //   view.checkItem(i, false);
+        // }
       }
     }
     pageInfo2.value.totalCount = gridUtil.getAllRowValues(grdRef2).length;
@@ -1314,6 +1344,7 @@ const initGrid2 = defineGrid((data, view) => {
     { fieldName: 'acCrNo' }, /* 계좌번호/카드번호 */
     { fieldName: 'cstNo' }, /* 고객번호 */
     { fieldName: 'dpTpCd' }, /* 입금유형코드 */
+    { fieldName: 'dpDvCd' }, /* 입금구분코드 */ // DP_DV_CD
   ];
 
   const columns = [
@@ -1335,6 +1366,14 @@ const initGrid2 = defineGrid((data, view) => {
       styleName: 'text-center',
       editor: { type: 'date' },
       editable: false },
+    { fieldName: 'dpDvCd',
+      header: t('MSG_TXT_DP_DV'),
+      // 입금구분
+      width: '120',
+      styleName: 'text-center',
+      editable: false,
+      options: codes.DP_DV_CD,
+    },
     { fieldName: 'dpTpCd',
       header: t('MSG_TXT_DP_TP'),
       // 입금유형
@@ -1385,6 +1424,20 @@ const initGrid2 = defineGrid((data, view) => {
       editor: {
         type: 'number',
       },
+      styleCallback(grid, dataCell) {
+        const dpDvCd = grid.getValue(dataCell.index.itemIndex, 'dpDvCd');
+        let ret = {};
+        if (dpDvCd === '2' || dpDvCd === '4') {
+          ret.editable = false;
+        } else {
+          ret = {
+            editor: {
+              type: 'number',
+            },
+          };
+        }
+        return ret;
+      },
     },
     { fieldName: 'rfndCardAkAmt',
       header: t('MSG_TXT_CARD_RFND_RQST_AMT'),
@@ -1428,6 +1481,16 @@ const initGrid2 = defineGrid((data, view) => {
       styleName: 'text-center',
       editable: false,
       renderer: { type: 'button' },
+      // styleCallback(grid, dataCell) {
+      //   const dpDvCd = grid.getValue(dataCell.index.itemIndex, 'dpDvCd');
+      //   const ret = {};
+      //   if (dpDvCd === '2' || dpDvCd === '4') {
+      //     ret.editable = false;
+      //   } else {
+      //     ret.renderer = { type: 'button' };
+      //   }
+      //   return ret;
+      // },
     },
     { fieldName: 'rfndRsonCd',
       header: {
@@ -1440,6 +1503,18 @@ const initGrid2 = defineGrid((data, view) => {
       editor: { type: 'dropdown' },
       editable: true,
       options: codes.RFND_RSON_CD,
+      styleCallback(grid, dataCell) {
+        const dpDvCd = grid.getValue(dataCell.index.itemIndex, 'dpDvCd');
+        let ret = {};
+        if (dpDvCd === '2' || dpDvCd === '4') {
+          ret.editable = false;
+        } else {
+          ret = {
+            editor: { type: 'dropdown' },
+          };
+        }
+        return ret;
+      },
     },
     { fieldName: 'rfndRsonCn',
       header: t('MSG_TXT_RFND_CN'),
@@ -1465,12 +1540,14 @@ const initGrid2 = defineGrid((data, view) => {
   // 그리드의 버튼클릭시 이벤트 발생
   view.onCellItemClicked = async (g, { column, dataRow }) => {
     // eslint-disable-next-line max-len
-    const { cntrNo, cntrSn, cntrDtlNo, dpDt, dpMesCd, dpAmt, sellTpCd, cstNo, rveNo, rveSn, rfndAkNo } = gridUtil.getRowValue(g, dataRow);
+    const { cntrNo, cntrSn, cntrDtlNo, dpDt, dpMesCd, dpAmt, sellTpCd, cstNo, rveNo, rveSn, rfndAkNo, dpDvCd } = gridUtil.getRowValue(g, dataRow);
     if (column === 'bltfAdd') {
-      if (props.rfndAkStatCd !== '01') {
-        // eslint-disable-next-line max-len
-        await onClickRfndAddRow(cntrNo, cntrSn, cntrDtlNo, dpDt, dpMesCd, dpAmt, sellTpCd, cstNo, rveNo, rveSn, rfndAkNo);
-        pageInfo3.value.totalCount = gridUtil.getAllRowValues(grdPopRef3.value.getView()).length;
+      if ((dpDvCd === '1' || dpDvCd === '3')) {
+        if (props.rfndAkStatCd !== '01') {
+          // eslint-disable-next-line max-len
+          await onClickRfndAddRow(cntrNo, cntrSn, cntrDtlNo, dpDt, dpMesCd, dpAmt, sellTpCd, cstNo, rveNo, rveSn, rfndAkNo);
+          pageInfo3.value.totalCount = gridUtil.getAllRowValues(grdPopRef3.value.getView()).length;
+        }
       }
     }
   };
@@ -1502,12 +1579,14 @@ const initGrid2 = defineGrid((data, view) => {
   // eslint-disable-next-line no-unused-vars
   view.onValidate = (g, index, value) => {
     // eslint-disable-next-line max-len
-    const { rfndPsbAmt, rfndCshAkAmt, rfndCardAkAmt, rfndBltfAkAmt, crdcdFeeAmt, rfndRsonCd, rfndRsonCn } = g.getValues(index.dataRow);
+    const { rfndCshAkAmt, rfndCardAkAmt, rfndBltfAkAmt, rfndRsonCd, rfndRsonCn } = g.getValues(index.dataRow);
     // eslint-disable-next-line max-len
-    if (Number(rfndPsbAmt) < (Number(rfndCshAkAmt) + Number(rfndCardAkAmt) + Number(rfndBltfAkAmt) + Number(crdcdFeeAmt))) {
-      return t('MSG_ALT_IMP_OVER', [t('MSG_TXT_RFND_AMT'), t('MSG_TXT_REFUND_AMT')]);
-      // t('환불금액은 환불가능금액을 초과할수 없습니다.');
-    }
+    // const { rfndPsbAmt, rfndCshAkAmt, rfndCardAkAmt, rfndBltfAkAmt, crdcdFeeAmt, rfndRsonCd, rfndRsonCn } = g.getValues(index.dataRow);
+    // eslint-disable-next-line max-len
+    // if (Number(rfndPsbAmt) < (Number(rfndCshAkAmt) + Number(rfndCardAkAmt) + Number(rfndBltfAkAmt) + Number(crdcdFeeAmt))) {
+    //   return t('MSG_ALT_IMP_OVER', [t('MSG_TXT_RFND_AMT'), t('MSG_TXT_REFUND_AMT')]);
+    //   // t('환불금액은 환불가능금액을 초과할수 없습니다.');
+    // }
     if ((Number(rfndCshAkAmt) + Number(rfndCardAkAmt) + Number(rfndBltfAkAmt)) > 0 && isEmpty(rfndRsonCd)) {
       return t('MSG_ALT_NCSR_CD', [t('MSG_TXT_RFND_RSON')]);
       // 환불사유 은(는) 필수 입력 항목입니다.
