@@ -331,7 +331,7 @@
 // -------------------------------------------------------------------------------------------------
 
 // eslint-disable-next-line no-unused-vars
-import { codeUtil, useGlobal, useMeta, defineGrid, getComponentType, gridUtil, useDataService, fileUtil, modal, useModal, stringUtil } from 'kw-lib';
+import { codeUtil, useGlobal, useMeta, defineGrid, getComponentType, gridUtil, alert, useDataService, fileUtil, modal, useModal, stringUtil } from 'kw-lib';
 // eslint-disable-next-line no-unused-vars
 import { isEqual, isEmpty, cloneDeep } from 'lodash-es';
 // eslint-disable-next-line no-unused-vars
@@ -371,6 +371,10 @@ const props = defineProps({
     default: null,
   },
   rfndAkDtm: {
+    type: String,
+    default: null,
+  },
+  cstNo: { // 고객번호
     type: String,
     default: null,
   },
@@ -428,6 +432,7 @@ const codes = await codeUtil.getMultiCodes(
   'SELL_TP_CD', // 판매유형
 
   /* 환불상세 */
+  'DP_DV_CD', /* 입금구분코드 */
   'DP_MES_CD', /* 입금수단코드 */
   'DP_TP_CD', /* 입금유형코드 */
   'RFND_RSON_CD', /* 환불사유코드 */
@@ -526,9 +531,15 @@ async function fetchData() {
   view3.getDataSource().setRows(res3.data);
 
   // eslint-disable-next-line no-use-before-define
-  await onCheckTotalData(); // 그리드4 (총액 자동계산)
+  const totRfndEtAmt = await onCheckTotalData(); // 그리드4 (총액 자동계산)
   // eslint-disable-next-line no-use-before-define
   // await onEditRfnd(props.cntrNo);
+  let rfndAmt = 0;
+
+  res1.data.forEach((obj) => {
+    rfndAmt += Number(obj.rfndPsbAmt);
+  });
+
   res2.data.forEach((obj) => {
     const grdView2 = grdPopRef2.value.getView();
     const grdView3 = grdPopRef3.value.getView();
@@ -553,6 +564,10 @@ async function fetchData() {
       }
     }// 그리드 2(전금 데이터 바인딩)
   });
+
+  if (rfndAmt < totRfndEtAmt) {
+    alert(t('환불 요청금액이 가능 금액 보다 큰 초과 환불 요청 건입니다. 진행하시겠습니까?'));
+  }
 }
 
 // 계약상세 엑셀다운로드
@@ -726,6 +741,7 @@ onMounted(async () => {
   cachedParams = {
     rfndAkNo: props.rfndAkNo,
     rfndAkStatCd: props.rfndAkStatCd,
+    cstNo: props.cstNo,
   };
 
   saveParams.value.rfndAkNo = props.rfndAkNo;
@@ -818,6 +834,8 @@ async function onCheckTotalData() {
   view4.setValue(0, 'totRfndEtAmt', Number(temp1) + Number(temp2) + Number(temp3));
   totRfndAkAmt = temp5;
   grdPopRef4.value.getView().getDataSource().setRowState(0, 'none');
+
+  return Number(temp1) + Number(temp2) + Number(temp3);
 }
 // -------------------------------------------------------------------------------------------------
 // Initialize Grid
@@ -1026,6 +1044,7 @@ const initGrid2 = defineGrid((data, view) => {
     { fieldName: 'rveSn' },
     { fieldName: 'fnitNm' },
     { fieldName: 'acCrNo' },
+    { fieldName: 'dpDvCd' }, /* 입금구분코드 */ // DP_DV_CD
   ];
 
   const columns = [
@@ -1054,6 +1073,14 @@ const initGrid2 = defineGrid((data, view) => {
       styleName: 'text-center',
       editable: false,
       options: codes.DP_MES_CD,
+    },
+    { fieldName: 'dpDvCd',
+      header: t('MSG_TXT_DP_DV'),
+      // 입금구분
+      width: '120',
+      styleName: 'text-center',
+      editable: false,
+      options: codes.DP_DV_CD,
     },
     { fieldName: 'dpTpCd',
       header: t('MSG_TXT_DP_TP'),
