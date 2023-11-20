@@ -268,6 +268,7 @@
               v-model="infomation.rfndRsonCd"
               :options="codes.RFND_RSON_CD"
               rules="required"
+              disable
               :label="$t('MSG_TXT_RFND_RSON')"
               @update:model-value="onChagneFrndRsondCd"
             />
@@ -422,6 +423,7 @@
               v-model="infomation.rfndRsonCd"
               :options="codes.RFND_RSON_CD"
               rules="required"
+              disable
               :label="$t('MSG_TXT_RFND_RSON')"
               @update:model-value="onChagneFrndRsondCd"
             />
@@ -595,6 +597,7 @@
               v-model="infomation.rfndRsonCd"
               :options="codes.RFND_RSON_CD"
               rules="required"
+              disable
               :label="$t('MSG_TXT_RFND_RSON')"
               @update:model-value="onChagneFrndRsondCd"
             />
@@ -710,7 +713,7 @@ const infomation = ref({
   cardRfndFee: 0, // 수수료액
   cshRfndFnitCd: '', // 지급은행
   cshRfndAcnoEncr: '', // 계좌번호
-  rfndRsonCd: '', // 환불사유코드
+  rfndRsonCd: '56', // 환불사유코드
   rfndRsonCn: '', // 환불사유내영(기타일경우 입력)
   cardAprno: props.checkItem[0]?.cardAprno, // 승인번호
   cstNm: '', // 예금주
