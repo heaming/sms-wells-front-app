@@ -110,7 +110,12 @@ const inputParams = ref({
 
 const akChdt = now.format('YYYYMMDD');
 
-const strDomain = window.location.host;
+let strDomain = '';
+if (window.location.href.includes('localhost')) {
+  strDomain = 'http://localhost:3000';
+} else {
+  strDomain = window.location.origin;
+}
 
 const visitCocnMshCh = `${strDomain}/tablet/#/withdrawal/ztwda-auto-transfer-payment-change?vstYn=Y&chRqrDvCd=2&aftnThpChYn=N&clctamMngtYn=N&akChdt=${akChdt}`; // 방문
 // eslint-disable-next-line no-unused-vars
