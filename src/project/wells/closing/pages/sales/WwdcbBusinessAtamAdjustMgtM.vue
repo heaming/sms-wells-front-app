@@ -154,7 +154,7 @@ const now = dayjs();
 const { t } = useI18n();
 const dataService = useDataService();
 const { currentRoute } = useRouter();
-const { modal, alert, notify } = useGlobal();
+const { modal, alert } = useGlobal();
 
 // -------------------------------------------------------------------------------------------------
 // Function & Event
@@ -261,18 +261,9 @@ async function onClickSlipIntlz() {
 
 // 전표생성 버튼 클릭
 async function onClickSlipCrt() {
-  let view;
-  if (isShowGrd.value === true) {
-    view = grdTotalRef.value.getView();
-  } else if (isShowGrd.value === false) {
-    view = grdDetailRef.value.getView();
-  }
-
-  const chkDataRows = gridUtil.getCheckedRowValues(view);
-  if (chkDataRows.length === 0) {
-    notify(t('MSG_ALT_NOT_SEL_ITEM'));
-    return;
-  }
+  const view = grdTotalRef.value.getView();
+  const chkDataRows = gridUtil.getAllRowValues(view);
+  const { dpKndCd } = searchParams.value;
 
   let chk = 0;
   for (let i = 0; i < chkDataRows.length; i += 1) {
@@ -287,7 +278,7 @@ async function onClickSlipCrt() {
   // console.log('팝업으로 보내는 데이터:', chkDataRows);
   const res = await modal({
     component: 'WwdcbSlipCreateP',
-    componentProps: { chkDataRows },
+    componentProps: { chkDataRows, dpKndCd },
   });
 
   // 리턴값을 체크한 후 재조회
@@ -353,7 +344,7 @@ const initGrdTotal = defineGrid((data, view) => {
 
   view.layoutByColumn('sellTpCd').summaryUserSpans = [{ colspan: 5 }];
 
-  view.checkBar.visible = true;
+  view.checkBar.visible = false;
   view.rowIndicator.visible = true;
 });
 
@@ -424,7 +415,7 @@ const initGrdDetail = defineGrid((data, view) => {
   view.columnByName('ucAmt').setHeaderSummaries({ numberFormat: '#,##0', expression: 'sum' });
 
   view.layoutByColumn('sellTpCd').summaryUserSpans = [{ colspan: 8 }];
-  view.checkBar.visible = true;
+  view.checkBar.visible = false;
   view.rowIndicator.visible = true;
 });
 
