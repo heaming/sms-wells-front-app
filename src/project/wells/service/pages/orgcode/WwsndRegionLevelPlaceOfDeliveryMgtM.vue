@@ -345,7 +345,7 @@ const initGrdMain = defineGrid((data, view) => {
       header: t('MSG_TXT_PDLV_NM'),
       width: '150',
       editable: true,
-      editor: { maxLength: 50 },
+      editor: { maxLength: 100 },
       rules: 'required',
     },
     {
