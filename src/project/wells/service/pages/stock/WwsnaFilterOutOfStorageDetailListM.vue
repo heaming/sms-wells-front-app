@@ -60,6 +60,20 @@
           />
         </kw-search-item>
         <kw-search-item
+          :label="$t('MSG_TXT_ITM_CD')"
+          :colspan="2"
+        >
+          <kw-input
+            v-model="searchParams.itmCdFrom"
+            :max-length="50"
+          />
+          <span>~</span>
+          <kw-input
+            v-model="searchParams.itmCdTo"
+            :max-length="50"
+          />
+        </kw-search-item>
+        <kw-search-item
           :label="$t('MSG_TXT_PD_GRP')"
         >
           <kw-select
@@ -206,6 +220,8 @@ const searchParams = ref({
   refriDvCd: '',
   fnlSellTpCd: '',
   svBizHclsfCd: '',
+  itmCdFrom: '', // 품목코드 검색(시작)
+  itmCdTo: '', // 품목코드 검색(종료)
   pdGrpCd: '',
   rgsnYn: 'N', // 퇴사자 제외 여부
 });

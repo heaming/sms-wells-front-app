@@ -454,11 +454,6 @@ const initGrdMain = defineGrid((data, view) => {
       direction: 'horizontal',
       items: ['mngtPrtnrNo', 'prtnrKnm', 'pstnDvCdNm'],
     },
-    {
-      header: t('MSG_TXT_MAT_HODT_INF'), // 빌딩별 자재실장 정보
-      direction: 'horizontal',
-      items: ['bldMngtPrtnrNo', 'bldMngtPrtnrKnm'],
-    },
     'bldNm',
     'mngtCstCnt',
     'notMngtExcdCstCnt',
@@ -481,6 +476,11 @@ const initGrdMain = defineGrid((data, view) => {
       header: t('MSG_TXT_CNTC_IZ'), // 컨택내역
       direction: 'horizontal',
       items: ['svCntcFshCstCnt', 'svCntcVstImpCstCnt', 'svCntcStnbCstCnt', 'svCntcSumCnt', 'svCntcRt'],
+    },
+    {
+      header: t('MSG_TXT_MAT_HODT_INF'), // 빌딩별 자재실장 정보
+      direction: 'horizontal',
+      items: ['bldMngtPrtnrNo', 'bldMngtPrtnrKnm'],
     },
   ]);
 });
