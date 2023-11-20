@@ -186,6 +186,7 @@ async function onClickSave() {
 
 // 엑셀 다운로드 버튼
 async function onClickExcelDownload(flag) {
+  console.log('flag : ', flag);
   if (flag === 'adjustObject') {
     const view = grdFirstRef.value.getView();
     const res = await dataService.get('/sms/wells/closing/expense/marketable-securities-exclude/adjust-object', { params: cachedParams });
@@ -196,7 +197,7 @@ async function onClickExcelDownload(flag) {
     });
   } else if (flag === 'withholdingTaxAdjust') {
     const view = grdSecondRef.value.getView();
-    const res = await dataService.get('/sms/wells/closing/expense/marketable-securities-exclude/withholding-tax', { params: cachedParams });
+    const res = await dataService.get('/sms/wells/closing/expense/marketable-securities-exclude/withholding-tax-adjust', { params: cachedParams });
     await gridUtil.exportView(view, {
       fileName: currentRoute.value.meta.menuName,
       timePostfix: true,
