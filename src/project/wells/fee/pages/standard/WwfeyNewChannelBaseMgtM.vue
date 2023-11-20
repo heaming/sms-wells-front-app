@@ -591,7 +591,7 @@ const initGrd = defineGrid((data, view) => {
       },
     }, // 할인제도
     { fieldName: 'sppDvCd',
-      header: t('MSG_TXT_FULT_DV'),
+      header: t('MSG_TXT_COMBI_DV'),
       width: '150',
       styleName: 'text-center',
       rules: 'required',
