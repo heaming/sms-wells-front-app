@@ -358,7 +358,7 @@ async function onClickSearch() {
     }
 
     // 데이터 생성
-    res = await dataService.post('/sms/wells/service/qom-asn/individual-wares', cachedParams, { timeout: 300000 });
+    res = await dataService.post('/sms/wells/service/qom-asn/individual-wares', { ...cachedParams, isRecreate: false }, { timeout: 300000 });
     const { processCount } = res.data;
     if (processCount === 0) {
       // 생성할 데이터가 존재하지 않습니다.
@@ -449,15 +449,14 @@ async function onClickRecreation() {
     return;
   }
 
-  let res = await dataService.delete('/sms/wells/service/qom-asn', { data: cachedParams });
+  // 데이터 생성
+  const res = await dataService.post('/sms/wells/service/qom-asn/individual-wares', { ...cachedParams, isRecreate: true }, { timeout: 300000 });
   const { processCount } = res.data;
   if (processCount === 0) {
     // 생성할 데이터가 존재하지 않습니다.
     await alert(t('MSG_ALT_CRT_NO_DATA'));
     return;
   }
-  // 데이터 생성
-  res = await dataService.post('/sms/wells/service/qom-asn/individual-wares', cachedParams, { timeout: 300000 });
   // 생성되었습니다.
   notify(t('MSG_ALT_CREATE'));
 
