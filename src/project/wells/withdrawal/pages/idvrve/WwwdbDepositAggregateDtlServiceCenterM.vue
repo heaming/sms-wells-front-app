@@ -348,6 +348,7 @@ const initGrid = defineGrid((data, view) => {
     { fieldName: 'stlmDvCd' }, /* 결제구분코드 */
     { fieldName: 'stlmDvNo' }, /* 입금번호 */
     { fieldName: 'iscmpCd' }, /* 결제처 */
+    { fieldName: 'iscmpNm' }, /* 결제처명 */
     { fieldName: 'cardAprno' }, /* 승인번호 */
     { fieldName: 'taxBll' }, /* 세금계산서 */
 
@@ -529,13 +530,12 @@ const initGrid = defineGrid((data, view) => {
       // '결제유형',
       width: '100',
       options: codes.STLM_DV_CD,
-      styleName: 'text-left' },
-    { fieldName: 'iscmpCd',
+      styleName: 'text-center' },
+    { fieldName: 'iscmpNm',
       header: t('MSG_TXT_PYPLC'),
-      // '결제처',
-      options: codes.ISCMP_CD,
+      // 결제처
       width: '100',
-      styleName: 'text-left' },
+      styleName: 'text-center' },
 
     { fieldName: 'stlmDvNo',
       header: t('MSG_TXT_DP_NO'),
@@ -578,7 +578,7 @@ const initGrid = defineGrid((data, view) => {
     {
       header: t('MSG_TXT_STLM') + t('MSG_TXT_INF'), // 결제정보
       direction: 'horizontal',
-      items: ['bilAmt', 'dpSumAmt', 'totRfndEtAmt', 'blam', 'stlmDvCd', 'iscmpCd', 'stlmDvNo', 'cardAprno', 'taxBll'],
+      items: ['bilAmt', 'dpSumAmt', 'totRfndEtAmt', 'blam', 'stlmDvCd', 'iscmpNm', 'stlmDvNo', 'cardAprno', 'taxBll'],
     },
   ]);
 });
