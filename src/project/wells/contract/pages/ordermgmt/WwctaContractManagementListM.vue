@@ -360,7 +360,7 @@ import { codeUtil, defineGrid, getComponentType, useDataService, gridUtil, fileU
 import { cloneDeep, isEmpty } from 'lodash-es';
 import dayjs from 'dayjs';
 import ZctzContractDetailNumber from '~sms-common/contract/components/ZctzContractDetailNumber.vue';
-import { openReportPopup, openReportPopupWithOptions } from '~common/utils/cmPopupUtil';
+import { openReportPopup } from '~common/utils/cmPopupUtil'; // , openReportPopupWithOptions
 import { openOzReport } from '~sms-common/contract/util/CtPopupUtil';
 import { buildUrlForNoSession } from '~sms-common/contract/util';
 
@@ -371,6 +371,7 @@ const { alert, confirm, modal, notify } = useGlobal();
 const { currentRoute } = useRouter();
 const { hasRoleNickName } = useMeta();
 const userInfo = getters['meta/getUserInfo'];
+const now = dayjs();
 // console.log(userInfo);
 
 let cachedParams;
@@ -378,8 +379,8 @@ let isCntrPrgsStatCnfm = true;
 
 const searchParams = ref({
   cntrDv: 'A', // 계약구분
-  cntrRcpStrtdt: '', // 작성일자-시작일자
-  cntrRcpEnddt: '', // 작성일자-종료일자
+  cntrRcpStrtdt: `${now.format('YYYYMM')}01`, // 작성일자-시작일자
+  cntrRcpEnddt: now.format('YYYYMMDD'), // 작성일자-종료일자
   cntrwTpCd: '', // 계약서구분(계약서유형코드)
   alncmpCd: [], // 계약서구분2-상조관련
   dgr2LevlOgId: [], // 조직코드-지역단
@@ -390,6 +391,7 @@ const searchParams = ref({
   cstKnm: '', // 고객명
   cntrCstNo: '', // 고객번호
   sellChnlSnrDv: '', // 판매채널
+  incDlYn: 'N', // 삭제데이터 포함여부
 });
 
 const searchDtlParams = ref({
@@ -609,6 +611,13 @@ async function onChangeCntrwTpCd() {
 // 조회결과
 async function fetchMstData() {
   // changing api & cacheparams according to search classification
+  // 계약상태 항목에서 삭제 선택시, 삭제데이터포함 변수 따로 세팅
+  if (searchParams.value.cntrPrgsStatCd.includes('99')) {
+    searchParams.value.incDlYn = 'Y';
+  } else {
+    searchParams.value.incDlYn = 'N';
+  }
+
   let res = '';
   cachedParams = cloneDeep(searchParams.value);
   // console.log(cachedParams);
@@ -777,6 +786,14 @@ async function onClickSearch() {
     // console.log(`diff : ${diff}`);
     if (diff > 31) {
       await alert(t('MSG_ALT_SRCH_WRTE_DT_CNDT_MAX_DC', ['31'])); // 작성일자 조건은 최대 {0}일까지 검색할 수 있습니다.
+      return;
+    }
+  }
+
+  // 계약상태 조회조건 최소 한가지 이상 선택해야 함.
+  if (searchParams.value.cntrDv === 'A' || searchParams.value.cntrDv === 'N' || searchParams.value.cntrDv === 'U') {
+    if (isEmpty(searchParams.value.cntrPrgsStatCd)) {
+      await alert('계약상태를 하나 이상 선택하셔야 합니다.');
       return;
     }
   }
@@ -1011,6 +1028,7 @@ async function onClickSearchCntrCst() {
 }
 
 async function onClickOzReport(cntrNo) { // oz리포트 신규/변경 계약
+  // ********* 231120 공통 사용으로 인한 주석처리(미사용이나 비슷한 로직에 참고할 것) *************
   // ****************** local test 주의사항 ************************
   // 리포트서비스(공통)을 이용해, ozrPath, odiPath는 받아서 파라미터로 사용해야하므로 서비스를 한번은 부른다.
   // local에서 테스트 할때에는 매핑에 /annoymous를 추가해서 searchapiurl을 파라미터로 써도 로컬에서 확인가능
@@ -1018,34 +1036,35 @@ async function onClickOzReport(cntrNo) { // oz리포트 신규/변경 계약
   // = { searchApiUrl: '/api/v1/sms/wells/contract/contracts/managements/anonymous/search-api-url'
   // , cntrNo };
 
-  const res = await dataService.get('/sms/wells/contract/contracts/managements/search-api-url', { params: { cntrNo } });
-  const childrenRes = await dataService.get('/sms/wells/contract/contracts/managements/search-api-url/children', { params: { cntrNo } });
-  console.log(res);
-  console.log(childrenRes);
-
-  const args = { searchApiUrl: '/api/v1/sms/wells/contract/contracts/managements/search-api-url', cntrNo };
-  const childrenArgs = { searchApiUrl: '/api/v1/sms/wells/contract/contracts/managements/search-api-url/children', cntrNo };
-
-  if (isEmpty(childrenRes.data)) { // 단건
-    await openReportPopup(
-      res.data.ozrPath,
-      res.data.odiPath,
-      JSON.stringify(args),
-    );
-  }
-
-  if (!isEmpty(childrenRes.data)) { // 다건
-    await openReportPopupWithOptions(
-      res.data.ozrPath,
-      res.data.odiPath,
-      JSON.stringify(args),
-      { // options
-        treeViewTitle: res.data.options.treeViewTitle,
-        displayName: res.data.options.displayName,
-        children: JSON.stringify(childrenArgs),
-      },
-    );
-  }
+  // // ref) SearchApiUrl 방식 전송
+  // eslint-disable-next-line max-len
+  // const res = await dataService.get('/sms/wells/contract/contracts/anonymous/managements/search-api-url', { params: { cntrNo } });
+  // eslint-disable-next-line max-len
+  // const childrenRes = await dataService.get('/sms/wells/contract/contracts/anonymous/managements/search-api-url/children', { params: { cntrNo } });
+  // console.log(res);
+  // console.log(childrenRes);
+  // const args = { searchApiUrl: '/api/v1/sms/wells/contract/contracts/anonymous/managements/search-api-url', cntrNo };
+  // eslint-disable-next-line max-len
+  // const childrenArgs = { searchApiUrl: '/api/v1/sms/wells/contract/contracts/anonymous/managements/search-api-url/children', cntrNo };
+  // if (isEmpty(childrenRes.data)) { // 단건
+  //   await openReportPopup(
+  //     res.data.ozrPath,
+  //     res.data.odiPath,
+  //     JSON.stringify(args),
+  //   );
+  // }
+  // if (!isEmpty(childrenRes.data)) { // 다건
+  //   await openReportPopupWithOptions(
+  //     res.data.ozrPath,
+  //     res.data.odiPath,
+  //     JSON.stringify(args),
+  //     { // options
+  //       treeViewTitle: res.data.options.treeViewTitle,
+  //       displayName: res.data.options.displayName,
+  //       children: JSON.stringify(childrenArgs),
+  //     },
+  //   );
+  // }
 
   // // ref) 파라미터 방식 전송
   // const res = await dataService.get('sms/wells/contract/report/contract', { params: { cntrNo } });
@@ -1088,14 +1107,10 @@ async function onClickOzReport(cntrNo) { // oz리포트 신규/변경 계약
   //     },
   //   );
   // }
-}
 
-// ref) oz리포트 이벤트(공통유틸) - unused
-// eslint-disable-next-line no-unused-vars
-async function onClickOzReportHello(cntrNo) {
-  const { data: reports } = await dataService.get('sms/wells/contract/report/contract', { params: { cntrNo } });
+  const { data: reports } = await dataService.get('/sms/wells/contract/contracts/managements/search-api-url', { params: { cntrNo } });
   return openOzReport(...reports);
-} /* 231106 공통유틸 확인완료 */
+}
 
 // eslint-disable-next-line no-unused-vars
 async function onClickOzReportRstl(paramCntrNo, paramCntrSn, paramRstlCnfmDtm, paramCntrwTpCd) { // oz리포트 재약정 계약
@@ -1139,6 +1154,7 @@ const initGrdMstList = defineGrid((data, view) => {
     { fieldName: 'cntrDtlNo' }, // 계약상세번호
     { fieldName: 'cntrCstNo' }, // 고객번호
     { fieldName: 'sellPrtnrNo' }, // 판매자 사번
+    { fieldName: 'dtaDlYn' }, // 데이터삭제여부
     { fieldName: 'cntrPrgsStatNm2' }, // 상태
     { fieldName: 'cntrPrgsStatNm' }, // 계약진행상태코드명
     { fieldName: 'cntrPrgsStatCd' }, // 계약진행상태코드
@@ -1192,8 +1208,24 @@ const initGrdMstList = defineGrid((data, view) => {
     { fieldName: 'cntrDtlNo', header: t('MSG_TXT_CNTR_DTL_NO'), width: '180', styleName: 'rg-button-link text-center', renderer: { type: 'button' }, preventCellItemFocus: true }, // 계약상세번호
     { fieldName: 'cntrCstNo', header: t('MSG_TXT_CST_NO'), width: '127', styleName: 'text-center' }, // 고객번호
     { fieldName: 'sellPrtnrNo', header: t('MSG_TXT_PTNR_NO'), width: '127', styleName: 'text-center' }, // 판매자 사번
-    { fieldName: 'cntrPrgsStatNm2', header: t('MSG_TXT_STT'), width: '127', styleName: 'text-center' }, // 상태
-    { fieldName: 'cntrPrgsStatNm', header: t('MSG_TXT_CNTR_STAT'), width: '127', styleName: 'text-center' }, // 계약상태
+    { fieldName: 'cntrPrgsStatNm2',
+      header: t('MSG_TXT_STT'),
+      width: '127',
+      styleName: 'text-center',
+      displayCallback(grid, index) {
+        const { dtaDlYn, cntrPrgsStatNm2 } = grid.getValues(index.itemIndex);
+        return dtaDlYn === 'Y' ? '삭제' : cntrPrgsStatNm2;
+      },
+    }, // 상태
+    { fieldName: 'cntrPrgsStatNm',
+      header: t('MSG_TXT_CNTR_STAT'),
+      width: '127',
+      styleName: 'text-center',
+      displayCallback(grid, index) {
+        const { dtaDlYn, cntrPrgsStatNm } = grid.getValues(index.itemIndex);
+        return dtaDlYn === 'Y' ? '삭제' : cntrPrgsStatNm;
+      },
+    }, // 계약상태
     { fieldName: 'cstStlmInMthNm', header: t('MSG_TXT_CNTR_MTHD'), width: '127', styleName: 'text-center' }, // 계약방식
     { fieldName: 'cntrwTpNm', header: t('MSG_TXT_PDGRP'), width: '127', styleName: 'text-center' }, // 상품군
     { fieldName: 'cstKnm', header: t('MSG_TXT_CST_NM'), width: '127', styleName: 'text-center' }, // 고객명
@@ -1479,7 +1511,6 @@ const initGrdMstList = defineGrid((data, view) => {
       fileUtil.download({ fileUid: fileRow.fileUid, originalFileName: fileRow.fileNm }, 'storage'); /* kw-lib에서 fileUtil을 불러옴  */
     } else if (['cntrwBrws'].includes(column)) { // 계약서보기 버튼 클릭
       onClickOzReport(paramCntrNo);
-      // onClickOzReportHello(paramCntrNo);
     } else if (['notakFwIz'].includes(column)) { // 알림톡 발송 내역 버튼 클릭
       await modal({ component: 'WwKakaotalkSendListP', componentProps: { cntrNo: paramCntrNo, cntrSn: paramCntrSn, concDiv: searchParams.cntrDv } }); // 카카오톡 발송 내역 조회
     }
