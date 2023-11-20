@@ -115,7 +115,7 @@
         />
         <kw-btn
           v-permission:create
-          :disable="searchParams.searchGubun==='2'"
+          :disable="searchParams.searchGubun==='2' || beforeMonth !== searchParams.baseYm"
           primary
           dense
           :label="$t('MSG_BTN_SLIP_CRT')"
@@ -172,6 +172,7 @@ const codes = await codeUtil.getMultiCodes(
 
 const codeLists = await dataService.get('/sms/wells/closing/business-atam-adjusts/codes');
 const optionList = codeLists.data;
+const beforeMonth = dayjs().add(-1, 'month').format('YYYYMM');
 
 const searchParams = ref({
   baseYm: now.format('YYYYMM'), // 기준년월

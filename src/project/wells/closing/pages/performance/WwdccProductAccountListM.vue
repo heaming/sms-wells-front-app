@@ -243,7 +243,7 @@ async function onClickDetailExportView() {
   gridUtil.exportBulkView(view, {
     url: '/sms/wells/closing/product-account/bulk-excel-download', // url 지정
     parameter: { // 검색 조건을 그대로 넣어준다. 없을 경우 추가하지 않아도 됨
-      ...cachedParams,
+      ...cachedParams, timeout: 1000000,
     },
   });
 }
