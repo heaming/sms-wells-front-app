@@ -95,6 +95,7 @@ const detailInf = ref({
 
 const props = defineProps({
   chkDataRows: { type: Array, default: () => [] },
+  dpKndCd: { type: String, default: '' },
 });
 
 onMounted(async () => {
@@ -111,6 +112,7 @@ onMounted(async () => {
 const saveParams = ref({
   baseYm: now.format('YYYYMM'),
   sapBzDvCd: '1110',
+  dpKndCd: props.dpKndCd,
 });
 
 let cachedParams;
