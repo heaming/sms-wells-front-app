@@ -289,11 +289,14 @@ async function onClickUpdate(item) {
 }
 
 async function onClickSend(item) {
+  const paramDtm = !isEmpty(item.cntrTempSaveDt) ? item.cntrTempSaveDt.replaceAll('-', '') : ''; // 견적주문일자를 기간으로 받는다.
+
   const result = await modal({
     component: 'WwctaQuoteSendP',
     componentProps: {
       cntrNo: item.cntrNo,
       cntrSn: item.cntrSn,
+      cntrTempSaveDt: paramDtm,
     },
   });
   if (result) {
