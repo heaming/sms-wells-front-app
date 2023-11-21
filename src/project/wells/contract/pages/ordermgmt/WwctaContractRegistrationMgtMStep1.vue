@@ -632,7 +632,7 @@ const dashboardCounts = ref({
   restipulationCnt: 0,
   membershipCnt: 0,
 });
-const isReadonly = computed(() => !!step1.value.bas?.cntrPrgsStatCd || !!props.cntrCstNo);
+const isReadonly = computed(() => !!step1.value.bas?.cntrPrgsStatCd);
 const popupRequiredCstInfos = computed(() => [
   CNTR_TP_CD.INDIVIDUAL,
   CNTR_TP_CD.COOPERATION,
@@ -878,8 +878,6 @@ async function selectPartner() {
 }
 
 async function onClickMembership() {
-  clearSelected();
-
   const { result, payload } = await modal({
     component: 'WwctaMshRstlOjCstListP',
     componentProps: {
@@ -894,6 +892,8 @@ async function onClickMembership() {
     return;
   }
 
+  clearSelected();
+
   step1.value.mshCntrNo = payload.cntrNo;
   step1.value.mshCntrSn = payload.cntrSn;
   step1.value.prtnr = currentPartner;
@@ -907,8 +907,6 @@ async function onClickMembership() {
 }
 
 async function onClickReStipulation() {
-  clearSelected();
-
   const { result, payload } = await modal({
     component: 'WwctaMshRstlOjCstListP',
     componentProps: {
@@ -923,6 +921,8 @@ async function onClickReStipulation() {
     setupSearchParams();
     return;
   }
+
+  clearSelected();
 
   rstlCntrNo.value = payload.cntrNo;
   rstlCntrSn.value = payload.cntrSn;
