@@ -74,7 +74,7 @@
               <ul class="card-text">
                 <template
                   v-for="(pd, i) in summary.cntrDtls"
-                  :key="i"
+                  :key="`$product-${i}`"
                 >
                   <li>
                     <p>상품명</p>

@@ -91,9 +91,11 @@
             :label-size="150"
           >
             <kw-form-row>
-              <kw-form-item :label="'멤버십할인구분코드'">
+              <kw-form-item
+                v-if="priceDefineVariableOptions.mshDscDvCd"
+                :label="'멤버십할인구분코드'"
+              >
                 <kw-select
-                  v-if="priceDefineVariableOptions.mshDscDvCd"
                   v-model="priceDefineVariables.mshDscDvCd"
                   :options="priceDefineVariableOptions.mshDscDvCd"
                   placeholder="멤버십할인구분코드"
@@ -102,9 +104,11 @@
                   @change="onChangeVariable"
                 />
               </kw-form-item>
-              <kw-form-item :label="'멤버십할인유형코드'">
+              <kw-form-item
+                v-if="priceDefineVariableOptions.mshDscTpCd"
+                :label="'멤버십할인유형코드'"
+              >
                 <kw-select
-                  v-if="priceDefineVariableOptions.mshDscTpCd"
                   v-model="priceDefineVariables.mshDscTpCd"
                   :options="priceDefineVariableOptions.mshDscTpCd"
                   placeholder="멤버십할인유형코드"
@@ -117,9 +121,11 @@
             <kw-form-row
               v-if="isHcr"
             >
-              <kw-form-item :label="'홈케어구분코드'">
+              <kw-form-item
+                v-if="priceDefineVariableOptions.hcrDvCd"
+                :label="'홈케어구분코드'"
+              >
                 <kw-select
-                  v-if="priceDefineVariableOptions.hcrDvCd"
                   v-model="priceDefineVariables.hcrDvCd"
                   :options="priceDefineVariableOptions.hcrDvCd"
                   placeholder="홈케어구분코드"
@@ -130,9 +136,11 @@
               </kw-form-item>
             </kw-form-row>
             <kw-form-row>
-              <kw-form-item :label="'서비스(용도/방문주기)'">
+              <kw-form-item
+                v-if="priceDefineVariableOptions.svPdCd"
+                :label="'서비스(용도/방문주기)'"
+              >
                 <kw-select
-                  v-if="priceDefineVariableOptions.svPdCd"
                   v-model="priceDefineVariables.svPdCd"
                   :options="priceDefineVariableOptions.svPdCd"
                   placeholder="서비스(용도/방문주기)"
