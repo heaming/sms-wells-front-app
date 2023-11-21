@@ -90,9 +90,11 @@
       <kw-action-top>
         <template #left>
           <kw-paging-info
-            :page-size="30"
-            :page-size-options="codes.COD_PAGE_SIZE_OPTIONS"
+            v-model:page-index="pageInfo.pageIndex"
+            v-model:page-size="pageInfo.pageSize"
             :total-count="pageInfo.totalCount"
+            :page-size-options="codes.COD_PAGE_SIZE_OPTIONS"
+            @change="fetchData"
           />
           <!-- 단위:(원)-->
           <span class="ml8">{{ t('MSG_TXT_UNIT_COLON_WON') }} </span>
@@ -224,6 +226,8 @@ async function fetchData() {
 }
 
 async function onClickSearch() {
+  grdMainRef.value.getData().clearRows();
+  pageInfo.value.pageIndex = 1;
   cachedParams = cloneDeep(searchParams.value);
   await fetchData();
 }
