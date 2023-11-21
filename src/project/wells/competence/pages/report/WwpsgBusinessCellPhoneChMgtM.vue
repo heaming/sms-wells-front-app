@@ -288,7 +288,7 @@ const { t } = useI18n();
 const { currentRoute } = useRouter();
 const dataService = useDataService();
 const { getConfig, getUserInfo } = useMeta();
-const { notify } = useGlobal();
+const { notify, alert } = useGlobal();
 const userInfo = getUserInfo();
 const now = dayjs();
 
@@ -340,6 +340,7 @@ const saveParams = ref({
   bizAkCn: '',
   sellPrtnrNo: '',
   sellPrtnrKnm: '',
+  rcstPrtnrNo: '',
   rsbDvNm: '',
   ogNm: '',
   ogCd: '',
@@ -361,6 +362,7 @@ async function getBaseInfo() {
 
   businessTypeList.value = businessType;
 
+  saveParams.value.rcstPrtnrNo = userInfo.loginId;
   saveParams.value.prtnrNo = BaseSearchInfo[0].prtnrNo;
   saveParams.value.prtnrKnm = BaseSearchInfo[0].prtnrKnm;
   saveParams.value.cralLocaraTno = BaseSearchInfo[0].cralLocaraTno;
@@ -381,11 +383,12 @@ async function onClickPartner() {
   saveParams.value.sellPrtnrKnm = payload.prtnrKnm;
   saveParams.value.ogNm = payload.ogNm;
   saveParams.value.ogCd = payload.ogCd;
-  saveParams.value.rsbDvNm = payload.rsbDvNm;
+  // saveParams.value.rsbDvNm = payload.rsbDvNm;
 
   const res = await dataService.get('/sms/wells/competence/business-cell-phone/prtnr-info', { params: { prtnrNo: payload.prtnrNo, ogTpCd: payload.ogTpCd } });
   console.log(res.data);
 
+  saveParams.value.rsbDvNm = res.data.rsbDvNm;
   saveParams.value.bldNm = res.data.bldNm;
   saveParams.value.sellPhoneNo = `${res.data.sellCralLocaraTno}-${res.data.sellMexnoEncr}-${res.data.sellCralIdvTno}`;
 }
@@ -395,15 +398,16 @@ async function fetchData() {
   const { list: pages, pageInfo: pageResult } = res.data;
   pageInfo.value = pageResult;
 
-  console.log(res.data);
-
   const view = grdMainRef.value.getView();
   const data = view.getDataSource();
 
   pages.forEach((param) => {
     param.bfchNo = `${param.bfchCralLocaraTno}-${param.bfchMexnoEncr}-${param.bfchCralIdvTno}`;
     param.afchNo = `${param.afchCralLocaraTno}-${param.afchMexnoEncr}-${param.afchCralIdvTno}`;
+    param.rcstPhoneNo = `${param.rcstCralLocaraTno}-${param.rcstMexnoEncr}-${param.rcstCralIdvTno}`;
   });
+
+  console.log(pages);
 
   data.checkRowStates(false);
   data.setRows(pages);
@@ -432,6 +436,10 @@ async function onClickExcelDownload() {
 }
 // eslint-disable-next-line no-unused-vars
 async function onClickSave() {
+  if (!saveParams.value.prtnrNo) {
+    alert(t('MSG_ALT_CRSP_BIZ_PSIC_DSN'));
+    return;
+  }
   if (await frmMainRef.value.alertIfIsNotModified()) { return; }
   if (!await frmMainRef.value.validate()) { return; }
 
@@ -483,7 +491,7 @@ function initGrid(data, view) {
     { fieldName: 'chRqdt', header: t('MSG_TXT_EMPL_NM'), width: '100', styleName: 'text-center', visible: false },
     { fieldName: 'ogCd', header: t('MSG_TXT_EMPL_NM'), width: '100', styleName: 'text-center', visible: false },
     { fieldName: 'ogNm', header: t('MSG_TXT_EMPL_NM'), width: '100', styleName: 'text-center', visible: false },
-
+    { fieldName: 'prtnrNo', header: t('MSG_TXT_EMPL_NM'), width: '100', styleName: 'text-center', visible: false },
   ];
 
   const fields = columns.map(({ fieldName, dataType }) => (dataType ? { fieldName, dataType } : { fieldName }));
@@ -506,7 +514,7 @@ function initGrid(data, view) {
       direction: 'horizontal', // merge type
       items: ['fnlMdfcUsrId', 'fnlMdfcUsrNm'],
     }, 'aplcnsPrtnrNo', 'rpotBizTpId', 'rpotBizAplcId', 'cralLocaraTno', 'mexnoEncr', 'cralIdvTno', 'rpotBizProcsStatCd', 'procsSn', 'procsCn',
-    'prtnrKnm', 'rcstPrtnrNo', 'rcstPrtnrNm', 'rcstPhoneNo', 'chRqdt', 'ogCd', 'ogNm',
+    'prtnrKnm', 'rcstPrtnrNo', 'rcstPrtnrNm', 'rcstPhoneNo', 'chRqdt', 'ogCd', 'ogNm', 'prtnrNo',
   ]);
 
   view.onCellItemClicked = async (grid, { itemIndex, column }) => {

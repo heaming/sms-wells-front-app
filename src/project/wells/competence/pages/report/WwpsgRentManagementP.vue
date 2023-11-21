@@ -159,7 +159,7 @@
         >
           <p>
             {{ searchParams.procsCralLocaraTno
-              +"-"+ searchParams.procsMexnoEncr
+              +"-"+ searchParams.procsMexnoGbencr
               +"-"+searchParams.procsCralIdvTno }}
           </p>
         </kw-form-item>
@@ -248,7 +248,7 @@ const searchParams = ref({
   procsPrtnrNo: '',
   procsPrtnrKnm: '',
   procsCralLocaraTno: '',
-  procsMexnoEncr: '',
+  procsMexnoGbencr: '',
   procsCralIdvTno: '',
   fnlMdfcDtm: '',
   rpotBizProcsStatNm: '',
@@ -274,7 +274,7 @@ const colParams = ref({
 
 async function setRentInfo() {
   searchParams.value.prtnrKnm = props.rowData.prtnrKnm;
-  searchParams.value.prtnrNo = props.rowData.aplcnsPrtnrNo;
+  searchParams.value.prtnrNo = props.rowData.prtnrNo;
   searchParams.value.phoneNo = props.rowData.phoneNo;
   searchParams.value.bldNm = props.rowData.bizAkBldNm;
   searchParams.value.rntAplcTpNm = props.rowData.rntAplcTpNm;
@@ -317,13 +317,14 @@ async function setColName() {
 async function getBaseInfo() {
   const baseInfoRes = await dataService.get('/sms/wells/competence/rent-management/rent-popup', { params: saveParams.value });
 
+  console.log(baseInfoRes.data);
   saveParams.value.rpotBizProcsStatCd = baseInfoRes.data.rpotBizProcsStatCd;
   saveParams.value.procsCn = baseInfoRes.data.procsCn;
   searchParams.value.procsCn = baseInfoRes.data.procsCn;
   searchParams.value.procsPrtnrNo = baseInfoRes.data.procsPrtnrNo;
   searchParams.value.procsPrtnrKnm = baseInfoRes.data.procsPrtnrKnm;
   searchParams.value.procsCralLocaraTno = baseInfoRes.data.procsCralLocaraTno;
-  searchParams.value.procsMexnoEncr = baseInfoRes.data.procsMexnoEncr;
+  searchParams.value.procsMexnoGbencr = baseInfoRes.data.procsMexnoGbencr;
   searchParams.value.procsCralIdvTno = baseInfoRes.data.procsCralIdvTno;
   searchParams.value.fnlMdfcDtm = baseInfoRes.data.fnlMdfcDtm;
   searchParams.value.rpotBizProcsStatNm = baseInfoRes.data.rpotBizProcsStatNm;
