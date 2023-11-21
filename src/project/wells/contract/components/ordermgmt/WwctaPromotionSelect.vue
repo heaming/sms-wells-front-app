@@ -70,9 +70,9 @@ const emit = defineEmits([
 
 const { getCodeName, addCode } = await UseCtCode();
 
-addCode('PMOT_APY_GRP_CD', Array.from({ length: 5 })
+addCode('PMOT_APY_GRP_CD', Array.from({ length: 9 })
   .map((_, index) => ({ codeId: `${index + 1}`, codeName: `선택 프로모션 ${index + 1}` })));
-addCode('PMOT_APY_OPT_CD', Array.from({ length: 5 })
+addCode('PMOT_APY_OPT_CD', Array.from({ length: 9 })
   .map((_, index) => ({ codeId: `${index + 1}`, codeName: `옵션${index + 1}` })));
 
 const appliedPromotions = ref(props.modelValue);
