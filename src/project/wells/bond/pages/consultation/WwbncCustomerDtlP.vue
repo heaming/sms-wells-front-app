@@ -883,6 +883,7 @@
                     :options="codes.TEL_CNSL_RS_CD"
                     dense
                     rules="required"
+                    @change="onChangeTelCnslRsCd"
                   />
                 </kw-form-item>
               </kw-form-row>
@@ -972,6 +973,7 @@
               class="mt20"
             >
               <kw-expansion-item
+                ref="sideStepRefs"
                 group="list-group"
                 padding-target="header"
                 expansion-icon-align="center"
@@ -1152,6 +1154,7 @@ const centerRef = ref();
 const isFlag = ref();
 const isFlag2 = ref('N');
 const oldCharacterHistRef = ref();
+const sideStepRefs = ref({});
 
 popupUtil.registerCloseEvent();
 
@@ -1252,6 +1255,36 @@ async function onClickCellphone(tno) {
   });
   const parent = window.open('', 'ky_parent');
   parent.focus();
+}
+
+// 통화결과 변경 시
+async function onChangeTelCnslRsCd() {
+  switch (customer.value.crncyRs) {
+    case '1001':
+      customer.value.cnslCn = '고객입금처리 성공';
+      sideStepRefs.value.hide();
+      break;
+    case '1002':
+      customer.value.cnslCn = '';
+      sideStepRefs.value.show();
+      break;
+    case '2001':
+      customer.value.cnslCn = '고객전화 무응답';
+      sideStepRefs.value.hide();
+      break;
+    case '2002':
+      customer.value.cnslCn = '고객전화 통화중';
+      sideStepRefs.value.hide();
+      break;
+    case '2003':
+      customer.value.cnslCn = '고객전화 결번';
+      sideStepRefs.value.hide();
+      break;
+    default:
+      customer.value.cnslCn = '';
+      sideStepRefs.value.hide();
+      break;
+  }
 }
 
 async function fetchCustomerDetail() {
