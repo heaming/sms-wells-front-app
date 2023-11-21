@@ -14,11 +14,28 @@
 --->
 <template>
   <kw-page>
-    <div class="result-area">
+    <div class="result-area relative-position">
       <kw-list
         separator
         item-padding="10px 0px 0px"
       >
+        <div
+          class="absolute"
+          style="right: 100px;top: 20px;z-index: 2;"
+        >
+          <kw-btn
+            :label="t('MSG_TXT_ADVNC_PLAN_DOC') + ' ' + t('MSG_TXT_EXPL2')"
+            dense
+            class="mr8"
+            @click="onClickTemplateDownload"
+          />
+          <kw-btn
+            :label="t('MSG_TXT_ADVNC_PLAN_DOC') + ' ' + t('MSG_TXT_FORM')"
+            dense
+            @click="onClickTemplateDownload2"
+          />
+        </div>
+
         <kw-expansion-item
           group="list-group"
           padding-target="header"
@@ -30,23 +47,10 @@
             <kw-item-section>
               <kw-item-label>
                 <span class="text-bold kw-font-pt18">{{ t('MSG_TXT_RGS') }}</span>
-                <div class="float-right">
-                  <kw-btn
-                    :label="t('MSG_TXT_ADVNC_PLAN_DOC') + ' ' + t('MSG_TXT_EXPL2')"
-                    dense
-                    class="mr8"
-                    @click="onClickTemplateDownload"
-                  />
-                  <kw-btn
-                    :label="t('MSG_TXT_ADVNC_PLAN_DOC') + ' ' + t('MSG_TXT_FORM')"
-                    dense
-                    @click="onClickTemplateDownload2"
-                  />
-                </div>
               </kw-item-label>
             </kw-item-section>
           </template>
-          <div class="mt10">
+          <div class="mt30">
             <kw-form
               ref="frmMainRef"
               :cols="3"
@@ -108,7 +112,7 @@
                     v-model="saveParams.bizAkCn"
                     type="textarea"
                     :rows="5"
-                    placeholder="※ 신규/분리, 플래너 사업장, 단기사업장의 경우는 반드시 첨부된 '사업장진출계획서' 작성 후 별도 첨부 바랍니다. (파일 미첨부시 반송됩니다.)"
+                    placeholder="※ 신규/분리, 플래너 사업장, 단기사업장의 경우는 반드시 첨부된 '사업장진출계획서' 작성 후 별도 첨부 바랍니다. (파일 미첨부시 반송됩니다)"
                   />
                 </kw-form-item>
               </kw-form-row>
@@ -243,9 +247,7 @@ const { t } = useI18n();
 const { currentRoute } = useRouter();
 const dataService = useDataService();
 const { getConfig, getUserInfo } = useMeta();
-// eslint-disable-next-line no-unused-vars
 const { notify, alert } = useGlobal();
-// eslint-disable-next-line no-unused-vars
 const userInfo = getUserInfo();
 const now = dayjs();
 
@@ -290,6 +292,7 @@ const saveParams = ref({
   cralLocaraTno: '',
   attachFileId: '',
   apnFileDocId: '',
+  rcstPrtnrNo: '',
   attachFiles: [],
 });
 
@@ -313,11 +316,14 @@ async function getBaseInfo() {
 
   console.log(baseInfoRes.data);
 
-  const bldList = bldInfo.map(({ bldCd, bldNm }) => ({ codeId: bldCd, codeName: bldNm }));
+  if (bldInfo) {
+    const bldList = bldInfo.map(({ bldCd, bldNm }) => ({ codeId: bldCd, codeName: bldNm }));
+    bldInfoList.value = bldList;
+  }
 
   businessTypeList.value = businessType;
-  bldInfoList.value = bldList;
 
+  saveParams.value.rcstPrtnrNo = userInfo.loginId;
   saveParams.value.prtnrNo = BaseSearchInfo[0].prtnrNo;
   saveParams.value.prtnrKnm = BaseSearchInfo[0].prtnrKnm;
   saveParams.value.cralLocaraTno = BaseSearchInfo[0].cralLocaraTno;
@@ -368,6 +374,11 @@ async function onClickExcelDownload() {
 }
 // eslint-disable-next-line no-unused-vars
 async function onClickSave() {
+  if (!saveParams.value.prtnrNo) {
+    alert(t('MSG_ALT_CRSP_BIZ_PSIC_DSN'));
+    return;
+  }
+
   if (await frmMainRef.value.alertIfIsNotModified()) { return; }
   if (!await frmMainRef.value.validate()) { return; }
 
@@ -375,6 +386,13 @@ async function onClickSave() {
 
   await dataService.post('/sms/wells/competence/rent-management/rent-management', saveParams.value);
   notify(t('MSG_ALT_SAVE_DATA'));
+
+  saveParams.value.attachFileId = '';
+  saveParams.value.bizAkCn = '';
+  saveParams.value.bizAkBldCd = '';
+  saveParams.value.bizAkBldNm = '';
+  saveParams.value.rntAplcTpCd = '';
+  saveParams.value.attachFiles = [];
   await onClickSearch();
 }
 
@@ -411,7 +429,7 @@ function initGrid(data, view) {
     { fieldName: 'rcstPrtnrNo', header: t('MSG_TXT_EMPL_NM'), width: '100', styleName: 'text-center', visible: false },
     { fieldName: 'rcstPrtnrNm', header: t('MSG_TXT_EMPL_NM'), width: '100', styleName: 'text-center', visible: false },
     { fieldName: 'rcstPhoneNo', header: t('MSG_TXT_EMPL_NM'), width: '100', styleName: 'text-center', visible: false },
-
+    { fieldName: 'prtnrNo', header: t('MSG_TXT_EMPL_NM'), width: '100', styleName: 'text-center', visible: false },
   ];
 
   const fields = columns.map(({ fieldName, dataType }) => (dataType ? { fieldName, dataType } : { fieldName }));
@@ -429,7 +447,7 @@ function initGrid(data, view) {
       direction: 'horizontal', // merge type
       items: ['fnlMdfcUsrId', 'fnlMdfcUsrNm'],
     }, 'aplcnsPrtnrNo', 'rpotBizTpId', 'rpotBizAplcId', 'phoneNo', 'rpotBizProcsStatCd', 'procsSn', 'procsCn',
-    'rcstPrtnrNo', 'rcstPrtnrNm', 'rcstPhoneNo',
+    'rcstPrtnrNo', 'rcstPrtnrNm', 'rcstPhoneNo', 'prtnrNo',
   ]);
 
   view.onCellItemClicked = async (grid, { itemIndex, column }) => {
