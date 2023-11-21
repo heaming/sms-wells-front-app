@@ -276,12 +276,12 @@ async function onClickExcelDownload() {
 async function onClickRemove() {
   const view = grdMainRef.value.getView();
 
-  const deletedRows = await gridUtil.confirmDeleteSelectedRows(view);
+  const removeReq = await gridUtil.confirmDeleteSelectedRows(view);
 
   let deleteChk = false;
 
-  if (deletedRows.length > 0) {
-    deletedRows.forEach((data) => {
+  if (removeReq.length > 0) {
+    removeReq.forEach((data) => {
       data.rowState = 'deleted';
       if (data.rfndAkStatCd === '02' || data.rfndAkStatCd === '03' || data.rfndAkStatCd === '99') {
         deleteChk = true;
@@ -293,7 +293,7 @@ async function onClickRemove() {
       return;
     }
 
-    await dataService.delete('/sms/wells/withdrawal/idvrve/refund-applications/reg/delete', deletedRows[0]);
+    await dataService.delete('/sms/wells/withdrawal/idvrve/refund-applications/reg/delete', { params: removeReq[0] });
     await fetchData();
   }
 }
