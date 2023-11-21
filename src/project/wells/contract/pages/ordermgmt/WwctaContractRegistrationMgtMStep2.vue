@@ -263,10 +263,12 @@ async function onSelectProduct(product, wellsFarmMachineCntrDtl) {
       // TODO: fix
       containedProduct.pdClsfNm = '복합상품';
       setTempKey(containedProduct);
+      containedProduct.basePdCd = containedProduct.pdCd; // hmmmmmm....
       newProducts.push(containedProduct);
     });
   } else {
     setTempKey(newProduct);
+    newProduct.basePdCd = newProduct.pdCd; // hmmmmmm....
     newProducts.push(newProduct);
   }
 
@@ -296,7 +298,8 @@ function deleteDtlByKey(key) {
 }
 
 async function onClickDelete(dtl) {
-  const { cntrRels, ojCntrRels, hgrPdCd, tempKey, cntrSn } = dtl;
+  const { cntrRels, ojCntrRels, basePdCd, hgrPdCd, tempKey, cntrSn } = dtl;
+  const isComposition = !!hgrPdCd && (basePdCd !== hgrPdCd);
 
   if (cntrRels) {
     let parentDeleted = false;
@@ -326,7 +329,7 @@ async function onClickDelete(dtl) {
 
   let removeKeys;
 
-  if (hgrPdCd) {
+  if (isComposition) {
     removeKeys = step2.value.dtls
       .filter((product) => product.hgrPdCd === hgrPdCd)
       .map((product) => product.tempKey ?? product.cntrSn);
@@ -742,13 +745,14 @@ async function confirmProducts() {
     return false;
   }
 
+  dtls.forEach((dtl) => {
+    dtl.basePdCd = dtl.pdCd;
+  });
+
   // eslint-disable-next-line no-use-before-define
   const invalid = dtls.find((dtl) => !validateCntrDtl(dtl));
   if (invalid) { return false; }
 
-  dtls.forEach((dtl) => {
-    dtl.basePdCd = dtl.pdCd;
-  });
   const { data } = await dataService.post(`sms/wells/contract/contracts/confirm-products/${cntrNo.value}`, dtls);
   data.forEach((newDtl, index) => {
     dtls[index].promotions = newDtl.promotions;
@@ -774,6 +778,7 @@ function validateCntrDtl(dtl) {
     finalPrice,
     pdSellLimit,
     lkSdingOjCntrRelRequired,
+    basePdCd,
     hgrPdCd,
     appliedPromotions,
     alncCntrNms,
@@ -781,8 +786,10 @@ function validateCntrDtl(dtl) {
   } = dtl;
   const { alncPmotEuYn } = finalPrice; // 제휴프로모션적용여부
 
+  const isComposition = (!!hgrPdCd && hgrPdCd !== basePdCd);
+
   if (alncPmotEuYn === 'Y' // 제휴프로모션적용여부가 'Y' 인데,
-    && !hgrPdCd // 복합상품이 아니고
+    && !isComposition // 복합상품이 아니고
     && !appliedPromotions?.length // 프로모션도 없고,
     && !alncCntrNms?.length // 라이프(상조)제휴도 없는경우
   ) {

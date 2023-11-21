@@ -347,7 +347,7 @@ async function fetchFinalPriceOptions() {
       params: {
         cntrNo: props.bas.cntrNo,
         pdCd: dtl.value.pdCd,
-        hgrPdCd: dtl.value.hgrPdCd,
+        hgrPdCd: dtl.value.hgrPdCd === dtl.value.pdCd ? undefined : dtl.value.hgrPdCd,
       },
     });
   }
