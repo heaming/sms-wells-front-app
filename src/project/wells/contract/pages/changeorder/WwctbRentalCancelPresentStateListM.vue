@@ -143,6 +143,19 @@
           first-option="all"
         />
       </kw-search-item>
+      <!-- row4 등급 -->
+      <kw-search-item
+        :label="$t('MSG_TXT_GD')"
+      >
+        <kw-select
+          v-model="searchParams.pdGdCd"
+          :options="[
+            { codeId: 'E', codeName: 'E' },
+            { codeId: 'R', codeName: 'R' },
+          ]"
+          first-option="all"
+        />
+      </kw-search-item>
     </kw-search-row>
   </kw-search>
 
@@ -247,7 +260,6 @@ let cachedParams;
 // -------------------------------------------------------------------------------------------------
 // Function & Event
 // -------------------------------------------------------------------------------------------------
-
 async function fetchData() {
   if (isEmpty(cachedParams)) return;
 
@@ -367,4 +379,5 @@ const initGrid = defineGrid((data, view) => {
     });
   };
 });
+
 </script>

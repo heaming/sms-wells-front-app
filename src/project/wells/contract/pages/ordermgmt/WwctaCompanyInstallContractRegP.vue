@@ -358,8 +358,9 @@
           />
         </kw-form-item>
       </kw-form-row>
+      <!--체험단여부 (mapping:null)-->
+      <!--시리얼넘버 (mapping:null)
       <kw-form-row label-size="100">
-        <!--체험단여부 (mapping:null)-->
         <kw-form-item :label="$t('MSG_TXT_EXPN_GRP')+$t('MSG_TXT_YN')">
           <kw-checkbox
             v-model="installDetail.expnYn"
@@ -368,7 +369,6 @@
             :false-value="N"
           />
         </kw-form-item>
-        <!--시리얼넘버 (mapping:null)-->
         <kw-form-item :label="$t('MSG_TXT_SR_NUM')">
           <kw-input
             v-model="installDetail.null"
@@ -376,6 +376,7 @@
           />
         </kw-form-item>
       </kw-form-row>
+        -->
 
       <kw-separator />
       <kw-action-top>
@@ -522,7 +523,6 @@ const codes = await codeUtil.getMultiCodes(
 
 const installDetail = reactive({
   copyDataYn: 'N',
-  expnYn: 'N',
   coCd: '2000',
   ogCd: sessionUserInfo.ogCd,
   ogNm: sessionUserInfo.ogCdNm,
