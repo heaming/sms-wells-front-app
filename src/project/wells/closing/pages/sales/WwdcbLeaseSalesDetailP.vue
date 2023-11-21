@@ -113,7 +113,7 @@
         <kw-form-item :label="$t('MSG_TXT_SL_AGG_AMT_SUB')">
           <p>
             {{ stringUtil.getNumberWithComma(toInteger(leaselSalesDetail.sumSlAggAmt)) }}<br>
-            {{ stringUtil.getNumberWithComma(toInteger(leaselSalesDetail.slAggAmt)) }}/{{ stringUtil.getNumberWithComma(toInteger(leaselSalesDetail.intAggAmt)) }}
+            ({{ stringUtil.getNumberWithComma(toInteger(leaselSalesDetail.slAggAmt)) }}/{{ stringUtil.getNumberWithComma(toInteger(leaselSalesDetail.intAggAmt)) }})
           </p>
         </kw-form-item>
       </kw-form-row>
