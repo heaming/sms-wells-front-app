@@ -216,6 +216,7 @@
               :label="$t('MSG_TXT_FEE_YM')"
               type="month"
               rules="required"
+              @change="onChangedDvcd"
             />
           </kw-search-item>
           <kw-search-item :label="t('MSG_TXT_OG_LEVL')">
@@ -293,6 +294,7 @@
               :label="$t('MSG_TXT_FEE_YM')"
               type="month"
               rules="required"
+              @change="onChangedDvcd"
             />
           </kw-search-item>
           <kw-search-item :label="t('MSG_TXT_OG_LEVL')">
@@ -539,7 +541,7 @@ async function fetchNetOrderStatus() {
   }
 
   const statusParams = {
-    baseYm: searchParams.value.baseYm,
+    baseYm: searchParams.value.perfYm,
     ogTpCd: searchParams.value.ogTpcd,
     feeTcntDvCd: searchParams.value.feeTcntDvCd,
   };
@@ -711,7 +713,7 @@ async function onClickSearchPdCdPopup(arg) {
  */
 async function openFeePerfCrtPopup() {
   const statusParams = {
-    baseYm: searchParams.value.baseYm,
+    baseYm: searchParams.value.perfYm,
     feeTcntDvCd: searchParams.value.feeTcntDvCd,
     perfAgrgCrtDvCd: '201',
     ntorCnfmStatCd: '01',
@@ -764,7 +766,7 @@ async function openFeePerfCrtPopup() {
  */
 async function openFeePerfCnfmPopup() {
   const statusParams = {
-    baseYm: searchParams.value.baseYm,
+    baseYm: searchParams.value.perfYm,
     feeTcntDvCd: searchParams.value.feeTcntDvCd,
     perfAgrgCrtDvCd: '201',
     ntorCnfmStatCd: '02',

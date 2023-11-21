@@ -118,7 +118,7 @@ const params = decryptEncryptedParam(props.encryptedParam, {
   rprtDvCd: props.rprtDvCd,
   pblcSearchSttDt: props.pblcSearchSttDt,
   custNm: props.custNm,
-  cntrDtlNoList: props.cntrList,
+  cntrList: props.cntrList,
   rptId: props.rptId,
   cntrNo: isEmpty(props.cntrNo) && !isEmpty(props.cntrList) ? props.cntrList[0].split('-')[0] : props.cntrNo,
   spectxPblDDvCd: props.spectxPblDDvCd,
@@ -128,7 +128,7 @@ const params = decryptEncryptedParam(props.encryptedParam, {
 });
 
 const searchParams = ref({
-  cntrNo: isEmpty(params.cntrNo) && !isEmpty(params.cntrDtlNoList) ? params.cntrDtlNoList[0].split('-')[0] : props.cntrNo,
+  cntrNo: isEmpty(params.cntrNo) && !isEmpty(params.cntrList) ? params.cntrList[0].split('-')[0] : props.cntrNo,
   cntrCstBryyMmdd: '',
   bzrno: '',
   emadr: '',
@@ -166,7 +166,7 @@ async function openCntrOZReport() {
 
   const cachedParams = {
     reportHeaderTitle: '',
-    cntrDtlNoList: params.cntrDtlNoList,
+    cntrDtlNoList: params.cntrList,
     custNm: params.custNm,
     pblcSearchSttDt: params.pblcSearchSttDt,
     // cntrNo: params.cntrNo,
@@ -254,6 +254,9 @@ onMounted(async () => {
     await fetchBasicContractInfo();
   } else if (isEqual(rptIdGbn.value, 'noCertification')) {
     openCntrOZReport();
+  }
+  if (!isEmpty(params.cntrList)) {
+    params.cntrList = params.cntrList.split(',');
   }
 });
 </script>

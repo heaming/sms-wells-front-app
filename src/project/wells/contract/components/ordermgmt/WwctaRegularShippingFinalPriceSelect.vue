@@ -120,9 +120,11 @@
             :label-size="150"
           >
             <kw-form-row :cols="2">
-              <kw-form-item :label="'약정기간'">
+              <kw-form-item
+                v-if="priceDefineVariableOptions.stplPrdCd"
+                :label="'약정기간'"
+              >
                 <kw-select
-                  v-if="priceDefineVariableOptions.stplPrdCd"
                   v-model="priceDefineVariables.stplPrdCd"
                   :options="priceDefineVariableOptions.stplPrdCd"
                   dense
@@ -375,7 +377,6 @@ function initPriceDefineVariables() {
 function clearPromotions() {
   promotions.value = [];
   appliedPromotions.value = [];
-  promotionAppliedPrice.value = undefined;
 }
 
 async function onChangeModelValue(newDtl) {
