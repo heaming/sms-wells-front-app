@@ -162,7 +162,9 @@
       </kw-action-top>
       <kw-grid
         ref="grdMainRef"
-        :visible-rows="10"
+        name="grdMain"
+        :page-size="10"
+        :total-count="totalCount"
         @init="initGrdMain"
       />
     </div>

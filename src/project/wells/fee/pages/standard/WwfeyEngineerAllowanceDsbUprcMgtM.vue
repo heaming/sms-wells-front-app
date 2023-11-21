@@ -167,6 +167,7 @@ async function onClickSearch() {
 async function openManagementPopup(mode) {
   const view = grdMainRef.value.getView();
   const selectedRowData = gridUtil.getSelectedRowValues(view);
+  if (selectedRowData.length === 0) return;
   const managementPopupName = 'WwfeyEngineerAllowanceDsbUprcMgtP';
   const { result, payload } = await modal({
     component: managementPopupName,

@@ -94,7 +94,7 @@
       <kw-grid
         ref="grdMain1Ref"
         name="grdMain1"
-        :visible-rows="grdMain1PageInfo.pageSize - 1"
+        :visible-rows="10"
         :page-size="grdMain1PageInfo.pageSize"
         :total-count="grdMain1PageInfo.totalCount"
         @init="initGrid1"
@@ -169,7 +169,7 @@
       <kw-grid
         ref="grdMain2Ref"
         name="grdMain2"
-        :visible-rows="grdMain2PageInfo.pageSize - 1"
+        :visible-rows="5"
         :page-size="grdMain2PageInfo.pageSize"
         :total-count="grdMain2PageInfo.totalCount"
         @init="initGrid2"
@@ -230,13 +230,13 @@ const selectedCurrentRow = ref({});
 const grdMain1PageInfo = ref({
   totalCount: 0,
   pageIndex: 1,
-  pageSize: 5,
+  pageSize: 11,
 });
 
 const grdMain2PageInfo = ref({
   totalCount: 0,
   pageIndex: 1,
-  pageSize: 5,
+  pageSize: 6,
 });
 
 const searchParams = ref({
@@ -508,7 +508,7 @@ async function onClickUpgrades(type) {
       const view = grdMain1Ref.value.getView();
       searchParams.value.prtnrNo = currentRowPrtnrNo;
       searchParams.value.prtnrKnm = currentRowPrtnrKnm;
-      searchParams.value.qlfDvCd = [qualification.targetQlfDvCd];
+      // searchParams.value.qlfDvCd = [qualification.targetQlfDvCd];
       await init();
       gridUtil.focusCellInput(view, 0);
     }
@@ -524,6 +524,7 @@ async function onClickSave() {
 
   const params = changedRows.map((obj) => {
     const data = {
+      usrId: obj.usrId,
       ogTpCd: obj.ogTpCd,
       prtnrNo: obj.prtnrNo,
       bizUseIdvTno: getPhoneNumber(obj.biztelephone, 1),
@@ -719,6 +720,10 @@ const initGrid1 = defineGrid((data, view) => {
     },
     {
       fieldName: 'ogId', // 조직ID
+      visible: false,
+    },
+    {
+      fieldName: 'usrId', // 사용자ID
       visible: false,
     },
   ];
