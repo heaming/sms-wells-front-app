@@ -465,11 +465,6 @@
                 padding="10px"
                 @click="onClickRequestDelete(item)"
               />
-              <kw-btn
-                :label="$t('MSG_BTN_DEL')"
-                padding="10px"
-                @click="onClickContractDelete(item)"
-              />
             </template>
           </div>
         </kw-card>
