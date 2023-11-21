@@ -187,7 +187,7 @@
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
-import { codeUtil, defineGrid, getComponentType, gridUtil, modal, notify, useDataService, useGlobal, useMeta, alert } from 'kw-lib';
+import { codeUtil, defineGrid, getComponentType, gridUtil, modal, notify, fileUtil, useDataService, useGlobal, useMeta, alert } from 'kw-lib';
 import { cloneDeep, isEmpty } from 'lodash-es';
 import dayjs from 'dayjs';
 
@@ -387,9 +387,11 @@ async function onClickPrintCreate() {
     giroRglrDvCd: searchParams.value.giroRglrDvCd,
   };
 
-  await dataService.post('/sms/wells/withdrawal/idvrve/giro-ocr-forwardings/print', paramData, {
+  const res = await dataService.post('/sms/wells/withdrawal/idvrve/giro-ocr-forwardings/print', paramData, {
     responseType: 'blob',
   });
+
+  fileUtil.downloadBlob(res.data, `GR65${searchParams.value.wkDt.substring(4, 8)}.txt`);
 
   notify(t('MSG_ALT_CRT_FSH'));
 
