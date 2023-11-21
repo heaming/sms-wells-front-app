@@ -228,7 +228,10 @@ async function fetchData(params) {
   view.resetCurrent();
 }
 
-function getManagerAwBase(ogTpCd, rsbDvCd, mngrOutcDvCd, achvRt, nincCt = 0) {
+function getManagerAwBase(ogTpCd, rsbDvCd, mngrOutcDvCd, orgAchvRt, ogrNincCt = 0) {
+  const achvRt = orgAchvRt < 0 ? 0 : orgAchvRt;
+  let nincCt = ogrNincCt < 0 ? 0 : ogrNincCt;
+  nincCt = (nincCt > 998 ? 998 : nincCt);
   const { awAmt = 0 } = allowanceBaseInfo.value.find((baseInfo) => {
     const checkCondition = ogTpCd === baseInfo.ogTpCd
         && rsbDvCd === baseInfo.rsbDvCd
