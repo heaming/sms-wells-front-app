@@ -231,18 +231,21 @@
           @click="onClickExcelDownload"
         />
         <kw-separator
+          v-if="isSearchEmpPrchVisible"
           vertical
           inset
           spaced
         />
         <!-- 계약서 메일발송 -->
         <kw-btn
+          v-if="isSearchEmpPrchVisible"
           grid-action
           :label="$t('MSG_BTN_CNTRW_EMAIL_SEND')"
           @click="onClickCntrwMlFw"
         />
         <!-- 알림톡 발송 -->
         <kw-btn
+          v-if="isSearchEmpPrchVisible"
           grid-action
           :label="$t('MSG_BTN_BIZTALK_SEND')"
           @click="onClickNotakfW"
@@ -391,7 +394,6 @@ const searchParams = ref({
   cstKnm: '', // 고객명
   cntrCstNo: '', // 고객번호
   sellChnlSnrDv: '', // 판매채널
-  incDlYn: 'N', // 삭제데이터 포함여부
 });
 
 const searchDtlParams = ref({
@@ -452,6 +454,8 @@ const isGrdDtlSdingSpayListVisible = ref(false); // 상세내역-모종일시불
 const isGrdDtlRglrSppListVisible = ref(false); // 상세내역-정기배송
 const isGrdDtlLtmIstmListVisible = ref(false); // 상세내역-장기할부
 
+const isSearchEmpPrchVisible = ref(true); // 계약서 메일발송/알림톡 발송 버튼
+
 // 확정버튼 권한체크
 const isHeadOfficeRole = (hasRoleNickName('ROL_W1010') || hasRoleNickName('ROL_W1020')); // 본사스텝(W1010), 업무담당(W1020)
 // console.log(`isHeadOfficeRole :${isHeadOfficeRole}`);
@@ -497,6 +501,7 @@ async function onChangeCntrDv() {
     isGrdMstRstlListVisible.value = false;
     isGrdMstEmpPrchListVisible.value = false;
     isDtlListVisible.value = true;
+    isSearchEmpPrchVisible.value = true;
 
     const view = grdMstList.value.getView();
     pageInfo.value.totalMstCount = view.getItemCount();
@@ -505,6 +510,7 @@ async function onChangeCntrDv() {
     isGrdMstRstlListVisible.value = true;
     isGrdMstEmpPrchListVisible.value = false;
     isDtlListVisible.value = false;
+    isSearchEmpPrchVisible.value = true;
 
     const view = grdMstRstlList.value.getView();
     pageInfo.value.totalMstCount = view.getItemCount();
@@ -513,6 +519,7 @@ async function onChangeCntrDv() {
     isGrdMstRstlListVisible.value = false;
     isGrdMstEmpPrchListVisible.value = true;
     isDtlListVisible.value = false;
+    isSearchEmpPrchVisible.value = false;
 
     const view = grdMstEmpPrchList.value.getView();
     pageInfo.value.totalMstCount = view.getItemCount();
@@ -611,13 +618,6 @@ async function onChangeCntrwTpCd() {
 // 조회결과
 async function fetchMstData() {
   // changing api & cacheparams according to search classification
-  // 계약상태 항목에서 삭제 선택시, 삭제데이터포함 변수 따로 세팅
-  if (searchParams.value.cntrPrgsStatCd.includes('99')) {
-    searchParams.value.incDlYn = 'Y';
-  } else {
-    searchParams.value.incDlYn = 'N';
-  }
-
   let res = '';
   cachedParams = cloneDeep(searchParams.value);
   // console.log(cachedParams);
@@ -1208,24 +1208,8 @@ const initGrdMstList = defineGrid((data, view) => {
     { fieldName: 'cntrDtlNo', header: t('MSG_TXT_CNTR_DTL_NO'), width: '180', styleName: 'rg-button-link text-center', renderer: { type: 'button' }, preventCellItemFocus: true }, // 계약상세번호
     { fieldName: 'cntrCstNo', header: t('MSG_TXT_CST_NO'), width: '127', styleName: 'text-center' }, // 고객번호
     { fieldName: 'sellPrtnrNo', header: t('MSG_TXT_PTNR_NO'), width: '127', styleName: 'text-center' }, // 판매자 사번
-    { fieldName: 'cntrPrgsStatNm2',
-      header: t('MSG_TXT_STT'),
-      width: '127',
-      styleName: 'text-center',
-      displayCallback(grid, index) {
-        const { dtaDlYn, cntrPrgsStatNm2 } = grid.getValues(index.itemIndex);
-        return dtaDlYn === 'Y' ? '삭제' : cntrPrgsStatNm2;
-      },
-    }, // 상태
-    { fieldName: 'cntrPrgsStatNm',
-      header: t('MSG_TXT_CNTR_STAT'),
-      width: '127',
-      styleName: 'text-center',
-      displayCallback(grid, index) {
-        const { dtaDlYn, cntrPrgsStatNm } = grid.getValues(index.itemIndex);
-        return dtaDlYn === 'Y' ? '삭제' : cntrPrgsStatNm;
-      },
-    }, // 계약상태
+    { fieldName: 'cntrPrgsStatNm2', header: t('MSG_TXT_STT'), width: '127', styleName: 'text-center' }, // 상태
+    { fieldName: 'cntrPrgsStatNm', header: t('MSG_TXT_CNTR_STAT'), width: '127', styleName: 'text-center' }, // 계약상태
     { fieldName: 'cstStlmInMthNm', header: t('MSG_TXT_CNTR_MTHD'), width: '127', styleName: 'text-center' }, // 계약방식
     { fieldName: 'cntrwTpNm', header: t('MSG_TXT_PDGRP'), width: '127', styleName: 'text-center' }, // 상품군
     { fieldName: 'cstKnm', header: t('MSG_TXT_CST_NM'), width: '127', styleName: 'text-center' }, // 고객명
@@ -1554,6 +1538,7 @@ const initGrdMstRstlList = defineGrid((data, view) => {
     { fieldName: 'notakFwDt' }, // 알림톡 발송일자
     { fieldName: 'basePdCd' }, // 상품코드
     { fieldName: 'cntrwTpCd' }, // 계약서유형코드 rev:231115 재약정 사인 관련 추가
+    { fieldName: 'stplTn' }, // 약정회차
   ];
 
   const columns = [
