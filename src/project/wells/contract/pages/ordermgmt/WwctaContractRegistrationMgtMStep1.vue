@@ -18,7 +18,7 @@
     scroll-style="padding-right: 40px;"
   >
     <ul
-      v-if="!isReadonly"
+      v-if="!isReadonly && !step1.pspcCstBas"
       class="kw-state-list kw-state-list--second-line col pt20"
     >
       <li
@@ -566,6 +566,7 @@ async function setupAvailableCntrTpCd() {
     const isCustomerCenterService = currentPartner.baseRleCd === 'W8010';
     const isBusinessDepartment = currentPartner.ogTpCd === 'HR1';
     const isBranchManager = currentPartner.pstnDvCd === '7';
+    const isPspcCstCntr = !!step1.value.pspcCstBas;
 
     if (isBusinessDepartment && !isCustomerCenterService) {
       return code.codeId === CNTR_TP_CD.EMPLOYEE && code;
@@ -574,6 +575,13 @@ async function setupAvailableCntrTpCd() {
       return [
         CNTR_TP_CD.INDIVIDUAL,
         CNTR_TP_CD.COOPERATION,
+      ].includes(code.codeId) && code;
+    }
+    if (isPspcCstCntr) {
+      return [
+        CNTR_TP_CD.INDIVIDUAL,
+        CNTR_TP_CD.COOPERATION,
+        CNTR_TP_CD.QUOTE,
       ].includes(code.codeId) && code;
     }
     return [
@@ -624,7 +632,7 @@ const dashboardCounts = ref({
   restipulationCnt: 0,
   membershipCnt: 0,
 });
-const isReadonly = computed(() => !!step1.value.bas?.cntrPrgsStatCd);
+const isReadonly = computed(() => !!step1.value.bas?.cntrPrgsStatCd || !!props.cntrCstNo);
 const popupRequiredCstInfos = computed(() => [
   CNTR_TP_CD.INDIVIDUAL,
   CNTR_TP_CD.COOPERATION,
@@ -801,6 +809,11 @@ async function fetchCntrtByCstNo(cstNo) {
   } catch (e) {
     setupSearchParams();
   }
+}
+
+// 고객 센터용 빠른 수정 코드 FIXME: 제정신인 미래의 나
+if (props.cntrCstNo) {
+  await fetchCntrtByCstNo(props.cntrCstNo);
 }
 
 async function selectContractor() {
@@ -1161,7 +1174,7 @@ exposed.isValidStep = isValidStep;
 exposed.initStep = initStep;
 exposed.saveStep = saveStep;
 
-// fixme 우선 기워 넣기 so sorry.
+// 고객 센터용 빠른 수정 코드 FIXME: 제정신인 미래의 나
 const unwatch = watchEffect(() => {
   if (step1.value.pspcCstBas) {
     const { pspcCstKnm, cralLocaraTno, mexnoEncr, cralIdvTno } = step1.value.pspcCstBas;
@@ -1172,6 +1185,7 @@ const unwatch = watchEffect(() => {
       mexnoEncr,
       cralIdvTno,
     });
+    setupAvailableCntrTpCd();
     unwatch();
   }
 });
