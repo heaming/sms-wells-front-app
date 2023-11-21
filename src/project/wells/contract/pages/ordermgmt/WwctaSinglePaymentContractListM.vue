@@ -218,16 +218,32 @@
           multiple
         />
       </kw-search-item>
-      <!-- 조직구분 -->
+      <!-- 조직유형 -->
       <kw-search-item
-        :label="$t('MSG_TXT_OG_DV')"
+        :label="$t('MSG_TXT_OG_TP')"
       >
         <kw-select
           v-model="searchParams.sellOgTpCd"
-          :options="[{ codeId: 'W01', codeName: 'P추진단' },
-                     { codeId: 'W02', codeName: 'M추진단' }]"
+          :options="codes.OG_TP_CD"
           :model-value="searchParams.sellOgTpCd ? searchParams.sellOgTpCd : []"
           :multiple="true"
+        />
+      </kw-search-item>
+      <!-- 판매채널 -->
+      <kw-search-item
+        :label="t('MSG_TXT_SEL_CHNL')"
+      >
+        <kw-select
+          v-model="searchParams.sellChnlDvCd"
+          :options="codes.SELL_CHNL_DV_CD"
+          first-option="all"
+          first-option-val=""
+        />
+        <kw-select
+          v-model="searchParams.sellChnlDtlCd"
+          :options="codes.SELL_CHNL_DTL_CD"
+          first-option="all"
+          first-option-val=""
         />
       </kw-search-item>
     </kw-search-row>
@@ -301,7 +317,9 @@ const searchParams = ref({
   dgr2LevlOgId: [], // 조직코드-지역단
   dgr3LevlOgId: [], // 조직코드-지점
   etcDv: [], // 기타
-  sellOgTpCd: [], // 조직구분
+  sellOgTpCd: [], // 조직유형
+  sellChnlDvCd: '', // 판매채널구분코드
+  sellChnlDtlCd: '', // 판매유형상세코드
   cntrNo: '', // 계약번호
   cntrSn: '', // 계약일련번호
   cntrCstNo: '', // 계약고객번호
@@ -311,8 +329,11 @@ const searchParams = ref({
 
 const codes = await codeUtil.getMultiCodes(
   'COD_PAGE_SIZE_OPTIONS',
-  'ALNCMP_CD',
-  'SELL_EV_CD',
+  'ALNCMP_CD', // 제휴코드
+  'SELL_EV_CD', // 행사코드
+  'OG_TP_CD', // 조직유형코드
+  'SELL_CHNL_DV_CD', // 판매채널구분코드
+  'SELL_CHNL_DTL_CD', // 판매채널상세코드
 );
 
 const pageInfo = ref({

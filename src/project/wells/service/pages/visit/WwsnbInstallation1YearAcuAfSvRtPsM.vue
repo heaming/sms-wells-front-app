@@ -52,7 +52,7 @@
         <kw-search-item :label="t('MSG_TXT_PD_GRP')">
           <kw-select
             v-model="searchParams.pdGrp"
-            :options="codes.PD_GRP_CD"
+            :options="optionPdGrpList"
             class="w150"
             first-option="all"
             @change="changePdGrpCd"
@@ -149,18 +149,29 @@ const pageInfo = ref({
 
 // TODO : 설치원인, 부품원인 확인 필요
 // 전체[00], 제품A/S[01], 특별A/S[02], 제품원인[03], 설치원인[04], 고객원인[05], 부품원인[06]
+// const serviceTypes = [
+//   // { codeId: '3112', codeName: '특별A/S' },
+//   // { codeId: '3210', codeName: '제품원인' },
+//   // { codeId: '3110', codeName: '제품A/S' },
+//   { codeId: '3110', codeName: '제품A/S' },
+//   { codeId: '3112', codeName: '특별A/S' },
+//   { codeId: '3210', codeName: '제품원인' },
+//   // { codeId: '04', codeName: '설치원인' },
+//   { codeId: '3440', codeName: '회사설치' },
+//   { codeId: '3230', codeName: '고객원인' },
+//   // { codeId: '06', codeName: '부품원인' },
+//   { codeId: '3121', codeName: '필터B/S' },
+// ];
+// 서비스유형
 const serviceTypes = [
-  // { codeId: '3112', codeName: '특별A/S' },
-  // { codeId: '3210', codeName: '제품원인' },
-  // { codeId: '3110', codeName: '제품A/S' },
   { codeId: '3110', codeName: '제품A/S' },
   { codeId: '3112', codeName: '특별A/S' },
   { codeId: '3210', codeName: '제품원인' },
   // { codeId: '04', codeName: '설치원인' },
-  { codeId: '3440', codeName: '회사설치' },
-  { codeId: '3230', codeName: '고객원인' },
+  // { codeId: '3440', codeName: '회사설치' },
+  // { codeId: '3230', codeName: '고객원인' },
   // { codeId: '06', codeName: '부품원인' },
-  { codeId: '3121', codeName: '필터B/S' },
+  // { codeId: '3121', codeName: '필터B/S' },
 ];
 
 // 전체, 모종불량(900R), 제품불량(100R, 901R), 매니저과실(400R), 엔지니어과실(500R, 904R), 품질개선(리콜) 서비스(700R, 906R)
@@ -168,6 +179,10 @@ const serviceTypes = [
 const badCdValue = ['100R', '400R', '500R', '700R'];
 const badDvCdList = codes.BAD_DV_CD.filter((v) => badCdValue.includes(v.codeId));
 console.log('badDvCdList >>>>>', badDvCdList);
+
+const arrPdGrp = ['1', '2', '3', '4', '6', '9'];
+const optionPdGrpList = ref([]);
+optionPdGrpList.value = codes.PD_GRP_CD.filter((v) => arrPdGrp.includes(v.codeId));
 
 const pds = ref([]);
 async function changePdGrpCd() {

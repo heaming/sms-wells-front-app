@@ -154,6 +154,9 @@
 
     <kw-grid
       ref="grdMainRef"
+      name="grdMain"
+      :page-size="10"
+      :total-count="totalCount"
       @init="initGrdMain"
     />
   </kw-popup>

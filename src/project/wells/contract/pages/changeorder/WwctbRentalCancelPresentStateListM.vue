@@ -126,11 +126,21 @@
       <!-- row4 설치일자  -->
       <kw-search-item
         :label="$t('MSG_TXT_IST_DT')"
-        colspan="4"
+        colspan="2"
       >
         <kw-date-range-picker
           v-model:from="searchParams.installFromDt"
           v-model:to="searchParams.installToDt"
+        />
+      </kw-search-item>
+      <!-- row4 입금유형 -->
+      <kw-search-item
+        :label="$t('MSG_TXT_DP_TP')"
+      >
+        <kw-select
+          v-model="searchParams.dpTpCd"
+          :options="codes.DP_TP_CD.filter((v) => v.codeId==='0401')"
+          first-option="all"
         />
       </kw-search-item>
     </kw-search-row>
@@ -225,6 +235,7 @@ const codes = await codeUtil.getMultiCodes(
   'SELL_TP_CD',
   'SELL_TP_DTL_CD',
   'CMN_STAT_CH_RSON_CD',
+  'DP_TP_CD',
 );
 
 const pageInfo = ref({

@@ -26,6 +26,7 @@
             icon="search_24"
             maxlength="10"
             rules="numeric"
+            mask="##########"
             :label="$t('MSG_TXT_CST_NO')"
             @click-icon="onClickSearchCst"
           />
@@ -192,6 +193,9 @@ const pageInfo = ref({
 async function onClickSearchCst() {
   const { result, payload } = await modal({
     component: 'ZwcsaCustomerListP',
+    componentProps: {
+      cstNo: searchParams.value.cntrCstNo,
+    },
   });
   if (result) {
     searchParams.value.cntrCstNo = payload.cstNo;

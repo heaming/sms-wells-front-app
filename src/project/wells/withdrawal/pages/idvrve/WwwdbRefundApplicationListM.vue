@@ -111,6 +111,17 @@
           inset
           spaced
         />
+        <kw-btn
+          :label="$t('MSG_BTN_DEL')"
+          secondary
+          dense
+          @click="onClickRemove"
+        />
+        <kw-separator
+          vertical
+          inset
+          spaced
+        />
         <!-- 계약금 환불현황 -->
         <kw-btn
           v-permission:print
@@ -173,7 +184,7 @@
 // -------------------------------------------------------------------------------------------------
 
 // eslint-disable-next-line no-unused-vars
-import { codeUtil, useGlobal, useMeta, defineGrid, getComponentType, gridUtil, useDataService, fileUtil, modal } from 'kw-lib';
+import { codeUtil, useGlobal, useMeta, defineGrid, alert, getComponentType, gridUtil, useDataService, fileUtil, modal } from 'kw-lib';
 // eslint-disable-next-line no-unused-vars
 import { cloneDeep } from 'lodash-es';
 import dayjs from 'dayjs';
@@ -221,7 +232,7 @@ let cachedParams;
 // -------------------------------------------------------------------------------------------------
 async function fetchData() {
   cachedParams = { ...cachedParams, ...pageInfo.value };
-  const res = await dataService.get('/sms/wells/withdrawal/idvrve/refund-applications/paging', { params: cachedParams });
+  const res = await dataService.get('/sms/wells/withdrawal/idvrve/refund-applications/paging', { params: cachedParams, timeout: 6000000 });
   const { list: pages, pageInfo: pagingResult } = res.data;
 
   pageInfo.value = pagingResult;
@@ -262,9 +273,34 @@ async function onClickExcelDownload() {
   });
 }
 
+async function onClickRemove() {
+  const view = grdMainRef.value.getView();
+
+  const removeReq = await gridUtil.confirmDeleteSelectedRows(view);
+
+  let deleteChk = false;
+
+  if (removeReq.length > 0) {
+    removeReq.forEach((data) => {
+      data.rowState = 'deleted';
+      if (data.rfndAkStatCd === '02' || data.rfndAkStatCd === '03' || data.rfndAkStatCd === '99') {
+        deleteChk = true;
+      }
+    });
+
+    if (deleteChk) {
+      alert('승인 및 반려의 경우 삭제를 하실수 없습니다.');
+      return;
+    }
+
+    await dataService.delete('/sms/wells/withdrawal/idvrve/refund-applications/reg/delete', { params: removeReq[0] });
+    await fetchData();
+  }
+}
+
 // 환불신청 버튼
 async function onClickApplicationRefund() {
-  await modal({
+  const res = await modal({
     component: 'WwwdbRefundApplicationRegP',
     componentProps: {
       //   //   startDay: searchParams.value.startDay, // 접수일자 시작일
@@ -278,7 +314,9 @@ async function onClickApplicationRefund() {
       //   //   bzrno: searchParams.value.bzrno // 사업자등록번호
     },
   });
-  await onClickSearch();
+  if (res.result) {
+    await onClickSearch();
+  }
 }
 
 async function onClickCntramRfnd() {
@@ -315,6 +353,7 @@ const initGrid = defineGrid((data, view) => {
     { fieldName: 'rfndAkAmt', dataType: 'number' }, /* 환불요청금액 */
     { fieldName: 'cntrNo' }, /* 계약번호 */
     { fieldName: 'cntrSn' }, /* 계약일련번호 */
+    { fieldName: 'cstNo' }, /* 고객번호 */
     { fieldName: 'cntrDtlNo' }, /* 계약상세번호 */
     { fieldName: 'rfndCshAkAmt', dataType: 'number' }, /* 현금환불금액 */
     { fieldName: 'rfndCardAkAmt', dataType: 'number' }, /* 카드환불금액 */
@@ -471,6 +510,7 @@ const initGrid = defineGrid((data, view) => {
       cntrNo, // 계약번호
       cntrSn, // 계약일련번호
       rfndAkNo, /* 환불요청번호 */
+      cstNo,
     } = gridUtil.getRowValue(grid, dataRow);
 
     if (column === 'rfndAkStatCd') { // 환불상태
@@ -478,19 +518,22 @@ const initGrid = defineGrid((data, view) => {
       // 접수, 진행중 클릭 시 환불신청[W-WD-U-108P01] 팝업 노출하여 신청내역 조회
       // 반려, 승인 클릭 시 환불상세[W-WD-U-108P03] 팝업 노출하여 신청결과 조회
       if (rfndAkStatCd === '00') { // 01.임시저장, 01. 접수
-        await modal({
+        const res = await modal({
           component: 'WwwdbRefundApplicationRegP', // W-WD-U-0108P01 환불신청팝업
           componentProps: {
             rfndAkStatCd, // 환불상태
             cntrNo, // 계약번호
             cntrSn, // 계약일련번호
             rfndAkNo, // 환불요청번호
+            cstNo,
           },
         });
-        await onClickSearch();
+        if (res.result) {
+          await onClickSearch();
+        }
       }
       if (rfndAkStatCd === '03' || rfndAkStatCd === '99' || rfndAkStatCd === '01') { // 04.반려, 03.승인
-        await modal({
+        const res = await modal({
           component: 'WwwdbRefundApplicationDtlP', // W-WD-U-0108P03 환불상세팝업
           componentProps: {
             rfndAkStatCd, // 환불상태
@@ -500,25 +543,32 @@ const initGrid = defineGrid((data, view) => {
             fnlMdfcUsrNm, // 신청자
             fnlMdfcUsrId, // 번호
             rfndAkDtm, /* 신청일자 */
+            cstNo,
           },
         });
-        await onClickSearch();
+        if (res.result) {
+          await onClickSearch();
+        }
       }
     }
 
     if (column === 'rfndAkDtlCd') { // 환불상세
       if (rfndAkStatCd === '00') { // 01.임시저장, 01. 접수
-        await modal({
+        const res = await modal({
           component: 'WwwdbRefundApplicationRegP', // W-WD-U-0108P01 환불신청팝업
           componentProps: {
             rfndAkStatCd, // 환불상태
             cntrNo, // 계약번호
             cntrSn, // 계약일련번호
             rfndAkNo, // 환불요청번호
+            cstNo,
           },
         });
+        if (res.result) {
+          await onClickSearch();
+        }
       } else {
-        await modal({
+        const res = await modal({
           component: 'WwwdbRefundApplicationDtlP',
           componentProps: {
             rfndAkStatCd, // 환불상태
@@ -528,8 +578,12 @@ const initGrid = defineGrid((data, view) => {
             fnlMdfcUsrNm, // 신청자
             fnlMdfcUsrId, // 번호
             rfndAkDtm, /* 신청일자 */
+            cstNo,
           },
         });
+        if (res.result) {
+          await onClickSearch();
+        }
       }
 
       await onClickSearch();

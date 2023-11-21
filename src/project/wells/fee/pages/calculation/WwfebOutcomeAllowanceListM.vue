@@ -492,8 +492,8 @@ const initGridPOg = defineGrid((data, view) => {
     { fieldName: 'aclActiTrgCt', header: t('MSG_TXT_ACL_ACTI_TRG'), width: '133', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' }, // 실활동목표
     { fieldName: 'aclActiAchvCt', header: t('MSG_TXT_ACL_ACTI_ACHV'), width: '133', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' }, // 실활동달성
     { fieldName: 'aclActiAchvRt', header: t('MSG_TXT_ACL_ACTI_ACHV_RAT'), width: '133', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0.##' }, // 실활동달성률
-    { fieldName: 'ogAchvAwSumAmt', header: t('MSG_TXT_ACL_ACTI_AW'), width: '133', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' }, // 실활동수당
-    { fieldName: 'ogAchvAwSum', header: t('MSG_TXT_OG_ACHV_AW_SUM'), width: '133', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' }, // 조직달성 수당 계
+    { fieldName: 'aclActiAwAmt', header: t('MSG_TXT_ACL_ACTI_AW'), width: '133', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' }, // 실활동수당
+    { fieldName: 'ogAchvAwSumAmt', header: t('MSG_TXT_OG_ACHV_AW_SUM'), width: '133', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' }, // 조직달성 수당 계
     { fieldName: 'ejtAwAmt', header: t('MSG_TXT_EJT_AW'), width: '133', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' }, // 배출수당
     { fieldName: 'outcAwSumAmt', header: t('MSG_TXT_OUTC_AW_TOT_SUM'), width: '146', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' }, // 성과수당 총계
 
@@ -521,9 +521,9 @@ const initGridPOg = defineGrid((data, view) => {
     {
       header: t('MSG_TXT_OG_ACHV_AW'), // 조직달성수당
       direction: 'horizontal',
-      items: ['thm1OptnTrgCt', 'thm1OptnAchvCt', 'thm1OptnAchvRt', 'thm1OptnAwAmt', 'aclActiTrgCt', 'aclActiAchvCt', 'aclActiAchvRt', 'ogAchvAwSumAmt'],
+      items: ['thm1OptnTrgCt', 'thm1OptnAchvCt', 'thm1OptnAchvRt', 'thm1OptnAwAmt', 'aclActiTrgCt', 'aclActiAchvCt', 'aclActiAchvRt', 'aclActiAwAmt'],
     },
-    'ogAchvAwSum',
+    'ogAchvAwSumAmt',
     'ejtAwAmt',
     'outcAwSumAmt',
   ]);

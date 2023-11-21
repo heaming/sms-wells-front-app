@@ -719,7 +719,7 @@ async function openFeePerfCrtPopup() {
 
   const res = await dataService.get('/sms/common/fee/net-order-status/prtnr', { params: statusParams });
 
-  if (!isEmpty(res)) {
+  if (!isEmpty(res.data)) {
     if (!await confirm(t('MSG_ALT_AGRG_PERF_ALREADY_DATA'))) { return; }
   }
 
@@ -772,7 +772,7 @@ async function openFeePerfCnfmPopup() {
 
   const res = await dataService.get('/sms/common/fee/net-order-status/prtnr', { params: statusParams });
 
-  if (!isEmpty(res)) {
+  if (!isEmpty(res.data)) {
     if (!await confirm(t('MSG_ALT_MSG_ALT_CNFM_PERF_ALREADY_DATA'))) { return; }
   }
 

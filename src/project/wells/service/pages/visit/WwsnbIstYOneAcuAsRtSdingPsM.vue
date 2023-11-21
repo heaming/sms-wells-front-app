@@ -21,7 +21,6 @@
     </template>
     <kw-search
       :cols="4"
-      @reset="onClickReset"
       @search="onClickSearch"
     >
       <kw-search-row>
@@ -55,6 +54,8 @@
           <kw-select
             v-model="searchParams.sdingPkgGrpCd"
             :options="sdingPkgGrpList"
+            option-label="pkgCodeName"
+            option-value="pkgCode"
             first-option="all"
             @change="onChangeSdingPkgGrpCd"
           />
@@ -64,7 +65,10 @@
         <!-- 모종 -->
         <kw-search-item :label="$t('MSG_TXT_SDING')">
           <kw-select
-            v-model="searchParams.sdingPkgCd"
+            v-model="searchParams.sdingCausNm"
+            :options="sdingPkgCdList"
+            option-value="code"
+            option-label="codeName"
             first-option="all"
           />
         </kw-search-item>
@@ -109,7 +113,7 @@
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
 import { codeUtil, useDataService, gridUtil } from 'kw-lib';
-import { cloneDeep } from 'lodash-es';
+import { isEmpty } from 'lodash-es';
 import dayjs from 'dayjs';
 import { printElement } from '~common/utils/common';
 
@@ -120,13 +124,8 @@ const dataService = useDataService();
 
 const codes = await codeUtil.getMultiCodes(
   'BAD_DV_CD', // 불량구분
-  'SDING_PKG_GRP_CD', // 패키지[모종]
-  'SDING_PKG_CD', // 패키지[모종]
-  'SDING_PKGR_ACD',
-  'SDING_PKG_DV_CD',
+  'AS_CAUS_CD',
 );
-console.log('codes.SDING_PKGR_ACD ????', codes.SDING_PKGR_ACD);
-console.log('codes.SDING_PKG_DV_CD ????', codes.SDING_PKG_DV_CD);
 
 // -------------------------------------------------------------------------------------------------
 // Function & Event
@@ -138,7 +137,8 @@ const searchParams = ref({
   svType: '', // 서비스유형
   badDivide: '', // 불량구분
   sdingPkgGrpCd: '', // 모종패키지
-  sdingPkgCd: '', // 모종
+  sdingCausNm: '', // 모종
+  sdingPkgCd: '', // 모종..이상한 코드..ex)917L 등등
 });
 
 // 서비스 유형
@@ -154,31 +154,30 @@ const badCdValue = ['100R', '200R', '300R', '500R', '600R'];
 const badDvCdList = codes.BAD_DV_CD.filter((v) => badCdValue.includes(v.codeId));
 
 // 패키지 리스트 setting
-const sdingPkgGrpList = [
-  { codeId: 'S1', codeName: t('선택모종') },
-  { codeId: 'B1', codeName: t('BASIC W, S') },
-  { codeId: 'H1', codeName: t('HEALTH W, S') },
-  { codeId: 'P1', codeName: t('PREMIUM W, S') },
-  { codeId: 'S2', codeName: t('SPECIAL W') },
-  { codeId: 'M1', codeName: t('미소채 W, S') },
-  { codeId: 'I1', codeName: t('아이쑥쑥 W, S') },
-  { codeId: 'W1', codeName: t('활력채 W, S') },
-  { codeId: 'H2', codeName: t('항암쌈채 W, S') },
-];
+// const sdingPkgGrpList = [
+//   { codeId: 'S1', codeName: t('선택모종') },
+//   { codeId: 'B1', codeName: t('BASIC W, S') },
+//   { codeId: 'H1', codeName: t('HEALTH W, S') },
+//   { codeId: 'P1', codeName: t('PREMIUM W, S') },
+//   { codeId: 'S2', codeName: t('SPECIAL W') },
+//   { codeId: 'M1', codeName: t('미소채 W, S') },
+//   { codeId: 'I1', codeName: t('아이쑥쑥 W, S') },
+//   { codeId: 'W1', codeName: t('활력채 W, S') },
+//   { codeId: 'H2', codeName: t('항암쌈채 W, S') },
+// ];
+const sdingPkgGrpList = ref((await dataService.get('/sms/wells/service/tot-as-rt-sding-ps/sdingPackage')).data);
 
 // 모종
-const sdingPkgCd = ref([]);
+const sdingPkgCdList = ref([]);
 
 const totalCount = ref(0);
 
 async function onChangeSdingPkgGrpCd() {
   console.log('onChangeSdingPkgGrpCd START =================');
-
-  sdingPkgCd.value = codes.SDING_PKG_CD.filter((v) => v.codeId.substring(0, 5) === searchParams.value.sdingPkgGrpCd);
-  if (searchParams.value.sdingPkgGrpCd === '') {
-    sdingPkgCd.value = codes.SDING_PKG_CD;
-  }
-  console.log('sdingPkgCd.value 0002 >>>', sdingPkgCd.value);
+  searchParams.value.sdingCausNm = '';
+  sdingPkgCdList.value = [];
+  sdingPkgCdList.value = (await dataService.get('/sms/wells/service/tot-as-rt-sding-ps/sdingDtlInfo', { params: { pkgCode: searchParams.value.sdingPkgGrpCd } })).data;
+  console.log('onChangeSdingPkgGrpCd sdingPkgCdList.value >>>', sdingPkgCdList.value);
 }
 
 async function fetchData() {
@@ -192,13 +191,12 @@ async function fetchData() {
 
 async function onClickSearch() {
   console.log('onClickSearch START =================');
-  await fetchData();
-}
-
-async function onClickReset() {
-  if (searchParams.value.sdingPkgGrpCd === '') {
-    sdingPkgCd.value = cloneDeep(codes.SDING_PKG_CD);
+  if (!isEmpty(searchParams.value.sdingCausNm)) {
+    const sdingCode = sdingPkgCdList.value.filter((v) => v.code === searchParams.value.sdingCausNm)[0].codeName;
+    searchParams.value.sdingPkgCd = codes.AS_CAUS_CD.filter((v) => v.codeName === sdingCode)[0].codeId;
   }
+  console.log('onClickSearch searchParams.value =================', searchParams.value);
+  await fetchData();
 }
 
 const pageRef = ref();
@@ -217,39 +215,32 @@ async function onClickExcelDownload() {
 
 onMounted(async () => {
   console.log('onMounted START');
-  sdingPkgCd.value = cloneDeep(codes.SDING_PKG_CD);
+  await onChangeSdingPkgGrpCd();
 });
+
+const divCd = [
+  { codeId: '1', codeName: 'A/S건' },
+  { codeId: '2', codeName: '렌탈 계정(수)' },
+  { codeId: '3', codeName: 'A/S율(%)' },
+  { codeId: '4', codeName: '엔지니어비용' },
+  { codeId: '5', codeName: '부품비용' },
+];
+console.log('divCd >>>', divCd);
 
 // -------------------------------------------------------------------------------------------------
 // Initialize Grid
 // -------------------------------------------------------------------------------------------------
 function initGrid(data, view) {
-  const fields = [
-    { fieldName: 'atcNm' }, // 항목명
-    { fieldName: 'tcnt', dataType: 'number' }, // 합계
-    { fieldName: 'm01', dataType: 'number' }, // 1월
-    { fieldName: 'm02', dataType: 'number' }, // 2월
-    { fieldName: 'm03', dataType: 'number' }, // 3월
-    { fieldName: 'm04', dataType: 'number' }, // 4월
-    { fieldName: 'm05', dataType: 'number' }, // 5월
-    { fieldName: 'm06', dataType: 'number' }, // 6월
-    { fieldName: 'm07', dataType: 'number' }, // 7월
-    { fieldName: 'm08', dataType: 'number' }, // 8월
-    { fieldName: 'm09', dataType: 'number' }, // 9월
-    { fieldName: 'm10', dataType: 'number' }, // 10월
-    { fieldName: 'm11', dataType: 'number' }, // 11월
-    { fieldName: 'm12', dataType: 'number' }, // 12월
-    { fieldName: 'maxVal', dataType: 'number' },
-    { fieldName: 'minVal', dataType: 'number' },
-    { fieldName: 'avgVal', dataType: 'number' },
-  ];
-
   const columns = [
     {
-      fieldName: 'atcNm',
+      fieldName: 'nm',
       header: t('MSG_TXT_DIV'),
       width: '150',
       styleName: 'text-center',
+      displayCallback: (g, i) => {
+        const { nm } = gridUtil.getRowValue(g, i.itemIndex);
+        return divCd.find((x) => x.codeId === nm).codeName;
+      },
       headerSummary: {
         text: t('MSG_TXT_SUM'),
         styleName: 'text-center',
@@ -263,6 +254,7 @@ function initGrid(data, view) {
       header: t('MSG_TXT_SUM'),
       width: '100',
       styleName: 'text-right',
+      dataType: 'number',
       headerSummary: {
         type: 'number',
         numberFormat: '#,##0',
@@ -270,10 +262,11 @@ function initGrid(data, view) {
       },
     },
     {
-      fieldName: 'm01',
+      fieldName: 'acol1',
       header: t('MSG_TXT_JAN'),
       width: '100',
       styleName: 'text-right',
+      dataType: 'number',
       headerSummary: {
         type: 'number',
         numberFormat: '#,##0',
@@ -281,10 +274,11 @@ function initGrid(data, view) {
       },
     },
     {
-      fieldName: 'm02',
+      fieldName: 'acol2',
       header: t('MSG_TXT_FEB'),
       width: '100',
       styleName: 'text-right',
+      dataType: 'number',
       headerSummary: {
         type: 'number',
         numberFormat: '#,##0',
@@ -292,10 +286,11 @@ function initGrid(data, view) {
       },
     },
     {
-      fieldName: 'm03',
+      fieldName: 'acol3',
       header: t('MSG_TXT_MAR'),
       width: '100',
       styleName: 'text-right',
+      dataType: 'number',
       headerSummary: {
         type: 'number',
         numberFormat: '#,##0',
@@ -303,10 +298,11 @@ function initGrid(data, view) {
       },
     },
     {
-      fieldName: 'm04',
+      fieldName: 'acol4',
       header: t('MSG_TXT_APRI'),
       width: '100',
       styleName: 'text-right',
+      dataType: 'number',
       headerSummary: {
         type: 'number',
         numberFormat: '#,##0',
@@ -314,10 +310,11 @@ function initGrid(data, view) {
       },
     },
     {
-      fieldName: 'm05',
+      fieldName: 'acol5',
       header: t('MSG_TXT_MAY'),
       width: '100',
       styleName: 'text-right',
+      dataType: 'number',
       headerSummary: {
         type: 'number',
         numberFormat: '#,##0',
@@ -325,10 +322,11 @@ function initGrid(data, view) {
       },
     },
     {
-      fieldName: 'm06',
+      fieldName: 'acol6',
       header: t('MSG_TXT_JUN'),
       width: '100',
       styleName: 'text-right',
+      dataType: 'number',
       headerSummary: {
         type: 'number',
         numberFormat: '#,##0',
@@ -336,10 +334,11 @@ function initGrid(data, view) {
       },
     },
     {
-      fieldName: 'm07',
+      fieldName: 'acol7',
       header: t('MSG_TXT_JUL'),
       width: '100',
       styleName: 'text-right',
+      dataType: 'number',
       headerSummary: {
         type: 'number',
         numberFormat: '#,##0',
@@ -347,10 +346,11 @@ function initGrid(data, view) {
       },
     },
     {
-      fieldName: 'm08',
+      fieldName: 'acol8',
       header: t('MSG_TXT_AUG'),
       width: '100',
       styleName: 'text-right',
+      dataType: 'number',
       headerSummary: {
         type: 'number',
         numberFormat: '#,##0',
@@ -358,10 +358,11 @@ function initGrid(data, view) {
       },
     },
     {
-      fieldName: 'm09',
+      fieldName: 'acol9',
       header: t('MSG_TXT_SEPT'),
       width: '100',
       styleName: 'text-right',
+      dataType: 'number',
       headerSummary: {
         type: 'number',
         numberFormat: '#,##0',
@@ -369,10 +370,11 @@ function initGrid(data, view) {
       },
     },
     {
-      fieldName: 'm10',
+      fieldName: 'acol10',
       header: t('MSG_TXT_OCT'),
       width: '100',
       styleName: 'text-right',
+      dataType: 'number',
       headerSummary: {
         type: 'number',
         numberFormat: '#,##0',
@@ -380,10 +382,11 @@ function initGrid(data, view) {
       },
     },
     {
-      fieldName: 'm11',
+      fieldName: 'acol11',
       header: t('MSG_TXT_NOV'),
       width: '100',
       styleName: 'text-right',
+      dataType: 'number',
       headerSummary: {
         type: 'number',
         numberFormat: '#,##0',
@@ -391,19 +394,20 @@ function initGrid(data, view) {
       },
     },
     {
-      fieldName: 'm12',
+      fieldName: 'acol12',
       header: t('MSG_TXT_DECE'),
       width: '100',
       styleName: 'text-right',
+      dataType: 'number',
       headerSummary: {
         type: 'number',
         numberFormat: '#,##0',
         expression: 'sum',
       },
     },
-    { fieldName: 'maxVal', visible: false },
-    { fieldName: 'minVal', visible: false },
-    { fieldName: 'avgVal', visible: false },
+    { fieldName: 'maxval', visible: false },
+    { fieldName: 'minval', visible: false },
+    { fieldName: 'avg', visible: false },
   ];
 
   // 헤더쪽 합계 행고정, summary
@@ -416,7 +420,7 @@ function initGrid(data, view) {
     ],
   });
 
-  data.setFields(fields);
+  data.setFields(columns.map(({ fieldName, dataType }) => (dataType ? { fieldName, dataType } : { fieldName })));
   view.setColumns(columns);
   view.checkBar.visible = false; // create checkbox column
   view.rowIndicator.visible = true; // create number indicator column

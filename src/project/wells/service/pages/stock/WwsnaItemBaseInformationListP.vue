@@ -122,12 +122,14 @@
     <kw-grid
       v-if="isGrid"
       ref="grdMainRef"
+      :page-size="10"
       :total-count="totalCount"
       @init="initGrdMain"
     />
     <kw-grid
       v-show="isGrid2"
       ref="grdMainRef2"
+      :page-size="10"
       :total-count="totalCount"
       @init="initGrdMain2"
     />

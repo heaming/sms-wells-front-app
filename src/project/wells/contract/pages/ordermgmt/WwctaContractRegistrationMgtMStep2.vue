@@ -214,6 +214,11 @@ async function onSelectProduct(product, wellsFarmMachineCntrDtl) {
     return;
   }
 
+  const isDryer = newProduct.pdMclsfId === 'PDC000000000096';
+  if (isDryer) {
+    await alert('건조기 설치 시 실내설치키트 혹은 스태킹키트 필요여부 확인 하셨나요?\n필요한 경우 BH일시불 계약 접수 진행 바랍니다.');
+  }
+
   // 웰스팜 기기 선택 시
   const isWellsFarmProduct = newProduct.pdLclsfId === 'PDC000000000120';
   newProduct.lkSdingOjCntrRelRequired = isWellsFarmProduct;

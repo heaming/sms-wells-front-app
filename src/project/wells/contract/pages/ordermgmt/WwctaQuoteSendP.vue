@@ -148,6 +148,7 @@ const optionList = ref([]);
 const props = defineProps({
   cntrNo: { type: String, default: '' }, // 부모창에서 넘어온 계약번호
   cntrSn: { type: String, default: '' }, // 부모창에서 넘어온 계약일련번호
+  cntrTempSaveDt: { type: String, default: '' }, // 부모창에서 넘어온 견적주문일자
 });
 
 const pageInfo = ref({

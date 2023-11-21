@@ -138,7 +138,12 @@ const inputParams = ref({
   cralIdvTno: '', /* 휴대전화번호3 */
 });
 
-const strDomain = window.location.host;
+let strDomain = '';
+if (window.location.href.includes('localhost')) {
+  strDomain = 'http://localhost:3000';
+} else {
+  strDomain = window.location.origin;
+}
 
 const visitCocnMshCh = `${strDomain}/mobile/#/withdrawal/zmwda-auto-transfer-payment-change?vstYn=Y&chRqrDvCd=2&aftnThpChYn=N&clctamMngtYn=N&akChdt=${akChdt}`;
 // eslint-disable-next-line no-unused-vars

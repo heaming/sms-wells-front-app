@@ -393,15 +393,15 @@ async function onClickOpenReport(baseYm, prtnrNo) {
 const initGridDetail = defineGrid((data, view) => {
   const columns = [
     { fieldName: 'baseYm', header: t('MSG_TXT_BASE_YM'), visible: false }, // 기준년월
-    { fieldName: 'coCdNm', header: t('MSG_TXT_CORP_NAME'), width: '127' }, // 업체명(지구명)
+    // { fieldName: 'coCdNm', header: t('MSG_TXT_CORP_NAME'), width: '127' }, // 업체명(지구명) 20231117 고객요청 지점명으로통합
     { fieldName: 'brchNm', header: t('MSG_TXT_BRCH_NM'), width: '127' }, // 지점명
     { fieldName: 'prtnrKnm', header: t('MSG_TXT_SELLER_PERSON'), width: '98' }, // 판매자
     { fieldName: 'prtnrNo', header: t('MSG_TXT_SEQUENCE_NUMBER'), width: '127', styleName: 'text-center' }, // 번호
     { fieldName: 'cntrNo', header: t('MSG_TXT_CNTR_DTL_NO'), width: '151', styleName: 'text-center' }, // 계약상세번호
     { fieldName: 'cstKnm', header: t('MSG_TXT_CUST_STMT'), width: '98' }, // 고객성명
+    { fieldName: 'sellTpCd', header: t('MSG_TXT_SEL_TYPE'), width: '150', styleName: 'text-center', options: codes.SELL_TP_CD }, // 판매유형
     { fieldName: 'basePdCd', header: t('MSG_TXT_PRDT_CODE'), width: '106', styleName: 'text-center' }, // 상품모드
     { fieldName: 'pdNm', header: t('MSG_TXT_PRDT_NM'), width: '210' }, // 상품명
-    { fieldName: 'sellTpCd', header: t('MSG_TXT_SEL_TYPE'), width: '150', styleName: 'text-center', options: codes.SELL_TP_CD, visible: false }, // 판매유형
     {
       fieldName: 'sellDscDvCd',
       header: t('MSG_TXT_PD_DC_CLASS'),

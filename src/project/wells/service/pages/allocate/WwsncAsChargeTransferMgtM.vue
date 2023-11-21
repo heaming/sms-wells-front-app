@@ -409,8 +409,8 @@ async function onClickSearch() {
 }
 // 담당자이관버튼 클릭
 async function onClickPsicTransfer() {
-  const view = grdMainRef.value.getView();
-  const chkRows = gridUtil.getCheckedRowValues(view);
+  const gridView = grdMainRef.value.getView();
+  const chkRows = gridUtil.getCheckedRowValues(gridView);
 
   if (chkRows.length === 0) {
     notify(t('MSG_ALT_NOT_SEL_ITEM')); // 데이터를 선택해주세요.
@@ -467,7 +467,6 @@ async function onClickBulkUpdate() {
   if (!await tfPrtnrKnmRef.value.validate()) {
     return;
   }
-
   const view = grdMainRef.value.getView();
   const checkedRows = gridUtil.getCheckedRowValues(view);
   if (checkedRows.length === 0) {
@@ -475,7 +474,6 @@ async function onClickBulkUpdate() {
     return;
   }
 
-  if (!await gridUtil.validate(checkedRows.value)) { return; }
   const data = view.getDataSource();
 
   const { afchBlgCd, afchOgTpCd, afchEmpno, afchFnm } = updateParams.value;

@@ -149,7 +149,6 @@
             :label="$t('MSG_TXT_ITM_DV')"
             option-value="pdCd"
             option-label="pdNm"
-            first-option="all"
             :multiple="true"
           />
         </kw-search-item>
@@ -281,7 +280,7 @@
       <kw-grid
         ref="grdMainRef"
         name="grdMain"
-        :visible-rows="30"
+        :page-size="20"
         :total-count="totalCount"
         @init="initGrdMain"
       />

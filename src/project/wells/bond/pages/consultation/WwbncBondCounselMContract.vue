@@ -78,12 +78,11 @@
       <kw-search-item
         :label="$t('MSG_TXT_CNTR_DTL_NO')"
       >
-        <kw-input
-          v-model="searchParams.schCntrDtlNo"
-          :maxlength="14"
+        <zctz-contract-detail-number
+          v-model:cntr-no="tempParams.cntrNo"
+          v-model:cntr-sn="tempParams.cntrSn"
+          :label="$t('MSG_TXT_CNTR_DTL_NO')"
           :placeholder="$t('MSG_TIT_CNTR_NO_CNTR_SN')"
-          icon="search"
-          @click-icon="onClickCntrDtlNo"
         />
       </kw-search-item>
       <kw-search-item
@@ -303,6 +302,7 @@
 import { defineGrid, gridUtil, codeUtil, getComponentType, modal, useDataService, notify, popupUtil } from 'kw-lib';
 import { cloneDeep } from 'lodash-es';
 import { getDlqMcnt, getFntDt, getWellsCntrListDv, getAuthAuthRsgYn, getFntDv, getCstThmDp, getWellsBilDv, getBizDv } from '~sms-common/bond/utils/bnUtil';
+import ZctzContractDetailNumber from '~sms-common/contract/components/ZctzContractDetailNumber.vue';
 
 const emits = defineEmits([
   'update',
@@ -355,6 +355,10 @@ const grdMainRef = ref(getComponentType('KwGrid'));
 
 // TODO: 계약리스트 검색조건
 let cachedParams;
+const tempParams = ref({
+  cntrNo: '',
+  cntrSn: '',
+});
 const searchParams = ref({
   schClctamNo: employeeIDNumber,
   schClctamNm: '',
@@ -395,19 +399,19 @@ const totalCount = ref(0);
 const windowKey = ref('');
 
 // TODO: 계약상세번호 조회
-async function onClickCntrDtlNo() {
-  const { result, payload } = await modal({
-    component: 'WwctaContractNumberListP',
-    componentProps: {
-      cntrNo: searchParams.value.schCntrDtlNo,
-    },
-  });
-  if (result) {
-    searchParams.value.cntrNo = payload.cntrNo;
-    searchParams.value.cntrSn = payload.cntrSn;
-    searchParams.value.schCntrDtlNo = `${searchParams.value.cntrNo}-${searchParams.value.cntrSn}`;
-  }
-}
+// async function onClickCntrDtlNo() {
+//   const { result, payload } = await modal({
+//     component: 'WwctaContractNumberListP',
+//     componentProps: {
+//       cntrNo: searchParams.value.schCntrDtlNo,
+//     },
+//   });
+//   if (result) {
+//     searchParams.value.cntrNo = payload.cntrNo;
+//     searchParams.value.cntrSn = payload.cntrSn;
+//     searchParams.value.schCntrDtlNo = `${searchParams.value.cntrNo}-${searchParams.value.cntrSn}`;
+//   }
+// }
 
 /** 계약리스트 조회 */
 async function fetchContracts() {
@@ -564,6 +568,10 @@ async function fetchBaseYmData() {
   const response = await dataService.get('/sms/wells/bond/bond-counsel/base-ym');
   customerParams.value = response.data;
 }
+
+watch(() => [tempParams.value.cntrNo, tempParams.value.cntrSn], async () => {
+  searchParams.value.schCntrDtlNo = (tempParams.value.cntrNo && tempParams.value.cntrSn) ? `${tempParams.value.cntrNo}-${tempParams.value.cntrSn}` : '';
+});
 
 onMounted(async () => {
   await fetchBaseYmData();

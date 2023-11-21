@@ -191,6 +191,11 @@ const aplcCloseData = ref({
   bizEndHh: '',
 });
 
+const aplcLmQtyData = ref({
+  sapMatCd: '',
+  bfsvcCsmbAplcLmQty: '',
+});
+
 const isDisableSave = computed(() => {
   const nowDateTime = Number(dayjs().format('YYYYMMDDHHmm'));
   const strtDtHh = `${aplcCloseData.value.bizStrtdt}${aplcCloseData.value.bizStrtHh ?? ''}`;
@@ -254,7 +259,7 @@ async function reAryGrid() {
     { fieldName: 'wash' },
     { fieldName: 'ardrssr' },
     { fieldName: 'sscling' },
-    { fieldName: 'bfsvcCsmbDdlvStatCd' },
+    // { fieldName: 'bfsvcCsmbDdlvStatCd' },
   ];
 
   const columns = [
@@ -349,8 +354,6 @@ async function reAryGrid() {
     k += 1;
   }
 
-  data.setFields(fields);
-  view.setColumns(columns);
   // view.setFixedOptions({ colCount: 1 });
 
   // view.onCellClicked = (grd, cData) => {
@@ -406,6 +409,10 @@ async function reAryGrid() {
     );
   }
 
+  fields.push({ fieldName: 'bfsvcCsmbDdlvStatCd' });
+
+  data.setFields(fields);
+  view.setColumns(columns);
   view.setColumnLayout(columnLayout);
 
   // view.setColumnLayout([
@@ -453,9 +460,16 @@ async function reAryGrid() {
   // ]);
 }
 
+async function getApplicationLimitQty() {
+  const res = await dataService.get(`/sms/wells/service/manager-bsconsumables/${cachedParams.mngtYm}/application-limit-qty`);
+
+  aplcLmQtyData.value = res.data;
+}
+
 async function fetchData() {
   await reAryGrid();
   await getMCsmbAplcClose();
+  await getApplicationLimitQty();
 
   const res = await dataService.get('/sms/wells/service/manager-bsconsumables', { params: { ...cachedParams, timeout: 300000 } });
   // const { list: bldCsmbDeliveries, pageInfo: pagingResult } = res.data;
@@ -721,7 +735,7 @@ const initGrdMain = defineGrid(async (data, view) => {
     { fieldName: 'wash' },
     { fieldName: 'ardrssr' },
     { fieldName: 'sscling' },
-    { fieldName: 'bfsvcCsmbDdlvStatCd' },
+    // { fieldName: 'bfsvcCsmbDdlvStatCd' },
   ];
 
   const columns = [
@@ -872,6 +886,8 @@ const initGrdMain = defineGrid(async (data, view) => {
     );
   }
 
+  fields.push({ fieldName: 'bfsvcCsmbDdlvStatCd' });
+
   view.setColumnLayout(columnLayout);
 
   view.onCellEditable = (grid, itemIndex) => {
@@ -885,8 +901,26 @@ const initGrdMain = defineGrid(async (data, view) => {
     }
   };
 
-  view.onCellEdited = (grid, itemIndex) => {
+  view.onCellEdited = async (grid, itemIndex, row, fieldIndex) => {
     grid.checkItem(itemIndex, true);
+
+    const { fieldName } = grid.getColumn(fieldIndex);
+    const sapMatCd = grid.getColumn(fieldIndex).header.text;
+    const aplcQty = view.getValue(row, fieldIndex);
+    const aplcLmQty = aplcLmQtyData.value.find((obj) => obj.sapMatCd === sapMatCd)?.bfsvcCsmbAplcLmQty;
+
+    if (fieldName.indexOf('aplcQty') !== -1) {
+      if (!aplcLmQty || Number(aplcLmQty) === 0) {
+        await alert(`${sapMatCd}의 신청 제한 갯수가 0개입니다.`);
+        view.setValue(row, fieldIndex, 0);
+        return;
+      }
+
+      if (Number(aplcQty) > Number(aplcLmQty)) {
+        await alert(`${sapMatCd}은 ${aplcLmQty}개까지 신청 가능합니다.`);
+        view.setValue(row, fieldIndex, 0);
+      }
+    }
   };
 
   view.setCheckableCallback((dataSource, item) => {

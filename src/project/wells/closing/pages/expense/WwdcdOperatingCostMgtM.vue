@@ -225,13 +225,12 @@ const saveParams = ref({
 });
 
 async function saveData(column, opcsCardId, file) {
-  if (column === 'atthDocId') {
+  if (column === 'atthDocId' && !isEmpty(file.files)) {
     saveParams.value.opcsCardId = opcsCardId;
     saveParams.value.attachMscrWhtxCfdcApnFileId = file.files;
+    const data = saveParams.value;
+    await dataService.post('/sms/wells/closing/expense/operating-cost', data);
   }
-  const data = saveParams.value;
-  await dataService.post('/sms/wells/closing/expense/operating-cost', data);
-
   await fetchData();
 }
 // -------------------------------------------------------------------------------------------------
@@ -292,7 +291,7 @@ const initGrdSub = defineGrid((data, view) => {
   view.onCellItemClicked = async (g, { column, itemIndex }) => {
     if (column === 'atthDocId') {
       const { opcsCardId, atthDocId } = g.getValues(itemIndex);
-      saveData(column, opcsCardId, atthDocId);
+      await saveData(column, opcsCardId, atthDocId);
     }
   };
 });
