@@ -256,6 +256,8 @@ async function fetchData() {
   grdMain1Datas.value.forEach((item) => {
     if (item.bizUseIdvTno && item.bizUseExnoEncr && item.bizUseLocaraTno) {
       item.biztelephone = `${item.bizUseIdvTno}${item.bizUseExnoEncr}${item.bizUseLocaraTno}`;
+    } else {
+      item.biztelephone = `${item.cralLocaraTno}${item.mexnoEncr}${item.cralIdvTno}`;
     }
     return item;
   });
@@ -696,6 +698,18 @@ const initGrid1 = defineGrid((data, view) => {
     },
     {
       fieldName: 'ogTpCd', // 조직유형코드
+      visible: false,
+    },
+    {
+      fieldName: 'cralLocaraTno', // 휴대지역전화번호
+      visible: false,
+    },
+    {
+      fieldName: 'mexnoEncr', // 휴대전화국번호암호화
+      visible: false,
+    },
+    {
+      fieldName: 'cralIdvTno', // 휴대개별전화번호
       visible: false,
     },
     {
