@@ -655,7 +655,7 @@ async function onClickSearchNo() {
  */
 async function openNtorAgrgPopup() {
   const statusParams = {
-    baseYm: searchParams.value.baseYm,
+    baseYm: searchParams.value.perfYm,
     feeTcntDvCd: searchParams.value.feeTcntDvCd,
     ntorCnfmStatCd: '01',
   };
@@ -703,7 +703,7 @@ async function openNtorAgrgPopup() {
  */
 async function openNtorConfirmPopup() {
   const statusParams = {
-    baseYm: searchParams.value.baseYm,
+    baseYm: searchParams.value.perfYm,
     feeTcntDvCd: searchParams.value.feeTcntDvCd,
     ntorCnfmStatCd: '02',
   };
