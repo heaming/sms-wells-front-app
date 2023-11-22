@@ -807,6 +807,7 @@ const initGrdDtl = defineGrid((data, view) => {
     { fieldName: 'pdNm', header: t('MSG_TXT_PRDT_NM'), width: '180', styleName: 'text-left' }, // 상품명
     { fieldName: 'basePdCd', header: t('MSG_TXT_PRDT_CODE'), width: '140', styleName: 'text-center' }, // 상품코드
     { fieldName: 'pkgCd', header: t('MSG_TXT_PKG_CD'), width: '120', styleName: 'text-center' }, // 패키지상품번호
+    { fieldName: 'pkgSn', header: t('MSG_TXT_PKG_SN'), width: '120', styleName: 'text-center' }, // 패키지 일련번호
     { fieldName: 'cntrPtrm', header: t('MSG_TXT_ISTM'), width: '120', styleName: 'text-right' }, // 할부
     { fieldName: 'stplPtrm', header: t('MSG_TXT_STPL_MCNT'), width: '120', styleName: 'text-right' }, // 약정개월
     { fieldName: 'cntrCnfmDtm', header: t('MSG_TXT_CNTR_DATE'), width: '120', styleName: 'text-center', datetimeFormat: 'yyyy-MM-dd' }, // 계약일자
