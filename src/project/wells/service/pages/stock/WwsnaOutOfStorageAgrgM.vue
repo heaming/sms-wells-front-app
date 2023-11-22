@@ -258,6 +258,22 @@ async function fetchData() {
   const res = await dataService.get(`${baseUrl}`, { params: cachedParams });
   const list = res.data;
   totalCount.value = list.length;
+
+  // 요청사항반영[그리드 명칭 변경 및 0 미노출 통일 요청]
+  list.forEach((item, idx) => {
+    if (list[idx].ware100000 === 0) {
+      list[idx].ware100000 = '';
+    }
+    if (list[idx].ware200000 === 0) {
+      list[idx].ware200000 = '';
+    }
+    if (list[idx].ware300000 === 0) {
+      list[idx].ware300000 = '';
+    }
+    if (list[idx].ware999999 === 0) {
+      list[idx].ware999999 = '';
+    }
+  });
   const view = grdMainRef.value.getView();
   view.getDataSource().setRows(list);
   view.resetCurrent();
@@ -320,7 +336,7 @@ fieldsObj = {
     const layoutColumns = [...fieldsObj.getColumnNameArr(fieldsObj.defaultFields),
       {
         direction: 'horizontal',
-        header: { text: t('MSG_TXT_LGST_CNR') }, /* 물류센터 */
+        header: { text: t('MSG_TXT_LGST_STOC') }, /* 물류재고 */
         width: fieldsWidth,
         items: [...fieldsObj.getColumnNameArr(logisticsFields)],
       },
