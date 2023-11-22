@@ -268,6 +268,7 @@ const { getPartMaster } = smsCommon();
 const grdMainRef = ref(getComponentType('KwGrid'));
 const dataService = useDataService();
 const { getConfig } = useMeta();
+const { alert } = useGlobal();
 
 const { modal } = useGlobal();
 const { t } = useI18n();
@@ -416,6 +417,11 @@ async function onClickExpPartPs() {
 
 async function onClickOZ() {
   const ozWkDvCdList = searchParams.value.wkDvCds;
+  const prtnrNos = searchParams.value.prtnrNo;
+  if (prtnrNos === '') {
+    await alert(t('MSG_ALT_SLCT_MNGR_OR_ENGR'));
+    return;
+  }
   if (ozWkDvCdList.length !== 0) {
     ozWkDvCdList.forEach((row) => {
       searchParams.value.ozWkDvCds += `'${row}',`;
