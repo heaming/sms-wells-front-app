@@ -207,7 +207,7 @@ async function onClickExcelDownload() {
 function initGrid(data, view) {
   const columns = [
     { fieldName: 'ogNm', header: t('MSG_TXT_SV_CNR'), width: '150', styleName: 'text-center' }, // 서비스센터
-    { fieldName: 'wkcr', header: t('MSG_TXT_CO'), width: '100', styleName: 'text-center' }, // 조
+    // { fieldName: 'wkcr', header: t('MSG_TXT_CO'), width: '100', styleName: 'text-center' }, // 조
     { fieldName: 'prtnrNo', header: t('MSG_TXT_EPNO'), width: '100', styleName: 'text-center' }, // 사번
     { fieldName: 'prtnrKnm', header: t('MSG_TXT_EMPL_NM'), width: '100', styleName: 'text-center' }, // 성명
     { // 입사일
@@ -477,22 +477,6 @@ function initGrid(data, view) {
         return retValue;
       },
     },
-    { // 처리건
-      fieldName: 'compCnt',
-      header: t('MSG_TXT_PROC') + t('MSG_TXT_CNT'),
-      width: '100',
-      styleName: 'text-center',
-      displayCallback(grid, index) {
-        const { compCnt } = grid.getValues(index.itemIndex);
-        let retValue;
-        if (compCnt === 0 || isEmpty(compCnt)) {
-          retValue = '0';
-        } else {
-          retValue = compCnt;
-        }
-        return retValue;
-      },
-    },
     { // 발송건
       fieldName: 'trsCnt',
       header: t('MSG_TXT_PSH_SEND') + t('MSG_TXT_CNT'),
@@ -509,38 +493,54 @@ function initGrid(data, view) {
         return retValue;
       },
     },
-    { // 응답건 건수
-      fieldName: 'grdRplyCnt',
-      header: t('MSG_TXT_RSP_CT'),
+    { // 처리건
+      fieldName: 'compCnt',
+      header: t('MSG_TXT_PROC') + t('MSG_TXT_CNT'),
       width: '100',
       styleName: 'text-center',
       displayCallback(grid, index) {
-        const { grdRplyCnt } = grid.getValues(index.itemIndex);
+        const { compCnt } = grid.getValues(index.itemIndex);
         let retValue;
-        if (grdRplyCnt === 0 || isEmpty(grdRplyCnt)) {
+        if (compCnt === 0 || isEmpty(compCnt)) {
           retValue = '0';
         } else {
-          retValue = grdRplyCnt;
+          retValue = compCnt;
         }
         return retValue;
       },
     },
-    { // 해피콜 건수
-      fieldName: 'hpcallScore',
-      header: t('MSG_TXT_HPCALL'),
-      width: '100',
-      styleName: 'text-center',
-      displayCallback(grid, index) {
-        const { hpcallScore } = grid.getValues(index.itemIndex);
-        let retValue;
-        if (hpcallScore === 0 || isEmpty(hpcallScore)) {
-          retValue = '0';
-        } else {
-          retValue = hpcallScore;
-        }
-        return retValue;
-      },
-    },
+    // { // 응답건 건수
+    //   fieldName: 'grdRplyCnt',
+    //   header: t('MSG_TXT_RSP_CT'),
+    //   width: '100',
+    //   styleName: 'text-center',
+    //   displayCallback(grid, index) {
+    //     const { grdRplyCnt } = grid.getValues(index.itemIndex);
+    //     let retValue;
+    //     if (grdRplyCnt === 0 || isEmpty(grdRplyCnt)) {
+    //       retValue = '0';
+    //     } else {
+    //       retValue = grdRplyCnt;
+    //     }
+    //     return retValue;
+    //   },
+    // },
+    // { // 해피콜 건수
+    //   fieldName: 'hpcallScore',
+    //   header: t('MSG_TXT_HPCALL'),
+    //   width: '100',
+    //   styleName: 'text-center',
+    //   displayCallback(grid, index) {
+    //     const { hpcallScore } = grid.getValues(index.itemIndex);
+    //     let retValue;
+    //     if (hpcallScore === 0 || isEmpty(hpcallScore)) {
+    //       retValue = '0';
+    //     } else {
+    //       retValue = hpcallScore;
+    //     }
+    //     return retValue;
+    //   },
+    // },
     { fieldName: 'envrElhmCnt', visible: false }, // 환경가전 건수
     { fieldName: 'sdingSpcltCnt', visible: false }, // 모종전문 건수
     { fieldName: 'hcrCnt', visible: false }, // 홈케어 건수
@@ -556,7 +556,6 @@ function initGrid(data, view) {
 
   view.setColumnLayout([
     'ogNm',
-    'wkcr',
     'prtnrNo',
     'prtnrKnm',
     'cntrDt',
@@ -600,10 +599,10 @@ function initGrid(data, view) {
         'hpcallAvgGrdScore',
       ],
     },
-    'compCnt',
     'trsCnt',
-    'grdRplyCnt',
-    'hpcallScore',
+    'compCnt',
+    // 'grdRplyCnt',
+    // 'hpcallScore',
   ]);
 }
 </script>
