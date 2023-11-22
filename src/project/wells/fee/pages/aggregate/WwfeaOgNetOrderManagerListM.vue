@@ -902,6 +902,7 @@ const initGrdDtl = defineGrid((data, view) => {
     { fieldName: 'sellAmt', header: t('MSG_TXT_RTLFE'), width: '140', styleName: 'text-right', numberFormat: '#,##0', dataType: 'number' }, // 렌탈료
     { fieldName: 'pmotNo', header: t('MSG_TXT_PMOT_NO'), width: '120', styleName: 'text-center' }, // 프로모션번호
     { fieldName: 'pkgCd', header: t('MSG_TXT_PKG_PD_NO'), width: '120', styleName: 'text-center' }, // 패키지상품번호
+    { fieldName: 'pkgSn', header: t('MSG_TXT_PKG_SN'), width: '120', styleName: 'text-center' }, // 패키지 일련번호
     { fieldName: 'mchnSstCd', header: t('MSG_TXT_MCHN') + t('MSG_TXT_CST_CD'), width: '120', styleName: 'text-center' }, // 기기 고객코드
     { fieldName: 'mchnPdCd', header: t('MSG_TXT_MCHN') + t('MSG_TXT_PRDT_CODE'), width: '120', styleName: 'text-center' }, // 기기 상품코드
     { fieldName: 'perfExcdRgstYn', header: t('MSG_TXT_PERF_EXCD') + t('MSG_TXT_RGST_YN'), width: '120', styleName: 'text-center' }, // 실적제외 등록여부
@@ -937,7 +938,6 @@ const initGrdAggr = defineGrid((data, view) => {
     { fieldName: 'snglPmntBasePrc', header: t('MSG_TXT_SNGL_PMNT_BASE_PRC'), width: '120', styleName: 'text-right', numberFormat: '#,##0', dataType: 'number' }, // 일시불기준가
     { fieldName: 'elhmExcpAckmtPerf', header: t('MSG_TXT_ELHM_EXCP_ACKMT_PERF'), width: '120', styleName: 'text-right', numberFormat: '#,##0', dataType: 'number' }, // 가전외인정실적
     { fieldName: 'chng', header: t('MSG_TXT_CHNG'), width: '120', styleName: 'text-right', numberFormat: '#,##0', dataType: 'number' }, // 기변
-    { fieldName: 'ninc', header: t('MSG_TXT_NINC'), width: '120', styleName: 'text-right', numberFormat: '#,##0', dataType: 'number' }, // 순증
     { fieldName: 'fxamCt', header: `${t('MSG_TXT_ELHM')}+${t('MSG_TXT_ELHM_EXCP')} ${t('MSG_TXT_FXAM')}`, width: '150', styleName: 'text-right', numberFormat: '#,##0', dataType: 'number' }, // 가전+가전외 정액
     { fieldName: 'rstlCt', header: t('MSG_TXT_RSTL_AMT'), width: '120', styleName: 'text-right', numberFormat: '#,##0', dataType: 'number' }, // 재약정금액
     { fieldName: 'livePakg', header: t('MSG_TXT_LIVE_PAKG') + t('MSG_TXT_COUNT'), width: '120', styleName: 'text-right', numberFormat: '#,##0', dataType: 'number' }, // 라이브팩
@@ -967,7 +967,7 @@ const initGrdAggr = defineGrid((data, view) => {
     {
       header: t('MSG_TXT_ELHM'), // 가전
       direction: 'horizontal',
-      items: ['elhmAckmtCt', 'rentalBasePrc', 'snglPmntBasePrc', 'elhmExcpAckmtPerf', 'chng', 'ninc'],
+      items: ['elhmAckmtCt', 'rentalBasePrc', 'snglPmntBasePrc', 'elhmExcpAckmtPerf', 'chng'],
     },
     {
       header: t('MSG_TXT_ETC'), // 기타
