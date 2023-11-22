@@ -20,7 +20,8 @@
     >
       <!-- 재약정 -->
       <template v-if="isEqual(rptIdGbn, 'bryymmdd')">
-        <slot v-if="isCooperation">
+        <!-- 개인 -->
+        <slot v-if="!isCooperation">
           <p class="kw-font-pt18 text-weight-medium mt20">
             {{ `${params?.custNm} ${t('MSG_TXT_CST')}.` }} <br>
             {{ `${t('MSG_TXT_BRYY_MMDD_POSTN_IN',['8'])}` }}
@@ -32,6 +33,7 @@
             :label="$t('MSG_TXT_BIRTH_DATE')"
           />
         </slot>
+        <!-- 법인 -->
         <slot v-else>
           <p class="kw-font-pt18 text-weight-medium mt20">
             {{ `${params?.custNm} ${t('MSG_TXT_CST')}.` }} <br>
@@ -99,6 +101,7 @@ const { t } = useI18n();
 const dataService = useDataService();
 const props = defineProps({
   cntrNo: { type: String, default: undefined }, // 계약번호
+  cntrSn: { type: String, default: undefined }, // 계약일련번호
   notyFwId: { type: String, default: undefined }, // 알림발송ID
   rprtDvCd: { type: String, default: undefined }, // 리포트구분코드
   pblcSearchSttDt: { type: String, default: undefined }, // 발생일자
@@ -121,6 +124,7 @@ const params = decryptEncryptedParam(props.encryptedParam, {
   cntrDtlNoList: props.cntrList,
   rptId: props.rptId,
   cntrNo: isEmpty(props.cntrNo) && !isEmpty(props.cntrList) ? props.cntrList[0].split('-')[0] : props.cntrNo,
+  cntrSn: props.cntrSn,
   spectxPblDDvCd: props.spectxPblDDvCd,
   spectxGrpNo: props.spectxGrpNo,
   cntrCnfmStrtDt: props.cntrCnfmStrtDt,
@@ -128,7 +132,7 @@ const params = decryptEncryptedParam(props.encryptedParam, {
 });
 
 const searchParams = ref({
-  cntrNo: isEmpty(params.cntrNo) && !isEmpty(params.cntrDtlNoList) ? params.cntrDtlNoList[0].split('-')[0] : props.cntrNo,
+  cntrNo: isEmpty(params.cntrNo) && !isEmpty(params.cntrDtlNoList) ? params.cntrDtlNoList[0].split('-')[0] : params.cntrNo,
   cntrCstBryyMmdd: '',
   bzrno: '',
   emadr: '',
@@ -142,9 +146,9 @@ const frmRef = ref();
 const rptIdGbn = computed(() => { // 리포트 종류 구분 처리 computed
   if (isEmpty(params.rptId)) { return ''; }
 
-  if (['ESDC01'].includes(params.rptId)) { return 'noCertification'; }
+  if (['ESDC01'].includes(params.rptId)) { return 'noCertification'; } // 무인증 리스트
 
-  if (!['DPSTMAIL', 'DEAL001', 'CARD001', 'CONC001'].includes(params.rptId)) { return 'bryymmdd'; }
+  if (!['DPSTMAIL', 'DEAL001', 'CARD001', 'CONC001'].includes(params.rptId)) { return 'bryymmdd'; } // 생년월일 인증이 아닌 리포트 리스트
 
   return 'email';
 });
@@ -164,6 +168,8 @@ async function openCntrOZReport() {
   }
   // const reportPath = data.replace('ksswells/', 'kstation-w/');
 
+  // OZ 리포트 호출 Api 설정
+  let searchApiUrl = '';
   const cachedParams = {
     reportHeaderTitle: '',
     cntrDtlNoList: params.cntrDtlNoList,
@@ -175,41 +181,46 @@ async function openCntrOZReport() {
     cntrCnfmStrtDt: params.cntrCnfmStrtDt,
   };
 
-  // OZ 리포트 호출 Api 설정
-  const args1 = { searchApiUrl: '', ...cachedParams };
-
   // OZ 리포트 팝업 파라미터 설정
   switch (params.rptId) {
     case 'CARD001': { // 카드내역서
       cachedParams.reportHeaderTitle = '카드내역서 조회'; // 레포트 제목
-      args1.searchApiUrl = '/api/v1/sms/wells/contract/contracts/order-details/specification/card-sales-slips/oz';
+      searchApiUrl = '/api/v1/sms/wells/contract/contracts/order-details/specification/card-sales-slips/oz';
       break;
     }
     case 'CONC001': { // 계약사항
       cachedParams.reportHeaderTitle = '계약사항 조회'; // 레포트 제목
-      args1.searchApiUrl = '/api/v1/sms/wells/contract/contracts/order-details/specification/contract-articles/oz';
+      searchApiUrl = '/api/v1/sms/wells/contract/contracts/order-details/specification/contract-articles/oz';
       break;
     }
     case 'DEAL001': { // 거래명세서
       cachedParams.reportHeaderTitle = '거래명세서 조회'; // 레포트 제목
-      args1.searchApiUrl = '/api/v1/sms/wells/contract/contracts/order-details/specification/trade-specification/oz';
+      searchApiUrl = '/api/v1/sms/wells/contract/contracts/order-details/specification/trade-specification/oz';
       if (!isEmpty(params.spectxGrpNo)) {
-        args1.searchApiUrl = '/api/v1/sms/wells/contract/contracts/send-trade-specification-sheets/oz';
+        searchApiUrl = '/api/v1/sms/wells/contract/contracts/send-trade-specification-sheets/oz';
       }
       break;
     }
     case 'DPSTMAIL': { // 입금내역서
-      cachedParams.cntrNo = '입금내역서 조회'; // 레포트 제목
-      args1.searchApiUrl = '/api/v1/sms/wells/contract/contracts/order-details/specification/deposit-itemizations/oz';
+      cachedParams.reportHeaderTitle = '입금내역서 조회'; // 레포트 제목
+      searchApiUrl = '/api/v1/sms/wells/contract/contracts/order-details/specification/deposit-itemizations/oz';
       break;
     }
     case 'ESDC01': { // 견적서
       cachedParams.cntrNo = params.cntrNo;
-      args1.cntrNo = params.cntrNo;
+      break;
+    }
+    case 'RP002': { // 재약정
+      cachedParams.cntrNo = params.cntrNo;
+      cachedParams.cntrSn = params.cntrSn;
+      searchApiUrl = '/api/v1/sms/wells/contract/contracts/managements/search-api-url/rstl';
       break;
     }
   }
-  // console.log(args1);
+  const args1 = { ...cachedParams };
+  if (!isEmpty(searchApiUrl)) {
+    args1.searchApiUrl = searchApiUrl;
+  }
 
   // OZ 레포트 팝업호출
   openReportPopup(
@@ -224,7 +235,6 @@ async function onClickConfirm() {
   if (!await frmRef.value.validate()) { return; }
 
   const response = await dataService.post('/sms/wells/contract/auth/contract-document', {
-    cntrNo: params.cntrNo,
     ...searchParams.value,
   });
   if (response.data.valid) {
@@ -244,6 +254,7 @@ async function fetchBasicContractInfo() {
     });
 
     searchParams.value.copnDvCd = data.copnDvCd;
+    params.custNm = data.cntrCstKnm;
   } catch (e) {
   // cancel();
   // window.close();
@@ -254,6 +265,10 @@ onMounted(async () => {
     await fetchBasicContractInfo();
   } else if (isEqual(rptIdGbn.value, 'noCertification')) {
     openCntrOZReport();
+  }
+
+  if (!isEmpty(params.cntrList)) {
+    params.cntrList = params.cntrList.split(',');
   }
 });
 </script>

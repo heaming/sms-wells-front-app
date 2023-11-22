@@ -99,6 +99,7 @@
           />
           <span class="ml8">{{ t('MSG_TXT_UNIT_EA') }}</span>
         </template>
+        <!-- 엑셀다운로드 버튼 -->
         <kw-btn
           v-permission:download
           icon="download_on"
@@ -113,6 +114,7 @@
           inset
           spaced
         />
+        <!-- 확정 버튼 -->
         <kw-btn
           v-permission:create
           dense
@@ -174,7 +176,7 @@ const searchParams = ref({
   delvWareNo: '100002', // 파주물류센터
   asnYm: now.format('YYYYMM'), // 배정년월
   lgstWkMthdCd: '',
-  procsDvCd: '', // 처리구분
+  procsDvCd: '2', // 처리구분
   sppDvCd: 'A1', // 자가필터 배송구분코드
   rownum: '',
   pgGb: '', // 상품그룹핑코드
@@ -195,32 +197,34 @@ searchParams.value.lgstWkMthdCd = products.value[0].lgstWkMthdCd;
 const isPaging = ref(true);
 const lgstWkMthdCd = ref();
 const cntLgstWkMthdCd = ref();
-
+// 조회조건-배정년월 변경시 해당 년월의 상품데이터로 조회조건 세팅.
 async function onChangeAsnYm() {
   products.value = (await dataService.get('/sms/wells/service/bs-regular-shipping/products', { params: searchParams.value })).data;
 }
-
+// 그리드 조회
 async function fetchData() {
-  let list;
-  if (cachedParams.procsDvCd === '2') {
-    const res = await dataService.get('/sms/wells/service/bs-regular-shipping', { params: { ...cachedParams } });
-    totalCount.value = res.data.length;
-    list = res.data;
-  } else {
-    const res = await dataService.get('/sms/wells/service/bs-regular-shipping/paging', { params: { ...cachedParams, ...pageInfo.value } });
-    const { list: items, pageInfo: pagingResult } = res.data;
-    pageInfo.value = pagingResult;
-    totalCount.value = pageInfo.value.totalCount;
-    list = items;
-  }
-  // 작업 대기값 조회시 paging 하지않음.
-  isPaging.value = (cachedParams.procsDvCd !== '2');
+  // let list;
+  // if (cachedParams.procsDvCd === '2') {
+  const res = await dataService.get('/sms/wells/service/bs-regular-shipping', { params: { ...cachedParams } });
+  totalCount.value = res.data.length;
+  const list = res.data;
+  // } else {
+  // eslint-disable-next-line max-len
+  //   const res = await dataService.get('/sms/wells/service/bs-regular-shipping/paging', { params: { ...cachedParams, ...pageInfo.value } });
+  //   const { list: items, pageInfo: pagingResult } = res.data;
+  //   pageInfo.value = pagingResult;
+  //   totalCount.value = pageInfo.value.totalCount;
+  //   list = items;
+  // }
+  // 작업 대기값 조회시 paging 하지않음.(임시해제 후 이슈생길시 다시 변경)
+  isPaging.value = false;
+  // isPaging.value = (cachedParams.procsDvCd !== '2');
   const view = grdMainRef.value.getView();
   view.getDataSource().setRows(list);
   view.clearCurrent();
   view.rowIndicator.indexOffset = gridUtil.getPageIndexOffset(pageInfo);
 }
-
+// 조회버튼
 async function onClickSearch() {
   const product = (products.value.filter((v) => v.lgstWkMthdCd === searchParams.value.lgstWkMthdCd))[0];
   searchParams.value.pgGb = product.pgGb;
@@ -230,7 +234,7 @@ async function onClickSearch() {
   cachedParams = cloneDeep(searchParams.value);
   await fetchData();
 }
-
+// 엑셀다운로드 버튼
 async function onClickExcelDownload() {
   const view = grdMainRef.value.getView();
 
@@ -242,22 +246,22 @@ async function onClickExcelDownload() {
     checkBar: 'hidden',
   });
 }
-
+// 확정버튼 클릭
 async function onClickConfirm() {
   const view = grdMainRef.value.getView();
   const chkRows = gridUtil.getCheckedRowValues(view);
   if (chkRows.length === 0) {
-    notify(t('MSG_ALT_NOT_SEL_ITEM'));
+    notify(t('MSG_ALT_NOT_SEL_ITEM')); // 데이터를 선택해주세요.
     return;
   }
   if (cntLgstWkMthdCd > 1) {
-    notify('잘못된 매핑이 존재합니다. 시스템 담당자에게 문의하시길 바랍니다.');
+    notify(t('MSG_ALT_INVALID_MAPNG')); // 잘못된 매핑이 존재합니다. 시스템 담당자에게 문의하시길 바랍니다.
     return;
   }
   chkRows[0].lgstWkMthdCd = lgstWkMthdCd.value;
   await dataService.post('/sms/wells/service/bs-regular-shipping', chkRows);
 
-  notify(t('MSG_ALT_SAVE_DATA'));
+  notify(t('MSG_ALT_SAVE_DATA')); // 저장되었습니다.
   await fetchData();
 }
 
@@ -274,36 +278,36 @@ const initGrdMain = defineGrid((data, view) => {
     { fieldName: ' cstKnm' }, // 고객명
     { fieldName: ' zip' }, // 배송우편번호
     { fieldName: ' sppAkSpfDt' }, // 특정일자배송
-    { fieldName: ' partCd01' },
-    { fieldName: ' partNm01' },
-    { fieldName: ' partQty01', dataType: 'number' },
-    { fieldName: ' partCd02' },
-    { fieldName: ' partNm02' },
-    { fieldName: ' partQty02', dataType: 'number' },
-    { fieldName: ' partCd03' },
-    { fieldName: ' partNm03' },
-    { fieldName: ' partQty03', dataType: 'number' },
-    { fieldName: ' partCd04' },
-    { fieldName: ' partNm04' },
-    { fieldName: ' partQty04', dataType: 'number' },
-    { fieldName: ' partCd05' },
-    { fieldName: ' partNm05' },
-    { fieldName: ' partQty05', dataType: 'number' },
-    { fieldName: ' partCd06' },
-    { fieldName: ' partNm06' },
-    { fieldName: ' partQty06', dataType: 'number' },
-    { fieldName: ' partCd07' },
-    { fieldName: ' partNm07' },
-    { fieldName: ' partQty07', dataType: 'number' },
-    { fieldName: ' partCd08' },
-    { fieldName: ' partNm08' },
-    { fieldName: ' partQty08', dataType: 'number' },
-    { fieldName: ' partCd09' },
-    { fieldName: ' partNm09' },
-    { fieldName: ' partQty09', dataType: 'number' },
-    { fieldName: ' partCd10' },
-    { fieldName: ' partNm10' },
-    { fieldName: ' partQty10', dataType: 'number' },
+    { fieldName: ' partCd01' }, /* 투입부품코드01 */
+    { fieldName: ' partNm01' }, /* 투입부품명01 */
+    { fieldName: ' partQty01', dataType: 'number' }, /* 투입부품갯수01 */
+    { fieldName: ' partCd02' }, /* 투입부품코드02 */
+    { fieldName: ' partNm02' }, /* 투입부품명02 */
+    { fieldName: ' partQty02', dataType: 'number' }, /* 투입부품갯수02 */
+    { fieldName: ' partCd03' }, /* 투입부품코드03 */
+    { fieldName: ' partNm03' }, /* 투입부품명03 */
+    { fieldName: ' partQty03', dataType: 'number' }, /* 투입부품갯수03 */
+    { fieldName: ' partCd04' }, /* 투입부품코드04 */
+    { fieldName: ' partNm04' }, /* 투입부품명04 */
+    { fieldName: ' partQty04', dataType: 'number' }, /* 투입부품갯수04 */
+    { fieldName: ' partCd05' }, /* 투입부품코드05 */
+    { fieldName: ' partNm05' }, /* 투입부품명05 */
+    { fieldName: ' partQty05', dataType: 'number' }, /* 투입부품갯수05 */
+    { fieldName: ' partCd06' }, /* 투입부품코드06 */
+    { fieldName: ' partNm06' }, /* 투입부품명06 */
+    { fieldName: ' partQty06', dataType: 'number' }, /* 투입부품갯수06 */
+    { fieldName: ' partCd07' }, /* 투입부품코드07 */
+    { fieldName: ' partNm07' }, /* 투입부품명07 */
+    { fieldName: ' partQty07', dataType: 'number' }, /* 투입부품갯수07 */
+    { fieldName: ' partCd08' }, /* 투입부품코드08 */
+    { fieldName: ' partNm08' }, /* 투입부품명08 */
+    { fieldName: ' partQty08', dataType: 'number' }, /* 투입부품갯수08 */
+    { fieldName: ' partCd09' }, /* 투입부품코드09 */
+    { fieldName: ' partNm09' }, /* 투입부품명09 */
+    { fieldName: ' partQty09', dataType: 'number' }, /* 투입부품갯수09 */
+    { fieldName: ' partCd10' }, /* 투입부품코드10 */
+    { fieldName: ' partNm10' }, /* 투입부품명10 */
+    { fieldName: ' partQty10', dataType: 'number' }, /* 투입부품갯수10 */
     { fieldName: ' istDt' }, // 설치일자
     { fieldName: ' reqdDt' }, // 철거일자
     { fieldName: ' cpsDt' }, // 보상일자 (취소일자?)
@@ -377,7 +381,7 @@ const initGrdMain = defineGrid((data, view) => {
       header: t('MSG_TXT_ASN_YM'),
       width: '130',
       styleName: 'text-center',
-      footer: { text: t('MSG_TXT_SUM') },
+      footer: { text: t('MSG_TXT_SUM'), styleName: 'text-center' },
     },
     {
       fieldName: 'cntrNo',
@@ -397,7 +401,6 @@ const initGrdMain = defineGrid((data, view) => {
       header: t('MSG_TXT_CST_NM'),
       width: '150',
       styleName: 'text-center',
-      footer: { text: t('MSG_TXT_SUM'), expression: 'count' },
     },
     {
       fieldName: 'sppAkSpfDt',
@@ -616,7 +619,7 @@ const initGrdMain = defineGrid((data, view) => {
     {
       fieldName: 'sellTpCd',
       header: t('MSG_TXT_SELL_CD'),
-      width: '50',
+      width: '80',
       styleName: 'text-center',
     },
     {
@@ -986,7 +989,6 @@ const initGrdMain = defineGrid((data, view) => {
 
   view.checkBar.visible = true;
   const f = function checked(dataSource, item) {
-    // console.log(data.getValue(item.dataRow, 'ppVstPrgsStatCd'));
     if ((data.getValue(item.dataRow, 'ppVstPrgsStatCd') === '00') || (data.getValue(item.dataRow, 'ppVstPrgsStatCd') === '10')) {
       return true;
     }

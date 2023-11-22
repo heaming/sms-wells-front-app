@@ -58,6 +58,7 @@
             v-model="searchParams.sellTpCd"
             :options="codes.SELL_TP_CD"
             first-option="all"
+            option-label="comboLabel"
           />
         </kw-search-item>
       </kw-search-row>
@@ -70,6 +71,7 @@
             v-model="searchParams.svPrd"
             :options="codes.MNGT_PRD_ACD"
             first-option="all"
+            option-label="comboLabel"
           />
         </kw-search-item>
         <!-- 할인제도 -->
@@ -80,6 +82,7 @@
             v-model="searchParams.pmotCd"
             :options="codes.PMOT_CD"
             first-option="all"
+            option-label="comboLabel"
           />
         </kw-search-item>
         <!-- 채널구분 -->
@@ -90,6 +93,7 @@
             v-model="searchParams.feecDvCd"
             :options="codes.FEE_BASE_MNGT_CHNL_ACD"
             first-option="all"
+            option-label="comboLabel"
           />
         </kw-search-item>
       </kw-search-row>
@@ -208,6 +212,10 @@ const codes = await codeUtil.getMultiCodes(
   'RENTAL_DSC_DV_CD', // SELL_DSC_DV_CD 렌탈
   'MSH_DSC_DV_CD', // SELL_DSC_DV_CD  홈케어일시불(멤버십)
 );
+codes.SELL_TP_CD.forEach((v) => { v.comboLabel = `[${v.codeId}] ${v.codeName}`; });
+codes.MNGT_PRD_ACD.forEach((v) => { v.comboLabel = `[${v.codeId}] ${v.codeName}`; });
+codes.PMOT_CD.forEach((v) => { v.comboLabel = `[${v.codeId}] ${v.codeName}`; });
+codes.FEE_BASE_MNGT_CHNL_ACD.forEach((v) => { v.comboLabel = `[${v.codeId}] ${v.codeName}`; });
 const pageInfo = ref({
   totalCount: 0,
   pageIndex: 1,

@@ -364,6 +364,12 @@
           label="세금공제"
           @click="TEST1()"
         />
+        <kw-btn
+          v-if="isTestVisile"
+          dense
+          label="가지급금생성"
+          @click="TEST2()"
+        />
       </kw-action-top>
       <kw-grid
         v-if="isGridDtlVisible"
@@ -481,7 +487,7 @@ async function fetchNetOrderStatus() {
   }
 
   const statusParams = {
-    baseYm: searchParams.value.baseYm,
+    baseYm: searchParams.value.perfYm,
     feeTcntDvCd: searchParams.value.feeTcntDvCd,
   };
 
@@ -649,7 +655,7 @@ async function onClickSearchNo() {
  */
 async function openNtorAgrgPopup() {
   const statusParams = {
-    baseYm: searchParams.value.baseYm,
+    baseYm: searchParams.value.perfYm,
     feeTcntDvCd: searchParams.value.feeTcntDvCd,
     ntorCnfmStatCd: '01',
   };
@@ -697,7 +703,7 @@ async function openNtorAgrgPopup() {
  */
 async function openNtorConfirmPopup() {
   const statusParams = {
-    baseYm: searchParams.value.baseYm,
+    baseYm: searchParams.value.perfYm,
     feeTcntDvCd: searchParams.value.feeTcntDvCd,
     ntorCnfmStatCd: '02',
   };
@@ -768,6 +774,19 @@ async function TEST1() {
   };
   await modal({
     component: 'ZwfecFeeTaxDeductionRegP',
+    componentProps: param,
+  });
+}
+
+async function TEST2() {
+  const param = {
+    ogTpCd: 'W02',
+    ddtnYm: '202306',
+    feeTcntDvCd: '02',
+    rsbDvCd: 'W0205',
+  };
+  await modal({
+    component: 'ZwfecFeePnpyamDeductionRegP',
     componentProps: param,
   });
 }

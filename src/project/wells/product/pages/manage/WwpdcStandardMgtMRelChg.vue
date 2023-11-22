@@ -84,9 +84,9 @@ const currentPdCd = ref();
 const currentInitData = ref({});
 const productSelectItems = ref([
   // 기준상품명
-  { codeId: pdConst.PD_SEARCH_NAME, codeName: t('MSG_TXT_GOODS_NM') },
+  { codeId: pdConst.PD_SEARCH_NAME, codeName: t('MSG_TXT_PD_STD_NAME') },
   // 기준상품코드
-  { codeId: pdConst.PD_SEARCH_CODE, codeName: t('MSG_TXT_PROD_CD') },
+  { codeId: pdConst.PD_SEARCH_CODE, codeName: t('MSG_TXT_PD_STD_CODE') },
 ]);
 
 const productSearchType = ref(pdConst.PD_SEARCH_NAME);

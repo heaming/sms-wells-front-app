@@ -280,14 +280,14 @@ const searchParams = ref({
   cntrSn: '',
   pdNm: '',
   imptaRsonCd: '',
-  rgstDtmFrom: dayjs().format('YYYYMMDD'),
-  rgstDtmTo: dayjs().format('YYYYMMDD'),
   fshDtFrom: '',
   fshDtTo: '',
   fshDtYn: 'N',
   totCpsAmt: '',
   device: 'W',
   searchOption: '1',
+  searchDtFrom: dayjs().format('YYYYMMDD'),
+  searchDtTo: dayjs().format('YYYYMMDD'),
 });
 let cachedParams;
 // 엑셀다운로드
@@ -367,13 +367,16 @@ async function onClickAccidentReportPrint() {
 }
 // 등록 버튼 클릭(팝업호출)
 async function onClickRegist() {
-  await modal({
+  const { result } = await modal({
     component: 'WwsnbSafetyAccidentRegP',
     componentProps: {
       acdnRcpId: '',
     },
   });
-  onClickSearch();
+
+  if (result) {
+    onClickSearch();
+  }
 }
 // -------------------------------------------------------------------------------------------------
 // Initialize Grid

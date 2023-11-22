@@ -24,7 +24,7 @@
         secondary
         dense
         icon="print"
-        :label="MSG_BTN_PRTG"
+        :label="$t('MSG_BTN_PRTG')"
         @click="printPage()"
       />
     </kw-action-top>

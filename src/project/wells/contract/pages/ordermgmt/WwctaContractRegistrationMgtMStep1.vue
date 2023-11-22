@@ -18,7 +18,7 @@
     scroll-style="padding-right: 40px;"
   >
     <ul
-      v-if="!isReadonly"
+      v-if="!isReadonly && !step1.pspcCstBas"
       class="kw-state-list kw-state-list--second-line col pt20"
     >
       <li
@@ -566,6 +566,7 @@ async function setupAvailableCntrTpCd() {
     const isCustomerCenterService = currentPartner.baseRleCd === 'W8010';
     const isBusinessDepartment = currentPartner.ogTpCd === 'HR1';
     const isBranchManager = currentPartner.pstnDvCd === '7';
+    const isPspcCstCntr = !!step1.value.pspcCstBas;
 
     if (isBusinessDepartment && !isCustomerCenterService) {
       return code.codeId === CNTR_TP_CD.EMPLOYEE && code;
@@ -574,6 +575,13 @@ async function setupAvailableCntrTpCd() {
       return [
         CNTR_TP_CD.INDIVIDUAL,
         CNTR_TP_CD.COOPERATION,
+      ].includes(code.codeId) && code;
+    }
+    if (isPspcCstCntr) {
+      return [
+        CNTR_TP_CD.INDIVIDUAL,
+        CNTR_TP_CD.COOPERATION,
+        CNTR_TP_CD.QUOTE,
       ].includes(code.codeId) && code;
     }
     return [
@@ -803,6 +811,11 @@ async function fetchCntrtByCstNo(cstNo) {
   }
 }
 
+// 고객 센터용 빠른 수정 코드 FIXME: 제정신인 미래의 나
+if (props.cntrCstNo) {
+  await fetchCntrtByCstNo(props.cntrCstNo);
+}
+
 async function selectContractor() {
   if (searchParams.value.cntrTpCd !== CNTR_TP_CD.MEMBERSHIP
       && searchParams.value.cntrTpCd !== CNTR_TP_CD.RE_STIPULATION
@@ -865,8 +878,6 @@ async function selectPartner() {
 }
 
 async function onClickMembership() {
-  clearSelected();
-
   const { result, payload } = await modal({
     component: 'WwctaMshRstlOjCstListP',
     componentProps: {
@@ -881,6 +892,8 @@ async function onClickMembership() {
     return;
   }
 
+  clearSelected();
+
   step1.value.mshCntrNo = payload.cntrNo;
   step1.value.mshCntrSn = payload.cntrSn;
   step1.value.prtnr = currentPartner;
@@ -894,8 +907,6 @@ async function onClickMembership() {
 }
 
 async function onClickReStipulation() {
-  clearSelected();
-
   const { result, payload } = await modal({
     component: 'WwctaMshRstlOjCstListP',
     componentProps: {
@@ -910,6 +921,8 @@ async function onClickReStipulation() {
     setupSearchParams();
     return;
   }
+
+  clearSelected();
 
   rstlCntrNo.value = payload.cntrNo;
   rstlCntrSn.value = payload.cntrSn;
@@ -1161,7 +1174,7 @@ exposed.isValidStep = isValidStep;
 exposed.initStep = initStep;
 exposed.saveStep = saveStep;
 
-// fixme 우선 기워 넣기 so sorry.
+// 고객 센터용 빠른 수정 코드 FIXME: 제정신인 미래의 나
 const unwatch = watchEffect(() => {
   if (step1.value.pspcCstBas) {
     const { pspcCstKnm, cralLocaraTno, mexnoEncr, cralIdvTno } = step1.value.pspcCstBas;
@@ -1172,6 +1185,7 @@ const unwatch = watchEffect(() => {
       mexnoEncr,
       cralIdvTno,
     });
+    setupAvailableCntrTpCd();
     unwatch();
   }
 });

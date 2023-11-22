@@ -147,9 +147,11 @@
                   :max="999"
                 />
               </kw-form-item>
-              <kw-form-item :label="'등록비'">
+              <kw-form-item
+                v-if="priceDefineVariableOptions.cntrAmt"
+                :label="'등록비'"
+              >
                 <kw-select
-                  v-if="priceDefineVariableOptions.cntrAmt"
                   v-model="priceDefineVariables.cntrAmt"
                   :options="priceDefineVariableOptions.cntrAmt"
                   placeholder="등록비"
@@ -160,9 +162,11 @@
               </kw-form-item>
             </kw-form-row>
             <kw-form-row>
-              <kw-form-item :label="'약정기간'">
+              <kw-form-item
+                v-if="priceDefineVariableOptions.stplPrdCd"
+                :label="'약정기간'"
+              >
                 <kw-select
-                  v-if="priceDefineVariableOptions.stplPrdCd"
                   v-model="priceDefineVariables.stplPrdCd"
                   :options="priceDefineVariableOptions.stplPrdCd"
                   dense
@@ -171,9 +175,11 @@
                   @change="onChangeVariable"
                 />
               </kw-form-item>
-              <kw-form-item :label="'계약기간'">
+              <kw-form-item
+                v-if="priceDefineVariableOptions.cntrPtrm"
+                :label="'계약기간'"
+              >
                 <kw-select
-                  v-if="priceDefineVariableOptions.cntrPtrm"
                   v-model="priceDefineVariables.cntrPtrm"
                   :options="priceDefineVariableOptions.cntrPtrm"
                   placeholder="계약기간"
@@ -184,9 +190,11 @@
               </kw-form-item>
             </kw-form-row>
             <kw-form-row :cols="2">
-              <kw-form-item :label="'렌탈할인구분'">
+              <kw-form-item
+                v-if="priceDefineVariableOptions.rentalDscDvCd"
+                :label="'렌탈할인구분'"
+              >
                 <kw-select
-                  v-if="priceDefineVariableOptions.rentalDscDvCd"
                   v-model="priceDefineVariables.rentalDscDvCd"
                   :options="priceDefineVariableOptions.rentalDscDvCd"
                   placeholder="렌탈할인구분"
@@ -215,7 +223,7 @@
                     <kw-btn
                       v-if="notNullRentalDscTpCdSelected
                         && RENTAL_DSC_TP_CD_USER_SELECTABLE.includes(priceDefineVariables.rentalDscTpCd)
-                        && !cntrRels.length"
+                        && !cntrRels?.length"
                       borderless
                       icon="clear"
                       @click="onClickRemoveRentalDscTpCd"
@@ -223,7 +231,7 @@
                   </template>
                 </kw-input>
                 <kw-select
-                  v-else-if="userSelectableRentalDscTpCd.length"
+                  v-if="!notNullRentalDscTpCdSelected && userSelectableRentalDscTpCd?.length"
                   v-model="priceDefineVariables.rentalDscTpCd"
                   :options="userSelectableRentalDscTpCd"
                   placeholder="렌탈할인유형"
@@ -251,6 +259,7 @@
                 />
               </kw-form-item>
               <kw-form-item
+                v-if="priceDefineVariableOptions.asMcn"
                 :label="'AS기간'"
               >
                 <kw-select
@@ -264,9 +273,11 @@
               </kw-form-item>
             </kw-form-row>
             <kw-form-row>
-              <kw-form-item :label="'서비스(용도/방문주기)'">
+              <kw-form-item
+                v-if="priceDefineVariableOptions.svPdCd"
+                :label="'서비스(용도/방문주기)'"
+              >
                 <kw-select
-                  v-if="priceDefineVariableOptions.svPdCd"
                   v-model="priceDefineVariables.svPdCd"
                   :options="priceDefineVariableOptions.svPdCd"
                   placeholder="서비스(용도/방문주기)"
@@ -277,7 +288,7 @@
               </kw-form-item>
             </kw-form-row>
             <kw-form-row
-              v-if="alncCntrNms?.length || (filteredAlncCntrPriceCodes.length > 0) || sellEvCdsBySellChnlDtlCd.length"
+              v-if="alncCntrNms?.length || filteredAlncCntrPriceCodes.length || sellEvCdsBySellChnlDtlCd.length"
             >
               <kw-form-item
                 v-if="filteredAlncCntrPriceCodes.length"
@@ -293,7 +304,10 @@
                   @change="onChangeAlncCntr"
                 />
               </kw-form-item>
-              <kw-form-item label="행사코드">
+              <kw-form-item
+                v-if="sellEvCdsBySellChnlDtlCd.length"
+                label="행사코드"
+              >
                 <kw-select
                   v-model="wellsDtl.sellEvCd"
                   :options="sellEvCdsBySellChnlDtlCd"
@@ -472,7 +486,7 @@ const sellEvCdsBySellChnlDtlCd = computed(() => {
     console.error('판매유입채널이 없음?', props.bas);
     return [];
   }
-  if (!codes.SELL_EV_CD.length) {
+  if (!codes.SELL_EV_CD?.length) {
     return [];
   }
   const codeIds = [];
@@ -804,7 +818,7 @@ async function fetchFinalPriceOptions() {
       params: {
         cntrNo: props.bas.cntrNo,
         pdCd: dtl.value.pdCd,
-        hgrPdCd: dtl.value.hgrPdCd,
+        hgrPdCd: dtl.value.hgrPdCd === dtl.value.pdCd ? undefined : dtl.value.hgrPdCd,
       },
       silent: true,
     });

@@ -186,9 +186,11 @@
               </kw-form-item>
             </kw-form-row>
             <kw-form-row>
-              <kw-form-item :label="'서비스(용도/방문주기)'">
+              <kw-form-item
+                v-if="priceDefineVariableOptions.svPdCd"
+                :label="'서비스(용도/방문주기)'"
+              >
                 <kw-select
-                  v-if="priceDefineVariableOptions.svPdCd"
                   v-model="priceDefineVariables.svPdCd"
                   :options="priceDefineVariableOptions.svPdCd"
                   placeholder="서비스(용도/방문주기)"
@@ -201,9 +203,11 @@
             <kw-form-row
               v-if="isHcr || sellEvCdsBySellChnlDtlCd"
             >
-              <kw-form-item :label="'홈케어구분코드'">
+              <kw-form-item
+                v-if="priceDefineVariableOptions.hcrDvCd"
+                :label="'홈케어구분코드'"
+              >
                 <kw-select
-                  v-if="priceDefineVariableOptions.hcrDvCd"
                   v-model="priceDefineVariables.hcrDvCd"
                   :options="priceDefineVariableOptions.hcrDvCd"
                   placeholder="서비스(용도/방문주기)"
@@ -213,7 +217,10 @@
                 />
               </kw-form-item>
             </kw-form-row>
-            <kw-form-item label="행사코드">
+            <kw-form-item
+              v-if="sellEvCdsBySellChnlDtlCd?.length"
+              label="행사코드"
+            >
               <kw-select
                 v-model="wellsDtl.sellEvCd"
                 :options="sellEvCdsBySellChnlDtlCd"
@@ -340,7 +347,7 @@ async function fetchFinalPriceOptions() {
       params: {
         cntrNo: props.bas.cntrNo,
         pdCd: dtl.value.pdCd,
-        hgrPdCd: dtl.value.hgrPdCd,
+        hgrPdCd: dtl.value.hgrPdCd === dtl.value.pdCd ? undefined : dtl.value.hgrPdCd,
       },
     });
   }

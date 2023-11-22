@@ -383,15 +383,25 @@ const validateRveCdComponent = computed(() => async () => {
   return errors[0] || true;
 });
 
+// 대용량 엑셀 다운로드
 async function onClickExcelDownload() {
+  // const view = grdMainRef.value.getView();
+  // eslint-disable-next-line max-len
+  // const res = await dataService.get('/sms/wells/withdrawal/idvrve/deposit-detail/excel-download', { params: cachedParams, timeout: 600000 });
+
+  // await gridUtil.exportView(view, {
+  //   fileName: currentRoute.value.meta.menuName,
+  //   timePostfix: true,
+  //   exportData: res.data,
+  // });
+
   const view = grdMainRef.value.getView();
-
-  const res = await dataService.get('/sms/wells/withdrawal/idvrve/deposit-detail/excel-download', { params: cachedParams, timeout: 600000 });
-
-  await gridUtil.exportView(view, {
-    fileName: currentRoute.value.meta.menuName,
-    timePostfix: true,
-    exportData: res.data,
+  gridUtil.exportBulkView(view, {
+    url: '/sms/wells/withdrawal/idvrve/deposit-detail/excel-download', // url 지정
+    parameter: { // 검색 조건을 그대로 넣어준다. 없을 경우 추가하지 않아도 됨
+      ...cachedParams, timeout: 600000,
+    },
+    fileName: `${currentRoute.value.meta.menuName}_${dayjs().format('YYYYMMDDHHmmss')}_Bulk`,
   });
 }
 // -------------------------------------------------------------------------------------------------

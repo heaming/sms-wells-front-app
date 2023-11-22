@@ -99,13 +99,6 @@
         inset
         spaced
       />
-      <!-- AS접수업체선택 버튼 -->
-      <kw-btn
-        :label="$t('MSG_TXT_AS_RCP_BZS_SEL')"
-        primary
-        dense
-        @click="onClickBzSelect"
-      />
     </kw-action-top>
     <kw-grid
       ref="grdMainRef"
@@ -228,28 +221,7 @@ async function onClickSave() {
     await fetchData();
   }
 }
-// AS접수업체선택 버튼 클릭
-async function onClickBzSelect() {
-  const view = grdMainRef.value.getView();
-  const chkRows = gridUtil.getCheckedRowValues(view);
-  if (chkRows.length === 0) {
-    notify(t('MSG_ALT_NOT_SEL_ITEM')); // 데이터를 선택해주세요.
-    return;
-  }
-  if (chkRows.length > 1) {
-    notify(t('MSG_ALT_SELT_ONE_ITEM')); // 한 개만 선택해주세요.
-    return;
-  }
-  const payload = {
-    svCnrSn: chkRows[0].svCnrSn,
-    svCnrNm: chkRows[0].svCnrNm,
-    svCnrTno: chkRows[0].svCnrTno,
-    svCnrIchrPrtnrNm: chkRows[0].svCnrIchrPrtnrNm,
-    svCnrAdr: chkRows[0].svCnrAdr,
-    svCnrDtlAdr: chkRows[0].svCnrDtlAdr,
-  };
-  ok(payload);
-}
+
 // -------------------------------------------------------------------------------------------------
 // Initialize Grid
 // -------------------------------------------------------------------------------------------------
@@ -382,6 +354,13 @@ const initGrdMain = defineGrid((data, view) => {
 
   view.onCellEdited = async (grid, itemIndex) => {
     grid.checkItem(itemIndex, true);
+  };
+
+  // row 더블 클릭 시 데이터 선택됨.
+  view.onCellDblClicked = async (g, { dataRow }) => {
+    const { svCnrSn, svCnrNm, svCnrTno, svCnrIchrPrtnrNm, svCnrAdr, svCnrDtlAdr } = gridUtil.getRowValue(g, dataRow);
+    const payload = { svCnrSn, svCnrNm, svCnrTno, svCnrIchrPrtnrNm, svCnrAdr, svCnrDtlAdr };
+    ok(payload);
   };
 });
 

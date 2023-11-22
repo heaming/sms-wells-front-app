@@ -168,7 +168,7 @@
         <kw-form-item
           :label="colParams.name"
         >
-          <p>{{ searchParams.procsPrtnrKnm }}</p>
+          <p>{{ searchParams.procsPrtnrNm }}</p>
         </kw-form-item>
         <kw-form-item
           :label="t('MSG_TXT_EPNO')"
@@ -180,7 +180,7 @@
         >
           <p>
             {{ searchParams.procsCralLocaraTno
-              +"-"+ searchParams.procsMexnoEncr
+              +"-"+ searchParams.procsMexnoGbencr
               +"-"+searchParams.procsCralIdvTno }}
           </p>
         </kw-form-item>
@@ -268,9 +268,10 @@ const searchParams = ref({
   procsCn: '',
   attachDocId: '',
   procsPrtnrNo: '',
-  procsPrtnrKnm: '',
+  procsPrtnrNm: '',
   procsCralLocaraTno: '',
   procsMexnoEncr: '',
+  procsMexnoGbencr: '',
   procsCralIdvTno: '',
   fnlMdfcDtm: '',
   rpotBizProcsStatNm: '',
@@ -303,8 +304,7 @@ const colParams = ref({
 async function setBusiPhoneInfo() {
   searchParams.value = props.rowData;
 
-  searchParams.value.prtnrNo = props.rowData.aplcnsPrtnrNo;
-
+  searchParams.value.rcstPrtnrNo = props.rowData.aplcnsPrtnrNo;
   saveParams.value.rpotBizAplcId = props.rowData.rpotBizAplcId;
   saveParams.value.procsSn = props.rowData.procsSn;
 }
@@ -313,7 +313,7 @@ async function onClickSave() {
   if (!await frmMainRef.value.validate()) { return; }
   if (await frmMainRef.value.alertIfIsNotModified()) { return; }
 
-  await dataService.put('/sms/wells/competence/rent-management/business-phone-procs', saveParams.value);
+  await dataService.put('/sms/wells/competence/business-cell-phone/business-phone-procs', saveParams.value);
   ok();
 }
 
@@ -331,23 +331,23 @@ async function setColName() {
     colParams.value.name = t('MSG_TXT_SB_FNM');
     colParams.value.dtm = `${t('MSG_TXT_SB')} ${t('MSG_TXT_DTM')}`;
     colParams.value.finishTerritory = true;
-  } else if (userInfo.baseRleCd === 'W1580' || userInfo.baseRleCd === null) {
+  } else if (userInfo.baseRleCd === 'W1580') {
     colParams.value.procsTerritory = true;
   }
 }
 
 // eslint-disable-next-line no-unused-vars
 async function getBaseInfo() {
-  console.log(saveParams.value);
-  const baseInfoRes = await dataService.get('/sms/wells/competence/rent-management/rent-popup', { params: saveParams.value });
+  const baseInfoRes = await dataService.get('/sms/wells/competence/business-cell-phone/rent-popup', { params: saveParams.value });
 
+  console.log(baseInfoRes);
   saveParams.value.rpotBizProcsStatCd = baseInfoRes.data.rpotBizProcsStatCd;
   saveParams.value.procsCn = baseInfoRes.data.procsCn;
   searchParams.value.procsCn = baseInfoRes.data.procsCn;
   searchParams.value.procsPrtnrNo = baseInfoRes.data.procsPrtnrNo;
-  searchParams.value.procsPrtnrKnm = baseInfoRes.data.procsPrtnrKnm;
+  searchParams.value.procsPrtnrNm = baseInfoRes.data.procsPrtnrNm;
   searchParams.value.procsCralLocaraTno = baseInfoRes.data.procsCralLocaraTno;
-  searchParams.value.procsMexnoEncr = baseInfoRes.data.procsMexnoEncr;
+  searchParams.value.procsMexnoGbencr = baseInfoRes.data.procsMexnoGbencr;
   searchParams.value.procsCralIdvTno = baseInfoRes.data.procsCralIdvTno;
   searchParams.value.fnlMdfcDtm = baseInfoRes.data.fnlMdfcDtm;
   searchParams.value.rpotBizProcsStatNm = baseInfoRes.data.rpotBizProcsStatNm;

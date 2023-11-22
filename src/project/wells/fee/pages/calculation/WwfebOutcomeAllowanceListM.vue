@@ -18,7 +18,7 @@
       v-permission:read
       @search="onClickSearch"
     >
-      <kw-search-row cols="4">
+      <kw-search-row cols="3">
         <kw-search-item
           :label="$t('MSG_TXT_PERF_YM')"
           required
@@ -31,17 +31,12 @@
           />
         </kw-search-item>
         <kw-search-item
-          :label="$t('MSG_TXT_THM_DV')"
-        >
-          {{ searchParams.thmInqr ? 'Y' : 'N' }}
-        </kw-search-item>
-        <kw-search-item
           :label="$t('MSG_TXT_OG_DV')"
         >
           <kw-option-group
             v-model="searchParams.ogTpCd"
             type="radio"
-            :options="ogTpCd"
+            :options="ogTpCds"
           />
         </kw-search-item>
         <kw-search-item
@@ -50,11 +45,11 @@
           <kw-option-group
             v-model="searchParams.rsbDvCd"
             type="radio"
-            :options="rsbDvCd"
+            :options="rsbDvCds"
           />
         </kw-search-item>
       </kw-search-row>
-      <kw-search-row cols="4">
+      <kw-search-row cols="3">
         <kw-search-item
           :label="$t('MSG_TXT_SEQUENCE_NUMBER')"
         >
@@ -83,6 +78,56 @@
           :label="$t('MSG_BTN_EXCEL_DOWN')"
           :disable="totalCount===0"
           @click="onClickExcelDownload"
+        />
+        <kw-separator
+          vertical
+          spaced
+          inset
+        />
+        <kw-btn
+          v-show="!editable"
+          v-permission:create
+          dense
+          primary
+          :label="$t('MSG_BTN_MOD')"
+          :disable="totalCount===0"
+          @click="onClickModify"
+        />
+        <kw-btn
+          v-show="editable"
+          v-permission:create
+          dense
+          primary
+          :label="$t('MSG_BTN_SAVE')"
+          :disable="totalCount===0"
+          @click="onClickSave"
+        />
+        <kw-btn
+          v-show="editable"
+          v-permission:create
+          dense
+          secondary
+          :label="$t('MSG_BTN_CANCEL')"
+          :disable="totalCount===0"
+          @click="onClickCancel"
+        />
+        <kw-btn
+          v-show="editable"
+          v-permission:create
+          dense
+          secondary
+          :label="$t('MSG_TXT_CALCULATE')"
+          :disable="totalCount===0"
+          @click="onClickCalculate"
+        />
+        <kw-btn
+          v-show="editable"
+          v-permission:create
+          dense
+          secondary
+          :label="$t('MSG_TXT_RTM')+' '+$t('MSG_BTN_INQR')"
+          :disable="totalCount===0"
+          @click="onClickRtmSearch"
         />
       </kw-action-top>
       <kw-grid
@@ -120,6 +165,9 @@ const { currentRoute } = useRouter();
 const grdMOgRef = ref(getComponentType('KwGrid'));
 const grdPOgRef = ref(getComponentType('KwGrid'));
 const totalCount = ref(0);
+const editable = ref(false);
+const originalDataSource = ref([]);
+const allowanceBaseInfo = ref([]);
 
 const codes = await codeUtil.getMultiCodes(
   'RSB_DV_CD',
@@ -131,14 +179,14 @@ const searchParams = ref({
   rsbDvCd: 'W0202',
   ogTpCd: 'W02',
   prtnrNo: '',
-  thmInqr: false,
+  rtmInqr: false,
 });
 
 const isGrdMOgVisible = computed(() => searchParams.value.ogTpCd === 'W02');
 const isGrdPOgVisible = computed(() => searchParams.value.ogTpCd === 'W01');
 
-const ogTpCd = codes.OG_TP_CD.filter((v) => ['W02', 'W01'].includes(v.codeId));
-const rsbDvCd = computed(() => codes.RSB_DV_CD.filter((v) => (isGrdMOgVisible.value ? ['W0202', 'W0203'] : ['W0102', 'W0103']).includes(v.codeId)));
+const ogTpCds = codes.OG_TP_CD.filter((v) => ['W02', 'W01'].includes(v.codeId));
+const rsbDvCds = computed(() => codes.RSB_DV_CD.filter((v) => (isGrdMOgVisible.value ? ['W0202', 'W0203'] : ['W0102', 'W0103']).includes(v.codeId)));
 
 const outComeAllowancePsManagerUrl = '/sms/wells/fee/outcome-allowances/manager';
 const outComeAllowancePsPlannerUrl = '/sms/wells/fee/outcome-allowances/planner';
@@ -146,9 +194,10 @@ const requestUrl = computed(() => (searchParams.value.ogTpCd === 'W02' ? outCome
 
 let cachedParams;
 
-watch(() => searchParams.value.perfYm, (newValue) => {
-  searchParams.value.thmInqr = (newValue === dayjs().format('YYYYMM'));
-});
+async function getAllowanceBaseInfo(perfYm) {
+  const response = await dataService.get('/sms/wells/fee/outcome-allowances/base-info', { params: { perfYm } });
+  return response.data;
+}
 
 watch(() => searchParams.value.ogTpCd, (newValue) => {
   searchParams.value.rsbDvCd = newValue === 'W02' ? 'W0202' : 'W0102';
@@ -167,6 +216,121 @@ async function onClickExcelDownload() {
   });
 }
 
+async function fetchData(params) {
+  allowanceBaseInfo.value = await getAllowanceBaseInfo(params.perfYm);
+  const res = await dataService.get(requestUrl.value, { params });
+  const outcomeAllowances = res.data;
+  totalCount.value = outcomeAllowances.length;
+
+  const view = isGrdMOgVisible.value ? grdMOgRef.value.getView() : grdPOgRef.value.getView();
+
+  view.getDataSource().setRows(outcomeAllowances);
+  view.resetCurrent();
+}
+
+function getManagerAwBase(ogTpCd, rsbDvCd, mngrOutcDvCd, orgAchvRt, ogrNincCt = 0) {
+  const achvRt = orgAchvRt < 0 ? 0 : orgAchvRt;
+  let nincCt = ogrNincCt < 0 ? 0 : ogrNincCt;
+  nincCt = (nincCt > 998 ? 998 : nincCt);
+  const { awAmt = 0 } = allowanceBaseInfo.value.find((baseInfo) => {
+    const checkCondition = ogTpCd === baseInfo.ogTpCd
+        && rsbDvCd === baseInfo.rsbDvCd
+        && mngrOutcDvCd === baseInfo.mngrOutcDvCd
+        && baseInfo.achvStrtRat <= achvRt
+        && achvRt < baseInfo.achvEndRat;
+    if (ogTpCd === 'W01') {
+      return checkCondition;
+    }
+    return checkCondition
+      && baseInfo.nincStrtCt <= nincCt
+      && nincCt < baseInfo.nincEndCt;
+  });
+  return awAmt;
+}
+
+async function calculateOutcomeAllowance(view) {
+  const changedRows = gridUtil.getChangedRowValues(view);
+  const { ogTpCd, rsbDvCd } = searchParams.value;
+  const rsbDv = rsbDvCd.substring(3, 5);
+  if (isGrdMOgVisible.value) {
+    changedRows.forEach((row) => {
+      const { dataRow: index, dtrcN, baseDtrcN,
+        trgCt, perfCt, nwSellAccCt, purSprAccCt,
+        feeAckmtCt, elhmExcpPerfAmt, redfCt, mngrDangGd, wmAclActiCt, bfsvcAclActiCt, actvBrchN } = row;
+      const newTrgAchvRt = trgCt > 0 ? (Math.round((perfCt / trgCt) * 10000) / 100) : 0;
+      const newAccNincCt = nwSellAccCt - purSprAccCt;
+      const newElhmExcpCt = Math.ceil(elhmExcpPerfAmt / 500000);
+      const newPerfAggAmt = feeAckmtCt + newElhmExcpCt - redfCt;
+      const newBrchNincCt = dtrcN - baseDtrcN;
+      const newAclActiBrchAvCt = baseDtrcN > 0
+        ? (Math.round((100 * (wmAclActiCt + bfsvcAclActiCt)) / baseDtrcN) / 100) : 0;
+      const newTrgAchvAwAmt = getManagerAwBase(ogTpCd, rsbDv, 'TAR', newTrgAchvRt, newAccNincCt) * newPerfAggAmt - mngrDangGd;
+      const newOgAwAmt = getManagerAwBase(ogTpCd, rsbDv, 'ORG', newAclActiBrchAvCt, newBrchNincCt) * actvBrchN;
+      const newDsbAmt = newTrgAchvAwAmt + newOgAwAmt;
+      view.setValue(index, 'trgAchvRt', newTrgAchvRt);
+      view.setValue(index, 'accNincCt', newAccNincCt);
+      view.setValue(index, 'elhmExcpCt', newElhmExcpCt);
+      view.setValue(index, 'perfAggAmt', newPerfAggAmt);
+      view.setValue(index, 'trgAchvAwAmt', newTrgAchvAwAmt);
+      view.setValue(index, 'brchNincCt', newBrchNincCt);
+      view.setValue(index, 'aclActiBrchAvCt', newAclActiBrchAvCt);
+      view.setValue(index, 'ogAwAmt', newOgAwAmt);
+      view.setValue(index, 'dsbAmt', newDsbAmt);
+    });
+  } else {
+    changedRows.forEach((row) => {
+      const { dataRow: index, trgCt, perfCt, aclActiTrgCt, aclActiAchvCt, thm1OptnAchvCt, thm1OptnTrgCt } = row;
+      const newTrgAchvRt = trgCt > 0 ? (Math.round((perfCt / trgCt) * 10000) / 100) : 0;
+      const newAclActiAchvRt = aclActiTrgCt > 0 ? (Math.round((aclActiAchvCt / aclActiTrgCt) * 1000) / 10) : 0;
+      const newThm1OptnAchvRt = thm1OptnAchvCt > 0 ? (Math.round((thm1OptnTrgCt / thm1OptnAchvCt) * 1000) / 10) : 0;
+      const newTrgAchvAwAmt = getManagerAwBase(ogTpCd, rsbDv, 'TAR', newTrgAchvRt) * perfCt;
+      const newAclActiAwAmt = getManagerAwBase(ogTpCd, rsbDv, 'ACT', newAclActiAchvRt) * aclActiAchvCt;
+      const newThm1OptnAwAmt = getManagerAwBase(ogTpCd, rsbDv, 'OPT', newThm1OptnAchvRt) * thm1OptnTrgCt;
+      const newOgAchvAwSumAmt = newAclActiAwAmt + newThm1OptnAwAmt;
+      const newOutcAwSumAmt = newTrgAchvAwAmt + newOgAchvAwSumAmt;
+      view.setValue(index, 'trgAchvRt', newTrgAchvRt);
+      view.setValue(index, 'aclActiAchvRt', newAclActiAchvRt);
+      view.setValue(index, 'thm1OptnAchvRt', newThm1OptnAchvRt);
+      view.setValue(index, 'trgAchvAwAmt', newTrgAchvAwAmt);
+      view.setValue(index, 'thm1OptnAwAmt', newThm1OptnAwAmt);
+      view.setValue(index, 'aclActiAwAmt', newAclActiAwAmt);
+      view.setValue(index, 'ogAchvAwSumAmt', newOgAchvAwSumAmt);
+      view.setValue(index, 'outcAwSumAmt', newOutcAwSumAmt);
+    });
+  }
+}
+
+async function onClickCalculate() {
+  const view = isGrdMOgVisible.value ? grdMOgRef.value.getView() : grdPOgRef.value.getView();
+  calculateOutcomeAllowance(view);
+}
+
+async function onClickModify() {
+  const view = isGrdMOgVisible.value ? grdMOgRef.value.getView() : grdPOgRef.value.getView();
+  view.editOptions.editable = true;
+  editable.value = true;
+  originalDataSource.value = gridUtil.getAllRowValues(view);
+}
+
+async function onClickSave() {
+  const view = isGrdMOgVisible.value ? grdMOgRef.value.getView() : grdPOgRef.value.getView();
+  view.editOptions.editable = false;
+  editable.value = false;
+  /* 데이터 업데이트 후 재조회 */
+  calculateOutcomeAllowance(view);
+  const { perfYm, ogTpCd, rsbDvCd } = cachedParams;
+  const newRows = gridUtil.getAllRowValues(view).map((row) => ({ ...row, baseYm: perfYm, ogTpCd, rsbDvCd }));
+  await dataService.post(requestUrl.value, newRows);
+  await fetchData({ ...cachedParams, rtmInqr: false });
+}
+
+async function onClickCancel() {
+  const view = isGrdMOgVisible.value ? grdMOgRef.value.getView() : grdPOgRef.value.getView();
+  view.getDataSource().setRows(originalDataSource.value);
+  view.editOptions.editable = false;
+  editable.value = false;
+}
+
 async function onClickSearchNo() {
   const { result, payload } = await modal({
     component: 'ZwogzMonthPartnerListP',
@@ -181,20 +345,14 @@ async function onClickSearchNo() {
   }
 }
 
-async function fetchData() {
-  const res = await dataService.get(requestUrl.value, { params: cachedParams });
-  const outcomeAllowances = res.data;
-  totalCount.value = outcomeAllowances.length;
-
-  const view = isGrdMOgVisible.value ? grdMOgRef.value.getView() : grdPOgRef.value.getView();
-
-  view.getDataSource().setRows(outcomeAllowances);
-  view.resetCurrent();
-}
-
 async function onClickSearch() {
   cachedParams = cloneDeep(searchParams.value);
-  await fetchData();
+  editable.value = false;
+  await fetchData(cachedParams);
+}
+
+async function onClickRtmSearch() {
+  await fetchData({ ...cachedParams, rtmInqr: true });
 }
 
 // -------------------------------------------------------------------------------------------------
@@ -206,12 +364,13 @@ const initGridMOg = defineGrid((data, view) => {
       header: t('MSG_TXT_BLG'),
       width: '96',
       styleName: 'text-center',
+      editable: false,
       headerSummary: {
         text: t('MSG_TXT_SUM'),
       } }, // 소속
-    { fieldName: 'ogNm', header: t('MSG_TXT_BLG_NM'), width: '96', styleName: 'text-center' }, // 소속명
-    { fieldName: 'prtnrKnm', header: t('MSG_TXT_EMPL_NM'), width: '96', styleName: 'text-center' }, // 성명
-    { fieldName: 'prtnrNo', header: t('MSG_TXT_SEQUENCE_NUMBER'), width: '106', styleName: 'text-center' }, // 사번
+    { fieldName: 'ogNm', header: t('MSG_TXT_BLG_NM'), width: '96', editable: false, styleName: 'text-center' }, // 소속명
+    { fieldName: 'prtnrKnm', header: t('MSG_TXT_EMPL_NM'), width: '96', editable: false, styleName: 'text-center' }, // 성명
+    { fieldName: 'prtnrNo', header: t('MSG_TXT_SEQUENCE_NUMBER'), width: '106', editable: false, styleName: 'text-center' }, // 사번
     { fieldName: 'dtrcN',
       header: { template: `${t('MSG_TXT_BRCH_N')}<br>(${t('MSG_TXT_THM')})` },
       width: '106',
@@ -252,7 +411,13 @@ const initGridMOg = defineGrid((data, view) => {
         numberFormat: '#,##0',
         expression: 'sum',
       } }, // 실적(기변포함)
-    { fieldName: 'trgAchvRt', header: t('MSG_TXT_ACHV_RT'), width: '106', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0.##' }, // 달성률
+    { fieldName: 'trgAchvRt',
+      header: t('MSG_TXT_ACHV_RT'),
+      width: '106',
+      editable: false,
+      styleName: 'text-right',
+      dataType: 'number',
+      numberFormat: '#,##0.##' }, // 달성률
     { fieldName: 'nwSellAccCt',
       header: t('MSG_TXT_NW_SELL'),
       width: '106',
@@ -276,6 +441,7 @@ const initGridMOg = defineGrid((data, view) => {
     { fieldName: 'accNincCt',
       header: t('MSG_TXT_ACC_NINC'),
       width: '106',
+      editable: false,
       styleName: 'text-right',
       dataType: 'number',
       numberFormat: '#,##0',
@@ -306,6 +472,7 @@ const initGridMOg = defineGrid((data, view) => {
     { fieldName: 'elhmExcpCt',
       header: t('MSG_TXT_COUNT'),
       width: '106',
+      editable: false,
       styleName: 'text-right',
       dataType: 'number',
       numberFormat: '#,##0',
@@ -326,6 +493,7 @@ const initGridMOg = defineGrid((data, view) => {
     { fieldName: 'perfAggAmt',
       header: t('MSG_TXT_AGGS'),
       width: '120',
+      editable: false,
       styleName: 'text-right',
       dataType: 'number',
       numberFormat: '#,##0',
@@ -337,6 +505,7 @@ const initGridMOg = defineGrid((data, view) => {
     { fieldName: 'trgAchvAwAmt',
       header: { template: `${t('MSG_TXT_TRG_ACHV_AW')}<br>(${t('MSG_TXT_PD_ACC_CNT')})` },
       width: '133',
+      editable: false,
       styleName: 'text-right',
       dataType: 'number',
       numberFormat: '#,##0',
@@ -347,6 +516,7 @@ const initGridMOg = defineGrid((data, view) => {
     { fieldName: 'brchNincCt',
       header: t('MSG_TXT_BRCH_NINC'),
       width: '106',
+      editable: false,
       styleName: 'text-right',
       dataType: 'number',
       numberFormat: '#,##0',
@@ -377,6 +547,7 @@ const initGridMOg = defineGrid((data, view) => {
     { fieldName: 'aclActiBrchAvCt',
       header: { template: `${t('MSG_TXT_ACL_ACTI')}<br>(${t('MSG_TXT_BRNCH_OFFC_AVG')})` },
       width: '106',
+      editable: false,
       styleName: 'text-right',
       dataType: 'number',
       numberFormat: '#,##0.##',
@@ -397,6 +568,7 @@ const initGridMOg = defineGrid((data, view) => {
     { fieldName: 'ogAwAmt',
       header: t('MSG_TXT_OG_AW'),
       width: '133',
+      editable: false,
       styleName: 'text-right',
       dataType: 'number',
       numberFormat: '#,##0',
@@ -407,6 +579,7 @@ const initGridMOg = defineGrid((data, view) => {
     { fieldName: 'dsbAmt',
       header: t('MSG_TXT_DSB_SUM'),
       width: '146',
+      editable: false,
       styleName: 'text-right',
       dataType: 'number',
       numberFormat: '#,##0',
@@ -478,24 +651,31 @@ const initGridMOg = defineGrid((data, view) => {
 
 const initGridPOg = defineGrid((data, view) => {
   const columns = [
-    { fieldName: 'ogNm', header: t('MSG_TXT_BLG_NM'), width: '96', styleName: 'text-center' }, // 소속명
-    { fieldName: 'prtnrKnm', header: t('MSG_TXT_EMPL_NM'), width: '96', styleName: 'text-center' }, // 성명
-    { fieldName: 'prtnrNo', header: t('MSG_TXT_SEQUENCE_NUMBER'), width: '106', styleName: 'text-center' }, // 사번
+    { fieldName: 'ogNm', header: t('MSG_TXT_BLG_NM'), width: '96', editable: false, styleName: 'text-center' }, // 소속명
+    { fieldName: 'prtnrKnm', header: t('MSG_TXT_EMPL_NM'), width: '96', editable: false, styleName: 'text-center' }, // 성명
+    { fieldName: 'prtnrNo', header: t('MSG_TXT_SEQUENCE_NUMBER'), width: '106', editable: false, styleName: 'text-center' }, // 사번
     { fieldName: 'trgCt', header: t('MSG_TXT_TRG_CT'), width: '106', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' }, // 목표건수
     { fieldName: 'perfCt', header: t('MSG_TXT_ACHV_CT'), width: '106', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' }, // 달성건수
-    { fieldName: 'trgAchvRt', header: t('MSG_TXT_ACHV_RT'), width: '106', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0.##' }, // 달성률
-    { fieldName: 'trgAchvAwAmt', header: t('MSG_TXT_TRG_ACHV_AW_SUM'), width: '133', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' }, // 목표달성 수당 계
+    { fieldName: 'trgAchvRt',
+      header: t('MSG_TXT_ACHV_RT'),
+      width: '106',
+      editable: false,
+      styleName: 'text-right',
+      dataType: 'number',
+      numberFormat: '#,##0.##',
+    }, // 달성률
+    { fieldName: 'trgAchvAwAmt', header: t('MSG_TXT_TRG_ACHV_AW_SUM'), width: '133', editable: false, styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' }, // 목표달성 수당 계
     { fieldName: 'thm1OptnTrgCt', header: t('MSG_TXT_1ST_M_OPTN_TRG'), width: '133', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' }, // 1차월가동목표
     { fieldName: 'thm1OptnAchvCt', header: t('MSG_TXT_1M_OPTN_ACHV'), width: '133', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' }, // 1차월가동달성
-    { fieldName: 'thm1OptnAchvRt', header: t('MSG_TXT_1M_OPTN_ACHV_RT'), width: '133', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0.##' }, // 1차월가동달성률
-    { fieldName: 'thm1OptnAwAmt', header: t('MSG_TXT_1M_OPTN_ACHV_AW'), width: '133', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' }, // 1차월가동수당
+    { fieldName: 'thm1OptnAchvRt', header: t('MSG_TXT_1M_OPTN_ACHV_RT'), width: '133', editable: false, styleName: 'text-right', dataType: 'number', numberFormat: '#,##0.##' }, // 1차월가동달성률
+    { fieldName: 'thm1OptnAwAmt', header: t('MSG_TXT_1M_OPTN_ACHV_AW'), width: '133', editable: false, styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' }, // 1차월가동수당
     { fieldName: 'aclActiTrgCt', header: t('MSG_TXT_ACL_ACTI_TRG'), width: '133', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' }, // 실활동목표
     { fieldName: 'aclActiAchvCt', header: t('MSG_TXT_ACL_ACTI_ACHV'), width: '133', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' }, // 실활동달성
-    { fieldName: 'aclActiAchvRt', header: t('MSG_TXT_ACL_ACTI_ACHV_RAT'), width: '133', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0.##' }, // 실활동달성률
-    { fieldName: 'aclActiAwAmt', header: t('MSG_TXT_ACL_ACTI_AW'), width: '133', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' }, // 실활동수당
-    { fieldName: 'ogAchvAwSumAmt', header: t('MSG_TXT_OG_ACHV_AW_SUM'), width: '133', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' }, // 조직달성 수당 계
+    { fieldName: 'aclActiAchvRt', header: t('MSG_TXT_ACL_ACTI_ACHV_RAT'), width: '133', editable: false, styleName: 'text-right', dataType: 'number', numberFormat: '#,##0.##' }, // 실활동달성률
+    { fieldName: 'aclActiAwAmt', header: t('MSG_TXT_ACL_ACTI_AW'), width: '133', editable: false, styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' }, // 실활동수당
+    { fieldName: 'ogAchvAwSumAmt', header: t('MSG_TXT_OG_ACHV_AW_SUM'), width: '133', editable: false, styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' }, // 조직달성 수당 계
     { fieldName: 'ejtAwAmt', header: t('MSG_TXT_EJT_AW'), width: '133', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' }, // 배출수당
-    { fieldName: 'outcAwSumAmt', header: t('MSG_TXT_OUTC_AW_TOT_SUM'), width: '146', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' }, // 성과수당 총계
+    { fieldName: 'outcAwSumAmt', header: t('MSG_TXT_OUTC_AW_TOT_SUM'), width: '146', editable: false, styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' }, // 성과수당 총계
 
   ];
 
