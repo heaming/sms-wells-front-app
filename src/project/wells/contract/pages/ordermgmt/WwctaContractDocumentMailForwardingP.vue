@@ -50,6 +50,7 @@
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
 import { useGlobal, useDataService, useModal } from 'kw-lib';
+import { isEmpty } from 'lodash-es';
 import ZwcmEmailAddress from '~common/components/ZwcmEmailAddress.vue';
 import { buildUrlForNoSession } from '~sms-common/contract/util';
 
@@ -72,24 +73,51 @@ const params = ref({
 async function onClickSend() {
   let rcvrInfoCntrNm = '';
   const rcvrInfoCnt = Number(params.value.rcvrInfo.length) - 1;
+  const { rstlYn } = params.value.rcvrInfo[0]; // 재약정 여부
+
+  // console.log(`rsvrInfo = ${params.value.rcvrInfo[0]}`);
+  // console.log(`rstlYn = ${rstlYn}`);
+
   if (rcvrInfoCnt > 0) {
     rcvrInfoCntrNm = `${params.value.rcvrInfo[0].cntrNm}외${rcvrInfoCnt}명`;
   } else {
     rcvrInfoCntrNm = params.value.rcvrInfo[0].cntrNm;
   }
 
+  if (rstlYn === 'N') { // 신규/변경 메일 URL 생성
   // 체크된 계약별 URL 생성 및 param 추가
-  const promises = props.rcvrInfo.map((index) => (
-    buildUrlForNoSession(
-      undefined,
-      'WwctaContractDocumentM',
-      { cntrNo: index.cntrNo },
-      true,
-      true,
-    )).then((paramUrl) => {
-    index.pdfUrl = paramUrl;
-  }));
-  await Promise.all(promises);
+    const promises = props.rcvrInfo.map((index) => (
+      buildUrlForNoSession(
+        undefined,
+        'WwctaContractDocumentM',
+        { cntrNo: index.cntrNo },
+        true,
+        true,
+      )).then((paramUrl) => {
+      index.pdfUrl = paramUrl;
+    }));
+    await Promise.all(promises);
+  }
+
+  if (rstlYn === 'Y') { // 재약정 메일 URL 생성
+    const promises = props.rcvrInfo.map((index) => (
+      buildUrlForNoSession(
+        undefined,
+        'WwctaForwardingContractM',
+        {
+          cntrNo: index.cntrNo,
+          cntrSn: index.cntrSn,
+          rptId: 'RP002',
+          cntrTempSaveDt: isEmpty(index.stplCnfmDt) ? '' : index.stplCnfmDt,
+          stplTn: isEmpty(index.stplTn) ? '' : index.stplTn,
+        },
+        true,
+        true,
+      )).then((paramUrl) => {
+      index.pdfUrl = paramUrl;
+    }));
+    await Promise.all(promises);
+  }
 
   console.log(params);
   if (await confirm(t('MSG_ALT_EML_FW_CONF', [rcvrInfoCntrNm, params.value.emadr]))) {
