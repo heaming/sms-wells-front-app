@@ -363,7 +363,6 @@ import { codeUtil, defineGrid, getComponentType, useDataService, gridUtil, fileU
 import { cloneDeep, isEmpty } from 'lodash-es';
 import dayjs from 'dayjs';
 import ZctzContractDetailNumber from '~sms-common/contract/components/ZctzContractDetailNumber.vue';
-import { openReportPopup } from '~common/utils/cmPopupUtil'; // , openReportPopupWithOptions
 import { openOzReport } from '~sms-common/contract/util/CtPopupUtil';
 import { buildUrlForNoSession } from '~sms-common/contract/util';
 
@@ -895,7 +894,9 @@ async function onClickCntrwMlFw() {
           cntrNo: row.cntrNo,
           cntrSn: row.cntrSn,
           cntrNm: row.cstKnm,
-          rstlYn: 'Y',
+          stplCnfmDt: row.stplCnfmDt, // 약정확정일자
+          rstlYn: 'Y', // 재약정여부
+          stplTn: row.stplTn, // 약정회차
           emadr: '',
         });
       }
@@ -1112,27 +1113,20 @@ async function onClickOzReport(cntrNo) { // oz리포트 신규/변경 계약
   return openOzReport(...reports);
 }
 
-// eslint-disable-next-line no-unused-vars
-async function onClickOzReportRstl(paramCntrNo, paramCntrSn, paramRstlCnfmDtm, paramCntrwTpCd) { // oz리포트 재약정 계약
-  const params = ref({
+// eslint-disable-next-line max-len
+async function onClickOzReportRstl(paramCntrNo, paramCntrSn, paramRstlCnfmDtm, paramCntrwTpCd, paramStplTn) { // oz리포트 재약정 계약
+  const params = {
     cntrNo: paramCntrNo, // 계약번호
     cntrSn: paramCntrSn, // 일련번호
     rstlCnfmDtm: isEmpty(paramRstlCnfmDtm) || paramRstlCnfmDtm === 'null' ? '' : paramRstlCnfmDtm, // 재약정확정일자
     cntrwTpCd: paramCntrwTpCd, // 계약서유형코드
-  });
-  console.log(params.value);
+    stplTn: isEmpty(paramStplTn) || paramStplTn === 'null' ? '' : paramStplTn, // 약정회차
+  };
+  console.log(params);
 
-  const res = await dataService.get('/sms/wells/contract/contracts/managements/search-api-url/rstl', { params: { ...params.value } });
-  console.log(res);
-
-  const args = { searchApiUrl: '/api/v1/sms/wells/contract/contracts/managements/search-api-url/rstl', ...params.value };
-  console.log(args);
-
-  await openReportPopup(
-    res.data.ozrPath,
-    null,
-    JSON.stringify(args),
-  );
+  const { data: report } = await dataService.get('/sms/wells/contract/contracts/managements/search-api-url/rstl', { params: { ...params } });
+  // console.log(report)
+  return openOzReport(...report);
 }
 onMounted(async () => {
 });
@@ -1582,13 +1576,14 @@ const initGrdMstRstlList = defineGrid((data, view) => {
     const paramCntrSn = `${gridUtil.getCellValue(g, dataRow, 'cntrSn')}`;
     const paramDtm = `${gridUtil.getCellValue(g, dataRow, 'stplCnfmDt')}`; // 재약정확정일시
     const paramCntrwTpCd = `${gridUtil.getCellValue(g, dataRow, 'cntrwTpCd')}`; // 계약서 유형코드
+    const paramStplTn = `${gridUtil.getCellValue(g, dataRow, 'stplTn')}`; // 약정회차
 
     if (['notakFwIz'].includes(column)) { // 알림톡 발송 내역 버튼 클릭
       await modal({ component: 'WwKakaotalkSendListP', componentProps: { cntrDtlNo: paramCntrDtlNo, concDiv: searchParams.cntrDv } }); // 카카오톡 발송 내역 조회
     }
 
     if (['cntrwBrws'].includes(column)) { // 리포트 보기 버튼 클릭
-      onClickOzReportRstl(paramCntrNo, paramCntrSn, paramDtm, paramCntrwTpCd);
+      onClickOzReportRstl(paramCntrNo, paramCntrSn, paramDtm, paramCntrwTpCd, paramStplTn);
     }
   };
 
