@@ -165,7 +165,7 @@ const searchParams = ref({
   itmPdCd: '', // 품목
   matUtlzDvCd: '', // 자재구분
   useYn: '', // 사용여부
-
+  wareDvCd: '',
 });
 
 let gridView;
@@ -199,7 +199,11 @@ async function onChangeMatUtlzDvCd() {
 }
 // 창고조회
 async function getWareHouses() {
-  const result = await dataService.get(`${baseUrl}/ware-houses`);
+  const wareParams = {
+    baseDt: searchParams.value.startDt,
+    wareDvCd: searchParams.value.wareDvCd,
+  };
+  const result = await dataService.get(`${baseUrl}/ware-houses`, { params: wareParams });
   if (result.data.length > 0) {
     const wareHouses = result.data;
     const wareLogisticsFields = wareHouses.filter((v) => v.wareNo.substring(0, 1) === '1'); // 물류센터
@@ -245,8 +249,6 @@ async function getWareHouses() {
 onMounted(async () => {
   // 품목구분 : 상품 기본설정
   searchParams.value.itmKndCd = '4';
-  // 창고조회
-  await getWareHouses();
 });
 // 품목구분-하위품목 가져오기
 watch(() => searchParams.value.itmKndCd, async () => {
@@ -287,6 +289,8 @@ async function fetchData() {
 async function onClickSearch() {
   searchParams.value.matUtlzDvCd = '';
   cachedParams = cloneDeep(searchParams.value);
+  await getWareHouses();
+  await nextTick();
   await fetchData();
 }
 async function onClickExcelDownload() {
@@ -376,8 +380,8 @@ fieldsObj = {
 };
 
 const initGrdMain = defineGrid((data, view) => {
-  const fields = [];
-  const columns = [];
+  const columns = [...fieldsObj.defaultFields];
+  const fields = columns.map(({ fieldName, dataType }) => (dataType ? { fieldName, dataType } : { fieldName }));
 
   data.setFields(fields);
   view.setColumns(columns);
