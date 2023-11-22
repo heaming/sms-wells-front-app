@@ -752,7 +752,7 @@ const initGrd2Main = defineGrid((data, view) => {
     { fieldName: 'prcTp', header: t('MSG_TXT_PRC_TP'), width: '110', styleName: 'text-center', options: codes.RGLR_SPP_PRC_DV_CD },
     { fieldName: 'chdvcTp', header: t('MSG_TXT_CHDVC_TP'), width: '110', styleName: 'text-center', options: codes.MCHN_CH_TP_CD },
     { fieldName: 'fee', header: t('MSG_TXT_FEE') + t('MSG_TXT_PERF') + t('MSG_TXT_TYPE'), width: '110', styleName: 'text-center', options: codes.FEE_PDCT_TP_CD },
-    { fieldName: 'cntrDtlNo', header: t('MSG_TXT_CNTR_DTL_NO'), width: '130' },
+    { fieldName: 'cntrDtlNo', header: t('MSG_TXT_CNTR_DTL_NO'), width: '140' },
     { fieldName: 'cstDv', header: t('MSG_TXT_CST_DV'), width: '100', styleName: 'text-center' },
     { fieldName: 'prdtNm', header: t('MSG_TXT_PRDT_NM'), width: '226.5', styleName: 'text-left' },
     { fieldName: 'prdtCode', header: t('MSG_TXT_PRDT_CODE'), width: '120', styleName: 'text-center' },
