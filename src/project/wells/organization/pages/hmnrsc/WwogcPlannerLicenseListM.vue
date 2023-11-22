@@ -424,11 +424,12 @@ function getTargetQualification(item, details, type) {
       result.ogId = details[0].ogId;
       result.targetQlfDvCd = details[0].qlfDvCd;
       result.strtdt = details[0].strtdt;
-      if (dayjs(result.strtdt).diff(dayjs().format('YYYY-MM-DD')) < 0) {
+      /* if (dayjs(result.strtdt).diff(dayjs().format('YYYY-MM-DD')) < 0) {
         result.enddt = dayjs(result.strtdt).format('YYYYMM').concat(dayjs(result.strtdt).daysInMonth());
       } else {
         result.enddt = dayjs().format('YYYYMM').concat(dayjs().daysInMonth());
-      }
+      } */
+      result.enddt = dayjs().format('YYYYMM').concat(dayjs().daysInMonth());
       break;
     case 'HOLDING':
       // 보류
