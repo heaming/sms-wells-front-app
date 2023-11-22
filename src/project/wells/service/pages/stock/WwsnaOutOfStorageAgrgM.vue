@@ -196,8 +196,7 @@ const searchParams = ref({
 let gridView;
 let gridData;
 let logisticsFields;
-let serviceFields;
-let businessFields;
+let tmpFields;
 let fieldsObj;
 let fieldsWidth;
 
@@ -232,13 +231,11 @@ async function getWareHouses() {
   if (result.data.length > 0) {
     const wareHouses = result.data;
     const wareLogisticsFields = wareHouses.filter((v) => v.wareNo.substring(0, 1) === '1'); // 물류센터
-    const wareServiceFields = wareHouses.filter((v) => v.wareNo.substring(0, 1) === '2'); // 서비스센터
-    const wareBusinessFields = wareHouses.filter((v) => v.wareNo.substring(0, 1) === '3'); // 영업센터
+    const wareTmpFields = wareHouses.filter((v) => v.wareNo.substring(0, 1) === '2' || v.wareNo.substring(0, 1) === '3'); // 서비스센터
     fieldsWidth = 80; // 창고 그리드 가로폭 사이즈 설정
 
     logisticsFields = [];
-    serviceFields = [];
-    businessFields = [];
+    tmpFields = [];
 
     logisticsFields.push(...wareLogisticsFields.map((v) => ({
       fieldName: `ware${v.wareNo}`,
@@ -249,16 +246,8 @@ async function getWareHouses() {
       numberFormat: '#,##0',
       footer: { expression: 'sum', numberFormat: '#,##0', styleName: 'text-right text-weight-bold' },
     })));
-    serviceFields.push(...wareServiceFields.map((v) => ({
-      fieldName: `ware${v.wareNo}`,
-      header: v.wareNm,
-      width: fieldsWidth,
-      styleName: 'text-right',
-      dataType: 'number',
-      numberFormat: '#,##0',
-      footer: { expression: 'sum', numberFormat: '#,##0', styleName: 'text-right text-weight-bold' },
-    })));
-    businessFields.push(...wareBusinessFields.map((v) => ({
+    // 서비스센터 , 영업센터
+    tmpFields.push(...wareTmpFields.map((v) => ({
       fieldName: `ware${v.wareNo}`,
       header: v.wareNm,
       width: fieldsWidth,
@@ -357,8 +346,7 @@ fieldsObj = {
   setFields() {
     const columns = [...fieldsObj.defaultFields,
       ...logisticsFields,
-      ...serviceFields,
-      ...businessFields,
+      ...tmpFields,
       ...fieldsObj.totalFields];
 
     // 헤더 부분 merge
@@ -371,14 +359,9 @@ fieldsObj = {
       },
       {
         direction: 'horizontal',
-        header: { text: t('MSG_TXT_SV_CNR') }, /* 서비스센터 */
+        header: searchParams.value.wareDvCd === '2' ? { text: t('MSG_TXT_SV_CNR') } : { text: t('MSG_TXT_BSNS_CNTR') },
         width: fieldsWidth,
-        items: [...fieldsObj.getColumnNameArr(serviceFields)],
-      },
-      { direction: 'horizontal',
-        header: { text: t('MSG_TXT_BSNS_CNTR') }, /* 영업센터 */
-        width: fieldsWidth,
-        items: [...fieldsObj.getColumnNameArr(businessFields)],
+        items: [...fieldsObj.getColumnNameArr(tmpFields)],
       },
       ...fieldsObj.getColumnNameArr(fieldsObj.totalFields),
     ];
