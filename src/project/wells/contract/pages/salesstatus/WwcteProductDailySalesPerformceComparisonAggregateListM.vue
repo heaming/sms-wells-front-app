@@ -95,8 +95,16 @@
       </kw-action-top>
 
       <kw-grid
-        :visible-rows="6"
-        @init="initGrid"
+        v-if="searchParams.prntTp === 'PL'"
+        ref="grdLstmmRef"
+        name="grdLstmm"
+        @init="initGridLstmm"
+      />
+      <kw-grid
+        v-if="searchParams.prntTp === 'PM'"
+        ref="grdMshRef"
+        name="grdMsh"
+        @init="initGridMsh"
       />
     </div>
   </kw-page>
@@ -114,7 +122,9 @@ const dataService = useDataService();
 const { t } = useI18n();
 const { getConfig } = useMeta();
 const { currentRoute } = useRouter();
-const grdMainRef = ref(getComponentType('KwGrid'));
+const grdLstmmRef = ref(getComponentType('KwGrid'));
+const grdMshRef = ref(getComponentType('KwGrid'));
+const totalCount = ref(0);
 
 let cachedParams;
 const now = dayjs();
@@ -153,19 +163,27 @@ codes.OG_CP_CD = [
 async function fetchData() {
   if (isEmpty(cachedParams)) return;
 
-  const res = await dataService.get('/sms/wells/contract/contracts/product-daily-sales-performce-comparison-agrg/paging', { params: { ...cachedParams, ...pageInfo.value } });
-  const { list: pages, pageInfo: pagingResult } = res.data;
-  pageInfo.value = pagingResult;
-
-  const view = grdMainRef.value.getView();
-  const dataSource = view.getDataSource();
-  dataSource.checkRowStates(false);
-  dataSource.addRows(pages);
-  dataSource.checkRowStates(true);
+  const { prntTp } = searchParams.value;
+  let res;
+  if (prntTp === 'PL') {
+    res = await dataService.get('/sms/wells/contract/contracts/product-daily-sales-performce-comparison-agrg/lstmm', { params: { ...cachedParams, ...pageInfo.value } });
+  } else if (prntTp === 'PM') {
+    res = await dataService.get('/sms/wells/contract/contracts/product-daily-sales-performce-comparison-agrg/msh', { params: { ...cachedParams, ...pageInfo.value } });
+  }
+  console.log(res.data);
+  const productAccountList = res.data;
+  totalCount.value = productAccountList.length;
+  let mainView;
+  if (prntTp === 'PL') {
+    mainView = grdLstmmRef.value.getView();
+  } else if (prntTp === 'PM') {
+    mainView = grdMshRef.value.getView();
+  }
+  mainView.getDataSource().setRows(productAccountList);
 }
 
 async function onClickSearch() {
-  grdMainRef.value.getData().clearRows();
+  grdLstmmRef.value.getData().clearRows();
   pageInfo.value.pageIndex = 1;
   cachedParams = cloneDeep(searchParams.value);
 
@@ -173,101 +191,169 @@ async function onClickSearch() {
 }
 
 async function onClickExcelDownload() {
-  const view = grdMainRef.value.getView();
-  const res = await dataService.get('/sms/wells/contract/contracts/product-daily-sales-performce-comparison-agrg/excel-download', { params: cachedParams });
+  const { prntTp } = searchParams.value;
+  let view;
+  if (prntTp === 'PL') {
+    view = grdLstmmRef.value.getView();
+  } else if (prntTp === 'PM') {
+    view = grdMshRef.value.getView();
+  }
   await gridUtil.exportView(view, {
     fileName: currentRoute.value.meta.menuName,
     timePostfix: true,
-    exportData: res.data,
+    exportData: gridUtil.getAllRowValues(view),
   });
 }
 
 // -------------------------------------------------------------------------------------------------
 // Initialize Grid
 // -------------------------------------------------------------------------------------------------
-
-const initGrid = defineGrid((data, view) => {
-  const fields = [
-    { fieldName: 'col1' },
-    { fieldName: 'col2' },
-    { fieldName: 'col3' },
-    { fieldName: 'col4' },
-    { fieldName: 'col5' },
-    { fieldName: 'col6' },
-    { fieldName: 'col7' },
-    { fieldName: 'col8' },
-    { fieldName: 'col9' },
-    { fieldName: 'col10' },
-    { fieldName: 'col11' },
-    { fieldName: 'col12' },
-    { fieldName: 'col13' },
-    { fieldName: 'col14' },
-    { fieldName: 'col15' },
-    { fieldName: 'col16' },
-    { fieldName: 'col17' },
-    { fieldName: 'col18' },
-    { fieldName: 'col19' },
-  ];
-
+const initGridLstmm = defineGrid((data, view) => {
   const columns = [
-    { fieldName: 'col1', header: '상품코드', width: '130', styleName: 'text-center' },
-    { fieldName: 'col2', header: '상품명', width: '235', styleName: 'text-left' },
-    { fieldName: 'col3', header: '판매유형', width: '130', styleName: 'text-center' },
-    { fieldName: 'col4', header: '이월', width: '130', styleName: 'text-right' },
-    { fieldName: 'col5', header: '매출', width: '130', styleName: 'text-right' },
-    { fieldName: 'col6', header: '취소', width: '130', styleName: 'text-right' },
-    { fieldName: 'col7', header: '만료', width: '130', styleName: 'text-right' },
-    { fieldName: 'col8', header: '합계', width: '130', styleName: 'text-right' },
-    { fieldName: 'col9', header: '순종', width: '130', styleName: 'text-right' },
-
-    { fieldName: 'col10', header: '전월대비 순종증감', width: '178', styleName: 'text-right' },
-    { fieldName: 'col11', header: '접수', width: '130', styleName: 'text-right' },
-    { fieldName: 'col12', header: '기변', width: '130', styleName: 'text-right' },
-    { fieldName: 'col13', header: '이월', width: '130', styleName: 'text-right' },
-    { fieldName: 'col14', header: '매출', width: '130', styleName: 'text-right' },
-    { fieldName: 'col15', header: '취소', width: '130', styleName: 'text-right' },
-    { fieldName: 'col16', header: '만료', width: '130', styleName: 'text-right' },
-    { fieldName: 'col17', header: '합계', width: '130', styleName: 'text-right' },
-    { fieldName: 'col18', header: '순종', width: '130', styleName: 'text-right' },
-
-    { fieldName: 'col19', header: '기변', width: '130', styleName: 'text-right' },
-
+    { fieldName: 'pdHclsfNm', header: t('MSG_TXT_PD_HCLSF'), width: '116', styleName: 'text-center' }, // 상품대분류
+    { fieldName: 'pdMclsfNm', header: t('MSG_TXT_PD_MCLSF'), width: '116', styleName: 'text-center' }, // 상품중분류
+    { fieldName: 'pdCd', header: t('MSG_TXT_PRDT_CODE'), width: '116', styleName: 'text-center' }, // 상품코드
+    { fieldName: 'pdNm', header: t('MSG_TXT_PRDT_NM'), width: '239', styleName: 'text-left' }, // 상품명
+    { fieldName: 'sellTpCd', header: t('MSG_TXT_SEL_TYPE'), width: '120', styleName: 'text-center', options: codes.SELL_TP_CD }, // 판매유형
+    { fieldName: 'sellTpDtlCd', header: t('MSG_TXT_SELL_TP_DTL'), width: '116', styleName: 'text-center', options: codes.SELL_TP_DTL_CD }, // 판매유형상세
+    // 당월
+    { fieldName: 'agrgCt1', header: t('MSG_TXT_CRDOVR'), width: '120', styleName: 'text-right', dataType: 'number' }, // 이월
+    { fieldName: 'agrgCt2', header: t('MSG_TXT_INFLW'), width: '120', styleName: 'text-right', dataType: 'number' }, // 유입
+    { fieldName: 'agrgCt3', header: t('MSG_TXT_EXPIRED'), width: '120', styleName: 'text-right', dataType: 'number' }, // 해지
+    { fieldName: 'agrgCt4', header: t('MSG_TXT_EXN'), width: '120', styleName: 'text-right', dataType: 'number' }, // 만료
+    { fieldName: 'agrgCt5', header: t('MSG_TXT_NINC'), width: '120', styleName: 'text-right', dataType: 'number' }, // 순증
+    { fieldName: 'agrgCt6', header: t('MSG_TXT_SUM'), width: '120', styleName: 'text-right', dataType: 'number' }, // 합계
+    { fieldName: 'agrgCt7', header: `${t('MSG_TXT_LSTMM_CPR')} ${t('MSG_TXT_NINC_ICRDCR')}`, width: '120', styleName: 'text-right', dataType: 'number' }, // 전월대비 순증증감
+    { fieldName: 'agrgCt8', header: t('MSG_TXT_RCP'), width: '120', styleName: 'text-right', dataType: 'number' }, // 접수
+    { fieldName: 'agrgCt9', header: t('MSG_TXT_CHNG'), width: '120', styleName: 'text-right', dataType: 'number' }, // 기변
+    // 전월
+    { fieldName: 'lstmmAgrgCt1', header: t('MSG_TXT_CRDOVR'), width: '120', styleName: 'text-right', dataType: 'number' }, // 이월
+    { fieldName: 'lstmmAgrgCt2', header: t('MSG_TXT_INFLW'), width: '120', styleName: 'text-right', dataType: 'number' }, // 유입
+    { fieldName: 'lstmmAgrgCt3', header: t('MSG_TXT_EXPIRED'), width: '120', styleName: 'text-right', dataType: 'number' }, // 해지
+    { fieldName: 'lstmmAgrgCt4', header: t('MSG_TXT_EXN'), width: '120', styleName: 'text-right', dataType: 'number' }, // 만료
+    { fieldName: 'lstmmAgrgCt5', header: t('MSG_TXT_NINC'), width: '120', styleName: 'text-right', dataType: 'number' }, // 순증
+    { fieldName: 'lstmmAgrgCt6', header: t('MSG_TXT_SUM'), width: '120', styleName: 'text-right', dataType: 'number' }, // 합계
+    { fieldName: 'lstmmAgrgCt9', header: t('MSG_TXT_CHNG'), width: '120', styleName: 'text-right', dataType: 'number' }, // 기변
   ];
 
+  const fields = columns.map(({ fieldName, dataType }) => (dataType ? { fieldName, dataType } : { fieldName }));
   data.setFields(fields);
   view.setColumns(columns);
+  view.setHeaderSummaries({
+    visible: true,
+    items: [
+      {
+        height: 42,
+      },
+    ],
+  });
+  view.columnByName('pdNm').setHeaderSummaries({ text: t('MSG_TXT_SUM'), styleName: 'text-center' });
+  view.columnByName('agrgCt1').setHeaderSummaries({ numberFormat: '#,##0', expression: 'sum' });
+  view.columnByName('agrgCt2').setHeaderSummaries({ numberFormat: '#,##0', expression: 'sum' });
+  view.columnByName('agrgCt3').setHeaderSummaries({ numberFormat: '#,##0', expression: 'sum' });
+  view.columnByName('agrgCt4').setHeaderSummaries({ numberFormat: '#,##0', expression: 'sum' });
+  view.columnByName('agrgCt5').setHeaderSummaries({ numberFormat: '#,##0', expression: 'sum' });
+  view.columnByName('agrgCt6').setHeaderSummaries({ numberFormat: '#,##0', expression: 'sum' });
 
   view.rowIndicator.visible = true;
   view.checkBar.visible = false;
 
   // multi row header setting
-  view.setColumnLayout([
+  const layout1 = [
     {
-      header: '구분',
+      header: t('MSG_TXT_DIV'), // 구분
       direction: 'horizontal',
-      items: ['col1', 'col2', 'col3'],
+      items: ['pdCd', 'pdNm', 'sellTpCd'],
     },
     {
-      header: '당월',
+      header: t('MSG_TXT_THM'), // 당월
       direction: 'horizontal',
-      items: ['col4', 'col5', 'col6', 'col7', 'col8', 'col9', 'col10', 'col11', 'col12'],
+      items: ['agrgCt1', 'agrgCt2', 'agrgCt3', 'agrgCt4', 'agrgCt5', 'agrgCt6', 'agrgCt7', 'agrgCt8', 'agrgCt9'],
     },
     {
-      header: '전월',
+      header: t('MSG_TXT_LSTMM'), // 전월
       direction: 'horizontal',
-      items: ['col13', 'col14', 'col15', 'col16', 'col17', 'col18', 'col19'],
+      items: ['lstmmAgrgCt1', 'lstmmAgrgCt2', 'lstmmAgrgCt3', 'lstmmAgrgCt4', 'lstmmAgrgCt5', 'lstmmAgrgCt6', 'lstmmAgrgCt9'],
     },
+  ];
+  view.setColumnLayout(layout1);
+});
 
-  ]);
+const initGridMsh = defineGrid((data, view) => {
+  const columns = [
+    { fieldName: 'pdHclsfNm', header: t('MSG_TXT_PD_HCLSF'), width: '116', styleName: 'text-center' }, // 상품대분류
+    { fieldName: 'pdMclsfNm', header: t('MSG_TXT_PD_MCLSF'), width: '116', styleName: 'text-center' }, // 상품중분류
+    { fieldName: 'pdCd', header: t('MSG_TXT_PRDT_CODE'), width: '116', styleName: 'text-center' }, // 상품코드
+    { fieldName: 'pdNm', header: t('MSG_TXT_PRDT_NM'), width: '239', styleName: 'text-left' }, // 상품명
+    { fieldName: 'sellTpCd', header: t('MSG_TXT_SEL_TYPE'), width: '120', styleName: 'text-center', options: codes.SELL_TP_CD }, // 판매유형
+    { fieldName: 'sellTpDtlCd', header: t('MSG_TXT_SELL_TP_DTL'), width: '116', styleName: 'text-center', options: codes.SELL_TP_DTL_CD }, // 판매유형상세
 
-  data.setRows([
-    { col1: '4133', col2: '식기세척기', col3: '렌탈', col4: '0', col5: '0', col6: '0', col7: '0', col8: '0', col9: '-20', col10: '100', col11: '15', col12: '0', col13: '0', col14: '0', col15: '0', col16: '0', col17: '0', col18: '-20', col19: '0' },
-    { col1: '4133', col2: '식기세척기', col3: '렌탈', col4: '0', col5: '0', col6: '0', col7: '0', col8: '0', col9: '-20', col10: '100', col11: '15', col12: '0', col13: '0', col14: '0', col15: '0', col16: '0', col17: '0', col18: '-20', col19: '0' },
-    { col1: '4133', col2: '식기세척기', col3: '렌탈', col4: '0', col5: '0', col6: '0', col7: '0', col8: '0', col9: '-20', col10: '100', col11: '15', col12: '0', col13: '0', col14: '0', col15: '0', col16: '0', col17: '0', col18: '-20', col19: '0' },
-    { col1: '4133', col2: '식기세척기', col3: '렌탈', col4: '0', col5: '0', col6: '0', col7: '0', col8: '0', col9: '-20', col10: '100', col11: '15', col12: '0', col13: '0', col14: '0', col15: '0', col16: '0', col17: '0', col18: '-20', col19: '0' },
-    { col1: '4133', col2: '식기세척기', col3: '렌탈', col4: '0', col5: '0', col6: '0', col7: '0', col8: '0', col9: '-20', col10: '100', col11: '15', col12: '0', col13: '0', col14: '0', col15: '0', col16: '0', col17: '0', col18: '-20', col19: '0' },
-    { col1: '4133', col2: '식기세척기', col3: '렌탈', col4: '0', col5: '0', col6: '0', col7: '0', col8: '0', col9: '-20', col10: '100', col11: '15', col12: '0', col13: '0', col14: '0', col15: '0', col16: '0', col17: '0', col18: '-20', col19: '0' },
-  ]);
+    { fieldName: 'agrgCt1', header: t('MSG_TXT_CRDOVR'), width: '120', styleName: 'text-right', dataType: 'number' }, // 이월
+    { fieldName: 'agrgCt2', header: t('MSG_TXT_INFLW'), width: '120', styleName: 'text-right', dataType: 'number' }, // 유입
+    { fieldName: 'agrgCt3', header: t('MSG_TXT_EXPIRED'), width: '120', styleName: 'text-right', dataType: 'number' }, // 해지
+    { fieldName: 'agrgCt4', header: t('MSG_TXT_EXN'), width: '120', styleName: 'text-right', dataType: 'number' }, // 만료
+    { fieldName: 'agrgCt5', header: t('MSG_TXT_NINC'), width: '120', styleName: 'text-right', dataType: 'number' }, // 순증
+    { fieldName: 'agrgCt6', header: t('MSG_TXT_SUM'), width: '120', styleName: 'text-right', dataType: 'number' }, // 합계
+    { fieldName: 'agrgCt7', header: t('MSG_TXT_NINC_ICRDCR'), width: '120', styleName: 'text-right', dataType: 'number' }, // 전월대비 순증증감
+    { fieldName: 'agrgCt8', header: t('MSG_TXT_RCP'), width: '120', styleName: 'text-right', dataType: 'number' }, // 접수
+    { fieldName: 'agrgCt9', header: t('MSG_TXT_CHNG'), width: '120', styleName: 'text-right', dataType: 'number' }, // 기변
+
+    { fieldName: 'agrgCt10', header: t('MSG_TIT_SPAY'), width: '120', styleName: 'text-right', dataType: 'number' }, // 일시불
+    { fieldName: 'agrgCt11', header: t('MSG_TXT_SELL'), width: '120', styleName: 'text-right', dataType: 'number' }, // 판매
+  ];
+
+  const fields = columns.map(({ fieldName, dataType }) => (dataType ? { fieldName, dataType } : { fieldName }));
+  data.setFields(fields);
+  view.setColumns(columns);
+  view.setHeaderSummaries({
+    visible: true,
+    items: [
+      {
+        height: 42,
+      },
+    ],
+  });
+  view.columnByName('pdNm').setHeaderSummaries({ text: t('MSG_TXT_SUM'), styleName: 'text-center' });
+  view.columnByName('agrgCt1').setHeaderSummaries({ numberFormat: '#,##0', expression: 'sum' });
+  view.columnByName('agrgCt2').setHeaderSummaries({ numberFormat: '#,##0', expression: 'sum' });
+  view.columnByName('agrgCt3').setHeaderSummaries({ numberFormat: '#,##0', expression: 'sum' });
+  view.columnByName('agrgCt4').setHeaderSummaries({ numberFormat: '#,##0', expression: 'sum' });
+  view.columnByName('agrgCt5').setHeaderSummaries({ numberFormat: '#,##0', expression: 'sum' });
+  view.columnByName('agrgCt6').setHeaderSummaries({ numberFormat: '#,##0', expression: 'sum' });
+
+  view.rowIndicator.visible = true;
+  view.checkBar.visible = false;
+
+  // multi row header setting
+  const layout1 = [
+    {
+      header: t('MSG_TXT_DIV'), // 구분
+      direction: 'horizontal',
+      items: ['pdCd', 'pdNm', 'sellTpCd'],
+    },
+    'agrgCt1', 'agrgCt2', 'agrgCt3', // 이월, 유입, 이탈
+    {
+      header: t('MSG_TXT_RENTAL'), // 렌탈
+      direction: 'horizontal',
+      items: ['agrgCt4'], // 만료
+    },
+    {
+      header: t('MSG_TXT_MMBR'), // 멤버쉽
+      direction: 'horizontal',
+      items: ['agrgCt8'], // 접수
+    },
+    'agrgCt10', // 일시불
+    'agrgCt6', // 합계
+    'agrgCt5', // 순증
+    {
+      header: t('MSG_TXT_LSTMM_CPR'), // 전월대비
+      direction: 'horizontal',
+      items: ['agrgCt7'], // 순증증감
+    },
+    'agrgCt11', // 판매
+    'agrgCt9', // 기변
+  ];
+  view.setColumnLayout(layout1);
 });
 
 </script>
