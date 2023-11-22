@@ -172,7 +172,7 @@
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
 import { codeUtil, defineGrid, getComponentType, useDataService, useGlobal, useMeta, gridUtil } from 'kw-lib';
-import { cloneDeep, isEmpty } from 'lodash-es';
+import { cloneDeep } from 'lodash-es';
 import { openReportPopup } from '~common/utils/cmPopupUtil';
 import dayjs from 'dayjs';
 
@@ -506,6 +506,8 @@ async function onClickEmailSend() {
 async function onClickPblPrnt() {
   let view;
   let outputDataYN;
+  let cntrCnfmStrtDt; // 기간(시작일자)
+  let cntrCnfmEndDt; // 기간(종료일자)
   let pblcSearchSttDt; // 발행년월시
   let custNm; // 고객명
   let rfndYn = false; // 거래명세서(일시불패키지 상품)
@@ -536,12 +538,6 @@ async function onClickPblPrnt() {
   if (searchParams.value.cntrDvCd === '2' && checkedItems.length === 0) {
     notify(t('MSG_ALT_BEFORE_SELECT_IT', [t('MSG_TXT_ITEM')])); // 항목 (을)를 선택해주세요
   } else {
-    // 조회된 내역이 없으면 return
-    if (isEmpty(ozParamsList.value)) {
-      notify(t('MSG_ALT_NO_DATA_PRTN')); // 출력할 데이터가 없습니다.
-      outputDataYN = false;
-      return;
-    }
     const cntrs = gridUtil.getCheckedRowValues(view);
     cntrs.forEach((row) => {
       cntrList.push({
@@ -566,6 +562,8 @@ async function onClickPblPrnt() {
     if (result) {
       pblcSearchSttDt = payload.pblcSearchSttDt; // 발행년월시(현재일자)
       custNm = payload.custNm; // 고객명
+      cntrCnfmStrtDt = payload.firstDt; // 기간(시작일자)
+      cntrCnfmEndDt = payload.lastDt; // 기간(종료일자)
     } else {
       return;
     }
@@ -598,6 +596,8 @@ async function onClickPblPrnt() {
   if (outputDataYN) {
     // 선택한 계약번호 리스트 cachedParams에 적용
     cachedParams = cloneDeep(searchParams.value);
+    cachedParams.cntrCnfmStrtDt = cntrCnfmStrtDt; // 기간(시작일자)
+    cachedParams.cntrCnfmEndDt = cntrCnfmEndDt; // 기간(종료일자)
     cachedParams.pblcSearchSttDt = pblcSearchSttDt; // 발행년월시(현재일자)
     cachedParams.custNm = custNm; // 고객명
     // console.log(cachedParams);
@@ -610,7 +610,7 @@ async function onClickPblPrnt() {
 
         // OZ 리포트 호출 Api 설정
         // eslint-disable-next-line no-case-declarations
-        const args1 = { searchApiUrl: '/api/v1/sms/wells/contract/contracts/order-details/specification/deposit-itemizations/oz', ...cachedParams, cntrDtlNoList };
+        const args1 = { searchApiUrl: '/api/v1/sms/wells/contract/contracts/order-details/specification/deposit-itemizations/anonymous/oz', ...cachedParams, cntrDtlNoList };
         // console.log(args1);
 
         // OZ 레포트 팝업호출
@@ -631,7 +631,7 @@ async function onClickPblPrnt() {
 
         // OZ 리포트 호출 Api 설정
         // eslint-disable-next-line no-case-declarations
-        const args2 = { searchApiUrl: '/api/v1/sms/wells/contract/contracts/order-details/specification/trade-specification/oz', ...cachedParams, cntrDtlNoList };
+        const args2 = { searchApiUrl: '/api/v1/sms/wells/contract/contracts/order-details/specification/trade-specification/anonymous/oz', ...cachedParams, cntrDtlNoList };
         // console.log(args2);
 
         // OZ 레포트 팝업호출
@@ -647,7 +647,7 @@ async function onClickPblPrnt() {
 
         // OZ 리포트 호출 Api 설정
         // eslint-disable-next-line no-case-declarations
-        const args3 = { searchApiUrl: '/api/v1/sms/wells/contract/contracts/order-details/specification/card-sales-slips/oz', ...cachedParams, cntrDtlNoList };
+        const args3 = { searchApiUrl: '/api/v1/sms/wells/contract/contracts/order-details/specification/card-sales-slips/anonymous/oz', ...cachedParams, cntrDtlNoList };
         // console.log(args3);
 
         // OZ 레포트 팝업호출
@@ -663,7 +663,7 @@ async function onClickPblPrnt() {
 
         // OZ 리포트 호출 Api 설정
         // eslint-disable-next-line no-case-declarations
-        const args4 = { searchApiUrl: '/api/v1/sms/wells/contract/contracts/order-details/specification/contract-articles/oz', ...cachedParams, cntrDtlNoList };
+        const args4 = { searchApiUrl: '/api/v1/sms/wells/contract/contracts/order-details/specification/contract-articles/anonymous/oz', ...cachedParams, cntrDtlNoList };
         // console.log(args4);
 
         // OZ 레포트 팝업호출
