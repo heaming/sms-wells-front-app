@@ -137,18 +137,18 @@ const initGrid = defineGrid((data, view) => {
     { fieldName: 'dlqAmt', header: t('MSG_TXT_DLQ_DP_TOT'), width: '130', styleName: 'text-right', dataType: 'number' }, // 연체입금액
     { fieldName: 'dlqBlam', header: t('MSG_TXT_DLQ_BLAM'), width: '130', styleName: 'text-right', dataType: 'number' }, // 연체잔액
     { fieldName: 'prtnrKnm', header: t('MSG_TXT_CLCTAM_PSIC'), width: '130', styleName: 'text-center' }, // 집금담당자
-    { fieldName: 'dsphTno', header: t('MSG_TXT_DSPH_NO'), width: '130', styleName: 'text-center' }, //
+    { fieldName: 'dsphTno', header: t('MSG_TXT_DSPH_NO'), width: '130', styleName: 'text-center' }, // 발신번호
     // rev:230410 header 텍스트 수정
     { fieldName: 'rgstSchDt', header: t('MSG_TXT_RGST_SCHD_DT'), width: '130', styleName: 'text-center', datetimeFormat: 'date' }, // 발신번호
-    // // rev:230410 header 텍스트 수정
+    // rev:230410 header 텍스트 수정
     { fieldName: 'niceFwExcdYn', header: t('MSG_TXT_EXCD_YN'), width: '130', styleName: 'text-center' }, // 제외여부
     // rev:230410 header 텍스트 수정
     { fieldName: 'fwbooDtm', header: t('MSG_TXT_NOTAK_FW_DT'), width: '130', styleName: 'text-center', datetimeFormat: 'date' }, // 알림톡 발송일자
-    // // rev:230410 header 텍스트 수정
+    // rev:230410 header 텍스트 수정
     { fieldName: 'resultYn', header: t('MSG_TXT_SCS_YN'), width: '130', styleName: 'text-center' }, // 성공여부
     // rev:230410 header 텍스트 수정
     { fieldName: 'notyFwOjDt', header: t('MSG_TXT_DL_DT'), width: '130', styleName: 'text-center', datetimeFormat: 'date' }, // 삭제일자
-    // // rev:230410 header 텍스트 수정
+    // rev:230410 header 텍스트 수정
   ];
 
   const fields = columns.map(({ fieldName, dataType }) => (dataType ? { fieldName, dataType } : { fieldName }));
