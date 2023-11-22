@@ -454,7 +454,7 @@ function getGridColumns() {
         { fieldName: 'metgPrscDc', header: t('MSG_TXT_METG') + t('MSG_TXT_DC'), width: '91.4', styleName: 'text-right' }, // 미팅일수
         { fieldName: 'qlfDvNm', header: t('MSG_TXT_FEE') + t('MSG_TXT_MON'), width: '91.4', styleName: 'text-center' }, // 자격-수수료월
         { fieldName: 'nmnQlfDvNm', header: 'M+1', width: '140', styleName: 'text-center' }, // 자격-M+1
-        { fieldName: 'strtup', header: t('MSG_TXT_BRANCH') + t('MSG_TXT_ONL'), width: '91.4', styleName: 'text-center', datetimeFormat: 'yyyy-MM' }, // 교육-지점온라인
+        { fieldName: 'eduBrmgrOnl', header: t('MSG_TXT_BRANCH') + t('MSG_TXT_ONL'), width: '91.4', styleName: 'text-center', datetimeFormat: 'yyyy-MM' }, // 교육-지점온라인
         { fieldName: 'indvAsnCnt',
           header: t('MSG_TXT_ASGN_CT'),
           width: '91.4',
@@ -546,15 +546,15 @@ function getGridColumns() {
             expression: 'sum',
           } }, // 조직BS-처리율
         { fieldName: 'ogDbsRat',
-          header: t('MSG_TXT_PYT_RT'),
-          width: '91.4',
+          header: t('MSG_TXT_NINC') + t('MSG_TXT_MGT') + t('MSG_TXT_PYT_RT'),
+          width: '100',
           styleName: 'text-right',
           dataType: 'number',
           numberFormat: '###0.##',
           headerSummary: {
             numberFormat: '#,##0',
             expression: 'sum',
-          } }, // 조직BS-지급률
+          } }, // 조직BS-순증관리지급률
         { fieldName: 'indvElhmAckmtCnt',
           header: t('MSG_TXT_ELHM_ACKMT_CT'),
           width: '91.4',
@@ -868,15 +868,15 @@ function getGridColumns() {
             expression: 'sum',
           } }, // 조직BS-처리율
         { fieldName: 'ogDbsRat',
-          header: t('MSG_TXT_PYT_RT'),
-          width: '91.4',
+          header: t('MSG_TXT_NINC') + t('MSG_TXT_MGT') + t('MSG_TXT_PYT_RT'),
+          width: '100',
           styleName: 'text-right',
           dataType: 'number',
           numberFormat: '###0.##',
           headerSummary: {
             numberFormat: '#,##0',
             expression: 'sum',
-          } }, // 조직BS-지급률
+          } }, // 조직BS-순증관리지급률
         { fieldName: 'indvElhmAckmtCnt',
           header: t('MSG_TXT_ELHM_ACKMT_CT'),
           width: '91.4',
@@ -2346,7 +2346,7 @@ function setGridColumnLayout(view) {
         {
           header: t('MSG_TXT_EDUC'), // 교육
           direction: 'horizontal',
-          items: ['strtup'],
+          items: ['eduBrmgrOnl'],
         },
         {
           header: `${t('MSG_TXT_INDV')}BS`, // 개인BS
