@@ -348,7 +348,7 @@ function getGridColumns() {
           } }, // 개인실적-가전인정건수
         { fieldName: 'indvRentalBasePrc',
           header: t('MSG_TXT_RENTAL_BASE_PRC'),
-          width: '91.4',
+          width: '110',
           styleName: 'text-right',
           dataType: 'number',
           numberFormat: '#,###,##0',
@@ -358,7 +358,7 @@ function getGridColumns() {
           } }, // 개인실적-렌탈기준가
         { fieldName: 'indvSpayBasePrc',
           header: t('MSG_TXT_SNGL_PMNT_BASE_PRC'),
-          width: '91.4',
+          width: '110',
           styleName: 'text-right',
           dataType: 'number',
           numberFormat: '#,###,##0',
@@ -378,7 +378,7 @@ function getGridColumns() {
           } }, // 개인실적-기변건수
         { fieldName: 'indvElhmExcpAckmtPerf',
           header: t('MSG_TXT_ELHM_EXCP_ACKMT_PERF'),
-          width: '100',
+          width: '110',
           styleName: 'text-right',
           dataType: 'number',
           numberFormat: '#,###,##0',
@@ -567,7 +567,7 @@ function getGridColumns() {
           } }, // 개인실적-가전인정건수
         { fieldName: 'indvRentalBasePrc',
           header: t('MSG_TXT_RENTAL_BASE_PRC'),
-          width: '91.4',
+          width: '110',
           styleName: 'text-right',
           dataType: 'number',
           numberFormat: '#,###,##0',
@@ -577,7 +577,7 @@ function getGridColumns() {
           } }, // 개인실적-렌탈기준가
         { fieldName: 'indvSpayBasePrc',
           header: t('MSG_TXT_SNGL_PMNT_BASE_PRC'),
-          width: '91.4',
+          width: '110',
           styleName: 'text-right',
           dataType: 'number',
           numberFormat: '#,###,##0',
@@ -597,7 +597,7 @@ function getGridColumns() {
           } }, // 개인실적-기변건수
         { fieldName: 'indvElhmExcpAckmtPerf',
           header: t('MSG_TXT_ELHM_EXCP_ACKMT_PERF'),
-          width: '100',
+          width: '110',
           styleName: 'text-right',
           dataType: 'number',
           numberFormat: '#,###,##0',
@@ -675,9 +675,19 @@ function getGridColumns() {
             numberFormat: '#,##0',
             expression: 'sum',
           } }, // 조직실적-가전인정건수
+        { fieldName: 'ogElhmExcpAckmtPerf',
+          header: t('MSG_TXT_ELHM_EXCP_ACKMT_PERF'),
+          width: '110',
+          styleName: 'text-right',
+          dataType: 'number',
+          numberFormat: '#,###,##0',
+          headerSummary: {
+            numberFormat: '#,##0',
+            expression: 'sum',
+          } }, // 조직실적-가전외인정실적
         { fieldName: 'ogRentalBasePrc',
           header: t('MSG_TXT_RENTAL_BASE_PRC'),
-          width: '91.4',
+          width: '110',
           styleName: 'text-right',
           dataType: 'number',
           numberFormat: '#,###,##0',
@@ -687,7 +697,7 @@ function getGridColumns() {
           } }, // 조직실적-렌탈기준가
         { fieldName: 'ogSpayBasePrc',
           header: t('MSG_TXT_SNGL_PMNT_BASE_PRC'),
-          width: '91.4',
+          width: '110',
           styleName: 'text-right',
           dataType: 'number',
           numberFormat: '#,###,##0',
@@ -707,7 +717,7 @@ function getGridColumns() {
           } }, // 조직실적-기변건수
         { fieldName: 'ogPerfSum',
           header: t('MSG_TXT_AGG'),
-          width: '91.4',
+          width: '110',
           styleName: 'text-right',
           dataType: 'number',
           numberFormat: '#,###,##0',
@@ -889,7 +899,7 @@ function getGridColumns() {
           } }, // 개인실적-가전인정건수
         { fieldName: 'indvRentalBasePrc',
           header: t('MSG_TXT_RENTAL_BASE_PRC'),
-          width: '91.4',
+          width: '110',
           styleName: 'text-right',
           dataType: 'number',
           numberFormat: '#,###,##0',
@@ -899,7 +909,7 @@ function getGridColumns() {
           } }, // 개인실적-렌탈기준가
         { fieldName: 'indvSpayBasePrc',
           header: t('MSG_TXT_SNGL_PMNT_BASE_PRC'),
-          width: '91.4',
+          width: '110',
           styleName: 'text-right',
           dataType: 'number',
           numberFormat: '#,###,##0',
@@ -919,7 +929,7 @@ function getGridColumns() {
           } }, // 개인실적-기변건수
         { fieldName: 'indvElhmExcpAckmtPerf',
           header: t('MSG_TXT_ELHM_EXCP_ACKMT_PERF'),
-          width: '100',
+          width: '110',
           styleName: 'text-right',
           dataType: 'number',
           numberFormat: '#,###,##0',
@@ -997,9 +1007,19 @@ function getGridColumns() {
             numberFormat: '#,##0',
             expression: 'sum',
           } }, // 조직실적-가전인정건수
+        { fieldName: 'ogElhmExcpAckmtPerf',
+          header: t('MSG_TXT_ELHM_EXCP_ACKMT_PERF'),
+          width: '110',
+          styleName: 'text-right',
+          dataType: 'number',
+          numberFormat: '#,###,##0',
+          headerSummary: {
+            numberFormat: '#,##0',
+            expression: 'sum',
+          } }, // 조직실적-가전외인정실적
         { fieldName: 'ogRentalBasePrc',
           header: t('MSG_TXT_RENTAL_BASE_PRC'),
-          width: '91.4',
+          width: '110',
           styleName: 'text-right',
           dataType: 'number',
           numberFormat: '#,###,##0',
@@ -1009,7 +1029,7 @@ function getGridColumns() {
           } }, // 조직실적-렌탈기준가
         { fieldName: 'ogSpayBasePrc',
           header: t('MSG_TXT_SNGL_PMNT_BASE_PRC'),
-          width: '91.4',
+          width: '110',
           styleName: 'text-right',
           dataType: 'number',
           numberFormat: '#,###,##0',
@@ -1029,7 +1049,7 @@ function getGridColumns() {
           } }, // 조직실적-기변건수
         { fieldName: 'ogPerfSum',
           header: t('MSG_TXT_AGG'),
-          width: '91.4',
+          width: '110',
           styleName: 'text-right',
           dataType: 'number',
           numberFormat: '#,###,##0',
@@ -2376,7 +2396,7 @@ function setGridColumnLayout(view) {
         {
           header: t('MSG_TXT_OG_PERF'), // 조직실적
           direction: 'horizontal',
-          items: ['ogElhmAckmtCnt', 'ogRentalBasePrc', 'ogSpayBasePrc', 'ogChdvcCnt', 'ogPerfSum'],
+          items: ['ogElhmAckmtCnt', 'ogElhmExcpAckmtPerf', 'ogRentalBasePrc', 'ogSpayBasePrc', 'ogChdvcCnt', 'ogPerfSum'],
         },
         {
           header: t('MSG_TXT_OG') + t('MSG_TXT_ACC_NINC'), // 조직계정순증
@@ -2456,7 +2476,7 @@ function setGridColumnLayout(view) {
         {
           header: t('MSG_TXT_OG_PERF'), // 조직실적
           direction: 'horizontal',
-          items: ['ogElhmAckmtCnt', 'ogRentalBasePrc', 'ogSpayBasePrc', 'ogChdvcCnt', 'ogPerfSum'],
+          items: ['ogElhmAckmtCnt', 'ogElhmExcpAckmtPerf', 'ogRentalBasePrc', 'ogSpayBasePrc', 'ogChdvcCnt', 'ogPerfSum'],
         },
         {
           header: t('MSG_TXT_OG') + t('MSG_TXT_ACC_NINC'), // 조직계정순증
