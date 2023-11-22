@@ -14,27 +14,36 @@
 --->
 <template>
   <kw-page>
-    <kw-search @search="onClickSearch">
+    <kw-search
+      :cols="5"
+      @search="onClickSearch"
+    >
       <kw-search-row>
-        <kw-search-item :label="$t('MSG_TXT_OSTR_TP')">
+        <kw-search-item
+          :label="$t('MSG_TXT_OSTR_TP')"
+          :colspan="1"
+        >
           <kw-select
             v-model="searchParams.ostrTpCd"
             first-option="all"
             :options="codes.OSTR_TP_CD"
           />
         </kw-search-item>
-        <kw-search-item :label="$t('MSG_TXT_ITM_CD')">
-          <kw-input
-            v-model="searchParams.itmCdFrom"
-            :max-length="50"
-          />
-          <span>~</span>
-          <kw-input
-            v-model="searchParams.itmCdTo"
-            :max-length="50"
+        <kw-search-item
+          :label="$t('MSG_TXT_OSTR_DT')"
+          :colspan="2"
+        >
+          <kw-date-range-picker
+            v-model:from="searchParams.startDt"
+            v-model:to="searchParams.endDt"
+            :label="$t('MSG_TXT_OSTR_DT')"
+            rules="date_range_required"
           />
         </kw-search-item>
-        <kw-search-item :label="$t('MSG_TXT_SAPCD')">
+        <kw-search-item
+          :label="$t('MSG_TXT_SAPCD')"
+          :colspan="2"
+        >
           <kw-input
             v-model="searchParams.sapMatCdFrom"
             :max-length="50"
@@ -47,12 +56,14 @@
         </kw-search-item>
       </kw-search-row>
       <kw-search-row>
-        <kw-search-item :label="$t('MSG_TXT_OSTR_DT')">
-          <kw-date-range-picker
-            v-model:from="searchParams.startDt"
-            v-model:to="searchParams.endDt"
-            :label="$t('MSG_TXT_OSTR_DT')"
-            rules="date_range_required"
+        <kw-search-item
+          :label="$t('MSG_TXT_WARE_DV')"
+        >
+          <kw-select
+            v-model="searchParams.wareDvCd"
+            :options="codes.WARE_DV_CD.filter((v) => ['2', '3'].includes(v.codeId))"
+            :label="$t('MSG_TXT_WARE_DV')"
+            rules="required"
           />
         </kw-search-item>
         <kw-search-item
@@ -61,7 +72,6 @@
         >
           <kw-select
             v-model="searchParams.itmKndCd"
-            class="w166"
             :options="codes.ITM_KND_CD"
           />
           <kw-select
@@ -70,15 +80,22 @@
             first-option="all"
           />
         </kw-search-item>
-      </kw-search-row>
-      <kw-search-row>
-        <kw-search-item :label="$t('MSG_TXT_GD')">
-          <kw-select
-            v-model="searchParams.itmGdCd"
-            first-option="all"
-            :options="codes.PD_GD_CD.filter((v) => ['A', 'B', 'E', 'R', 'X'].includes(v.codeId))"
+        <kw-search-item
+          :label="$t('MSG_TXT_ITM_CD')"
+          :colspan="2"
+        >
+          <kw-input
+            v-model="searchParams.itmCdFrom"
+            :max-length="50"
+          />
+          <span>~</span>
+          <kw-input
+            v-model="searchParams.itmCdTo"
+            :max-length="50"
           />
         </kw-search-item>
+      </kw-search-row>
+      <kw-search-row>
         <kw-search-item :label="$t('MSG_TXT_USE_SEL')">
           <kw-select
             v-model="searchParams.useYn"
@@ -92,6 +109,13 @@
             first-option="all"
             :options="codes.MAT_UTLZ_DV_CD.filter((v) => ['01','02'].includes(v.codeId))"
             @update:model-value="onChangeMatUtlzDvCd"
+          />
+        </kw-search-item>
+        <kw-search-item :label="$t('MSG_TXT_GD')">
+          <kw-select
+            v-model="searchParams.itmGdCd"
+            first-option="all"
+            :options="codes.PD_GD_CD.filter((v) => ['A', 'B', 'E', 'R', 'X'].includes(v.codeId))"
           />
         </kw-search-item>
       </kw-search-row>
@@ -149,6 +173,7 @@ const codes = await codeUtil.getMultiCodes(
   'ITM_KND_CD',
   'MAT_UTLZ_DV_CD',
   'USE_YN',
+  'WARE_DV_CD',
 );
 
 let cachedParams;
@@ -165,7 +190,7 @@ const searchParams = ref({
   itmPdCd: '', // 품목
   matUtlzDvCd: '', // 자재구분
   useYn: '', // 사용여부
-  wareDvCd: '',
+  wareDvCd: '2',
 });
 
 let gridView;
