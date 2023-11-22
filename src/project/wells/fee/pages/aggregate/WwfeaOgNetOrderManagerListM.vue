@@ -825,7 +825,7 @@ async function openFeePerfCnfmCanPopup() {
     perfAgrgCrtDvCd: '201',
   };
   await modal({
-    component: 'WwfeaNetOrderConfirmP',
+    component: 'WwfeaOgNetOrderPerfAgrgRegP',
     componentProps: param,
   });
 
