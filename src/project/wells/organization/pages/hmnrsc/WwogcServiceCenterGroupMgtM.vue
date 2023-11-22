@@ -486,6 +486,7 @@ const initGrdMain = defineGrid((data, view) => {
     { fieldName: 'wkGrpCdNm', visible: false },
     { fieldName: 'ogTpCd', visible: false },
     { fieldName: 'dtaDlYn', visible: false },
+    { fieldName: 'usrId', visible: false },
   ];
 
   data.setFields(columns.map((item) => ({ fieldName: item.fieldName })));
