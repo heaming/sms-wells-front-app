@@ -811,11 +811,6 @@ async function fetchCntrtByCstNo(cstNo) {
   }
 }
 
-// 고객 센터용 빠른 수정 코드 FIXME: 제정신인 미래의 나
-if (props.cntrCstNo) {
-  await fetchCntrtByCstNo(props.cntrCstNo);
-}
-
 async function selectContractor() {
   if (searchParams.value.cntrTpCd !== CNTR_TP_CD.MEMBERSHIP
       && searchParams.value.cntrTpCd !== CNTR_TP_CD.RE_STIPULATION
@@ -1189,6 +1184,12 @@ const unwatch = watchEffect(() => {
     unwatch();
   }
 });
+
+// 고객 센터용 빠른 수정 코드 FIXME: 제정신인 미래의 나
+if (props.cntrCstNo) {
+  await fetchCntrtByCstNo(props.cntrCstNo);
+  selectPartner();
+}
 
 onActivated(() => {
   initStep(true);
