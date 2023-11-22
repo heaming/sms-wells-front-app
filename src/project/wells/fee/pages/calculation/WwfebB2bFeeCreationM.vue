@@ -379,9 +379,8 @@ async function onClickOpenReport(baseYm, prtnrNo) {
     'ksswells/cmms/btobPatSpec/V1.0/cmmsBtobPatSpec.odi',
     JSON.stringify(
       {
+        AKSDYM: baseYm,
         AKDCDE: prtnrNo,
-        AKSDTY: baseYm.substring(0, 4),
-        AKSDTM: baseYm.substring(4, 6),
       },
     ),
   );
@@ -515,8 +514,8 @@ const initGridDetail = defineGrid((data, view) => {
   view.onCellDblClicked = async (g, clickData) => {
     const baseYm = g.getValue(clickData.itemIndex, 'baseYm');
     const prtnrNo = g.getValue(clickData.itemIndex, 'prtnrNo');
-    console.log(`${baseYm} ${prtnrNo}`);
-    // await onClickOpenReport(baseYm, prtnrNo);
+    // console.log(`${baseYm} ${prtnrNo}`);
+    await onClickOpenReport(baseYm, prtnrNo);
   };
 });
 
