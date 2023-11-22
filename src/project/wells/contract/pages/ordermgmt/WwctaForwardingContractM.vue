@@ -258,7 +258,7 @@ async function openCntrOZReport() {
       cachedParams.cntrNo = params.cntrNo;
       cachedParams.cntrSn = params.cntrSn;
       cachedParams.cntrTempSaveDt = params.rstlCnfmDtm;
-      searchApiUrl = '/api/v1/sms/wells/contract/contracts/managements/search-api-url/rstl/args/anonymous';
+      searchApiUrl = '/api/v1/sms/wells/contract/contracts/managements/search-api-url/rstl/args';
       break;
     }
   }
