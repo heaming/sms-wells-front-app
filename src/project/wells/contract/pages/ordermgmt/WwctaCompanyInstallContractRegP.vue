@@ -301,11 +301,13 @@
             v-model="installDetail.ogCd"
             :label="$t('MSG_TXT_MGMT_DEPT')"
             class="w100"
+            maxlength="15"
             rules="required"
           />
           <kw-input
             v-model="installDetail.ogNm"
             :label="$t('MSG_TXT_MGMT_DEPT')"
+            maxlength="50"
             rules="required"
           />
         </kw-form-item>
