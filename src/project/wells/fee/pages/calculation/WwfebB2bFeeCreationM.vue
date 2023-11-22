@@ -511,12 +511,6 @@ const initGridDetail = defineGrid((data, view) => {
   view.setColumns(columns);
   view.checkBar.visible = false;
   view.rowIndicator.visible = true;
-  view.onCellDblClicked = async (g, clickData) => {
-    const baseYm = g.getValue(clickData.itemIndex, 'baseYm');
-    const prtnrNo = g.getValue(clickData.itemIndex, 'prtnrNo');
-    // console.log(`${baseYm} ${prtnrNo}`);
-    await onClickOpenReport(baseYm, prtnrNo);
-  };
 });
 
 const initGridBase = defineGrid((data, view) => {
@@ -726,6 +720,12 @@ const initGridBase = defineGrid((data, view) => {
     ],
   });
   view.layoutByColumn('prtnrKnm').summaryUserSpans = [{ colspan: 3 }];
+  view.onCellDblClicked = async (g, clickData) => {
+    const baseYm = g.getValue(clickData.itemIndex, 'baseYm');
+    const prtnrNo = g.getValue(clickData.itemIndex, 'prtnrNo');
+    // console.log(`${baseYm} ${prtnrNo}`);
+    await onClickOpenReport(baseYm, prtnrNo);
+  };
 });
 
 </script>
