@@ -449,6 +449,7 @@ function initGrid(data, view) {
     { fieldName: 'cntrNo' }, // 계약번호
     { fieldName: 'cntrSn' }, // 계약일련번호
     { fieldName: 'cntrNoSn' }, // [계약상세번호]
+    { fieldName: 'cstNo' }, // [고객번호] 계약고객번호
     { fieldName: 'cstKnm' }, // [계약자명] 계약자정보
     { fieldName: 'rcgvpKnm' }, // [설치자명] 설치자명
     { fieldName: 'cntrTno' }, // [휴대전화번호] 계약자 휴대폰번호 마스킹
@@ -484,9 +485,20 @@ function initGrid(data, view) {
 
   const columns = [
     { fieldName: 'cntrNoSn', header: t('MSG_TXT_CNTR_DTL_NO'), width: '168', styleName: 'text-center' }, // [계약상세번호]
+    { fieldName: 'cstNo', header: t('MSG_TXT_CST_NO'), width: '120', styleName: 'text-center' }, // [고객번호] 계약고객번호
     { fieldName: 'cstKnm', header: t('MSG_TXT_CNTOR_NM'), width: '120', styleName: 'text-center' }, // [계약자명] 계약자정보
     { fieldName: 'rcgvpKnm', header: t('MSG_TXT_IST_NM'), width: '120', styleName: 'text-center' }, // [설치자명] 설치자명
-    { fieldName: 'cntrTno', header: t('MSG_TXT_MPNO'), width: '140', styleName: 'text-center' }, // [휴대전화번호] 계약자 휴대폰번호 마스킹
+    { fieldName: 'cntrTno',
+      header: t('MSG_TXT_MPNO'),
+      width: '140',
+      styleName: 'text-center',
+      displayCallback(grid, index) {
+        const { cntrCralLocaraTno: no1, cntrMexnoEncr: no2, cntrCralIdvTno: no3 } = grid.getValues(index.itemIndex);
+        if (no1 != null) {
+          return `${no1}-${no2}-${no3}`;
+        }
+      },
+    }, // [휴대전화번호] 계약자 휴대폰번호 마스킹
     { fieldName: 'pdClsfNm', header: t('MSG_TXT_PRDT_CATE'), width: '220' }, // [상품분류] 상품분류(대분류 > 중분류)
     { fieldName: 'pdCd', header: t('MSG_TXT_PRDT_CODE'), width: '124', styleName: 'text-center' }, // [상품코드] 상품코드
     { fieldName: 'pdNm', header: t('MSG_TXT_PRDT_NM'), width: '220' }, // [상품명] 상품명
