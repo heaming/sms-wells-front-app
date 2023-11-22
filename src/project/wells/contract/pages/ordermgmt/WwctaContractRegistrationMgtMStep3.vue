@@ -362,7 +362,7 @@
                   />
                 </kw-form-item>
               </kw-form-row>
-              <template v-if="Number(item.stplPtrm) && Number(item.stplPtrm) > 0">
+              <template v-if="Number(item.cntrPtrm) && Number(item.cntrPtrm) > 0">
                 <kw-form-row>
                   <kw-form-item label="멤버십계좌이체">
                     <kw-option-group
