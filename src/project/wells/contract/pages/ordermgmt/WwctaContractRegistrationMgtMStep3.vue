@@ -362,10 +362,8 @@
                   />
                 </kw-form-item>
               </kw-form-row>
-              <template v-if="Number(item.cntrPtrm) && Number(item.cntrPtrm) > 0">
-                <kw-form-row
-                  v-if="Number(item.cntrPtrm) && Number(item.cntrPtrm) > 0"
-                >
+              <template v-if="Number(item.stplPtrm) && Number(item.stplPtrm) > 0">
+                <kw-form-row>
                   <kw-form-item label="멤버십계좌이체">
                     <kw-option-group
                       v-model="item.dpTpCdMshAftn"
@@ -374,18 +372,6 @@
                         codes.DP_TP_CD_AFTN_CRP :
                         codes.DP_TP_CD_AFTN"
                     />
-                  </kw-form-item>
-                </kw-form-row>
-                <kw-form-row
-                  v-if="item.recapMshPtrm > 0"
-                >
-                  <kw-form-item
-                    no-label
-                    :colspan="2"
-                  >
-                    <h3 class="my0">
-                      멤버십 금액 : {{ getNumberWithComma(item.mshAmt || 0) }}원
-                    </h3>
                   </kw-form-item>
                 </kw-form-row>
               </template>
