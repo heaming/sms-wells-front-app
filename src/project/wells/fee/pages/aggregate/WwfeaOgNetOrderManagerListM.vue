@@ -542,7 +542,7 @@ async function fetchNetOrderStatus() {
 
   const statusParams = {
     baseYm: searchParams.value.perfYm,
-    ogTpCd: searchParams.value.ogTpcd,
+    ogTpCd: searchParams.value.ogTpCd,
     feeTcntDvCd: searchParams.value.feeTcntDvCd,
   };
 
@@ -552,9 +552,27 @@ async function fetchNetOrderStatus() {
     const resStat = await dataService.get('/sms/common/fee/net-order-status/schedule-start', { params: statusParams });
 
     if (resStat.data.schStartCd === 'NOTSTART') { // 해당 일정이 시작 하였는지 확인
-      isOrderCreateVisile.value = true;
-      isOrderModifyVisile.value = true;
-      isOrderDeleteVisile.value = true;
+      const prtnrParams = {
+        baseYm: searchParams.value.perfYm,
+        feeTcntDvCd: searchParams.value.feeTcntDvCd,
+        perfAgrgCrtDvCd: '201',
+      };
+
+      const resPrtnr = await dataService.get('/sms/common/fee/net-order-status/prtnr', { params: prtnrParams });
+
+      if (resPrtnr.data.ntorCnfmStatCd === '02') { // 수수료 실적 확정
+        isOrderCreateVisile.value = false;
+        isOrderModifyVisile.value = false;
+        isOrderDeleteVisile.value = true;
+      } else if (resPrtnr.data.ntorCnfmStatCd === '01') { // 수수료 실적 생성
+        isOrderCreateVisile.value = true;
+        isOrderModifyVisile.value = true;
+        isOrderDeleteVisile.value = false;
+      } else {
+        isOrderCreateVisile.value = true;
+        isOrderModifyVisile.value = false;
+        isOrderDeleteVisile.value = false;
+      }
     } else {
       isOrderCreateVisile.value = false;
       isOrderModifyVisile.value = false;
@@ -825,7 +843,7 @@ async function openFeePerfCnfmCanPopup() {
     perfAgrgCrtDvCd: '201',
   };
   await modal({
-    component: 'WwfeaNetOrderConfirmP',
+    component: 'WwfeaOgNetOrderPerfAgrgRegP',
     componentProps: param,
   });
 
