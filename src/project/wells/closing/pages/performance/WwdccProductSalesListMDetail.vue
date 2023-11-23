@@ -314,13 +314,13 @@ const initGrdSinglePayment = defineGrid((data, view) => {
         styleName: 'text-center',
       } }, // 판매유형
     { fieldName: 'sellTpDtlCd', header: t('MSG_TXT_SELL_TP_DTL'), width: '100', styleName: 'text-center' }, // 판매유형상세코드
-    { fieldName: 'pdCd', header: t('MSG_TXT_PRDT_CODE'), width: '100', styleName: 'text-center' }, // 상품코드
+    { fieldName: 'pdCd', header: t('MSG_TXT_PRDT_CODE'), width: '130', styleName: 'text-center' }, // 상품코드
     { fieldName: 'pdNm', header: t('MSG_TXT_PRDT'), width: '200', styleName: 'text-left' }, // 상품명
     { fieldName: 'sellInflwChnlDtlCd', header: t('MSG_TXT_SEL_CHNL'), width: '100', styleName: 'text-center' }, // 판매유입채널상세
     { fieldName: 'slRcogDt', header: t('MSG_TXT_SL_DT'), width: '100', styleName: 'text-center', datetimeFormat: 'date' }, // 매출인식일자
     { fieldName: 'cntrDtlNo',
       header: t('MSG_TXT_CNTR_DTL_NO'),
-      width: '100',
+      width: '150',
       styleName: 'text-center rg-button-link',
       renderer: { type: 'button' } }, // 계약번호
     { fieldName: 'cstKnm', header: t('MSG_TXT_CST_NM'), width: '100', styleName: 'text-center' }, // 고객명
@@ -635,13 +635,13 @@ const initGrdRental = defineGrid((data, view) => {
         styleName: 'text-center',
       } }, // 판매유형
     { fieldName: 'sellTpDtlCd', header: t('MSG_TXT_SEL_TYPE'), width: '100', styleName: 'text-center' }, // 판매유형상세코드
-    { fieldName: 'pdCd', header: t('MSG_TXT_PRDT_CODE'), width: '100', styleName: 'text-center' }, // 상품코드
+    { fieldName: 'pdCd', header: t('MSG_TXT_PRDT_CODE'), width: '130', styleName: 'text-center' }, // 상품코드
     { fieldName: 'pdNm', header: t('MSG_TXT_PRDT'), width: '200', styleName: 'text-left' }, // 상품명
     { fieldName: 'sellInflwChnlDtlCd', header: t('MSG_TXT_SEL_CHNL'), width: '100', styleName: 'text-center' }, // 판매유입채널상세
     { fieldName: 'slRcogDt', header: t('MSG_TXT_SL_DT'), width: '100', styleName: 'text-center', datetimeFormat: 'date' }, // 매출인식일자
     { fieldName: 'cntrDtlNo',
       header: t('MSG_TXT_CNTR_DTL_NO'),
-      width: '100',
+      width: '150',
       styleName: 'text-center rg-button-link',
       renderer: { type: 'button' } }, // 계약번호
     { fieldName: 'cstKnm', header: t('MSG_TXT_CST_NM'), width: '100', styleName: 'text-center' }, // 고객명
@@ -835,13 +835,13 @@ const initGrdMemberships = defineGrid((data, view) => {
         styleName: 'text-center',
       } }, // 판매유형
     { fieldName: 'sellTpDtlCd', header: t('MSG_TXT_SELL_TP_DTL'), width: '100', styleName: 'text-center' }, // 판매유형상세코드
-    { fieldName: 'pdCd', header: t('MSG_TXT_PRDT_CODE'), width: '100', styleName: 'text-center' }, // 상품코드
+    { fieldName: 'pdCd', header: t('MSG_TXT_PRDT_CODE'), width: '130', styleName: 'text-center' }, // 상품코드
     { fieldName: 'pdNm', header: t('MSG_TXT_PRDT'), width: '200', styleName: 'text-left' }, // 상품명
     { fieldName: 'sellInflwChnlDtlCd', header: t('MSG_TXT_SEL_CHNL'), width: '100', styleName: 'text-center' }, // 판매유입채널상세
     { fieldName: 'slRcogDt', header: t('MSG_TXT_SL_DT'), width: '100', styleName: 'text-center', datetimeFormat: 'date' }, // 매출인식일자
     { fieldName: 'cntrDtlNo',
       header: t('MSG_TXT_CNTR_DTL_NO'),
-      width: '100',
+      width: '150',
       styleName: 'text-center rg-button-link',
       renderer: { type: 'button' } }, // 계약번호
     { fieldName: 'cstKnm', header: t('MSG_TXT_CST_NM'), width: '100', styleName: 'text-center' }, // 고객명
