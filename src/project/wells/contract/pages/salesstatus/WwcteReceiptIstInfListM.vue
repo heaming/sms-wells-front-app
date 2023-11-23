@@ -217,6 +217,14 @@
             :options="codes.incentiveYn"
           />
         </kw-search-item>
+        <!-- 사전접수여부 -->
+        <kw-search-item :label="`${t('MSG_TXT_PRR_RCP')}`">
+          <kw-option-group
+            v-model="fieldParams.prrRcpCntrYn"
+            type="checkbox"
+            :options="codes.prrRcpCntrYn"
+          />
+        </kw-search-item>
       </kw-search-row>
       <!-- 고객 요청에 의해 조직 유형 코드로 변경 end 20231116-->
     </kw-search>
@@ -298,6 +306,7 @@ const fieldParams = ref({
   ogTpCd: '',
   sellChnlDvCd: '',
   sellChnlDtlCd: '',
+  prrRcpCntrYn: false, // 사전접수여부
 });
 
 const srchMainRef = ref(getComponentType('KwSearch'));
@@ -336,6 +345,7 @@ const codes = ref({
   sellTpCd: [{ codeId: '7', codeName: t('MSG_TXT_LEASE'), num: 2 }],
   sellInflwChnlDtlCd: commonCodes.SELL_CHNL_DTL_CD.filter((v) => v.codeId === '1010' || v.codeId === '3010'),
   incentiveYn: [{ codeId: 1, codeName: t('MSG_TXT_ICT_OJ') }],
+  prrRcpCntrYn: [{ codeId: 1, codeName: t('MSG_TXT_PRR_RCP_CNTR_YN') }],
   sppDuedtYn: [{ codeId: 1, codeName: `${t('MSG_TXT_DUEDT')} ${t('MSG_TXT_NO_RGS')}` }],
   pdDvs: [
     { codeId: '1', codeName: t('MSG_TXT_IST_PDCT') },
@@ -599,6 +609,8 @@ const initGrid = defineGrid((data, view) => {
     { fieldName: 'prtnrMngYn' }, /* 웰스매니저 1 */
     { fieldName: 'cntrCnfmDt' }, /* 계약확정일시 - 접수일 1 */
     { fieldName: 'cntrCnfmTm' }, /* 계약확정일시 - 접수시간 1 */
+    { fieldName: 'prrCntrCnfmDt' }, /* 사전접수일시 - 사전접수일 1 */
+    { fieldName: 'prrCntrCnfmTm' }, /* 사전접수일시 - 사전접수시간 1 */
     { fieldName: 'fnlMdfcDt' }, /* 최종수정일시-최종변경일 1 */
     { fieldName: 'fnlMdfcTm' }, /* 최종수정일시-최종변경일 1 */
     { fieldName: 'sppDuedt' }, /* 배송예정일자-예정일 1 */
@@ -677,6 +689,8 @@ const initGrid = defineGrid((data, view) => {
 
     { fieldName: 'cntrCnfmDt', header: t('MSG_TXT_RCPDT'), width: '129', styleName: 'text-center', datetimeFormat: 'date' }, // 접수일
     { fieldName: 'cntrCnfmTm', header: t('MSG_TXT_RCPT_HH'), width: '129', styleName: 'text-center', datetimeFormat: 'time' }, // 접수시간
+    { fieldName: 'prrCntrCnfmDt', header: t('MSG_TXT_PRR_RCP_DT'), width: '129', styleName: 'text-center', datetimeFormat: 'date' }, // 사전접수일
+    { fieldName: 'prrCntrCnfmTm', header: t('MSG_TXT_PRR_RCP_HH'), width: '129', styleName: 'text-center', datetimeFormat: 'time' }, // 사전접수시간
     { fieldName: 'fnlMdfcDt', header: `${t('MSG_TXT_FNL')}${t('MSG_TXT_CH_DT')}`, width: '129', styleName: 'text-center', datetimeFormat: 'date' }, // 최종변경일
     { fieldName: 'fnlMdfcTm', header: `${t('MSG_TXT_FNL')}${t('MSG_TXT_RCPT_HH')}`, width: '129', styleName: 'text-center', datetimeFormat: 'time' }, // 최종변경시간
     { fieldName: 'sppDuedt', header: t('MSG_TXT_DUEDT'), width: '129', styleName: 'text-center', datetimeFormat: 'date' }, // 예정일
@@ -741,7 +755,7 @@ const initGrid = defineGrid((data, view) => {
     {
       header: t('MSG_TXT_RCP_AND_INST_INF'), // 접수 및 설치 정보
       direction: 'horizontal', // merge type
-      items: ['cntrCnfmDt', 'cntrCnfmTm', 'fnlMdfcDt', 'fnlMdfcTm', 'sppDuedt', 'istDt', 'reqdDt', 'ssBooDt', 'ssStocStrDt'],
+      items: ['cntrCnfmDt', 'cntrCnfmTm', 'prrCntrCnfmDt', 'prrCntrCnfmTm', 'fnlMdfcDt', 'fnlMdfcTm', 'sppDuedt', 'istDt', 'reqdDt', 'ssBooDt', 'ssStocStrDt'],
     },
     {
       header: t('MSG_TXT_ETC'), // 기타
