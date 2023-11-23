@@ -254,8 +254,8 @@ async function fetchData() {
   grdMain1PageInfo.value = pagingResult;
   grdMain1Datas.value = list;
   grdMain1Datas.value.forEach((item) => {
-    if (item.bizUseIdvTno && item.bizUseExnoEncr && item.bizUseLocaraTno) {
-      item.biztelephone = `${item.bizUseIdvTno}${item.bizUseExnoEncr}${item.bizUseLocaraTno}`;
+    if (item.bizUseLocaraTno && item.bizUseExnoEncr && item.bizUseIdvTno) {
+      item.biztelephone = `${item.bizUseLocaraTno}${item.bizUseExnoEncr}${item.bizUseIdvTno}`;
     } else {
       item.biztelephone = `${item.cralLocaraTno}${item.mexnoEncr}${item.cralIdvTno}`;
     }
@@ -530,9 +530,9 @@ async function onClickSave() {
       usrId: obj.usrId,
       ogTpCd: obj.ogTpCd,
       prtnrNo: obj.prtnrNo,
-      bizUseIdvTno: getPhoneNumber(obj.biztelephone, 1),
+      bizUseLocaraTno: getPhoneNumber(obj.biztelephone, 1),
       bizUseExnoEncr: getPhoneNumber(obj.biztelephone, 2),
-      bizUseLocaraTno: getPhoneNumber(obj.biztelephone, 3),
+      bizUseIdvTno: getPhoneNumber(obj.biztelephone, 3),
     };
     return data;
   });
@@ -714,7 +714,7 @@ const initGrid1 = defineGrid((data, view) => {
       visible: false,
     },
     {
-      fieldName: 'bizUseIdvTno', // 업무사용개별전화번호
+      fieldName: 'bizUseLocaraTno', // 업무사용지역전화번호
       visible: false,
     },
     {
@@ -722,7 +722,7 @@ const initGrid1 = defineGrid((data, view) => {
       visible: false,
     },
     {
-      fieldName: 'bizUseLocaraTno', // 업무사용지역전화번호
+      fieldName: 'bizUseIdvTno', // 업무사용개별전화번호
       visible: false,
     },
     {
