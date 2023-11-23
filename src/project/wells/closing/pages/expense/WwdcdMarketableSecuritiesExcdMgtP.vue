@@ -193,6 +193,8 @@ import { useI18n } from 'vue-i18n';
 const { t } = useI18n();
 const dataService = useDataService();
 const { modal, confirm, notify, alert } = useGlobal();
+const store = useStore();
+const userInfo = store.getters['meta/getUserInfo'];
 // const { ok } = useModal();
 // -------------------------------------------------------------------------------------------------
 // Function & Event
@@ -295,6 +297,7 @@ async function onClickSearchPartner() {
     component: 'ZwogzPartnerListP',
     componentProps: {
       prtnrNo: searchParams.value.dstOjpsNm,
+      ogTpCd: userInfo.wkOjOgTpCd === null ? userInfo.ogTpCd : userInfo.wkOjOgTpCd,
     },
   });
   if (result) {
