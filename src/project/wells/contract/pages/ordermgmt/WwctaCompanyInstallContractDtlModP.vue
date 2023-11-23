@@ -272,11 +272,13 @@
             :label="$t('MSG_TXT_MGMT_DEPT')"
             class="w100"
             rules="required"
+            maxlength="15"
           />
           <kw-input
             v-model="installDetail.ogNm"
             :label="$t('MSG_TXT_MGMT_DEPT')"
             rules="required"
+            maxlength="50"
           />
         </kw-form-item>
       </kw-form-row>

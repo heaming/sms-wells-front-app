@@ -255,6 +255,7 @@ async function onClickExcelDownload() {
     fileName: currentRoute.value.meta.menuName,
     timePostfix: true,
     exportData: data,
+    applyFixed: true,
   });
 }
 // 이력관리 버튼 클릭
@@ -379,9 +380,8 @@ async function onClickOpenReport(baseYm, prtnrNo) {
     'ksswells/cmms/btobPatSpec/V1.0/cmmsBtobPatSpec.odi',
     JSON.stringify(
       {
+        AKSDYM: baseYm,
         AKDCDE: prtnrNo,
-        AKSDTY: baseYm.substring(0, 4),
-        AKSDTM: baseYm.substring(4, 6),
       },
     ),
   );
@@ -512,12 +512,6 @@ const initGridDetail = defineGrid((data, view) => {
   view.setColumns(columns);
   view.checkBar.visible = false;
   view.rowIndicator.visible = true;
-  view.onCellDblClicked = async (g, clickData) => {
-    const baseYm = g.getValue(clickData.itemIndex, 'baseYm');
-    const prtnrNo = g.getValue(clickData.itemIndex, 'prtnrNo');
-    console.log(`${baseYm} ${prtnrNo}`);
-    // await onClickOpenReport(baseYm, prtnrNo);
-  };
 });
 
 const initGridBase = defineGrid((data, view) => {
@@ -727,6 +721,12 @@ const initGridBase = defineGrid((data, view) => {
     ],
   });
   view.layoutByColumn('prtnrKnm').summaryUserSpans = [{ colspan: 3 }];
+  view.onCellDblClicked = async (g, clickData) => {
+    const baseYm = g.getValue(clickData.itemIndex, 'baseYm');
+    const prtnrNo = g.getValue(clickData.itemIndex, 'prtnrNo');
+    // console.log(`${baseYm} ${prtnrNo}`);
+    await onClickOpenReport(baseYm, prtnrNo);
+  };
 });
 
 </script>

@@ -288,7 +288,7 @@ const initContractGrid = defineGrid((data, view) => {
     { fieldName: 'slRcogDt', header: t('MSG_TXT_SL_DT'), width: '130', styleName: 'text-center', datetimeFormat: 'date' }, // 매출일자
     { fieldName: 'cralTno', header: t('MSG_TXT_MPNO'), width: '130', styleName: 'text-center' }, // 휴대전화번호
     { fieldName: 'mpyBsdt', header: t('MSG_TXT_AUTO_FNT_STPL_DT'), width: '150', styleName: 'text-center' }, // 자동이체 약정일자
-    { fieldName: 'fntDvNm', header: t('MSG_TXT_STLM_MES'), width: '130', styleName: 'text-center' }, // 결제수단
+    { fieldName: 'fntDvNm', header: t('MSG_TXT_STLM_MES'), width: '130', styleName: 'text-left' }, // 결제수단
     { fieldName: 'dlqAmt', header: t('MSG_TXT_DLQ_AMT'), width: '130', styleName: 'text-right', dataType: 'number' }, // 연체금액
     { fieldName: 'dlqBlam', header: t('MSG_TXT_DLQ_BLAM'), width: '130', styleName: 'text-right', dataType: 'number' }, // 연체잔액
     { fieldName: 'prtnrKnm', header: t('MSG_TXT_CLCTAM_PSIC'), width: '130', styleName: 'text-center' }, // 집금담당자

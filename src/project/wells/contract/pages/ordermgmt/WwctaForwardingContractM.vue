@@ -13,19 +13,26 @@
 ****************************************************************************************************
 --->
 <template>
-  <kw-page>
+  <kw-page v-if="isEqual(params.device, 'mobile')">
     <kw-form
       ref="frmRef"
       class="pa20"
     >
+      <!-- <p class="kw-font-pt18 text-weight-medium mt20">
+        {{ `${params?.custNm} ${t('MSG_TXT_CST')}.` }}
+      </p> -->
       <!-- 재약정 -->
       <template v-if="isEqual(rptIdGbn, 'bryymmdd')">
         <!-- 개인 -->
         <slot v-if="!isCooperation">
-          <p class="kw-font-pt18 text-weight-medium mt20">
-            {{ `${params?.custNm} ${t('MSG_TXT_CST')}.` }} <br>
+          <span class="kw-font-pt18 text-weight-medium mt20">
+            <!-- custNm 고객님. 재약정을 확인하기 위해 생년월일 8자리를 입력하세요. -->
+            {{ `${params?.custNm} ${t('MSG_TXT_CST')}.` }}
+            <br>
+            {{ `${searchParams.reportHeaderTitle}${t('MSG_TXT_CHK_REPORT_FOR')}` }}
+            <br>
             {{ `${t('MSG_TXT_BRYY_MMDD_POSTN_IN',['8'])}` }}
-          </p>
+          </span>
           <kw-date-picker
             v-model="searchParams.cntrCstBryyMmdd"
             rules="required"
@@ -35,25 +42,33 @@
         </slot>
         <!-- 법인 -->
         <slot v-else>
-          <p class="kw-font-pt18 text-weight-medium mt20">
-            {{ `${params?.custNm} ${t('MSG_TXT_CST')}.` }} <br>
-            {{ t('MSG_TXT_ENTR_EMAIL') }}
-          </p>
+          <span class="kw-font-pt18 text-weight-medium mt20">
+            <!-- custNm 고객님. 재약정을 확인하기 위해 사업자번호를 입력하세요. -->
+            {{ `${params?.custNm} ${t('MSG_TXT_CST')}.` }}
+            <br>
+            {{ `${searchParams.reportHeaderTitle}${t('MSG_TXT_CHK_REPORT_FOR')}` }}
+            <br>
+            {{ t('MSG_TXT_ENTER_BZRNO') }}
+          </span>
           <kw-input
             v-model="searchParams.bzrno"
-            :label="$t('MSG_TXT_EMAIL_ADDR')"
+            :label="$t('MSG_TXT_ENTRP_NO')"
             rules="required"
-            :placeholder="$t('MSG_TXT_ENTR_EMAIL')"
-            :maxlength="50"
+            :placeholder="`${t('MSG_TXT_ENTRP_NO')} 10${t('MSG_TXT_DIGITS')}`"
+            :maxlength="10"
           />
         </slot>
       </template>
       <!-- 명세서 -->
       <template v-if="isEqual(rptIdGbn, 'email')">
-        <p class="kw-font-pt18 text-weight-medium mt20">
-          {{ `${params?.custNm} ${t('MSG_TXT_CST')}.` }} <br>
+        <span class="kw-font-pt18 text-weight-medium mt20">
+          <!-- custNm 고객님. 내역서를 확인하기 위해 이메일을 입력하세요. -->
+          {{ `${params?.custNm} ${t('MSG_TXT_CST')}.` }}
+          <br>
+          {{ `${searchParams.reportHeaderTitle}${t('MSG_TXT_CHK_REPORT_FOR')}` }}
+          <br>
           {{ t('MSG_TXT_ENTR_EMAIL') }}
-        </p>
+        </span>
         <kw-input
           v-model="searchParams.emadr"
           :label="$t('MSG_TXT_EMAIL_ADDR')"
@@ -64,6 +79,7 @@
       </template>
       <!-- 견적서 발송 -->
       <template v-if="isEqual(rptIdGbn, 'noCertification')">
+        <!-- custNm 고객님. 견적서를 확인하세요. -->
         <p class="kw-font-pt18 text-weight-medium mt20">
           {{ `${params?.custNm} ${t('MSG_TXT_CST')}.` }} <br>
           {{ t('MSG_ALT_CHK_CONFIRM', [t('MSG_TXT_QUOT')]) }}
@@ -90,7 +106,7 @@
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
-import { postMessage, decryptEncryptedParam } from '~sms-common/contract/util';
+import { postMessage, decryptEncryptedParam, openWindowPage } from '~sms-common/contract/util';
 import { /* alert, */ useDataService } from 'kw-lib';
 import { isEqual, isEmpty } from 'lodash-es';
 import { COPN_DV_CD } from '~sms-wells/contract/constants/ctConst';
@@ -110,9 +126,11 @@ const props = defineProps({
   rptId: { type: String, default: undefined }, // 리포트Id
   spectxGrpNo: { type: String, default: undefined }, // 거래명세서그룹번호
   spectxPblDDvCd: { type: String, default: undefined }, // 거래명세서발행일구분코드
-  encryptedParam: { type: String, default: undefined },
-  cntrCnfmStrtDt: { type: String, default: undefined },
-  cntrTempSaveDt: { type: String, default: undefined },
+  encryptedParam: { type: String, default: undefined }, // 암호화 된 파라미터
+  cntrCnfmStrtDt: { type: String, default: undefined }, // 계약확정시작일자
+  cntrTempSaveDt: { type: String, default: undefined }, // 계약임시저장일자
+  stpltn: { type: String, default: undefined }, // 약정회차
+  device: { type: String, default: undefined }, // 기기
 });
 
 // props에서 받은 파라미터들
@@ -129,6 +147,8 @@ const params = decryptEncryptedParam(props.encryptedParam, {
   spectxGrpNo: props.spectxGrpNo,
   cntrCnfmStrtDt: props.cntrCnfmStrtDt,
   cntrTempSaveDt: props.cntrTempSaveDt,
+  stpltn: props.stpltn,
+  device: props.device,
 });
 
 const searchParams = ref({
@@ -145,6 +165,29 @@ const isCooperation = computed(() => isEqual(searchParams.value.copnDvCd, COPN_D
 const frmRef = ref();
 const rptIdGbn = computed(() => { // 리포트 종류 구분 처리 computed
   if (isEmpty(params.rptId)) { return ''; }
+
+  switch (params.rptId) {
+    case 'CARD001': { // 카드내역서
+      searchParams.value.reportHeaderTitle = t('MSG_TXT_CRCD_IZSH'); // 레포트 제목
+      break;
+    }
+    case 'CONC001': { // 계약사항
+      searchParams.value.reportHeaderTitle = t('MSG_TXT_CNTR_ARTC'); // 레포트 제목
+      break;
+    }
+    case 'DEAL001': { // 거래명세서
+      searchParams.value.reportHeaderTitle = t('MSG_TXT_TRD_SPCSH'); // 레포트 제목
+      break;
+    }
+    case 'DPSTMAIL': { // 입금내역서
+      searchParams.value.reportHeaderTitle = t('MSG_TXT_DP_IZSH'); // 레포트 제목
+      break;
+    }
+    case 'RP002': { // 재약정
+      searchParams.value.reportHeaderTitle = t('MSG_TXT_RSTL'); // 레포트 제목
+      break;
+    }
+  }
 
   if (['ESDC01'].includes(params.rptId)) { return 'noCertification'; } // 무인증 리스트
 
@@ -179,6 +222,7 @@ async function openCntrOZReport() {
     spectxPblDDvCd: params.spectxPblDDvCd,
     spectxGrpNo: params.spectxGrpNo,
     cntrCnfmStrtDt: params.cntrCnfmStrtDt,
+    stpltn: params.stpltn,
   };
 
   // OZ 리포트 팝업 파라미터 설정
@@ -213,7 +257,8 @@ async function openCntrOZReport() {
     case 'RP002': { // 재약정
       cachedParams.cntrNo = params.cntrNo;
       cachedParams.cntrSn = params.cntrSn;
-      searchApiUrl = '/api/v1/sms/wells/contract/contracts/managements/search-api-url/rstl';
+      cachedParams.cntrTempSaveDt = params.rstlCnfmDtm;
+      searchApiUrl = '/api/v1/sms/wells/contract/contracts/managements/search-api-url/rstl/args';
       break;
     }
   }
@@ -261,14 +306,25 @@ async function fetchBasicContractInfo() {
   }
 }
 onMounted(async () => {
+  if (!isEmpty(params.cntrList)) {
+    params.cntrDtlNoList = params.cntrList.split(',');
+  } else {
+    params.cntrDtlNoList = [];
+  }
+  if (!isEqual(params.device, 'mobile')) {
+    params.device = 'mobile';
+    await openWindowPage(
+      'WwctaForwardingContractM',
+      params,
+      true,
+    );
+    return;
+  }
+
   if (isEqual(rptIdGbn.value, 'bryymmdd')) {
     await fetchBasicContractInfo();
   } else if (isEqual(rptIdGbn.value, 'noCertification')) {
     openCntrOZReport();
-  }
-
-  if (!isEmpty(params.cntrList)) {
-    params.cntrList = params.cntrList.split(',');
   }
 });
 </script>
