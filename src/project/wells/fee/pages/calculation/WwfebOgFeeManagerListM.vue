@@ -303,18 +303,20 @@ function getGridColumns() {
           dataType: 'number',
           numberFormat: '###0.##',
           headerSummary: {
-            numberFormat: '#,##0',
-            expression: 'sum',
+            numberFormat: '#,##0.##',
+            valueCallback(grid) {
+              return (grid.getSummary('indvFshCnt', 'sum') / grid.getSummary('indvAsnCnt', 'sum')) * 100;
+            },
           } }, // 개인BS-처리율
         { fieldName: 'indvDbsRat',
           header: t('MSG_TXT_PYT_RT'),
           width: '91.4',
           styleName: 'text-right',
           dataType: 'number',
-          numberFormat: '#,###,##0',
+          numberFormat: '#,###,##0.##',
           headerSummary: {
-            numberFormat: '#,##0',
-            expression: 'sum',
+            numberFormat: '#,##0.##',
+            expression: 'avg',
           } }, // 개인BS-지급률
         { fieldName: 'indvW1Cnt',
           header: `W1${t('MSG_TXT_COUNT')}`,
@@ -482,18 +484,20 @@ function getGridColumns() {
           dataType: 'number',
           numberFormat: '###0.##',
           headerSummary: {
-            numberFormat: '#,##0',
-            expression: 'sum',
+            numberFormat: '#,##0.##',
+            valueCallback(grid) {
+              return (grid.getSummary('indvFshCnt', 'sum') / grid.getSummary('indvAsnCnt', 'sum')) * 100;
+            },
           } }, // 개인BS-처리율
         { fieldName: 'indvDbsRat',
           header: t('MSG_TXT_PYT_RT'),
           width: '91.4',
           styleName: 'text-right',
           dataType: 'number',
-          numberFormat: '#,###,##0',
+          numberFormat: '#,###,##0.##',
           headerSummary: {
-            numberFormat: '#,##0',
-            expression: 'sum',
+            numberFormat: '#,##0.##',
+            expression: 'avg',
           } }, // 개인BS-지급률
         { fieldName: 'indvW1Cnt',
           header: `W1${t('MSG_TXT_COUNT')}`,
@@ -542,8 +546,10 @@ function getGridColumns() {
           dataType: 'number',
           numberFormat: '###0.##',
           headerSummary: {
-            numberFormat: '#,##0',
-            expression: 'sum',
+            numberFormat: '#,##0.##',
+            valueCallback(grid) {
+              return (grid.getSummary('ogFshCnt', 'sum') / grid.getSummary('ogAsnCnt', 'sum')) * 100;
+            },
           } }, // 조직BS-처리율
         { fieldName: 'ogDbsRat',
           header: t('MSG_TXT_NINC') + t('MSG_TXT_MGT') + t('MSG_TXT_PYT_RT'),
@@ -552,8 +558,8 @@ function getGridColumns() {
           dataType: 'number',
           numberFormat: '###0.##',
           headerSummary: {
-            numberFormat: '#,##0',
-            expression: 'sum',
+            numberFormat: '#,##0.##',
+            expression: 'avg',
           } }, // 조직BS-순증관리지급률
         { fieldName: 'indvElhmAckmtCnt',
           header: t('MSG_TXT_ELHM_ACKMT_CT'),
@@ -814,8 +820,10 @@ function getGridColumns() {
           dataType: 'number',
           numberFormat: '###0.##',
           headerSummary: {
-            numberFormat: '#,##0',
-            expression: 'sum',
+            numberFormat: '#,##0.##',
+            valueCallback(grid) {
+              return (grid.getSummary('indvFshCnt', 'sum') / grid.getSummary('indvAsnCnt', 'sum')) * 100;
+            },
           } }, // 개인BS-처리율
         { fieldName: 'indvDbsRat',
           header: t('MSG_TXT_PYT_RT'),
@@ -824,8 +832,8 @@ function getGridColumns() {
           dataType: 'number',
           numberFormat: '###0.##',
           headerSummary: {
-            numberFormat: '#,##0',
-            expression: 'sum',
+            numberFormat: '#,##0.##',
+            expression: 'avg',
           } }, // 개인BS-지급률
         { fieldName: 'indvW1Cnt',
           header: `W1${t('MSG_TXT_COUNT')}`,
@@ -874,8 +882,10 @@ function getGridColumns() {
           dataType: 'number',
           numberFormat: '###0.##',
           headerSummary: {
-            numberFormat: '#,##0',
-            expression: 'sum',
+            numberFormat: '#,##0.##',
+            valueCallback(grid) {
+              return (grid.getSummary('ogFshCnt', 'sum') / grid.getSummary('ogAsnCnt', 'sum')) * 100;
+            },
           } }, // 조직BS-처리율
         { fieldName: 'ogDbsRat',
           header: t('MSG_TXT_NINC') + t('MSG_TXT_MGT') + t('MSG_TXT_PYT_RT'),
@@ -884,8 +894,8 @@ function getGridColumns() {
           dataType: 'number',
           numberFormat: '###0.##',
           headerSummary: {
-            numberFormat: '#,##0',
-            expression: 'sum',
+            numberFormat: '#,##0.##',
+            expression: 'avg',
           } }, // 조직BS-순증관리지급률
         { fieldName: 'indvElhmAckmtCnt',
           header: t('MSG_TXT_ELHM_ACKMT_CT'),
