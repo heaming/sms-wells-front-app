@@ -84,7 +84,7 @@
           dense
           primary
           :label="$t('MSG_TXT_ERR_RGST')"
-          @click="onClickErrorCodeRgst('','','','','','')"
+          @click="onClickErrorCodeRgst(searchParams.pdCd,'','','','','')"
         />
       </kw-action-top>
       <kw-grid
