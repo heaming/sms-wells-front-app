@@ -425,7 +425,7 @@ const initGrdMain = defineGrid((data, view) => {
       header: `${t('MSG_TXT_QTY')}(EA)`,
       width: '80',
       styleName: 'text-right',
-      footer: { expression: 'sum' },
+      footer: { expression: 'sum', numberFormat: '#,##0' },
     },
     {
       fieldName: 'partCd02',
@@ -444,7 +444,7 @@ const initGrdMain = defineGrid((data, view) => {
       header: `${t('MSG_TXT_QTY')}(EA)`,
       width: '80',
       styleName: 'text-right',
-      footer: { expression: 'sum' },
+      footer: { expression: 'sum', numberFormat: '#,##0' },
     },
     {
       fieldName: 'partCd03',
@@ -463,7 +463,7 @@ const initGrdMain = defineGrid((data, view) => {
       header: `${t('MSG_TXT_QTY')}(EA)`,
       width: '80',
       styleName: 'text-right',
-      footer: { expression: 'sum' },
+      footer: { expression: 'sum', numberFormat: '#,##0' },
     },
     {
       fieldName: 'partCd04',
@@ -482,7 +482,7 @@ const initGrdMain = defineGrid((data, view) => {
       header: `${t('MSG_TXT_QTY')}(EA)`,
       width: '80',
       styleName: 'text-right',
-      footer: { expression: 'sum' },
+      footer: { expression: 'sum', numberFormat: '#,##0' },
     },
     {
       fieldName: 'partCd05',
@@ -501,7 +501,7 @@ const initGrdMain = defineGrid((data, view) => {
       header: `${t('MSG_TXT_QTY')}(EA)`,
       width: '80',
       styleName: 'text-right',
-      footer: { expression: 'sum' },
+      footer: { expression: 'sum', numberFormat: '#,##0' },
     },
     {
       fieldName: 'partCd06',
@@ -520,7 +520,7 @@ const initGrdMain = defineGrid((data, view) => {
       header: `${t('MSG_TXT_QTY')}(EA)`,
       width: '80',
       styleName: 'text-right',
-      footer: { expression: 'sum' },
+      footer: { expression: 'sum', numberFormat: '#,##0' },
     },
     {
       fieldName: 'partCd07',
@@ -539,7 +539,7 @@ const initGrdMain = defineGrid((data, view) => {
       header: `${t('MSG_TXT_QTY')}(EA)`,
       width: '80',
       styleName: 'text-right',
-      footer: { expression: 'sum' },
+      footer: { expression: 'sum', numberFormat: '#,##0' },
     },
     {
       fieldName: 'partCd08',
@@ -558,7 +558,7 @@ const initGrdMain = defineGrid((data, view) => {
       header: `${t('MSG_TXT_QTY')}(EA)`,
       width: '80',
       styleName: 'text-right',
-      footer: { expression: 'sum' },
+      footer: { expression: 'sum', numberFormat: '#,##0' },
     },
     {
       fieldName: 'partCd09',
@@ -577,7 +577,7 @@ const initGrdMain = defineGrid((data, view) => {
       header: `${t('MSG_TXT_QTY')}(EA)`,
       width: '80',
       styleName: 'text-right',
-      footer: { expression: 'sum' },
+      footer: { expression: 'sum', numberFormat: '#,##0' },
     },
     {
       fieldName: 'partCd10',
@@ -596,7 +596,7 @@ const initGrdMain = defineGrid((data, view) => {
       header: `${t('MSG_TXT_QTY')}(EA)`,
       width: '80',
       styleName: 'text-right',
-      footer: { expression: 'sum' },
+      footer: { expression: 'sum', numberFormat: '#,##0' },
     },
     {
       fieldName: 'istDt',
