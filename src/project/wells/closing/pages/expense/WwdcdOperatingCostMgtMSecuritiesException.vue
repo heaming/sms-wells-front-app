@@ -196,7 +196,7 @@ async function onClickExcelDownload(flag) {
     });
   } else if (flag === 'withholdingTaxAdjust') {
     const view = grdSecondRef.value.getView();
-    const res = await dataService.get('/sms/wells/closing/expense/marketable-securities-exclude/withholding-tax', { params: cachedParams });
+    const res = await dataService.get('/sms/wells/closing/expense/marketable-securities-exclude/withholding-tax-adjust', { params: cachedParams });
     await gridUtil.exportView(view, {
       fileName: currentRoute.value.meta.menuName,
       timePostfix: true,

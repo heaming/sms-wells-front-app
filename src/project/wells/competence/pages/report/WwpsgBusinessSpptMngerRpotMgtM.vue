@@ -183,6 +183,7 @@ const pageInfo = ref({
 const searchParams = ref({
   rpotBizTpId: '',
   ogCd: '',
+  rpotBizTpDvCd: '02',
 });
 
 const saveParams = ref({

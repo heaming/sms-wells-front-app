@@ -14,27 +14,36 @@
 --->
 <template>
   <kw-page>
-    <kw-search @search="onClickSearch">
+    <kw-search
+      :cols="5"
+      @search="onClickSearch"
+    >
       <kw-search-row>
-        <kw-search-item :label="$t('MSG_TXT_OSTR_TP')">
+        <kw-search-item
+          :label="$t('MSG_TXT_OSTR_TP')"
+          :colspan="1"
+        >
           <kw-select
             v-model="searchParams.ostrTpCd"
             first-option="all"
             :options="codes.OSTR_TP_CD"
           />
         </kw-search-item>
-        <kw-search-item :label="$t('MSG_TXT_ITM_CD')">
-          <kw-input
-            v-model="searchParams.itmCdFrom"
-            :max-length="50"
-          />
-          <span>~</span>
-          <kw-input
-            v-model="searchParams.itmCdTo"
-            :max-length="50"
+        <kw-search-item
+          :label="$t('MSG_TXT_OSTR_DT')"
+          :colspan="2"
+        >
+          <kw-date-range-picker
+            v-model:from="searchParams.startDt"
+            v-model:to="searchParams.endDt"
+            :label="$t('MSG_TXT_OSTR_DT')"
+            rules="date_range_required"
           />
         </kw-search-item>
-        <kw-search-item :label="$t('MSG_TXT_SAPCD')">
+        <kw-search-item
+          :label="$t('MSG_TXT_SAPCD')"
+          :colspan="2"
+        >
           <kw-input
             v-model="searchParams.sapMatCdFrom"
             :max-length="50"
@@ -47,12 +56,14 @@
         </kw-search-item>
       </kw-search-row>
       <kw-search-row>
-        <kw-search-item :label="$t('MSG_TXT_OSTR_DT')">
-          <kw-date-range-picker
-            v-model:from="searchParams.startDt"
-            v-model:to="searchParams.endDt"
-            :label="$t('MSG_TXT_OSTR_DT')"
-            rules="date_range_required"
+        <kw-search-item
+          :label="$t('MSG_TXT_WARE_DV')"
+        >
+          <kw-select
+            v-model="searchParams.wareDvCd"
+            :options="codes.WARE_DV_CD.filter((v) => ['2', '3'].includes(v.codeId))"
+            :label="$t('MSG_TXT_WARE_DV')"
+            rules="required"
           />
         </kw-search-item>
         <kw-search-item
@@ -61,7 +72,6 @@
         >
           <kw-select
             v-model="searchParams.itmKndCd"
-            class="w166"
             :options="codes.ITM_KND_CD"
           />
           <kw-select
@@ -70,15 +80,22 @@
             first-option="all"
           />
         </kw-search-item>
-      </kw-search-row>
-      <kw-search-row>
-        <kw-search-item :label="$t('MSG_TXT_GD')">
-          <kw-select
-            v-model="searchParams.itmGdCd"
-            first-option="all"
-            :options="codes.PD_GD_CD.filter((v) => ['A', 'B', 'E', 'R', 'X'].includes(v.codeId))"
+        <kw-search-item
+          :label="$t('MSG_TXT_ITM_CD')"
+          :colspan="2"
+        >
+          <kw-input
+            v-model="searchParams.itmCdFrom"
+            :max-length="50"
+          />
+          <span>~</span>
+          <kw-input
+            v-model="searchParams.itmCdTo"
+            :max-length="50"
           />
         </kw-search-item>
+      </kw-search-row>
+      <kw-search-row>
         <kw-search-item :label="$t('MSG_TXT_USE_SEL')">
           <kw-select
             v-model="searchParams.useYn"
@@ -92,6 +109,13 @@
             first-option="all"
             :options="codes.MAT_UTLZ_DV_CD.filter((v) => ['01','02'].includes(v.codeId))"
             @update:model-value="onChangeMatUtlzDvCd"
+          />
+        </kw-search-item>
+        <kw-search-item :label="$t('MSG_TXT_GD')">
+          <kw-select
+            v-model="searchParams.itmGdCd"
+            first-option="all"
+            :options="codes.PD_GD_CD.filter((v) => ['A', 'B', 'E', 'R', 'X'].includes(v.codeId))"
           />
         </kw-search-item>
       </kw-search-row>
@@ -149,6 +173,7 @@ const codes = await codeUtil.getMultiCodes(
   'ITM_KND_CD',
   'MAT_UTLZ_DV_CD',
   'USE_YN',
+  'WARE_DV_CD',
 );
 
 let cachedParams;
@@ -165,14 +190,13 @@ const searchParams = ref({
   itmPdCd: '', // 품목
   matUtlzDvCd: '', // 자재구분
   useYn: '', // 사용여부
-
+  wareDvCd: '2',
 });
 
 let gridView;
 let gridData;
 let logisticsFields;
-let serviceFields;
-let businessFields;
+let tmpFields;
 let fieldsObj;
 let fieldsWidth;
 
@@ -199,17 +223,19 @@ async function onChangeMatUtlzDvCd() {
 }
 // 창고조회
 async function getWareHouses() {
-  const result = await dataService.get(`${baseUrl}/ware-houses`);
+  const wareParams = {
+    baseDt: searchParams.value.startDt,
+    wareDvCd: searchParams.value.wareDvCd,
+  };
+  const result = await dataService.get(`${baseUrl}/ware-houses`, { params: wareParams });
   if (result.data.length > 0) {
     const wareHouses = result.data;
     const wareLogisticsFields = wareHouses.filter((v) => v.wareNo.substring(0, 1) === '1'); // 물류센터
-    const wareServiceFields = wareHouses.filter((v) => v.wareNo.substring(0, 1) === '2'); // 서비스센터
-    const wareBusinessFields = wareHouses.filter((v) => v.wareNo.substring(0, 1) === '3'); // 영업센터
+    const wareTmpFields = wareHouses.filter((v) => v.wareNo.substring(0, 1) === '2' || v.wareNo.substring(0, 1) === '3'); // 서비스센터
     fieldsWidth = 80; // 창고 그리드 가로폭 사이즈 설정
 
     logisticsFields = [];
-    serviceFields = [];
-    businessFields = [];
+    tmpFields = [];
 
     logisticsFields.push(...wareLogisticsFields.map((v) => ({
       fieldName: `ware${v.wareNo}`,
@@ -220,16 +246,8 @@ async function getWareHouses() {
       numberFormat: '#,##0',
       footer: { expression: 'sum', numberFormat: '#,##0', styleName: 'text-right text-weight-bold' },
     })));
-    serviceFields.push(...wareServiceFields.map((v) => ({
-      fieldName: `ware${v.wareNo}`,
-      header: v.wareNm,
-      width: fieldsWidth,
-      styleName: 'text-right',
-      dataType: 'number',
-      numberFormat: '#,##0',
-      footer: { expression: 'sum', numberFormat: '#,##0', styleName: 'text-right text-weight-bold' },
-    })));
-    businessFields.push(...wareBusinessFields.map((v) => ({
+    // 서비스센터 , 영업센터
+    tmpFields.push(...wareTmpFields.map((v) => ({
       fieldName: `ware${v.wareNo}`,
       header: v.wareNm,
       width: fieldsWidth,
@@ -245,8 +263,6 @@ async function getWareHouses() {
 onMounted(async () => {
   // 품목구분 : 상품 기본설정
   searchParams.value.itmKndCd = '4';
-  // 창고조회
-  await getWareHouses();
 });
 // 품목구분-하위품목 가져오기
 watch(() => searchParams.value.itmKndCd, async () => {
@@ -258,6 +274,22 @@ async function fetchData() {
   const res = await dataService.get(`${baseUrl}`, { params: cachedParams });
   const list = res.data;
   totalCount.value = list.length;
+
+  // 요청사항반영[그리드 명칭 변경 및 0 미노출 통일 요청]
+  list.forEach((item, idx) => {
+    if (list[idx].ware100000 === 0) {
+      list[idx].ware100000 = '';
+    }
+    if (list[idx].ware200000 === 0) {
+      list[idx].ware200000 = '';
+    }
+    if (list[idx].ware300000 === 0) {
+      list[idx].ware300000 = '';
+    }
+    if (list[idx].ware999999 === 0) {
+      list[idx].ware999999 = '';
+    }
+  });
   const view = grdMainRef.value.getView();
   view.getDataSource().setRows(list);
   view.resetCurrent();
@@ -271,6 +303,8 @@ async function fetchData() {
 async function onClickSearch() {
   searchParams.value.matUtlzDvCd = '';
   cachedParams = cloneDeep(searchParams.value);
+  await getWareHouses();
+  await nextTick();
   await fetchData();
 }
 async function onClickExcelDownload() {
@@ -312,28 +346,22 @@ fieldsObj = {
   setFields() {
     const columns = [...fieldsObj.defaultFields,
       ...logisticsFields,
-      ...serviceFields,
-      ...businessFields,
+      ...tmpFields,
       ...fieldsObj.totalFields];
 
     // 헤더 부분 merge
     const layoutColumns = [...fieldsObj.getColumnNameArr(fieldsObj.defaultFields),
       {
         direction: 'horizontal',
-        header: { text: t('MSG_TXT_LGST_CNR') }, /* 물류센터 */
+        header: { text: t('MSG_TXT_LGST_STOC') }, /* 물류재고 */
         width: fieldsWidth,
         items: [...fieldsObj.getColumnNameArr(logisticsFields)],
       },
       {
         direction: 'horizontal',
-        header: { text: t('MSG_TXT_SV_CNR') }, /* 서비스센터 */
+        header: searchParams.value.wareDvCd === '2' ? { text: t('MSG_TXT_SV_CNR') } : { text: t('MSG_TXT_BSNS_CNTR') },
         width: fieldsWidth,
-        items: [...fieldsObj.getColumnNameArr(serviceFields)],
-      },
-      { direction: 'horizontal',
-        header: { text: t('MSG_TXT_BSNS_CNTR') }, /* 영업센터 */
-        width: fieldsWidth,
-        items: [...fieldsObj.getColumnNameArr(businessFields)],
+        items: [...fieldsObj.getColumnNameArr(tmpFields)],
       },
       ...fieldsObj.getColumnNameArr(fieldsObj.totalFields),
     ];
@@ -360,8 +388,8 @@ fieldsObj = {
 };
 
 const initGrdMain = defineGrid((data, view) => {
-  const fields = [];
-  const columns = [];
+  const columns = [...fieldsObj.defaultFields];
+  const fields = columns.map(({ fieldName, dataType }) => (dataType ? { fieldName, dataType } : { fieldName }));
 
   data.setFields(fields);
   view.setColumns(columns);

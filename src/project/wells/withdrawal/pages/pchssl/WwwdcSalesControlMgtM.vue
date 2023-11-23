@@ -239,7 +239,7 @@
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
-import { useMeta, defineGrid, codeUtil, useDataService, getComponentType, gridUtil, modal, notify } from 'kw-lib';
+import { useMeta, defineGrid, codeUtil, useDataService, getComponentType, gridUtil, modal, notify, alert } from 'kw-lib';
 import { cloneDeep, isEmpty } from 'lodash-es';
 import ZctzContractDetailNumber from '~sms-common/contract/components/ZctzContractDetailNumber.vue';
 
@@ -392,6 +392,7 @@ async function onClickAdd() {
 
 // 행 삭제 버튼
 async function onClickRemove() {
+  console.log('aaa');
   const view = grdMainRef.value.getView();
 
   if (!gridUtil.getCheckedRowValues(view).length > 0) {
@@ -399,6 +400,24 @@ async function onClickRemove() {
     return;
   }
   if (!await gridUtil.confirmIfIsModified(view)) { return; }
+
+  const checkRows = await gridUtil.getCheckedRowValues(view);
+
+  // console.log(deletedRows);
+
+  let deleteChk = false;
+
+  checkRows.forEach((p1) => {
+    if (p1.mdfyYn === 'N') {
+      deleteChk = true;
+      return false;
+    }
+  });
+
+  if (deleteChk) {
+    alert('마감된 데이터입니다.');
+    return;
+  }
 
   const deletedRows = await gridUtil.confirmDeleteCheckedRows(view);
 
@@ -969,12 +988,18 @@ const initGrid1 = defineGrid((data, view) => {
   view.rowIndicator.visible = true;
   view.editOptions.editable = true;
 
+  // view.onCellEditable = (grid, index) => {
+  // eslint-disable-next-line max-len
+  //   if (!gridUtil.isCreatedRow(grid, index.dataRow) && ['cntrDtlNo', 'slCtrStrtYm', 'slCtrEndYm', 'pdCd', 'pdNm', 'slCtrAmt', 'slCtrWoExmpAmt', 'slCtrPtrmExmpAmt'].includes(index.column)) {
+  //     return false;
+  //   }
+  // };
+
   view.onCellEditable = (grid, index) => {
-    if (!gridUtil.isCreatedRow(grid, index.dataRow) && ['cntrDtlNo', 'slCtrStrtYm', 'slCtrEndYm', 'pdCd', 'pdNm', 'slCtrAmt', 'slCtrWoExmpAmt', 'slCtrPtrmExmpAmt'].includes(index.column)) {
+    if (!gridUtil.isCreatedRow(grid, index.dataRow)) {
       return false;
     }
   };
-
   view.onCellEdited = async (grid, itemIndex) => {
     const { fieldName } = grid.getCurrent();
 

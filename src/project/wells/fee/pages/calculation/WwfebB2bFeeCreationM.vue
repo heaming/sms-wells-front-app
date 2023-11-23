@@ -255,6 +255,7 @@ async function onClickExcelDownload() {
     fileName: currentRoute.value.meta.menuName,
     timePostfix: true,
     exportData: data,
+    applyFixed: true,
   });
 }
 // 이력관리 버튼 클릭
@@ -379,9 +380,8 @@ async function onClickOpenReport(baseYm, prtnrNo) {
     'ksswells/cmms/btobPatSpec/V1.0/cmmsBtobPatSpec.odi',
     JSON.stringify(
       {
+        AKSDYM: baseYm,
         AKDCDE: prtnrNo,
-        AKSDTY: baseYm.substring(0, 4),
-        AKSDTM: baseYm.substring(4, 6),
       },
     ),
   );
@@ -433,30 +433,30 @@ const initGridDetail = defineGrid((data, view) => {
       styleName: 'text-center',
       displayCallback(grid, index, value) {
         let retValue = value;
-        if (codes.SELL_DSCR_CD.map((v) => v.codeId).includes(value)) {
-          retValue = codes.SELL_DSCR_CD.find((v) => v.codeId === value)?.codeName;
+        // if (codes.SELL_DSCR_CD.map((v) => v.codeId).includes(value)) {
+        //   retValue = codes.SELL_DSCR_CD.find((v) => v.codeId === value)?.codeName;
+        // }
+        const { sellTpCd, sellDscDvCd } = grid.getValues(index.itemIndex);
+        if (sellTpCd === '2' && sellDscDvCd === '5') {
+          if (codes.RENTAL_CRP_DSCR_CD.map((v) => v.codeId).includes(value)) {
+            retValue = codes.RENTAL_CRP_DSCR_CD.find((v) => v.codeId === value)?.codeName;
+          }
         }
-        // const { sellTpCd, sellDscDvCd } = grid.getValues(index.itemIndex);
-        // if (sellTpCd === '2' && sellDscDvCd === '5') {
-        //   if (codes.RENTAL_CRP_DSCR_CD.map((v) => v.codeId).includes(value)) {
-        //     retValue = codes.RENTAL_CRP_DSCR_CD.find((v) => v.codeId === value)?.codeName;
-        //   }
-        // }
-        // if (sellTpCd === '2' && sellDscDvCd === '7') {
-        //   if (codes.RENTAL_MCHD_DSC_APY_DTL_CD.map((v) => v.codeId).includes(value)) {
-        //     retValue = codes.RENTAL_MCHD_DSC_APY_DTL_CD.find((v) => v.codeId === value)?.codeName;
-        //   }
-        // }
-        // if (sellTpCd === '2' && ['1', '8'].includes(sellDscDvCd)) {
-        //   if (codes.RENTAL_CRP_DSC_APY_DTL_CD.map((v) => v.codeId).includes(value)) {
-        //     retValue = codes.RENTAL_CRP_DSC_APY_DTL_CD.find((v) => v.codeId === value)?.codeName;
-        //   }
-        // }
-        // if (sellTpCd === '4' && sellDscDvCd === '4') {
-        //   if (codes.MSH_PRC_BASE_DSC_TP_ACD.map((v) => v.codeId).includes(value)) {
-        //     retValue = codes.MSH_PRC_BASE_DSC_TP_ACD.find((v) => v.codeId === value)?.codeName;
-        //   }
-        // }
+        if (sellTpCd === '2' && sellDscDvCd === '7') {
+          if (codes.RENTAL_MCHD_DSC_APY_DTL_CD.map((v) => v.codeId).includes(value)) {
+            retValue = codes.RENTAL_MCHD_DSC_APY_DTL_CD.find((v) => v.codeId === value)?.codeName;
+          }
+        }
+        if (sellTpCd === '2' && ['1', '8'].includes(sellDscDvCd)) {
+          if (codes.RENTAL_CRP_DSC_APY_DTL_CD.map((v) => v.codeId).includes(value)) {
+            retValue = codes.RENTAL_CRP_DSC_APY_DTL_CD.find((v) => v.codeId === value)?.codeName;
+          }
+        }
+        if (sellTpCd === '4' && sellDscDvCd === '4') {
+          if (codes.MSH_PRC_BASE_DSC_TP_ACD.map((v) => v.codeId).includes(value)) {
+            retValue = codes.MSH_PRC_BASE_DSC_TP_ACD.find((v) => v.codeId === value)?.codeName;
+          }
+        }
         return retValue;
       },
     }, // 할인유형
@@ -512,12 +512,6 @@ const initGridDetail = defineGrid((data, view) => {
   view.setColumns(columns);
   view.checkBar.visible = false;
   view.rowIndicator.visible = true;
-  view.onCellDblClicked = async (g, clickData) => {
-    const baseYm = g.getValue(clickData.itemIndex, 'baseYm');
-    const prtnrNo = g.getValue(clickData.itemIndex, 'prtnrNo');
-    console.log(`${baseYm} ${prtnrNo}`);
-    // await onClickOpenReport(baseYm, prtnrNo);
-  };
 });
 
 const initGridBase = defineGrid((data, view) => {
@@ -727,6 +721,12 @@ const initGridBase = defineGrid((data, view) => {
     ],
   });
   view.layoutByColumn('prtnrKnm').summaryUserSpans = [{ colspan: 3 }];
+  view.onCellDblClicked = async (g, clickData) => {
+    const baseYm = g.getValue(clickData.itemIndex, 'baseYm');
+    const prtnrNo = g.getValue(clickData.itemIndex, 'prtnrNo');
+    // console.log(`${baseYm} ${prtnrNo}`);
+    await onClickOpenReport(baseYm, prtnrNo);
+  };
 });
 
 </script>

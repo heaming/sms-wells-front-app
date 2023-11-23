@@ -13,18 +13,26 @@
 ****************************************************************************************************
 --->
 <template>
-  <kw-page>
+  <kw-page v-if="isEqual(params.device, 'mobile')">
     <kw-form
       ref="frmRef"
       class="pa20"
     >
+      <!-- <p class="kw-font-pt18 text-weight-medium mt20">
+        {{ `${params?.custNm} ${t('MSG_TXT_CST')}.` }}
+      </p> -->
       <!-- 재약정 -->
       <template v-if="isEqual(rptIdGbn, 'bryymmdd')">
-        <slot v-if="isCooperation">
-          <p class="kw-font-pt18 text-weight-medium mt20">
-            {{ `${params?.custNm} ${t('MSG_TXT_CST')}.` }} <br>
+        <!-- 개인 -->
+        <slot v-if="!isCooperation">
+          <span class="kw-font-pt18 text-weight-medium mt20">
+            <!-- custNm 고객님. 재약정을 확인하기 위해 생년월일 8자리를 입력하세요. -->
+            {{ `${params?.custNm} ${t('MSG_TXT_CST')}.` }}
+            <br>
+            {{ `${searchParams.reportHeaderTitle}${t('MSG_TXT_CHK_REPORT_FOR')}` }}
+            <br>
             {{ `${t('MSG_TXT_BRYY_MMDD_POSTN_IN',['8'])}` }}
-          </p>
+          </span>
           <kw-date-picker
             v-model="searchParams.cntrCstBryyMmdd"
             rules="required"
@@ -32,26 +40,35 @@
             :label="$t('MSG_TXT_BIRTH_DATE')"
           />
         </slot>
+        <!-- 법인 -->
         <slot v-else>
-          <p class="kw-font-pt18 text-weight-medium mt20">
-            {{ `${params?.custNm} ${t('MSG_TXT_CST')}.` }} <br>
-            {{ t('MSG_TXT_ENTR_EMAIL') }}
-          </p>
+          <span class="kw-font-pt18 text-weight-medium mt20">
+            <!-- custNm 고객님. 재약정을 확인하기 위해 사업자번호를 입력하세요. -->
+            {{ `${params?.custNm} ${t('MSG_TXT_CST')}.` }}
+            <br>
+            {{ `${searchParams.reportHeaderTitle}${t('MSG_TXT_CHK_REPORT_FOR')}` }}
+            <br>
+            {{ t('MSG_TXT_ENTER_BZRNO') }}
+          </span>
           <kw-input
             v-model="searchParams.bzrno"
-            :label="$t('MSG_TXT_EMAIL_ADDR')"
+            :label="$t('MSG_TXT_ENTRP_NO')"
             rules="required"
-            :placeholder="$t('MSG_TXT_ENTR_EMAIL')"
-            :maxlength="50"
+            :placeholder="`${t('MSG_TXT_ENTRP_NO')} 10${t('MSG_TXT_DIGITS')}`"
+            :maxlength="10"
           />
         </slot>
       </template>
       <!-- 명세서 -->
       <template v-if="isEqual(rptIdGbn, 'email')">
-        <p class="kw-font-pt18 text-weight-medium mt20">
-          {{ `${params?.custNm} ${t('MSG_TXT_CST')}.` }} <br>
+        <span class="kw-font-pt18 text-weight-medium mt20">
+          <!-- custNm 고객님. 내역서를 확인하기 위해 이메일을 입력하세요. -->
+          {{ `${params?.custNm} ${t('MSG_TXT_CST')}.` }}
+          <br>
+          {{ `${searchParams.reportHeaderTitle}${t('MSG_TXT_CHK_REPORT_FOR')}` }}
+          <br>
           {{ t('MSG_TXT_ENTR_EMAIL') }}
-        </p>
+        </span>
         <kw-input
           v-model="searchParams.emadr"
           :label="$t('MSG_TXT_EMAIL_ADDR')"
@@ -62,6 +79,7 @@
       </template>
       <!-- 견적서 발송 -->
       <template v-if="isEqual(rptIdGbn, 'noCertification')">
+        <!-- custNm 고객님. 견적서를 확인하세요. -->
         <p class="kw-font-pt18 text-weight-medium mt20">
           {{ `${params?.custNm} ${t('MSG_TXT_CST')}.` }} <br>
           {{ t('MSG_ALT_CHK_CONFIRM', [t('MSG_TXT_QUOT')]) }}
@@ -88,17 +106,21 @@
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
-import { postMessage, decryptEncryptedParam } from '~sms-common/contract/util';
-import { /* alert, */ useDataService } from 'kw-lib';
+import { postMessage, decryptEncryptedParam, openWindowPage } from '~sms-common/contract/util';
+import { alert, useDataService } from 'kw-lib';
 import { isEqual, isEmpty } from 'lodash-es';
 import { COPN_DV_CD } from '~sms-wells/contract/constants/ctConst';
 import { openReportPopup } from '~common/utils/cmPopupUtil';
 
+import dayjs from 'dayjs';
+
 const { t } = useI18n();
 
+const now = dayjs();
 const dataService = useDataService();
 const props = defineProps({
   cntrNo: { type: String, default: undefined }, // 계약번호
+  cntrSn: { type: String, default: undefined }, // 계약일련번호
   notyFwId: { type: String, default: undefined }, // 알림발송ID
   rprtDvCd: { type: String, default: undefined }, // 리포트구분코드
   pblcSearchSttDt: { type: String, default: undefined }, // 발생일자
@@ -107,9 +129,11 @@ const props = defineProps({
   rptId: { type: String, default: undefined }, // 리포트Id
   spectxGrpNo: { type: String, default: undefined }, // 거래명세서그룹번호
   spectxPblDDvCd: { type: String, default: undefined }, // 거래명세서발행일구분코드
-  encryptedParam: { type: String, default: undefined },
-  cntrCnfmStrtDt: { type: String, default: undefined },
-  cntrTempSaveDt: { type: String, default: undefined },
+  encryptedParam: { type: String, default: undefined }, // 암호화 된 파라미터
+  cntrCnfmStrtDt: { type: String, default: undefined }, // 계약확정시작일자
+  cntrTempSaveDt: { type: String, default: undefined }, // 계약임시저장일자
+  stplTn: { type: String, default: undefined }, // 약정회차
+  device: { type: String, default: undefined }, // 기기
 });
 
 // props에서 받은 파라미터들
@@ -118,17 +142,20 @@ const params = decryptEncryptedParam(props.encryptedParam, {
   rprtDvCd: props.rprtDvCd,
   pblcSearchSttDt: props.pblcSearchSttDt,
   custNm: props.custNm,
-  cntrList: props.cntrList,
+  cntrDtlNoList: props.cntrList,
   rptId: props.rptId,
   cntrNo: isEmpty(props.cntrNo) && !isEmpty(props.cntrList) ? props.cntrList[0].split('-')[0] : props.cntrNo,
+  cntrSn: props.cntrSn,
   spectxPblDDvCd: props.spectxPblDDvCd,
   spectxGrpNo: props.spectxGrpNo,
   cntrCnfmStrtDt: props.cntrCnfmStrtDt,
   cntrTempSaveDt: props.cntrTempSaveDt,
+  stplTn: props.stplTn,
+  device: props.device,
 });
 
 const searchParams = ref({
-  cntrNo: isEmpty(params.cntrNo) && !isEmpty(params.cntrList) ? params.cntrList[0].split('-')[0] : props.cntrNo,
+  cntrNo: isEmpty(params.cntrNo) && !isEmpty(params.cntrDtlNoList) ? params.cntrDtlNoList[0].split('-')[0] : params.cntrNo,
   cntrCstBryyMmdd: '',
   bzrno: '',
   emadr: '',
@@ -142,9 +169,36 @@ const frmRef = ref();
 const rptIdGbn = computed(() => { // 리포트 종류 구분 처리 computed
   if (isEmpty(params.rptId)) { return ''; }
 
-  if (['ESDC01'].includes(params.rptId)) { return 'noCertification'; }
+  switch (params.rptId) {
+    case 'CARD001': { // 카드내역서
+      searchParams.value.reportHeaderTitle = t('MSG_TXT_CRCD_IZSH'); // 레포트 제목
+      break;
+    }
+    case 'CONC001': { // 계약사항
+      searchParams.value.reportHeaderTitle = t('MSG_TXT_CNTR_ARTC'); // 레포트 제목
+      break;
+    }
+    case 'DEAL001': { // 거래명세서
+      searchParams.value.reportHeaderTitle = t('MSG_TXT_TRD_SPCSH'); // 레포트 제목
+      break;
+    }
+    case 'DPSTMAIL': { // 입금내역서
+      searchParams.value.reportHeaderTitle = t('MSG_TXT_DP_IZSH'); // 레포트 제목
+      break;
+    }
+    case 'RP002': { // 재약정
+      searchParams.value.reportHeaderTitle = t('MSG_TXT_RSTL'); // 레포트 제목
+      break;
+    }
+    case 'VRTL001': { // 가상계좌확인서
+      searchParams.value.reportHeaderTitle = t('MSG_TXT_VT_AC_CFDC'); // 레포트 제목
+      break;
+    }
+  }
 
-  if (!['DPSTMAIL', 'DEAL001', 'CARD001', 'CONC001'].includes(params.rptId)) { return 'bryymmdd'; }
+  if (['ESDC01'].includes(params.rptId)) { return 'noCertification'; } // 무인증 리스트
+
+  if (!['DPSTMAIL', 'DEAL001', 'CARD001', 'CONC001'].includes(params.rptId)) { return 'bryymmdd'; } // 생년월일 인증이 아닌 리포트 리스트
 
   return 'email';
 });
@@ -164,52 +218,74 @@ async function openCntrOZReport() {
   }
   // const reportPath = data.replace('ksswells/', 'kstation-w/');
 
+  // OZ 리포트 호출 Api 설정
+  let searchApiUrl = '';
   const cachedParams = {
     reportHeaderTitle: '',
-    cntrDtlNoList: params.cntrList,
+    cntrDtlNoList: params.cntrDtlNoList,
     custNm: params.custNm,
     pblcSearchSttDt: params.pblcSearchSttDt,
-    // cntrNo: params.cntrNo,
     spectxPblDDvCd: params.spectxPblDDvCd,
     spectxGrpNo: params.spectxGrpNo,
     cntrCnfmStrtDt: params.cntrCnfmStrtDt,
+    stplTn: params.stplTn,
+    cntrNo: params.cntrNo,
+    cntrSn: params.cntrSn,
   };
-
-  // OZ 리포트 호출 Api 설정
-  const args1 = { searchApiUrl: '', ...cachedParams };
 
   // OZ 리포트 팝업 파라미터 설정
   switch (params.rptId) {
     case 'CARD001': { // 카드내역서
       cachedParams.reportHeaderTitle = '카드내역서 조회'; // 레포트 제목
-      args1.searchApiUrl = '/api/v1/sms/wells/contract/contracts/order-details/specification/card-sales-slips/oz';
+      searchApiUrl = '/api/v1/sms/wells/contract/contracts/order-details/specification/card-sales-slips/oz';
       break;
     }
     case 'CONC001': { // 계약사항
       cachedParams.reportHeaderTitle = '계약사항 조회'; // 레포트 제목
-      args1.searchApiUrl = '/api/v1/sms/wells/contract/contracts/order-details/specification/contract-articles/oz';
+      searchApiUrl = '/api/v1/sms/wells/contract/contracts/order-details/specification/contract-articles/oz';
       break;
     }
     case 'DEAL001': { // 거래명세서
       cachedParams.reportHeaderTitle = '거래명세서 조회'; // 레포트 제목
-      args1.searchApiUrl = '/api/v1/sms/wells/contract/contracts/order-details/specification/trade-specification/oz';
+      searchApiUrl = '/api/v1/sms/wells/contract/contracts/order-details/specification/trade-specification/oz';
       if (!isEmpty(params.spectxGrpNo)) {
-        args1.searchApiUrl = '/api/v1/sms/wells/contract/contracts/send-trade-specification-sheets/oz';
+        searchApiUrl = '/api/v1/sms/wells/contract/contracts/send-trade-specification-sheets/oz';
       }
       break;
     }
     case 'DPSTMAIL': { // 입금내역서
-      cachedParams.cntrNo = '입금내역서 조회'; // 레포트 제목
-      args1.searchApiUrl = '/api/v1/sms/wells/contract/contracts/order-details/specification/deposit-itemizations/oz';
+      cachedParams.reportHeaderTitle = '입금내역서 조회'; // 레포트 제목
+      searchApiUrl = '/api/v1/sms/wells/contract/contracts/order-details/specification/deposit-itemizations/oz';
       break;
     }
-    case 'ESDC01': { // 견적서
-      cachedParams.cntrNo = params.cntrNo;
-      args1.cntrNo = params.cntrNo;
+    case 'RP002': { // 재약정
+      cachedParams.cntrTempSaveDt = params.rstlCnfmDtm;
+      searchApiUrl = '/api/v1/sms/wells/contract/contracts/managements/search-api-url/rstl/args';
+      break;
+    }
+    case 'VRTL001': { // 가상계좌확인서
+      const res = await dataService.get(`/sms/wells/contract/changeorder/cancel/vacc-info/${params.cntrNo}/${params.cntrSn}`);
+      if (isEmpty(res.data)) {
+        alert(t('MSG_ALT_NO_SRCH_DATA'));
+        return;
+      }
+      cachedParams.jsonData = [{
+        BANKNM: res.data.vacBnkNm, // 가상계좌은행명
+        ACNO: res.data.vacNo, // 가상계좌번호
+        CUSTNM: res.data.vacAcownNm, // 가상계좌고객명
+        /* 현재날짜 */
+        CURRENTYY: now.format('YYYY'),
+        CURRENTMM: now.format('MM'),
+        CURRENTDD: now.format('DD'),
+        ISNCPATH: res.data.isncPath, // 가상계좌VAN사구분코드
+      }];
       break;
     }
   }
-  // console.log(args1);
+  const args1 = { ...cachedParams };
+  if (!isEmpty(searchApiUrl)) {
+    args1.searchApiUrl = searchApiUrl;
+  }
 
   // OZ 레포트 팝업호출
   openReportPopup(
@@ -224,7 +300,6 @@ async function onClickConfirm() {
   if (!await frmRef.value.validate()) { return; }
 
   const response = await dataService.post('/sms/wells/contract/auth/contract-document', {
-    cntrNo: params.cntrNo,
     ...searchParams.value,
   });
   if (response.data.valid) {
@@ -244,19 +319,32 @@ async function fetchBasicContractInfo() {
     });
 
     searchParams.value.copnDvCd = data.copnDvCd;
+    params.custNm = data.cntrCstKnm;
   } catch (e) {
   // cancel();
   // window.close();
   }
 }
 onMounted(async () => {
+  if (!isEmpty(params.cntrList)) {
+    params.cntrDtlNoList = params.cntrList.split(',');
+  } else {
+    params.cntrDtlNoList = [];
+  }
+  if (!isEqual(params.device, 'mobile')) {
+    params.device = 'mobile';
+    await openWindowPage(
+      'WwctaForwardingContractM',
+      params,
+      true,
+    );
+    return;
+  }
+
   if (isEqual(rptIdGbn.value, 'bryymmdd')) {
     await fetchBasicContractInfo();
   } else if (isEqual(rptIdGbn.value, 'noCertification')) {
     openCntrOZReport();
-  }
-  if (!isEmpty(params.cntrList)) {
-    params.cntrList = params.cntrList.split(',');
   }
 });
 </script>

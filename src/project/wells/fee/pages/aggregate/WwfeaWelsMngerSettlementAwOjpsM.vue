@@ -284,7 +284,7 @@ async function onClickCreate() {
   */
 
   if (feeCnfmYn === 'Y') {
-    await alert(t('MSG_ART_FEE_CL_CRT_IMP')); // 수수료 마감 이후 생성불가
+    await alert(t('MSG_ALT_FEE_CL_CRT_IMP')); // 수수료 마감 이후 생성불가
   } else if (opngCnfmYn === 'Y') {
     await alert(t('MSG_ALT_BF_CNFM_CONF')); // 개시구분 확정 이후 생성불가
   } else if (opngCnfmCnt > 0) {

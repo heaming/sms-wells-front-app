@@ -176,7 +176,7 @@ const searchParams = ref({
   delvWareNo: '100002', // 파주물류센터
   asnYm: now.format('YYYYMM'), // 배정년월
   lgstWkMthdCd: '',
-  procsDvCd: '', // 처리구분
+  procsDvCd: '2', // 처리구분
   sppDvCd: 'A1', // 자가필터 배송구분코드
   rownum: '',
   pgGb: '', // 상품그룹핑코드
@@ -203,20 +203,22 @@ async function onChangeAsnYm() {
 }
 // 그리드 조회
 async function fetchData() {
-  let list;
-  if (cachedParams.procsDvCd === '2') {
-    const res = await dataService.get('/sms/wells/service/bs-regular-shipping', { params: { ...cachedParams } });
-    totalCount.value = res.data.length;
-    list = res.data;
-  } else {
-    const res = await dataService.get('/sms/wells/service/bs-regular-shipping/paging', { params: { ...cachedParams, ...pageInfo.value } });
-    const { list: items, pageInfo: pagingResult } = res.data;
-    pageInfo.value = pagingResult;
-    totalCount.value = pageInfo.value.totalCount;
-    list = items;
-  }
-  // 작업 대기값 조회시 paging 하지않음.
-  isPaging.value = (cachedParams.procsDvCd !== '2');
+  // let list;
+  // if (cachedParams.procsDvCd === '2') {
+  const res = await dataService.get('/sms/wells/service/bs-regular-shipping', { params: { ...cachedParams } });
+  totalCount.value = res.data.length;
+  const list = res.data;
+  // } else {
+  // eslint-disable-next-line max-len
+  //   const res = await dataService.get('/sms/wells/service/bs-regular-shipping/paging', { params: { ...cachedParams, ...pageInfo.value } });
+  //   const { list: items, pageInfo: pagingResult } = res.data;
+  //   pageInfo.value = pagingResult;
+  //   totalCount.value = pageInfo.value.totalCount;
+  //   list = items;
+  // }
+  // 작업 대기값 조회시 paging 하지않음.(임시해제 후 이슈생길시 다시 변경)
+  isPaging.value = false;
+  // isPaging.value = (cachedParams.procsDvCd !== '2');
   const view = grdMainRef.value.getView();
   view.getDataSource().setRows(list);
   view.clearCurrent();
@@ -379,7 +381,7 @@ const initGrdMain = defineGrid((data, view) => {
       header: t('MSG_TXT_ASN_YM'),
       width: '130',
       styleName: 'text-center',
-      footer: { text: t('MSG_TXT_SUM') },
+      footer: { text: t('MSG_TXT_SUM'), styleName: 'text-center' },
     },
     {
       fieldName: 'cntrNo',
@@ -399,7 +401,6 @@ const initGrdMain = defineGrid((data, view) => {
       header: t('MSG_TXT_CST_NM'),
       width: '150',
       styleName: 'text-center',
-      footer: { text: t('MSG_TXT_SUM'), expression: 'count' },
     },
     {
       fieldName: 'sppAkSpfDt',
@@ -424,7 +425,7 @@ const initGrdMain = defineGrid((data, view) => {
       header: `${t('MSG_TXT_QTY')}(EA)`,
       width: '80',
       styleName: 'text-right',
-      footer: { expression: 'sum' },
+      footer: { expression: 'sum', numberFormat: '#,##0' },
     },
     {
       fieldName: 'partCd02',
@@ -443,7 +444,7 @@ const initGrdMain = defineGrid((data, view) => {
       header: `${t('MSG_TXT_QTY')}(EA)`,
       width: '80',
       styleName: 'text-right',
-      footer: { expression: 'sum' },
+      footer: { expression: 'sum', numberFormat: '#,##0' },
     },
     {
       fieldName: 'partCd03',
@@ -462,7 +463,7 @@ const initGrdMain = defineGrid((data, view) => {
       header: `${t('MSG_TXT_QTY')}(EA)`,
       width: '80',
       styleName: 'text-right',
-      footer: { expression: 'sum' },
+      footer: { expression: 'sum', numberFormat: '#,##0' },
     },
     {
       fieldName: 'partCd04',
@@ -481,7 +482,7 @@ const initGrdMain = defineGrid((data, view) => {
       header: `${t('MSG_TXT_QTY')}(EA)`,
       width: '80',
       styleName: 'text-right',
-      footer: { expression: 'sum' },
+      footer: { expression: 'sum', numberFormat: '#,##0' },
     },
     {
       fieldName: 'partCd05',
@@ -500,7 +501,7 @@ const initGrdMain = defineGrid((data, view) => {
       header: `${t('MSG_TXT_QTY')}(EA)`,
       width: '80',
       styleName: 'text-right',
-      footer: { expression: 'sum' },
+      footer: { expression: 'sum', numberFormat: '#,##0' },
     },
     {
       fieldName: 'partCd06',
@@ -519,7 +520,7 @@ const initGrdMain = defineGrid((data, view) => {
       header: `${t('MSG_TXT_QTY')}(EA)`,
       width: '80',
       styleName: 'text-right',
-      footer: { expression: 'sum' },
+      footer: { expression: 'sum', numberFormat: '#,##0' },
     },
     {
       fieldName: 'partCd07',
@@ -538,7 +539,7 @@ const initGrdMain = defineGrid((data, view) => {
       header: `${t('MSG_TXT_QTY')}(EA)`,
       width: '80',
       styleName: 'text-right',
-      footer: { expression: 'sum' },
+      footer: { expression: 'sum', numberFormat: '#,##0' },
     },
     {
       fieldName: 'partCd08',
@@ -557,7 +558,7 @@ const initGrdMain = defineGrid((data, view) => {
       header: `${t('MSG_TXT_QTY')}(EA)`,
       width: '80',
       styleName: 'text-right',
-      footer: { expression: 'sum' },
+      footer: { expression: 'sum', numberFormat: '#,##0' },
     },
     {
       fieldName: 'partCd09',
@@ -576,7 +577,7 @@ const initGrdMain = defineGrid((data, view) => {
       header: `${t('MSG_TXT_QTY')}(EA)`,
       width: '80',
       styleName: 'text-right',
-      footer: { expression: 'sum' },
+      footer: { expression: 'sum', numberFormat: '#,##0' },
     },
     {
       fieldName: 'partCd10',
@@ -595,7 +596,7 @@ const initGrdMain = defineGrid((data, view) => {
       header: `${t('MSG_TXT_QTY')}(EA)`,
       width: '80',
       styleName: 'text-right',
-      footer: { expression: 'sum' },
+      footer: { expression: 'sum', numberFormat: '#,##0' },
     },
     {
       fieldName: 'istDt',
@@ -988,7 +989,6 @@ const initGrdMain = defineGrid((data, view) => {
 
   view.checkBar.visible = true;
   const f = function checked(dataSource, item) {
-    // console.log(data.getValue(item.dataRow, 'ppVstPrgsStatCd'));
     if ((data.getValue(item.dataRow, 'ppVstPrgsStatCd') === '00') || (data.getValue(item.dataRow, 'ppVstPrgsStatCd') === '10')) {
       return true;
     }

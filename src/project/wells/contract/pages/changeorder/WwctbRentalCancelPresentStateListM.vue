@@ -143,6 +143,19 @@
           first-option="all"
         />
       </kw-search-item>
+      <!-- row4 등급 -->
+      <kw-search-item
+        :label="$t('MSG_TXT_GD')"
+      >
+        <kw-select
+          v-model="searchParams.pdGdCd"
+          :options="[
+            { codeId: 'E', codeName: 'E' },
+            { codeId: 'R', codeName: 'R' },
+          ]"
+          first-option="all"
+        />
+      </kw-search-item>
     </kw-search-row>
   </kw-search>
 
@@ -167,6 +180,7 @@
         :disable="!pageInfo.totalCount"
         @click="onClickExcelDownload"
       />
+      <!--
       <kw-separator
         spaced
         vertical
@@ -181,6 +195,7 @@
         :disable="!pageInfo.totalCount"
         @click="onClickReport"
       />
+      -->
     </kw-action-top>
 
     <kw-grid
@@ -205,7 +220,7 @@ import dayjs from 'dayjs';
 const { t } = useI18n();
 const { getConfig } = useMeta();
 const { currentRoute } = useRouter();
-const { modal, notify } = useGlobal();
+const { modal } = useGlobal();
 const dataService = useDataService();
 const router = useRouter();
 const now = dayjs();
@@ -247,7 +262,6 @@ let cachedParams;
 // -------------------------------------------------------------------------------------------------
 // Function & Event
 // -------------------------------------------------------------------------------------------------
-
 async function fetchData() {
   if (isEmpty(cachedParams)) return;
 
@@ -290,9 +304,11 @@ async function onClickExcelDownload() {
   });
 }
 
+/*
 async function onClickReport() {
   notify('TODO :  OZ리포트 팝업으로 호출');
 }
+*/
 
 async function onClickSearch() {
   cachedParams = cloneDeep(searchParams.value);
@@ -367,4 +383,5 @@ const initGrid = defineGrid((data, view) => {
     });
   };
 });
+
 </script>

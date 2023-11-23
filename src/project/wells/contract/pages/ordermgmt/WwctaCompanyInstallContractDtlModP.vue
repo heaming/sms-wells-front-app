@@ -272,11 +272,13 @@
             :label="$t('MSG_TXT_MGMT_DEPT')"
             class="w100"
             rules="required"
+            maxlength="15"
           />
           <kw-input
             v-model="installDetail.ogNm"
             :label="$t('MSG_TXT_MGMT_DEPT')"
             rules="required"
+            maxlength="50"
           />
         </kw-form-item>
       </kw-form-row>
@@ -331,25 +333,6 @@
             regex="num"
             align="right"
             maxlength="10"
-          />
-        </kw-form-item>
-      </kw-form-row>
-
-      <kw-form-row label-size="100">
-        <!--체험단여부 (mapping:null)-->
-        <kw-form-item :label="$t('MSG_TXT_EXPN_GRP')+$t('MSG_TXT_YN')">
-          <kw-checkbox
-            v-model="installDetail.expnYn"
-            label="체크 시, 일시불 멤버십비용 적용"
-            :true-value="Y"
-            :false-value="N"
-          />
-        </kw-form-item>
-        <!--시리얼넘버 (mapping:null)-->
-        <kw-form-item :label="$t('MSG_TXT_SR_NUM')">
-          <kw-input
-            v-model="installDetail.null"
-            maxlength=""
           />
         </kw-form-item>
       </kw-form-row>
@@ -530,7 +513,6 @@ const props = defineProps({
   installZip: { type: String, default: '' },
   installBasAdr: { type: String, default: '' },
   installDtlAdr: { type: String, default: '' },
-  expnYn: { type: String, default: 'N' },
   ojPdCd: { type: String, default: '' },
   cntrDtlStatCd: { type: String, default: '' },
   pkgCntrSn: { type: String, default: '' },

@@ -165,6 +165,7 @@
             v-model:add2="safetyAccident.istDtlAdr"
             :label="$t('MSG_TXT_ADDR')"
             required
+            class="w610"
           />
         </kw-form-item>
       </kw-form-row>

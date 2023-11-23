@@ -687,7 +687,7 @@ async function deleteContract(msg, item) {
   stlmTarget : 결제승인취소 시 필요
   */
   if (isEmpty(item.cntrSn)) { item.cntrSn = ''; }
-  await dataService.delete('/sms/wells/contract/contracts/contract-lists/', { params: { cntrNo: item.cntrNo, cntrSn: item.cntrSn, resultDiv: item.resultDiv, stlmTarget } });
+  await dataService.delete('/sms/wells/contract/contracts/contract-lists/', { data: { cntrNo: item.cntrNo, cntrSn: item.cntrSn, resultDiv: item.resultDiv, stlmTarget } });
   onClickSearch();
 }
 
@@ -892,7 +892,6 @@ onMounted(async () => {
 // -------------------------------------------------------------------------------------------------
 // Initialize Grid
 // -------------------------------------------------------------------------------------------------
-
 </script>
 
 <style lang="scss" scoped>
@@ -917,7 +916,6 @@ onMounted(async () => {
   font-weight: 500;
 }
 
-// rev:230601 수정
 .button-wrap {
   display: flex;
   column-gap: 8px;
@@ -925,9 +923,6 @@ onMounted(async () => {
   white-space: nowrap;
 }
 
-// //rev:230601 수정
-
-// rev:230706 추가
 .scoped-progress-bar {
   margin: 20px 0;
   width: 100%;
@@ -940,6 +935,4 @@ onMounted(async () => {
   }
 }
 
-// //rev:230706 추가
 </style>
-<!-- // // rev:230821 스타일 수정 -->
