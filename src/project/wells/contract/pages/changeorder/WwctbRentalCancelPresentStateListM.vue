@@ -180,6 +180,7 @@
         :disable="!pageInfo.totalCount"
         @click="onClickExcelDownload"
       />
+      <!--
       <kw-separator
         spaced
         vertical
@@ -194,6 +195,7 @@
         :disable="!pageInfo.totalCount"
         @click="onClickReport"
       />
+      -->
     </kw-action-top>
 
     <kw-grid
@@ -218,7 +220,7 @@ import dayjs from 'dayjs';
 const { t } = useI18n();
 const { getConfig } = useMeta();
 const { currentRoute } = useRouter();
-const { modal, notify } = useGlobal();
+const { modal } = useGlobal();
 const dataService = useDataService();
 const router = useRouter();
 const now = dayjs();
@@ -302,9 +304,11 @@ async function onClickExcelDownload() {
   });
 }
 
+/*
 async function onClickReport() {
   notify('TODO :  OZ리포트 팝업으로 호출');
 }
+*/
 
 async function onClickSearch() {
   cachedParams = cloneDeep(searchParams.value);
