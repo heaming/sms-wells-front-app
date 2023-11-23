@@ -66,17 +66,15 @@
           />
         </kw-search-item>
         <!-- 매출인식구분 -->
-        <kw-search-item
+        <!-- <kw-search-item
           :label="t('MSG_TXT_SL_RCOG_DV_CD')"
         >
           <kw-select
             v-model="searchParams.slRcogDv"
             first-option="all"
           />
-          <!-- :options="코드값추가必(매출인식코드)" -->
-        </kw-search-item>
-      </kw-search-row>
-      <kw-search-row>
+          :options="코드값추가必(매출인식코드)"
+        </kw-search-item> -->
         <!-- 계약상세번호 -->
         <kw-search-item :label="t('MSG_TXT_CNTR_DTL_NO')">
           <zctz-contract-detail-number
@@ -123,6 +121,7 @@
         />
         <!-- 매출인식취소 -->
         <kw-btn
+          v-if="false"
           :label="t('MSG_TXT_SL_RCOG_CAN')"
           secondary
           dense
@@ -131,6 +130,7 @@
         />
         <!-- 매출 재인식-->
         <kw-btn
+          v-if="false"
           :label="t('MSG_TXT_SL_RE_RCOG')"
           secondary
           dense
@@ -188,14 +188,14 @@ const searchParams = ref({
   startDate: now.format('YYYYMM01'), // 매출인식일 From
   endDate: now.format('YYYYMMDD'), // 매출인식일 To
   sellChnl: '', // 판매채널
-  slRcogDv: '', // 판매인식구분
+  // slRcogDv: '', // 매출인식구분
   baseYm: dayjs().format('YYYYMM'),
 });
 
 const codes = await codeUtil.getMultiCodes(
   'SELL_TP_CD', // 업무구분(판매유형) - 라디오
   'SELL_CHNL_DV_CD', // 판매채널구분코드 - 내용상이
-  '', // 매출인식구분
+  // '', // 매출인식구분
   'COD_PAGE_SIZE_OPTIONS',
   'SL_RCOG_PRD_DV_CD',
   'SL_RCOG_PRD_CD',
@@ -329,7 +329,7 @@ const initGrid = defineGrid((data, view) => {
     { fieldName: 'slRcogDt', dataType: 'date' },
     { fieldName: 'fnlMdfcDtm', dataType: 'date' },
     { fieldName: 'fnlMdfcUsrId' },
-    { fieldName: 'col10' },
+    // { fieldName: 'col10' },
   ];
 
   const columns = [
@@ -353,7 +353,7 @@ const initGrid = defineGrid((data, view) => {
     { fieldName: 'slAmt', header: t('MSG_TXT_SLPRC'), width: '128', styleName: 'text-right', headerSummary: { numberFormat: '#,###', expression: 'sum' } }, // 매출액 -> 매출액(원)
     { fieldName: 'pvdaAmt', header: t('MSG_TXT_PVDA'), width: '128', styleName: 'text-right', headerSummary: { numberFormat: '#,###', expression: 'sum' } }, // 현할차금액 -> 현재가치할인차금
     { fieldName: 'useDt', header: t('MSG_TXT_USE_DAY'), width: '109', styleName: 'text-right' }, // 사용일수
-    { fieldName: 'col10', header: t('MSG_TXT_SL_RCOG_STT'), width: '104', styleName: 'text-center' }, // 매출인식상태
+    // { fieldName: 'col10', header: t('MSG_TXT_SL_RCOG_STT'), width: '104', styleName: 'text-center' }, // 매출인식상태
     { fieldName: 'crtErrCn', header: t('MSG_TXT_ERR_IZ'), width: '104' }, // 오류내역
     { fieldName: 'slRcogPrdDvCd', header: t('MSG_TXT_SL_RCOG_BASE'), width: '110', options: codes.SL_RCOG_PRD_DV_CD }, // 매출인식기준
     { fieldName: 'slRcogPrdCd', header: t('MSG_TXT_SL_RCOG') + t('MSG_TXT_CYCL'), width: '120', options: codes.SL_RCOG_PRD_CD }, // 매출인식주기코드 -> 매출인식주기
