@@ -499,13 +499,13 @@ async function onValidRfndEftnCheck() {
 */
 
 async function fetchData() {
-  const res3 = await dataService.get('/sms/wells/withdrawal/idvrve/refund-applications/reg/balance-transfer', { params: { ...cachedParams } });
+  const res3 = await dataService.get('/sms/wells/withdrawal/idvrve/refund-applications/reg/balance-transfer', { params: { ...cachedParams }, timeout: 6000000 });
 
-  const res2 = await dataService.get('/sms/wells/withdrawal/idvrve/refund-applications/reg/refund-detail', { params: { ...cachedParams } });
+  const res2 = await dataService.get('/sms/wells/withdrawal/idvrve/refund-applications/reg/refund-detail', { params: { ...cachedParams }, timeout: 6000000 });
 
-  const res1 = await dataService.get('/sms/wells/withdrawal/idvrve/refund-applications/reg/paging', { params: { ...cachedParams } });
+  const res1 = await dataService.get('/sms/wells/withdrawal/idvrve/refund-applications/reg/paging', { params: { ...cachedParams }, timeout: 6000000 });
 
-  const res = await dataService.get('/sms/wells/withdrawal/idvrve/refund-applications/reg/refund', { params: { ...cachedParams } });
+  const res = await dataService.get('/sms/wells/withdrawal/idvrve/refund-applications/reg/refund', { params: { ...cachedParams }, timeout: 6000000 });
 
   saveParams.value.arfndYn = res.data.arfndYn;
   saveParams.value.acnoEncr = res.data.cshRfndAcnoEncr;
@@ -531,14 +531,9 @@ async function fetchData() {
   view3.getDataSource().setRows(res3.data);
 
   // eslint-disable-next-line no-use-before-define
-  const totRfndEtAmt = await onCheckTotalData(); // 그리드4 (총액 자동계산)
+  await onCheckTotalData(); // 그리드4 (총액 자동계산)
   // eslint-disable-next-line no-use-before-define
   // await onEditRfnd(props.cntrNo);
-  let rfndAmt = 0;
-
-  res1.data.forEach((obj) => {
-    rfndAmt += Number(obj.rfndPsbAmt);
-  });
 
   res2.data.forEach((obj) => {
     const grdView2 = grdPopRef2.value.getView();
@@ -565,8 +560,22 @@ async function fetchData() {
     }// 그리드 2(전금 데이터 바인딩)
   });
 
-  if (rfndAmt < totRfndEtAmt) {
-    alert(t('환불 요청금액이 가능 금액 보다 큰 초과 환불 요청 건입니다. 진행하시겠습니까?'));
+  if (props.rfndAkStatCd === '00' || props.rfndAkStatCd === '01' || props.rfndAkStatCd === '02') {
+    const checkedRows1 = res1.data;
+    const refundInfos = res2.data;
+    let checkYn = 'N';
+    checkedRows1.forEach((el) => {
+      const refundAmt = refundInfos.filter((obj) => obj.cntrNo === el.cntrNo && obj.cntrSn === el.cntrSn)
+      // eslint-disable-next-line no-return-assign, max-len
+        .reduce((acc, cur) => acc += Number(cur.rfndCshAkAmt) + Number(cur.rfndCardAkAmt) + Number(cur.rfndBltfAkAmt), 0);
+      if (Number(el.rfndPsbAmt) < Number(refundAmt)) {
+        checkYn = 'Y';
+      }
+    });
+
+    if (checkYn === 'Y') {
+      alert(t('환불요청금액이 환불가능금액 보다 큰 초과 환불 요청 건입니다.'));
+    }
   }
 }
 
@@ -584,7 +593,7 @@ async function onClickExcel1() {
       timePostfix: true,
     });
   } else {
-    const res = await dataService.get('/sms/wells/withdrawal/idvrve/refund-applications/reg/excel-download', { params: cachedParams });
+    const res = await dataService.get('/sms/wells/withdrawal/idvrve/refund-applications/reg/excel-download', { params: cachedParams, timeout: 6000000 });
     await gridUtil.exportView(view, {
       fileName: currentRoute.value.meta.menuName,
       timePostfix: true,
@@ -831,7 +840,7 @@ async function onCheckTotalData() {
   view4.setValue(0, 'totRfndCardAkAmt', temp2);
   view4.setValue(0, 'totRfndBltfAkAmt', temp3);
   view4.setValue(0, 'totCrdcdFeeAmt', temp4);
-  view4.setValue(0, 'totRfndEtAmt', Number(temp1) + Number(temp2) + Number(temp3));
+  view4.setValue(0, 'totRfndEtAmt', Number(temp1) + Number(temp2) + Number(temp3) - Number(temp4));
   totRfndAkAmt = temp5;
   grdPopRef4.value.getView().getDataSource().setRowState(0, 'none');
 
