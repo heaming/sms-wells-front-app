@@ -15,6 +15,7 @@
 <template>
   <kw-page>
     <kw-search
+      ref="searchRef"
       v-permission:read
       :cols="4"
       :modified-targets="['grdMain']"
@@ -309,6 +310,7 @@ const { getters } = useStore();
 const { currentRoute } = useRouter();
 const totalCount = ref(0);
 const managerAuthYn = ref(false); // false : Admin, true : not Admin
+const searchRef = ref();
 
 // -------------------------------------------------------------------------------------------------
 // Function & Event
@@ -843,6 +845,7 @@ onMounted(async () => {
       ogSearchRef.value.onChangeDgr2LevlOgId(localGroup.value);
     }
   });
+  await searchRef.value.init();
 });
 </script>
 
