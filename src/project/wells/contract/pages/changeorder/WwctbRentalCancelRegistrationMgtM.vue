@@ -547,7 +547,7 @@
       >
         <kw-select
           v-model="searchDetail.csmbCsExmptDvCd"
-          :options="codes.CSMB_CS_EXMPT_DV_CD"
+          :options="searchDetail.isDisCsmb==='Y'?[]:codes.CSMB_CS_EXMPT_DV_CD"
           first-option="select"
         />
         <kw-input
@@ -555,11 +555,12 @@
           class="w80"
           regex="num"
           maxlength="1"
+          :readonly="searchDetail.isDisCsmb==='Y'"
           @update:model-value="onChangeTextforSelect('sel3')"
         />
         <kw-select
           v-model="searchDetail.reqdCsExmptDvCd"
-          :options="codes.REQD_CS_EXMPT_DV_CD"
+          :options="searchDetail.isDisReqd==='Y'?[]:codes.REQD_CS_EXMPT_DV_CD"
           first-option="select"
         />
         <kw-input
@@ -567,11 +568,12 @@
           class="w80"
           regex="num"
           maxlength="1"
+          :readonly="searchDetail.isDisReqd==='Y'"
           @update:model-value="onChangeTextforSelect('sel4')"
         />
         <kw-select
           v-model="searchDetail.reqdAkRcvryDvCd"
-          :options="codes.REQD_RCVRY_DV_CD"
+          :options="searchDetail.isDisRcvry==='Y'?[]:codes.REQD_RCVRY_DV_CD"
           first-option="select"
         />
         <kw-btn
@@ -766,6 +768,7 @@ async function onClickSearchCancel() {
     cancelDt: searchDetail.rsgFshDt,
     adCtrAmt: searchDetail.adCtrAmt,
     canCtrAmt: searchDetail.canCtrAmt,
+    lsRntf: searchDetail.lsRntf,
   });
 
   isReSearch.value = searchDetail.cancelStatNm === '취소등록' ? 'Y' : 'N';
