@@ -258,7 +258,7 @@
 // -------------------------------------------------------------------------------------------------
 import dayjs from 'dayjs';
 import { codeUtil, notify, getComponentType, gridUtil, useDataService, router, useMeta, modal, validate } from 'kw-lib';
-import { cloneDeep, isEmpty } from 'lodash-es';
+import { cloneDeep, isNil } from 'lodash-es';
 
 // -------------------------------------------------------------------------------------------------
 // Function & Event
@@ -463,7 +463,7 @@ async function onClickRedfObjectCreate(param) {
     },
   });
   if (result) {
-    notify(t('MSG_ALT_CNT_CRT_FSH', [!isEmpty(payload) ? String(payload) : '0'])); // {0}건 생성 되었습니다.
+    notify(t('MSG_ALT_CNT_CRT_FSH', [!isNil(payload) ? String(payload) : '0'])); // {0}건 생성 되었습니다.
   }
 }
 
