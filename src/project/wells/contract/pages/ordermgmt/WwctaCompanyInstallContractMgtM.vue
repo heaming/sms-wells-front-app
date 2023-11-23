@@ -501,7 +501,7 @@ const initGrid = defineGrid((data, view) => {
     { fieldName: 'svPdTpCd', visible: false },
     { fieldName: 'coIstMngtDvCd', visible: false },
     { fieldName: 'copnDvCd', visible: false },
-    { fieldName: 'mpno', width: '120' },
+    { fieldName: 'mpno', visible: false },
     { fieldName: 'zip', visible: false },
     { fieldName: 'basAdr', visible: false },
     { fieldName: 'dtlAdr', visible: false },
