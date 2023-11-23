@@ -273,6 +273,9 @@ async function getWareHouseList() {
     })));
     // 필드 셋팅
     fieldsObj.setFields();
+  } else {
+    // 디폴트 필드 셋팅
+    fieldsObj.setDefaultFields();
   }
 }
 
@@ -394,6 +397,20 @@ fieldsObj = {
 
     const layoutColumns = [...fieldsObj.getColumnNameArr(fieldsObj.defaultFields),
       ...fieldsObj.getColumnNameArr(serviceFields)];
+    const fields = columns.map(({ fieldName, dataType }) => (dataType ? { fieldName, dataType } : { fieldName }));
+
+    gridData.setFields(fields);
+    gridView.setColumns(columns);
+    gridView.setColumnLayout([...layoutColumns]);
+    gridView.setFixedOptions({ colCount: 4, resizable: true });
+    gridView.columnByName('kiwiPdCd').setFooters({ text: t('MSG_TXT_TOT_SUM'), styleName: 'text-left text-weight-bold' });
+    gridView.setFooters({ visible: true, items: [{ height: 30 }] });
+  },
+
+  // 디폴트 필드 세팅
+  setDefaultFields() {
+    const columns = [...fieldsObj.defaultFields];
+    const layoutColumns = [...fieldsObj.getColumnNameArr(fieldsObj.defaultFields)];
     const fields = columns.map(({ fieldName, dataType }) => (dataType ? { fieldName, dataType } : { fieldName }));
 
     gridData.setFields(fields);
