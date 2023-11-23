@@ -611,6 +611,8 @@ async function onClickEmailSend() {
     vacNo: frmMainData.value.vacInfo.split(' ')[0], // 가상계좌번호
     vacGbn: frmMainData.value.vacVncoDvCd, // 가상계좌구분
     custNm: frmMainData.value.cstKnm, // 고객명
+    cntrNo: frmMainData.value.cntrDtlNo.split('-')[0], // 계약번호
+    cntrSn: frmMainData.value.cntrDtlNo.split('-')[1], // 계약일련번호
   };
 
   await modal({
