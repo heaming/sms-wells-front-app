@@ -954,7 +954,6 @@ const initGrdAggr = defineGrid((data, view) => {
     { fieldName: 'elhmAckmtCt', header: t('MSG_TXT_PD_ACC_CNT'), width: '120', styleName: 'text-right', numberFormat: '#,##0', dataType: 'number' }, // 인정건수
     { fieldName: 'rentalBasePrc', header: t('MSG_TXT_RENTAL_BASE_PRC'), width: '120', styleName: 'text-right', numberFormat: '#,##0', dataType: 'number' }, // 렌탈기준가
     { fieldName: 'snglPmntBasePrc', header: t('MSG_TXT_SNGL_PMNT_BASE_PRC'), width: '120', styleName: 'text-right', numberFormat: '#,##0', dataType: 'number' }, // 일시불기준가
-    { fieldName: 'elhmExcpAckmtPerf', header: t('MSG_TXT_ELHM_EXCP_ACKMT_PERF'), width: '120', styleName: 'text-right', numberFormat: '#,##0', dataType: 'number' }, // 가전외인정실적
     { fieldName: 'chng', header: t('MSG_TXT_CHNG'), width: '120', styleName: 'text-right', numberFormat: '#,##0', dataType: 'number' }, // 기변
     { fieldName: 'fxamCt', header: `${t('MSG_TXT_ELHM')}+${t('MSG_TXT_ELHM_EXCP')} ${t('MSG_TXT_FXAM')}`, width: '150', styleName: 'text-right', numberFormat: '#,##0', dataType: 'number' }, // 가전+가전외 정액
     { fieldName: 'rstlCt', header: t('MSG_TXT_RSTL_AMT'), width: '120', styleName: 'text-right', numberFormat: '#,##0', dataType: 'number' }, // 재약정금액
@@ -985,7 +984,7 @@ const initGrdAggr = defineGrid((data, view) => {
     {
       header: t('MSG_TXT_ELHM'), // 가전
       direction: 'horizontal',
-      items: ['elhmAckmtCt', 'rentalBasePrc', 'snglPmntBasePrc', 'elhmExcpAckmtPerf', 'chng'],
+      items: ['elhmAckmtCt', 'rentalBasePrc', 'snglPmntBasePrc', 'chng'],
     },
     {
       header: t('MSG_TXT_ETC'), // 기타
