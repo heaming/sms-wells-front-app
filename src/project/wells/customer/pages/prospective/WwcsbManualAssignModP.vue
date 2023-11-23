@@ -55,7 +55,8 @@
         </kw-form-row>
         <kw-form-row>
           <kw-form-item :label="t('MSG_TXT_CRLV',null,'직급')">
-            <p>{{ getCodeNames(codes.PSTN_DV_CD, prtnrNoInfo?.pstnDvCd) }}</p>
+            <!-- <p>{{ getCodeNames(codes.PSTN_DV_CD, prtnrNoInfo?.pstnDvCd) }}</p> -->
+            <p>{{ prtnrNoInfo?.pstnNm }}</p>
           </kw-form-item>
         </kw-form-row>
         <kw-form-row>
@@ -93,9 +94,9 @@
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
-import { useDataService, useGlobal, useModal, codeUtil } from 'kw-lib';
+import { useDataService, useGlobal, useModal } from 'kw-lib'; // codeUtil
 import { isEmpty } from 'lodash-es';
-import { getCodeNames } from '~sms-common/customer/utils/csUtil';
+// import { getCodeNames } from '~sms-common/customer/utils/csUtil';
 
 const { notify } = useGlobal();
 const { t } = useI18n();
@@ -109,7 +110,7 @@ const frmMainRef = ref();
 // Function & Event
 // -------------------------------------------------------------------------------------------------
 const baseUrl = '/sms/wells/customer/receipts';
-const codes = await codeUtil.getMultiCodes('PSTN_DV_CD');
+// const codes = await codeUtil.getMultiCodes('PSTN_DV_CD');
 
 const props = defineProps({
   pspcCstCnslId: { type: Array, default: () => [], required: true },
