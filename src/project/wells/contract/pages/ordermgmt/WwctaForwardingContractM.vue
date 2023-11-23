@@ -107,13 +107,16 @@
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
 import { postMessage, decryptEncryptedParam, openWindowPage } from '~sms-common/contract/util';
-import { /* alert, */ useDataService } from 'kw-lib';
+import { alert, useDataService } from 'kw-lib';
 import { isEqual, isEmpty } from 'lodash-es';
 import { COPN_DV_CD } from '~sms-wells/contract/constants/ctConst';
 import { openReportPopup } from '~common/utils/cmPopupUtil';
 
+import dayjs from 'dayjs';
+
 const { t } = useI18n();
 
+const now = dayjs();
 const dataService = useDataService();
 const props = defineProps({
   cntrNo: { type: String, default: undefined }, // 계약번호
@@ -129,7 +132,7 @@ const props = defineProps({
   encryptedParam: { type: String, default: undefined }, // 암호화 된 파라미터
   cntrCnfmStrtDt: { type: String, default: undefined }, // 계약확정시작일자
   cntrTempSaveDt: { type: String, default: undefined }, // 계약임시저장일자
-  stpltn: { type: String, default: undefined }, // 약정회차
+  stplTn: { type: String, default: undefined }, // 약정회차
   device: { type: String, default: undefined }, // 기기
 });
 
@@ -147,7 +150,7 @@ const params = decryptEncryptedParam(props.encryptedParam, {
   spectxGrpNo: props.spectxGrpNo,
   cntrCnfmStrtDt: props.cntrCnfmStrtDt,
   cntrTempSaveDt: props.cntrTempSaveDt,
-  stpltn: props.stpltn,
+  stplTn: props.stplTn,
   device: props.device,
 });
 
@@ -187,6 +190,10 @@ const rptIdGbn = computed(() => { // 리포트 종류 구분 처리 computed
       searchParams.value.reportHeaderTitle = t('MSG_TXT_RSTL'); // 레포트 제목
       break;
     }
+    case 'VRTL001': { // 가상계좌확인서
+      searchParams.value.reportHeaderTitle = t('MSG_TXT_VT_AC_CFDC'); // 레포트 제목
+      break;
+    }
   }
 
   if (['ESDC01'].includes(params.rptId)) { return 'noCertification'; } // 무인증 리스트
@@ -218,11 +225,12 @@ async function openCntrOZReport() {
     cntrDtlNoList: params.cntrDtlNoList,
     custNm: params.custNm,
     pblcSearchSttDt: params.pblcSearchSttDt,
-    // cntrNo: params.cntrNo,
     spectxPblDDvCd: params.spectxPblDDvCd,
     spectxGrpNo: params.spectxGrpNo,
     cntrCnfmStrtDt: params.cntrCnfmStrtDt,
-    stpltn: params.stpltn,
+    stplTn: params.stplTn,
+    cntrNo: params.cntrNo,
+    cntrSn: params.cntrSn,
   };
 
   // OZ 리포트 팝업 파라미터 설정
@@ -250,15 +258,27 @@ async function openCntrOZReport() {
       searchApiUrl = '/api/v1/sms/wells/contract/contracts/order-details/specification/deposit-itemizations/oz';
       break;
     }
-    case 'ESDC01': { // 견적서
-      cachedParams.cntrNo = params.cntrNo;
-      break;
-    }
     case 'RP002': { // 재약정
-      cachedParams.cntrNo = params.cntrNo;
-      cachedParams.cntrSn = params.cntrSn;
       cachedParams.cntrTempSaveDt = params.rstlCnfmDtm;
       searchApiUrl = '/api/v1/sms/wells/contract/contracts/managements/search-api-url/rstl/args';
+      break;
+    }
+    case 'VRTL001': { // 가상계좌확인서
+      const res = await dataService.get(`/sms/wells/contract/changeorder/cancel/vacc-info/${params.cntrNo}/${params.cntrSn}`);
+      if (isEmpty(res.data)) {
+        alert(t('MSG_ALT_NO_SRCH_DATA'));
+        return;
+      }
+      cachedParams.jsonData = [{
+        BANKNM: res.data.vacBnkNm, // 가상계좌은행명
+        ACNO: res.data.vacNo, // 가상계좌번호
+        CUSTNM: res.data.vacAcownNm, // 가상계좌고객명
+        /* 현재날짜 */
+        CURRENTYY: now.format('YYYY'),
+        CURRENTMM: now.format('MM'),
+        CURRENTDD: now.format('DD'),
+        ISNCPATH: res.data.isncPath, // 가상계좌VAN사구분코드
+      }];
       break;
     }
   }

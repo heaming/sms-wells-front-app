@@ -79,6 +79,14 @@ const props = defineProps({
     type: String,
     default: null,
   },
+  cntrNo: { // 계약번호
+    type: String,
+    default: null,
+  },
+  cntrSn: { // 계약일련번호
+    type: String,
+    default: null,
+  },
 });
 
 // -------------------------------------------------------------------------------------------------
@@ -100,6 +108,8 @@ async function onClickSend() {
       vacNo: props.vacNo,
       vacGbn: props.vacGbn,
       custNm: props.custNm,
+      cntrNo: props.cntrNo,
+      cntrSn: props.cntrSn,
     };
     await dataService.post('/sms/wells/contract/contracts/order-details/virtual-account-document', params);
     ok();
