@@ -53,6 +53,7 @@
             v-model="searchParams.sellOgTpCd"
             :options="codes.OG_TP_CD"
             first-option="all"
+            first-option-value="ALL"
           />
         </kw-search-item>
       </kw-search-row>
@@ -126,19 +127,23 @@ const grdLstmmRef = ref(getComponentType('KwGrid'));
 const grdMshRef = ref(getComponentType('KwGrid'));
 const totalCount = ref(0);
 
+const codes = await codeUtil.getMultiCodes(
+  'SELL_TP_CD',
+  'SELL_TP_DTL_CD',
+  'OG_TP_CD',
+);
+
 let cachedParams;
 const now = dayjs();
+
 const searchParams = ref({
   prntTp: 'PL', // 출력유형 (default : 전월포함)
   perfStrtDt: now.startOf('month').format('YYYYMMDD'), // 실적기간-시작일자
   perfEndDt: now.format('YYYYMMDD'), // 실적기간-종료일자
   sellOgTpCd: '', // 판매구분=조직구분
   prntDv: 'PC', // 출력구분 (default : 상품)
+  lastMonth: '', // 전월
 });
-
-const codes = await codeUtil.getMultiCodes(
-  'OG_TP_CD',
-);
 
 const pageInfo = ref({
   totalCount: 0,
@@ -171,7 +176,8 @@ async function fetchData() {
     res = await dataService.get('/sms/wells/contract/contracts/product-daily-sales-performce-comparison-agrg/msh', { params: { ...cachedParams, ...pageInfo.value } });
   }
   console.log(res.data);
-  const productAccountList = res.data.list;
+  // const productAccountList = res.data.list;
+  const productAccountList = res.data;
   totalCount.value = productAccountList.length;
   let mainView;
   if (prntTp === 'PL') {
@@ -184,12 +190,18 @@ async function fetchData() {
 }
 
 async function onClickSearch() {
-  grdLstmmRef.value.getData().clearRows();
-  grdMshRef.value.getData().clearRows();
+  // grdLstmmRef.value.getData().clearRows();
+  // grdMshRef.value.getData().clearRows();
   pageInfo.value.pageIndex = 1;
+  searchParams.value.lastMonth = dayjs(searchParams.value.perfStrtDt).add(-1, 'month').format('YYYYMM');
   cachedParams = cloneDeep(searchParams.value);
 
   await fetchData();
+}
+
+// 초기화버튼 클릭 이벤트
+async function onClickReset() {
+  grdLstmmRef.value.getData().clearRows();
 }
 
 async function onClickExcelDownload() {
@@ -231,8 +243,8 @@ const initGridLstmm = defineGrid((data, view) => {
     // 전월
     { fieldName: 'lstmmCrdovrCt', header: t('MSG_TXT_CRDOVR'), width: '120', styleName: 'text-right', dataType: 'number' }, // 이월
     { fieldName: 'lstmmInflowCt', header: t('MSG_TXT_INFLW'), width: '120', styleName: 'text-right', dataType: 'number' }, // 유입
-    { fieldName: 'lstmmresignCt', header: t('MSG_TXT_EXPIRED'), width: '120', styleName: 'text-right', dataType: 'number' }, // 해지
-    { fieldName: 'lstmmexpirationCt', header: t('MSG_TXT_EXN'), width: '120', styleName: 'text-right', dataType: 'number' }, // 만료
+    { fieldName: 'lstmmResignCt', header: t('MSG_TXT_EXPIRED'), width: '120', styleName: 'text-right', dataType: 'number' }, // 해지
+    { fieldName: 'lstmmExpirationCt', header: t('MSG_TXT_EXN'), width: '120', styleName: 'text-right', dataType: 'number' }, // 만료
     { fieldName: 'lstmmNincCt', header: t('MSG_TXT_NINC'), width: '120', styleName: 'text-right', dataType: 'number' }, // 순증
     { fieldName: 'lstmmSumCt', header: t('MSG_TXT_SUM'), width: '120', styleName: 'text-right', dataType: 'number' }, // 합계
     { fieldName: 'lstmmChdvcCt', header: t('MSG_TXT_CHNG'), width: '120', styleName: 'text-right', dataType: 'number' }, // 기변
@@ -275,7 +287,7 @@ const initGridLstmm = defineGrid((data, view) => {
     {
       header: t('MSG_TXT_LSTMM'), // 전월
       direction: 'horizontal',
-      items: ['lstmmCrdovrCt', 'lstmmInflowCt', 'lstmmresignCt', 'lstmmexpirationCt', 'lstmmNincCt', 'lstmmSumCt', 'lstmmChdvcCt'],
+      items: ['lstmmCrdovrCt', 'lstmmInflowCt', 'lstmmResignCt', 'lstmmExpirationCt', 'lstmmNincCt', 'lstmmSumCt', 'lstmmChdvcCt'],
     },
   ];
   view.setColumnLayout(layout1);
