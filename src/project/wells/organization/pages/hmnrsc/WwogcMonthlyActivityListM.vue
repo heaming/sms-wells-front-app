@@ -169,6 +169,7 @@ const searchParams = ref({
   ogLevlDvCd2: undefined,
   ogLevlDvCd3: undefined,
   qlfDvCd: '',
+  feamFlag: '',
 });
 
 function setGrid(response) {
@@ -189,6 +190,12 @@ async function fetchData() {
 }
 
 async function onClickSearch() {
+  const flagCnt = await dataService.get('/sms/wells/activity/monthly/count-feam-cntr', { params: { ...searchParams.value } });
+  if (flagCnt.data > 0) {
+    searchParams.value.feamFlag = 'Y';
+  } else {
+    searchParams.value.feamFlag = 'N';
+  }
   pageInfo.value.pageIndex = 1;
   cacheParams = cloneDeep(searchParams.value);
 
