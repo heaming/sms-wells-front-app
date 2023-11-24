@@ -1456,10 +1456,14 @@ async function onClickCustomerCardPrint() {
 
 // TODO: 전화거부
 async function onClickTelephoneRej() {
-  await modal({
+  const { result: isChanged } = await modal({
     component: 'ZwbncCounselTelephoneRejMgtP',
     componentProps: customer.value,
   });
+
+  if (!isChanged) {
+    await fetchData();
+  }
 }
 
 // TODO: 서비스 상세

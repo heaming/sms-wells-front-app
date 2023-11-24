@@ -957,18 +957,19 @@ async function onClickNotakfW() {
         return;
       }
       let paramUrl = '';
-      // eslint-disable-next-line no-await-in-loop
-      const promises = await buildUrlForNoSession( // 계약서 URL 생성
-        undefined,
-        'WwctaContractDocumentM',
-        { cntrNo: String(cntrs[i].cntrDtlNo).split('-')[0] },
-        false,
-        false,
-      );
-      paramUrl = promises;
 
       // 신규/변경일 경우
       if (['A', 'N', 'U'].includes(searchParams.value.cntrDv)) {
+        // eslint-disable-next-line no-await-in-loop
+        const promises = await buildUrlForNoSession( // 신규/변경 계약서 리포트 URL 생성
+          undefined,
+          'WwctaContractDocumentM',
+          { cntrNo: String(cntrs[i].cntrDtlNo).split('-')[0] },
+          true,
+          true,
+        );
+        paramUrl = promises;
+
         saveData.push({
           cntrNo: String(cntrs[i].cntrDtlNo).split('-')[0],
           cntrSn: String(cntrs[i].cntrDtlNo).split('-')[1].substr(0, 1),
@@ -976,6 +977,22 @@ async function onClickNotakfW() {
           cntrUrl: paramUrl,
         });
       } else if (searchParams.value.cntrDv === 'R') { // 재약정
+        // eslint-disable-next-line no-await-in-loop
+        const promises = await buildUrlForNoSession( // 재약정 계약서 리포트 URL 생성
+          undefined,
+          'WwctaForwardingContractM',
+          {
+            cntrNo: String(cntrs[i].cntrNo),
+            cntrSn: String(cntrs[i].cntrSn),
+            rptId: 'RP002',
+            cntrTempSaveDt: isEmpty(cntrs[i].stplCnfmDt) ? '' : cntrs[i].stplCnfmDt,
+            stplTn: isEmpty(cntrs[i].stplTn) ? '' : cntrs[i].stplTn,
+          },
+          true,
+          true,
+        );
+        paramUrl = promises;
+
         saveData.push({
           cntrNo: cntrs[i].cntrNo,
           cntrSn: cntrs[i].cntrSn,

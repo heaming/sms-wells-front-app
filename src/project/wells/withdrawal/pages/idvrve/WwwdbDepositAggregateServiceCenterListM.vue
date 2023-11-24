@@ -301,7 +301,7 @@ const initGrid = defineGrid((data, view) => {
         numberFormat: '#,##0',
         styleName: 'text-right',
         valueCallback() {
-          return Number(totalParams.value.adpBilSlAmtTt);
+          return Number(totalParams.value.cashSlAmtTt);
         },
       } },
     { fieldName: 'cshBilDpAmt',
@@ -317,7 +317,7 @@ const initGrid = defineGrid((data, view) => {
         numberFormat: '#,##0',
         styleName: 'text-right',
         valueCallback() {
-          return Number(totalParams.value.adpBilDpAmtTt);
+          return Number(totalParams.value.cashDpAmtTt);
         },
       } },
     { fieldName: 'adpBilSlAmt',

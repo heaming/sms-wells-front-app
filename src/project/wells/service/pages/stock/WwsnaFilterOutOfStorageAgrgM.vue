@@ -144,7 +144,7 @@ const initGrdMain = defineGrid((data, view) => {
   const columns = [
     { fieldName: 'sapMatCd', header: t('MSG_TXT_SAPCD'), width: '170', styleName: 'text-center' },
     { fieldName: 'pdCd', header: t('MSG_TXT_ITM_CD'), width: '150', styleName: 'text-center' },
-    { fieldName: 'pdNm', header: t('MSG_TXT_FLTR_NM'), width: '280', styleName: 'text-left' },
+    { fieldName: 'pdAbbrNm', header: t('MSG_TXT_FLTR_NM'), width: '280', styleName: 'text-left' },
   ];
   const columnFieldAmtts = ['totlAmtt', /* TOTAL */
     'bs01Amtt', 'bs02Amtt', 'bs03Amtt', 'bs04Amtt', 'bs05Amtt', 'bs09Amtt', 'bs99Amtt', /* BS */
@@ -175,7 +175,7 @@ const initGrdMain = defineGrid((data, view) => {
     {
       header: t('MSG_TXT_DIV'),
       direction: 'horizontal',
-      items: ['sapMatCd', 'pdCd', 'pdNm'],
+      items: ['sapMatCd', 'pdCd', 'pdAbbrNm'],
     },
     {
       header: t('MSG_TXT_OSTR_SUM'),
@@ -204,12 +204,12 @@ const initGrdMain = defineGrid((data, view) => {
         {
           header: t('MSG_TXT_EXN_KEEP'),
           hideChildHeaders: true,
-          items: ['bs04Amtt'],
+          items: ['bs05Amtt'],
         },
         {
           header: t('MSG_TXT_COMPANY'),
           hideChildHeaders: true,
-          items: ['bs05Amtt'],
+          items: ['bs04Amtt'],
         },
 
         {
@@ -257,12 +257,12 @@ const initGrdMain = defineGrid((data, view) => {
             {
               header: t('MSG_TXT_EXN_KEEP'),
               hideChildHeaders: true,
-              items: ['as04Amtt'],
+              items: ['as05Amtt'],
             },
             {
               header: t('MSG_TXT_COMPANY'),
               hideChildHeaders: true,
-              items: ['as05Amtt'],
+              items: ['as04Amtt'],
             },
             {
               header: t('MSG_TXT_FLTR'),

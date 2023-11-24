@@ -156,7 +156,7 @@ changePdGrpCd();
 // }, { immediate: true });
 
 async function fetchData() {
-  const res = await dataService.get('/sms/wells/service/as-assign-state/total-customers', { params: { ...cachedParams } });
+  const res = await dataService.get('/sms/wells/service/as-assign-state/total-customers', { params: { ...cachedParams }, timeout: 300000 }); // 타임아웃 5분
   const view = grdMainRef.value.getView();
   let tcntTotal = 0;
 
@@ -243,7 +243,7 @@ const initGrdMain = defineGrid((data, view) => {
     { fieldName: 'acol11', dataType: 'number' },
     { fieldName: 'acol12', dataType: 'number' },
     { fieldName: 'tcnt', dataType: 'number' },
-    { fieldName: 'per', dataType: 'number' },
+    { fieldName: 'per' },
   ];
 
   const columns = [
@@ -338,10 +338,14 @@ const initGrdMain = defineGrid((data, view) => {
       styleName: 'text-right',
       footer: { expression: 'sum', numberFormat: '#,##0', styleName: 'text-right' } },
     { fieldName: 'per',
-      header: `${t('MSG_TXT_RAT')}(%)`,
+      header: `${t('MSG_TXT_RAT')}`,
       width: '50',
       styleName: 'text-right',
-      footer: { expression: 'sum', numberFormat: '#,##0', styleName: 'text-right' } },
+      displayCallback: (grid, index) => {
+        const { per } = grid.getValues(index.dataRow) || {};
+        return `${per}%`;
+      },
+      footer: { expression: 'sum', numberFormat: '#,##0', styleName: 'text-right', valueCallback() { return '100%'; } } },
   ];
 
   const columnLayout = [

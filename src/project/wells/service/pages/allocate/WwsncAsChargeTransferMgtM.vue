@@ -263,7 +263,7 @@ const codes = await codeUtil.getMultiCodes(
 );
 // 방문 시간 list 생성
 const vstTms = [];
-for (let i = 9; i <= 16; i += 1) {
+for (let i = 9; i <= 18; i += 1) {
   const value = i.toString();
   vstTms.push({ codeId: `${value.padStart(2, '0')}00`, codeName: `${value.padStart(2, '0')}:00` });
 }
@@ -300,6 +300,7 @@ async function onClickExcelDownload() {
       header: t('MSG_TXT_VST_CNFM_DT'), // colspan title
       direction: 'horizontal', // merge type
       items: ['vstCnfmdt', 'vstCnfmHh'],
+      hideChildHeaders: true,
     },
     'asnDtm',
     'rcst',

@@ -486,6 +486,7 @@ import { CNTR_TP_CD, COPN_DV_CD } from '~sms-wells/contract/constants/ctConst';
 const props = defineProps({
   contract: { type: Object, default: undefined },
   cntrCstNo: { type: String, default: undefined },
+  pspcCstId: { type: String, default: undefined },
 });
 const emit = defineEmits([
   'activated',
@@ -650,7 +651,6 @@ function setupNewContract() {
 
 async function getCntrInfo() {
   if (!cntrNo.value) {
-    setupNewContract();
     return;
   }
 
@@ -674,7 +674,11 @@ async function getCntrInfo() {
     // mshCntrSn
   } = step1.value;
 
-  initFlag = true; /* 계약유형코드 변경 콜백 동작 방지. */
+  /* 계약유형코드 변경 콜백 동작 방지.
+  컴포넌트에 수정을 넘기고, 변경사항에 대한 콜백 처리도 있는 필드에 값을 때려 박는 경우.
+  좋지 못한 패턴이니 좋은 생각이 나면 수정하도록 하자.
+  */
+  initFlag = true;
   searchParams.value.cntrTpCd = bas.cntrTpCd;
   searchParams.value.copnDvCd = bas.copnDvCd;
 
@@ -862,8 +866,7 @@ async function selectPartner() {
     }
   }
 
-  // step1.value.prtnr ??= currentPartner; // {} => Nullish coalescing assignment (??=) 처리안됨
-  step1.value.prtnr = isEmpty(step1.value.prtnr) ? currentPartner : step1.value.prtnr;
+  step1.value.prtnr = step1.value.prtnr?.prtnrNo ? step1.value.prtnr : currentPartner;
 
   if (currentPartner.pstnDvCd === '7') {
     // 지국장 정보 설정 후, 소속 파트너 선택
@@ -1151,45 +1154,61 @@ async function getCounts() {
 
 const loaded = ref(false);
 
+async function fetchProspectContract() {
+  const { pspcCstId } = props;
+  const { data } = await dataService.get('sms/wells/contract/contracts/prospect-contract', { params: { pspcCstId } });
+  const { pspcCstBas, cntrt, prtnr } = data;
+  step1.value.pspcCstBas = pspcCstBas;
+  step1.value.bas = {
+    pspcCstId,
+    cntrTpCd: CNTR_TP_CD.INDIVIDUAL,
+  };
+  if (cntrt) { step1.value.cntrt = cntrt; }
+  step1.value.prtnr = prtnr;
+  step1.value.bas.sellInflwChnlDtlCd = prtnr?.sellInflwChnlDtlCd;
+  const { pspcCstKnm, cralLocaraTno, mexnoEncr, cralIdvTno } = pspcCstBas;
+  setupSearchParams({
+    cstKnm: pspcCstKnm,
+    cntrtTno: `${cralLocaraTno}${mexnoEncr}${cralIdvTno}`,
+    cralLocaraTno,
+    mexnoEncr,
+    cralIdvTno,
+  });
+  await setupAvailableCntrTpCd();
+  await selectContractor();
+}
+
 async function initStep(forced = false) {
   if (!forced && loaded.value) {
     return;
   }
 
-  await getCntrInfo();
-  if (!cntrNo.value) {
+  if (cntrNo.value) {
+    await getCntrInfo();
+    loaded.value = true;
+    return;
+  }
+
+  setupNewContract();
+
+  const { pspcCstId, cntrCstNo } = props;
+
+  if (pspcCstId) {
+    await fetchProspectContract();
+  } else {
     getCounts();
   }
-  loaded.value = true;
+
+  if (cntrCstNo) {
+    await fetchCntrtByCstNo(cntrCstNo);
+    await selectPartner();
+  }
 }
 
-exposed.getCntrInfo = getCntrInfo;
 exposed.isChangedStep = isChangedStep;
 exposed.isValidStep = isValidStep;
 exposed.initStep = initStep;
 exposed.saveStep = saveStep;
-
-// 고객 센터용 빠른 수정 코드 FIXME: 제정신인 미래의 나
-const unwatch = watchEffect(() => {
-  if (step1.value.pspcCstBas) {
-    const { pspcCstKnm, cralLocaraTno, mexnoEncr, cralIdvTno } = step1.value.pspcCstBas;
-    setupSearchParams({
-      cstKnm: pspcCstKnm,
-      cntrtTno: `${cralLocaraTno}${mexnoEncr}${cralIdvTno}`,
-      cralLocaraTno,
-      mexnoEncr,
-      cralIdvTno,
-    });
-    setupAvailableCntrTpCd();
-    unwatch();
-  }
-});
-
-// 고객 센터용 빠른 수정 코드 FIXME: 제정신인 미래의 나
-if (props.cntrCstNo) {
-  await fetchCntrtByCstNo(props.cntrCstNo);
-  selectPartner();
-}
 
 onActivated(() => {
   initStep(true);

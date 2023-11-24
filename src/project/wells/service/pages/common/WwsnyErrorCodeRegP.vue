@@ -86,6 +86,7 @@
       <kw-btn
         negative
         :label="$t('MSG_TXT_CANCEL')"
+        @click="cancel"
       />
       <kw-btn
         primary
@@ -106,7 +107,7 @@ import { isEmpty } from 'lodash-es';
 const dataService = useDataService();
 const { notify, confirm } = useGlobal();
 const { t } = useI18n();
-const { ok } = useModal();
+const { cancel, ok } = useModal();
 
 // -------------------------------------------------------------------------------------------------
 // Function & Event
@@ -158,7 +159,7 @@ const initialErrorCodeInfo = {
 
 const errorCodeInfo = ref(initialErrorCodeInfo);
 function hasProps() {
-  return !isEmpty(props.pdCd);
+  return !isEmpty(props.errCn);
 }
 
 function resetErrorCodeInfo() {
@@ -185,7 +186,7 @@ const prd = (await dataService.get('/sms/wells/service/installation-locations/pr
 productCode.value = prd;
 
 onMounted(async () => {
-  if (hasProps()) {
+  if (!isEmpty(props.pdCd)) {
     resetErrorCodeInfo();
     await frmMainRef.value.init();
   }
