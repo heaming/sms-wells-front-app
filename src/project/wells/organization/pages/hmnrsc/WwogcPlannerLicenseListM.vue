@@ -857,7 +857,7 @@ const initGrid2 = defineGrid((data, view) => {
       displayCallback(g, index, value) {
         return isEmpty(value) ? '-' : dayjs(value).format('YYYY-MM-DD');
       },
-      editable: true,
+      editable: !!hasRoleNickName('ROL_W1620'),
     },
     {
       fieldName: 'dsbAmt', // 지급금액
@@ -873,7 +873,7 @@ const initGrid2 = defineGrid((data, view) => {
       displayCallback(g, index, value) {
         return isEmpty(value) ? '-' : value;
       },
-      editable: true,
+      editable: !!hasRoleNickName('ROL_W1620'),
     },
     {
       fieldName: 'pcpPrtnrNo', // 수정자번호
