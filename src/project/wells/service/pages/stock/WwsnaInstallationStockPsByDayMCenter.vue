@@ -132,7 +132,6 @@ import 'dayjs/locale/ko';
 const { t } = useI18n();
 const now = dayjs();
 const { modal } = useGlobal();
-// const { getters } = useStore();
 const { currentRoute } = useRouter();
 const dataService = useDataService();
 
@@ -165,7 +164,7 @@ const pageInfo = ref({
 const searchParams = ref({
   baseDt: now.format('YYYYMMDD'),
   pdGdCd: '',
-  itmKndCd: '',
+  itmKndCd: '4',
   pdCd: '',
 });
 
@@ -263,7 +262,16 @@ async function fetchData() {
 
   getDateColumnsFields(cachedParams.baseDt);
   const columns = [
-    { fieldName: 'ogNm', header: t('MSG_TXT_DIV'), width: '247' },
+    { fieldName: 'ogId', header: t('MSG_TXT_DIV'), width: '247', display: false },
+    { fieldName: 'ogNm', header: t('MSG_TXT_DIV'), width: '247', display: false },
+    { fieldName: 'ogInfo',
+      header: t('MSG_TXT_DIV'),
+      width: '247',
+      displayCallback(grid, index) {
+        const { ogId: no1, ogNm: no2 } = grid.getValues(index.itemIndex);
+        return `${no2} (${no1})`;
+      } },
+    { fieldName: 'pajuQty', header: t('MSG_TXT_LGST'), width: '100', styleName: 'text-right' },
     { fieldName: 'prvMng', header: t('MSG_TXT_CENTER_DIVISION'), width: '100', styleName: 'text-right' },
     { fieldName: 'engQty', header: t('MSG_TXT_EGER'), width: '100', styleName: 'text-right' },
     { fieldName: 'stockTotal', header: t('MSG_TXT_SUM'), width: '100', styleName: 'text-right' },
@@ -275,11 +283,11 @@ async function fetchData() {
   view.setColumns(columns);
   view.getDataSource().setRows(state);
   view.setColumnLayout([
-    'ogNm',
+    'ogInfo',
     {
       header: t('MSG_TXT_CURRENT') + t('MSG_TXT_STOC'), // colspan title
       direction: 'horizontal', // merge type
-      items: ['prvMng', 'engQty', 'stockTotal'],
+      items: ['pajuQty', 'prvMng', 'engQty', 'stockTotal'],
     },
     {
       header: t('MSG_TXT_STOC') + t('MSG_TXT_PS'), // colspan title
@@ -345,6 +353,7 @@ const initGrid = defineGrid((data, view) => {
     { fieldName: 'ogId' },
     { fieldName: 'ogNm' },
     { fieldName: 'ogInfo' },
+    { fieldName: 'pajuQty' },
     { fieldName: 'prvMng' },
     { fieldName: 'engQty' },
     { fieldName: 'stockTotal' },
@@ -363,6 +372,7 @@ const initGrid = defineGrid((data, view) => {
         const { ogId: no1, ogNm: no2 } = grid.getValues(index.itemIndex);
         return `${no2} (${no1})`;
       } },
+    { fieldName: 'pajuQty', header: t('MSG_TXT_LGST'), width: '100', styleName: 'text-right' },
     { fieldName: 'prvMng', header: t('MSG_TXT_CENTER_DIVISION'), width: '100', styleName: 'text-right' },
     { fieldName: 'engQty', header: t('MSG_TXT_EGER'), width: '100', styleName: 'text-right' },
     { fieldName: 'stockTotal', header: t('MSG_TXT_SUM'), width: '100', styleName: 'text-right' },
@@ -381,7 +391,7 @@ const initGrid = defineGrid((data, view) => {
     {
       header: t('MSG_TXT_CURRENT') + t('MSG_TXT_STOC'), // colspan title
       direction: 'horizontal', // merge type
-      items: ['prvMng', 'engQty', 'stockTotal'],
+      items: ['pajuQty', 'prvMng', 'engQty', 'stockTotal'],
     },
     {
       header: t('MSG_TXT_STOC') + t('MSG_TXT_PS'), // colspan title
