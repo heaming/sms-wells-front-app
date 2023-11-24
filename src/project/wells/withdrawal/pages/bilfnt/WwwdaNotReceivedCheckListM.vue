@@ -21,18 +21,22 @@
         name="bilFshNrcvCt"
         :label="t('MSG_TIT_BIL_FSH_NRCV_CT')"
       />
+      <!-- 청구완료 미수신건 -->
       <kw-tab
         name="rcvFshDpCrtOmssnCt"
         :label="t('MSG_TIT_RCV_FSH_DP_CRT_OMSSN_CT')"
       />
+      <!-- 수신완료 입금생성 누락건 -->
       <kw-tab
         name="slPerfDpApyOmssnCt"
         :label="t('MSG_TIT_SL_PERF_DP_APY_OMSSN_CT')"
       />
+      <!-- 매출실적 입금 적용 누락건 -->
       <kw-tab
         name="bndlWdrwUnrg"
         :label="t('MSG_TIT_BNDL_WDRW_ERR_RGST')"
       />
+      <!-- 묶음출금 오등록 -->
     </kw-tabs>
 
     <kw-tab-panels v-model="selectedTab">
@@ -46,6 +50,7 @@
               :label="t('MSG_TXT_BASE_DT')"
               required
             >
+              <!-- 기준일자 -->
               <kw-date-picker
                 v-model="searchParams.bilDt"
                 :label="t('MSG_TXT_BASE_DT')"
@@ -57,6 +62,7 @@
               :label="t('MSG_TXT_FNT_DV')"
               required
             >
+              <!-- 이체구분 -->
               <kw-option-group
                 v-model="searchParams.fntDvCd"
                 :label="t('MSG_TXT_FNT_DV')"
@@ -88,6 +94,7 @@
               :label="t('MSG_BTN_EXCEL_DOWN')"
               @click="onClickExcelDownload"
             />
+          <!-- 엑셀 다운로드 -->
           </kw-action-top>
           <kw-grid
             ref="grdMainRef"
@@ -144,9 +151,9 @@ const { currentRoute } = useRouter();
 // -------------------------------------------------------------------------------------------------
 
 const itemsChecked = ref({
-  tab1: t('MSG_TIT_RCV_FSH_DP_CRT_OMSSN_CT'),
-  tab2: t('MSG_TIT_SL_PERF_DP_APY_OMSSN_CT'),
-  tab3: t('MSG_TIT_BNDL_WDRW_ERR_RGST'),
+  tab1: t('MSG_TIT_RCV_FSH_DP_CRT_OMSSN_CT'), // 수신완료 입금생성 누락건
+  tab2: t('MSG_TIT_SL_PERF_DP_APY_OMSSN_CT'), // 매출실적 입금 적용 누락건
+  tab3: t('MSG_TIT_BNDL_WDRW_ERR_RGST'), // 묶음출금 오등록
 });
 
 const codes = await codeUtil.getMultiCodes(
@@ -180,18 +187,20 @@ async function fetchData() {
   view.resetCurrent();
 }
 
+// 조회 버튼
 async function onClickSearch() {
   pageInfo.value.pageIndex = 1;
   cachedParams = { ...searchParams.value };
   await fetchData();
 }
 
+// 엑셀 다운로드
 async function onClickExcelDownload() {
   const view = grdMainRef.value.getView();
   const res = await dataService.get('/sms/wells/withdrawal/bilfnt/not-received-checks/excel-download', { params: cachedParams });
 
   await gridUtil.exportView(view, {
-    fileName: `${currentRoute.value.meta.menuName}_${t('MSG_TIT_BIL_FSH_NRCV_CT')}`,
+    fileName: `${currentRoute.value.meta.menuName}_${t('MSG_TIT_BIL_FSH_NRCV_CT')}`, // _청구완료 미수신건
     timePostfix: true,
     exportData: res.data,
   });
@@ -210,10 +219,10 @@ const initGrid = defineGrid((data, view) => {
   ];
 
   const columns = [
-    { fieldName: 'autoFntClsf', header: t('MSG_TXT_AUTO_FNT_CLSF'), width: '735' },
-    { fieldName: 'bnkCd', header: t('MSG_TXT_BNK_CDCO_CD'), width: '250', styleName: 'text-center' },
-    { fieldName: 'bnkNm', header: t('MSG_TXT_BNK_CDCO_NM'), width: '250', options: codes.BNK_CD, styleName: 'text-center' },
-    { fieldName: 'ct', header: t('MSG_TXT_NRCV_CT'), width: '250', styleName: 'text-right', numberFormat: '#,##0' },
+    { fieldName: 'autoFntClsf', header: t('MSG_TXT_AUTO_FNT_CLSF'), width: '735' }, // 자동이체 분류
+    { fieldName: 'bnkCd', header: t('MSG_TXT_BNK_CDCO_CD'), width: '250', styleName: 'text-center' }, // 은행/카드사 코드
+    { fieldName: 'bnkNm', header: t('MSG_TXT_BNK_CDCO_NM'), width: '250', options: codes.BNK_CD, styleName: 'text-center' }, // 은행/카드사 명
+    { fieldName: 'ct', header: t('MSG_TXT_NRCV_CT'), width: '250', styleName: 'text-right', numberFormat: '#,##0' }, // 미수신 건
 
   ];
 

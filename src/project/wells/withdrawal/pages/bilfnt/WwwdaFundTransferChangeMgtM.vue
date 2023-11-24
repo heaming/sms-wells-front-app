@@ -22,6 +22,7 @@
         :label="t('MSG_TXT_BASE_DT')"
         required
       >
+        <!-- 기준일자 -->
         <kw-date-picker
           v-model="searchParams.bilDt"
           :label="t('MSG_TXT_BASE_DT')"
@@ -32,6 +33,7 @@
         :label="t('MSG_TXT_FNT_DV')"
         required
       >
+        <!-- 이체구분 -->
         <kw-option-group
           v-model="searchParams.fntDvCd"
           :label="t('MSG_TXT_FNT_DV')"
@@ -63,6 +65,7 @@
         :label="t('MSG_BTN_EXCEL_DOWN')"
         @click="onClickExcelDownload"
       />
+      <!-- 엑셀 다운로드 -->
     </kw-action-top>
 
     <kw-grid
@@ -135,12 +138,14 @@ async function fetchData() {
   view.resetCurrent();
 }
 
+// 조회
 async function onClickSearch() {
   pageInfo.value.pageIndex = 1;
   cachedParams = { ...searchParams.value };
   await fetchData();
 }
 
+// 엑셀 다운로드
 async function onClickExcelDownload() {
   const res = await dataService.get('/sms/wells/withdrawal/bilfnt/deposit-ncrt-check/excel-download', { params: cachedParams });
   const view = grdMainRef.value.getView();
@@ -168,9 +173,9 @@ const initGrid = defineGrid((data, view) => {
   ];
 
   const columns = [
-    { fieldName: 'aftnClsf', header: t('MSG_TXT_AUTO_FNT_CLSF'), width: '200', styleName: 'text-center' },
+    { fieldName: 'aftnClsf', header: t('MSG_TXT_AUTO_FNT_CLSF'), width: '200', styleName: 'text-center' }, // 자동이체 분류
     { fieldName: 'cntr',
-      header: t('MSG_TXT_CNTR_DTL_NO'),
+      header: t('MSG_TXT_CNTR_DTL_NO'), // 계약상세번호
       width: '120',
       styleName: 'text-center',
       // eslint-disable-next-line no-unused-vars
@@ -179,9 +184,25 @@ const initGrid = defineGrid((data, view) => {
         return `${cntrNo}-${cntrSn}`;
       },
     },
-    { fieldName: 'bilDt', header: t('MSG_TXT_FNT_DT'), width: '120', styleName: 'text-center', dataType: 'date', datetimeFormat: 'yyyy-MM-dd' },
-    { fieldName: 'sellTpCd', header: t('MSG_TXT_SEL_TYPE'), width: '120', styleName: 'text-center', options: codes.SELL_TP_CD },
-    { fieldName: 'rveAmt', header: t('MSG_TXT_RCV_AMT') + t('MSG_TXT_WON'), width: '120', styleName: 'text-right', numberFormat: '#,##0' },
+    { fieldName: 'bilDt',
+      header: t('MSG_TXT_FNT_DT'), // 이체일자
+      width: '120',
+      styleName: 'text-center',
+      dataType: 'date',
+      datetimeFormat: 'yyyy-MM-dd',
+    },
+    { fieldName: 'sellTpCd',
+      header: t('MSG_TXT_SEL_TYPE'), // 판매유형
+      width: '120',
+      styleName: 'text-center',
+      options: codes.SELL_TP_CD,
+    },
+    { fieldName: 'rveAmt',
+      header: t('MSG_TXT_RCV_AMT') + t('MSG_TXT_WON'), // 수신금액(원)
+      width: '120',
+      styleName: 'text-right',
+      numberFormat: '#,##0',
+    },
   ];
 
   data.setFields(fields);
