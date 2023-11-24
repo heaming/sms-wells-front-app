@@ -954,7 +954,7 @@ const initGrid1 = defineGrid((data, view) => {
           ret.editable = false;
         } else {
           ret = {
-            editor: { type: 'dropdown' },
+            editor: { type: 'input', maxLength: 300 },
           };
         }
         return ret;
