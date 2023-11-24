@@ -26,15 +26,16 @@
           :label="$t('MSG_TXT_PD_SVC_SEL')"
         >
           <kw-select
-            v-model="svcType"
+            v-model="searchParams.svcType"
             :options="serviceSelectItems"
-            class="w98"
+            class="w120"
           />
           <kw-input
-            v-model="svcValue"
+            v-model="searchParams.svcValue"
             maxlength="100"
             icon="search"
             clearable
+            class="ml8 w180"
             @click-icon="onClickSearchServicePopup"
             @clear="onClearService"
             @keydown="onClearService"
@@ -45,15 +46,16 @@
           :label="$t('MSG_TXT_PD_SELECT')"
         >
           <kw-select
-            v-model="prdtType"
+            v-model="searchParams.pdctType"
             :options="materialSelectItems"
-            class="w98"
+            class="w130"
           />
           <kw-input
-            v-model="prdtValue"
+            v-model="searchParams.pdctValue"
             maxlength="100"
             icon="search"
             clearable
+            class="ml8 w180"
             @click-icon="onClickSearchMaterialPopup"
             @clear="onClearMaterial"
             @keydown="onClearMaterial"
@@ -76,6 +78,7 @@
       ref="grdMainRef"
       name="grdMain"
       :visible-rows="pageInfo.pageSize"
+      :total-count="pageInfo.totalCount"
       @init="initGrdMain"
     />
     <kw-pagination
@@ -118,15 +121,16 @@ const { getConfig } = useMeta();
 // -------------------------------------------------------------------------------------------------
 const grdMainRef = ref(getComponentType('KwGrid'));
 
-const svcType = ref();
-const svcValue = ref();
-const prdtType = ref();
-const prdtValue = ref();
-
 let cachedParams;
 const searchParams = ref({
+  svcType: pdConst.PD_SEARCH_NAME,
+  svcValue: '',
+  pdctType: pdConst.PD_SEARCH_NAME,
+  pdctValue: '',
   svPdCd: '',
+  svPdNm: '',
   pdctPdCd: '',
+  pdctPdNm: '',
 });
 
 const pageInfo = ref({
@@ -198,19 +202,18 @@ async function fetchData() {
 // 서비스상품 검색 팝업
 async function onClickSearchServicePopup() {
   const searchPopupParams = {
-    searchType: svcType.value,
-    searchValue: svcValue.value,
+    searchType: searchParams.value.svcType,
+    searchValue: searchParams.value.svcValue,
     selectType: pdConst.PD_SEARCH_SINGLE,
   };
   const rtn = await modal({
     component: 'ZwpdcServiceListP',
     componentProps: searchPopupParams,
   });
-  searchParams.value.svPdCd = rtn.payload?.[0]?.pdCd;
-  if (svcType.value === pdConst.PD_SEARCH_CODE) {
-    svcValue.value = rtn.payload?.[0]?.pdCd;
+  if (searchParams.value.svcType === pdConst.PD_SEARCH_CODE) {
+    searchParams.value.svcValue = rtn.payload?.[0]?.pdCd;
   } else {
-    svcValue.value = rtn.payload?.[0]?.pdNm;
+    searchParams.value.svcValue = rtn.payload?.[0]?.pdNm;
   }
 }
 
@@ -222,19 +225,18 @@ async function onClearService() {
 // 교재/자재 팝업
 async function onClickSearchMaterialPopup() {
   const searchPopupParams = {
-    searchType: prdtType.value,
-    searchValue: prdtValue.value,
+    searchType: searchParams.value.pdctType,
+    searchValue: searchParams.value.pdctValue,
     selectType: pdConst.PD_SEARCH_SINGLE,
   };
   const rtn = await modal({
     component: 'ZwpdcMaterialsSelectListP',
     componentProps: searchPopupParams,
   });
-  searchParams.value.pdctPdCd = rtn.payload.checkedRows?.[0]?.pdCd;
-  if (prdtType.value === pdConst.PD_SEARCH_CODE) {
-    prdtValue.value = rtn.payload.checkedRows?.[0]?.pdCd;
+  if (searchParams.value.pdctType === pdConst.PD_SEARCH_CODE) {
+    searchParams.value.pdctValue = rtn.payload.checkedRows?.[0]?.pdCd;
   } else {
-    prdtValue.value = rtn.payload?.checkedRows?.[0]?.pdNm;
+    searchParams.value.pdctValue = rtn.payload?.checkedRows?.[0]?.pdNm;
   }
 }
 
@@ -245,12 +247,22 @@ async function onClearMaterial() {
 
 // 조회
 async function onClickSearch() {
-  if (isEmpty(searchParams.value.svPdCd) && svcValue.value) {
-    svcValue.value = '';
+  if (searchParams.value.svcType === pdConst.PD_SEARCH_CODE) {
+    searchParams.value.svPdCd = searchParams.value.svcValue;
+    searchParams.value.svPdNm = '';
+  } else {
+    searchParams.value.svPdCd = '';
+    searchParams.value.svPdNm = searchParams.value.svcValue;
   }
-  if (isEmpty(searchParams.value.pdctPdCd) && prdtValue.value) {
-    prdtValue.value = '';
+
+  if (searchParams.value.pdctType === pdConst.PD_SEARCH_CODE) {
+    searchParams.value.pdctPdCd = searchParams.value.pdctValue;
+    searchParams.value.pdctPdNm = '';
+  } else {
+    searchParams.value.pdctPdCd = '';
+    searchParams.value.pdctPdNm = searchParams.value.pdctValue;
   }
+
   pageInfo.value.pageIndex = 1;
   cachedParams = cloneDeep(searchParams.value);
   await fetchData();
@@ -258,10 +270,8 @@ async function onClickSearch() {
 
 // 초기화
 async function onClickReset() {
-  searchParams.value.svPdCd = '';
-  svcValue.value = '';
-  searchParams.value.pdctPdCd = '';
-  prdtValue.value = '';
+  searchParams.value.svcValue = '';
+  searchParams.value.pdctValue = '';
 }
 
 // -------------------------------------------------------------------------------------------------
@@ -269,6 +279,14 @@ async function onClickReset() {
 // -------------------------------------------------------------------------------------------------
 const initGrdMain = defineGrid((data, view) => {
   const columns = [
+    // 서비스코드
+    { fieldName: 'svPdCd', header: t('MSG_TXT_SVC_CODE'), width: '110', styleName: 'text-center', editable: false },
+    // 서비스명
+    { fieldName: 'svPdNm', header: t('MSG_TXT_SVC_NAME'), width: '160', editable: false },
+    // 제품코드
+    { fieldName: 'pdctPdCd', header: t('MSG_TXT_PROD_CD'), width: '110', styleName: 'text-center', editable: false },
+    // 제품명
+    { fieldName: 'pdctPdNm', header: t('MSG_TXT_GOODS_NM'), width: '160', editable: false },
     // 작업구분
     { fieldName: 'svBizDclsfCd', header: t('MSG_TXT_WK_CLS'), width: '80', styleName: 'text-center', options: codes.SV_BIZ_DCLSF_CD },
     // 단계
@@ -280,19 +298,19 @@ const initGrdMain = defineGrid((data, view) => {
     // 방문구분
     { fieldName: 'vstDvCd', header: t('MSG_TXT_VISIT_TYPE'), width: '80', styleName: 'text-center', options: codes.VST_DV_CD },
     // 서비스주기
-    { fieldName: 'svPrdMmN', header: t('TXT_MSG_SV_PRD_UNIT_CD'), width: '90', styleName: 'text-center', options: codes.SV_PRD_UNIT_CD },
+    { fieldName: 'svPrdMmN', header: t('TXT_MSG_SV_PRD_UNIT_CD'), width: '120', styleName: 'text-center', options: codes.SV_PRD_UNIT_CD },
     // 시작월
     { fieldName: 'svStrtmmN', header: t('MSG_TXT_STRT_MM'), width: '60', styleName: 'text-center', options: codes.MM_CD },
     // 반복횟수
-    { fieldName: 'svTms', header: t('MSG_TXT_REPEAT_COUNT'), width: '60', styleName: 'text-right', dataType: 'number' },
+    { fieldName: 'svTms', header: t('MSG_TXT_REPEAT_COUNT'), width: '70', styleName: 'text-right', dataType: 'number' },
     // 총약정개월
-    { fieldName: 'totStplMcn', header: t('MSG_TXT_TOT_COMMIT_MM'), width: '60', styleName: 'text-right', dataType: 'number' },
+    { fieldName: 'totStplMcn', header: t('MSG_TXT_TOT_COMMIT_MM'), width: '90', styleName: 'text-right', dataType: 'number' },
     // 제외월
     { fieldName: 'excdMmVal', header: t('MSG_TXT_EXCEPT_MONS'), width: '80', styleName: 'text-right', dataType: 'number' },
     // 설치월
     { fieldName: 'istMm', header: t('MSG_TXT_SETUP_MON'), width: '60', styleName: 'text-center', options: codes.MM_CD },
     // 작업연도
-    { fieldName: 'strtWkYVal', header: t('MSG_TXT_JOB_YEAR'), width: '60', styleName: 'text-center', dataType: 'number' },
+    { fieldName: 'strtWkYVal', header: t('MSG_TXT_JOB_YEAR'), width: '70', styleName: 'text-center', dataType: 'number' },
     // 작업월
     { fieldName: 'wkMm', header: t('MSG_TXT_JOB_MON'), width: '60', styleName: 'text-center', dataType: 'number' },
   ];
@@ -302,6 +320,7 @@ const initGrdMain = defineGrid((data, view) => {
   view.setColumns(columns);
   view.checkBar.visible = true;
   view.rowIndicator.visible = true;
+  view.setFixedOptions({ colCount: 4 });
 });
 </script>
 <style scoped></style>
