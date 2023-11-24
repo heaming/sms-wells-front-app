@@ -36,8 +36,7 @@
         >
           <kw-select
             v-model="searchParams.wareNo"
-            :options="codes.SV_CNR_CD"
-            first-option="all"
+            :options="servierCenterOrg"
           />
         </kw-search-item>
         <kw-search-item
@@ -194,7 +193,7 @@ let cachedParams;
 const searchParams = ref({
   stockDt: now.format('YYYYMMDD'),
   baseYm: now.format('YYYYMM'),
-  wareNo: '201715', // 서비스센타 강릉 세팅
+  wareNo: '200001', // 서비스센타 성수 세팅
   itmGdCd: '', // 등급
   useYn: '', // 사용여부
   wareUseYn: '', // 창고사용여부
@@ -207,6 +206,16 @@ let gridData;
 let serviceFields;
 let fieldsObj;
 let fieldsWidth;
+
+const servierCenterOrg = ref();
+
+async function fetchServiceCenters() {
+  const res = await dataService.get(`${baseUrl}/service_center`, { params: searchParams.value });
+  const resList = res.data;
+  servierCenterOrg.value = resList.map((v) => ({ codeId: v.wareNo, codeName: v.wareNm }));
+}
+
+await fetchServiceCenters();
 
 const totalCount = ref(0);
 
@@ -264,6 +273,9 @@ async function getWareHouseList() {
     })));
     // 필드 셋팅
     fieldsObj.setFields();
+  } else {
+    // 디폴트 필드 셋팅
+    fieldsObj.setDefaultFields();
   }
 }
 
@@ -385,6 +397,20 @@ fieldsObj = {
 
     const layoutColumns = [...fieldsObj.getColumnNameArr(fieldsObj.defaultFields),
       ...fieldsObj.getColumnNameArr(serviceFields)];
+    const fields = columns.map(({ fieldName, dataType }) => (dataType ? { fieldName, dataType } : { fieldName }));
+
+    gridData.setFields(fields);
+    gridView.setColumns(columns);
+    gridView.setColumnLayout([...layoutColumns]);
+    gridView.setFixedOptions({ colCount: 4, resizable: true });
+    gridView.columnByName('kiwiPdCd').setFooters({ text: t('MSG_TXT_TOT_SUM'), styleName: 'text-left text-weight-bold' });
+    gridView.setFooters({ visible: true, items: [{ height: 30 }] });
+  },
+
+  // 디폴트 필드 세팅
+  setDefaultFields() {
+    const columns = [...fieldsObj.defaultFields];
+    const layoutColumns = [...fieldsObj.getColumnNameArr(fieldsObj.defaultFields)];
     const fields = columns.map(({ fieldName, dataType }) => (dataType ? { fieldName, dataType } : { fieldName }));
 
     gridData.setFields(fields);

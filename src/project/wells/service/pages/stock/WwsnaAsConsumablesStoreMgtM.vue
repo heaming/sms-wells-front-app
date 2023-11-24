@@ -289,6 +289,29 @@ async function onClickExcelDownload() {
   });
 }
 
+// 그리드의 입력된 창고번호로 창고명 조회
+async function findWareNm(strWareNo, itemIndex, grid) {
+  const res = await dataService.get(`/sms/wells/service/as-consumables-stores/${searchParams.value.strRgstDt}-${strWareNo}/warehouse`);
+  const { strWareNm } = res.data;
+  grid.setValue(itemIndex, 'wareNm', strWareNm);
+}
+
+// 그리드의 입력된 SAP코드로 품목코드, 품목명 조회
+async function findPdCdNm(sapCd, itemIndex, grid) {
+  const res = await dataService.get(`/sms/wells/service/as-consumables-stores/${sapCd}/sapcd`);
+  const { itmPdCd, itmPdNm } = res.data;
+  grid.setValue(itemIndex, 'itmPdCd', itmPdCd);
+  grid.setValue(itemIndex, 'itmPdNm', itmPdNm);
+}
+
+// 그리드의 입력된 품목코드로 sap코드, 품목명조회
+async function findSapCdNm(itmPdCd, itemIndex, grid) {
+  const res = await dataService.get(`/sms/wells/service/as-consumables-stores/${itmPdCd}/pdcd`);
+  const { sapCd, itmPdNm } = res.data;
+  grid.setValue(itemIndex, 'sapCd', sapCd);
+  grid.setValue(itemIndex, 'itmPdNm', itmPdNm);
+}
+
 onMounted(async () => {
   await fetchItmData();
 });
@@ -471,6 +494,22 @@ const initGrdMain = defineGrid((data, view) => {
   view.onCellEditable = (grid, index) => {
     if (!gridUtil.isCreatedRow(grid, index.dataRow) && ['strWareNo', 'wareNm', 'strRgstDt', 'sapCd', 'itmPdCd', 'itmPdNm', 'itmGdCd', 'strQty'].includes(index.column)) {
       return false;
+    }
+  };
+
+  // 그리드의 선택값을 변경하였을때 발생하는 이벤트 정리
+  view.onCellEdited = async (grid, itemIndex, row, field) => {
+    const { strWareNo, sapCd, itmPdCd } = grid.getValues(itemIndex);
+
+    const changedFieldName = grid.getDataSource().getOrgFieldName(field);
+
+    console.log(changedFieldName);
+    if (changedFieldName === 'strWareNo') {
+      await findWareNm(strWareNo, itemIndex, grid);
+    } else if (changedFieldName === 'sapCd') {
+      await findPdCdNm(sapCd, itemIndex, grid);
+    } else if (changedFieldName === 'itmPdCd') {
+      await findSapCdNm(itmPdCd, itemIndex, grid);
     }
   };
 });

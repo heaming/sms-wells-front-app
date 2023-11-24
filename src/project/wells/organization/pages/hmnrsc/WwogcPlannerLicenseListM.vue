@@ -254,8 +254,8 @@ async function fetchData() {
   grdMain1PageInfo.value = pagingResult;
   grdMain1Datas.value = list;
   grdMain1Datas.value.forEach((item) => {
-    if (item.bizUseIdvTno && item.bizUseExnoEncr && item.bizUseLocaraTno) {
-      item.biztelephone = `${item.bizUseIdvTno}${item.bizUseExnoEncr}${item.bizUseLocaraTno}`;
+    if (item.bizUseLocaraTno && item.bizUseExnoEncr && item.bizUseIdvTno) {
+      item.biztelephone = `${item.bizUseLocaraTno}${item.bizUseExnoEncr}${item.bizUseIdvTno}`;
     } else {
       item.biztelephone = `${item.cralLocaraTno}${item.mexnoEncr}${item.cralIdvTno}`;
     }
@@ -424,11 +424,12 @@ function getTargetQualification(item, details, type) {
       result.ogId = details[0].ogId;
       result.targetQlfDvCd = details[0].qlfDvCd;
       result.strtdt = details[0].strtdt;
-      if (dayjs(result.strtdt).diff(dayjs().format('YYYY-MM-DD')) < 0) {
+      /* if (dayjs(result.strtdt).diff(dayjs().format('YYYY-MM-DD')) < 0) {
         result.enddt = dayjs(result.strtdt).format('YYYYMM').concat(dayjs(result.strtdt).daysInMonth());
       } else {
         result.enddt = dayjs().format('YYYYMM').concat(dayjs().daysInMonth());
-      }
+      } */
+      result.enddt = dayjs().format('YYYYMM').concat(dayjs().daysInMonth());
       break;
     case 'HOLDING':
       // 보류
@@ -529,9 +530,9 @@ async function onClickSave() {
       usrId: obj.usrId,
       ogTpCd: obj.ogTpCd,
       prtnrNo: obj.prtnrNo,
-      bizUseIdvTno: getPhoneNumber(obj.biztelephone, 1),
+      bizUseLocaraTno: getPhoneNumber(obj.biztelephone, 1),
       bizUseExnoEncr: getPhoneNumber(obj.biztelephone, 2),
-      bizUseLocaraTno: getPhoneNumber(obj.biztelephone, 3),
+      bizUseIdvTno: getPhoneNumber(obj.biztelephone, 3),
     };
     return data;
   });
@@ -713,7 +714,7 @@ const initGrid1 = defineGrid((data, view) => {
       visible: false,
     },
     {
-      fieldName: 'bizUseIdvTno', // 업무사용개별전화번호
+      fieldName: 'bizUseLocaraTno', // 업무사용지역전화번호
       visible: false,
     },
     {
@@ -721,7 +722,7 @@ const initGrid1 = defineGrid((data, view) => {
       visible: false,
     },
     {
-      fieldName: 'bizUseLocaraTno', // 업무사용지역전화번호
+      fieldName: 'bizUseIdvTno', // 업무사용개별전화번호
       visible: false,
     },
     {
@@ -856,7 +857,7 @@ const initGrid2 = defineGrid((data, view) => {
       displayCallback(g, index, value) {
         return isEmpty(value) ? '-' : dayjs(value).format('YYYY-MM-DD');
       },
-      editable: true,
+      editable: !!hasRoleNickName('ROL_W1620'),
     },
     {
       fieldName: 'dsbAmt', // 지급금액
@@ -872,7 +873,7 @@ const initGrid2 = defineGrid((data, view) => {
       displayCallback(g, index, value) {
         return isEmpty(value) ? '-' : value;
       },
-      editable: true,
+      editable: !!hasRoleNickName('ROL_W1620'),
     },
     {
       fieldName: 'pcpPrtnrNo', // 수정자번호

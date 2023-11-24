@@ -24,7 +24,7 @@
           :label="$t('MSG_TXT_ITM_DV')"
           :colspan="2"
         >
-          <kw-select
+          <!-- <kw-select
             v-model="searchParams.itmKndCd"
             :options="filterCodes.itmKndCd"
             first-option="all"
@@ -39,6 +39,31 @@
             option-label="pdNm"
             first-option="all"
             :multiple="false"
+          /> -->
+          <!-- 20231124 수정 -->
+          <kw-select
+            v-model="searchParams.itmKndCd"
+            :options="filterCodes.itmKndCd"
+            first-option="all"
+            class="w150"
+            @change="onChangeItmKndCd"
+          />
+          <kw-select
+            v-model="searchParams.pdGrp"
+            :options="codes.PD_GRP_CD"
+            class="w150"
+            first-option="all"
+            @change="changePdGrpCd"
+          />
+          <kw-select
+            v-model="searchParams.itmPdCd"
+            :options="pds"
+            class="w150"
+            first-option="select"
+            option-label="codeName"
+            option-value="codeId"
+            :disable="searchParams.pdGrp === '' "
+            :label="$t('MSG_TXT_PRDT_NM')"
           />
         </kw-search-item>
       </kw-search-row>
@@ -119,12 +144,14 @@
 
 import { useMeta, getComponentType, defineGrid, gridUtil, codeUtil, useGlobal, useDataService } from 'kw-lib';
 import { cloneDeep, isEmpty } from 'lodash-es';
+import smsCommon from '~sms-wells/service/composables/useSnCode';
 
 const dataService = useDataService();
 
-const { getConfig } = useMeta();
-const { notify } = useGlobal();
 const { t } = useI18n();
+const { notify } = useGlobal();
+const { getConfig } = useMeta();
+const { getPartMaster } = smsCommon();
 
 // -------------------------------------------------------------------------------------------------
 // Function & Event
@@ -135,13 +162,16 @@ const grdMainRef = ref(getComponentType('KwGrid'));
 const codes = await codeUtil.getMultiCodes(
   'ITM_KND_CD',
   'COD_PAGE_SIZE_OPTIONS',
+  'PD_GRP_CD',
 );
+console.log('codes.PD_GRP_CD >>>>>', codes.PD_GRP_CD);
 
 let cachedParams;
 const searchParams = ref({
   itmKndCd: '',
   itmPdCds: [],
   itmPdCd: '',
+  pdGrp: '', // 상품그룹
 });
 
 const filterCodes = ref({
@@ -152,21 +182,52 @@ onBeforeMount(async () => {
   searchParams.value.itmKndCd = '4';
 });
 
-const optionsItmPdCd = ref();
+// 전체 상품 목록 유지용 [상품 변경시]
 const optionsAllItmPdCd = ref();
+
+const pds = ref([]);
+async function changePdGrpCd() {
+  console.log('searchParams.value.pdGrp >>>>', searchParams.value.pdGrp);
+  if (searchParams.value.pdGrp) {
+    const pdInfo = await getPartMaster(
+      '4',
+      searchParams.value.pdGrp,
+      'M',
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      'X', /* 단종여부Y/N, 만약 X로 데이터가 유입되면 단종여부를 조회하지 않음 */
+    );
+    pdInfo.forEach((e) => {
+      if (optionsAllItmPdCd.value.filter((v) => v.pdCd === e.cd).length > 0) {
+        pds.value.push({
+          codeId: e.cd,
+          codeName: e.cdNm,
+        });
+      }
+    });
+    console.log('pds.value >>>>', pds.value);
+  } else {
+    pds.value = [];
+  }
+  searchParams.value.itmPdCd = '';
+}
 
 const selectCodes = ref([]);
 
 // 품목조회
 const getProducts = async () => {
   const result = await dataService.get('/sms/wells/service/independence-ware-ostrs/products');
-  // optionsItmPdCd.value = result.data;
-  // optionsAllItmPdCd.value = result.data;
-  optionsItmPdCd.value = result.data.filter((v) => v.itmKndCd === filterCodes.value.itmKndCd[0].codeId);
-  optionsAllItmPdCd.value = result.data.filter((v) => v.itmKndCd === filterCodes.value.itmKndCd[0].codeId);
+  optionsAllItmPdCd.value = result.data;
+  //   optionsItmPdCd.value = result.data.filter((v) => v.itmKndCd === filterCodes.value.itmKndCd[0].codeId);
+  //   optionsAllItmPdCd.value = result.data.filter((v) => v.itmKndCd === filterCodes.value.itmKndCd[0].codeId);
 
-  // result.data.forEach((e) => {
-  optionsItmPdCd.value.forEach((e) => {
+  optionsAllItmPdCd.value.forEach((e) => {
     selectCodes.value.push({
       codeId: e.pdCd,
       codeName: e.pdNm,
@@ -187,15 +248,16 @@ const pageInfo = ref({
 // 품목종류 변경 시 품목 필터링
 function onChangeItmKndCd() {
   // 품목코드 클리어
-  searchParams.value.itmPdCds = [];
-  const { itmKndCd } = searchParams.value;
+  // searchParams.value.itmPdCds = [];
+  // const { itmKndCd, pdGrp, pdCd } = searchParams.value;
 
-  if (isEmpty(itmKndCd)) {
-    optionsItmPdCd.value = optionsAllItmPdCd.value;
-    return;
+  if (isEmpty(searchParams.value.itmKndCd)) {
+    searchParams.value.pdGrp = '';
+    searchParams.value.itmPdCd = '';
+    // return;
   }
 
-  optionsItmPdCd.value = optionsAllItmPdCd.value.filter((v) => itmKndCd === v.itmKndCd);
+  // optionsItmPdCd.value = optionsAllItmPdCd.value.filter((v) => searchParams.value.itmKndCd === v.itmKndCd);
 }
 
 async function fetchData() {
@@ -263,7 +325,7 @@ async function onClickExcelDownload() {
 await Promise.all([
   codeFilter(),
   getProducts(),
-  onChangeItmKndCd(),
+  // onChangeItmKndCd(),
 ]);
 
 onMounted(async () => {

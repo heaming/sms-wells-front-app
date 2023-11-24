@@ -771,7 +771,9 @@ const initGrdMain = defineGrid(async (data, view) => {
     const endDtHh = `${aplcCloseData.value.bizEnddt}${aplcCloseData.value.bizEndHh ?? ''}`;
     const { bfsvcCsmbDdlvStatCd } = grid.getValues(itemIndex.itemIndex);
 
-    if ((!isBusinessSupportTeam.value && !(nowDateTime >= Number(strtDtHh) && nowDateTime <= Number(endDtHh))) || bfsvcCsmbDdlvStatCd === '30') {
+    if ((!isBusinessSupportTeam.value && !(nowDateTime >= Number(strtDtHh) && nowDateTime <= Number(endDtHh)))
+    || (!isBusinessSupportTeam.value && ['20', '30'].includes(bfsvcCsmbDdlvStatCd))
+    || bfsvcCsmbDdlvStatCd === '30') {
       return false;
     }
   };
@@ -802,7 +804,7 @@ const initGrdMain = defineGrid(async (data, view) => {
   view.setCheckableCallback((dataSource, item) => {
     const { bfsvcCsmbDdlvStatCd } = gridUtil.getRowValue(view, item.dataRow);
 
-    if (bfsvcCsmbDdlvStatCd === '30') {
+    if (bfsvcCsmbDdlvStatCd === '30' || (!isBusinessSupportTeam.value && ['20', '30'].includes(bfsvcCsmbDdlvStatCd))) {
       return false;
     }
     return true;

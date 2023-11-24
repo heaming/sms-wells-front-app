@@ -100,6 +100,9 @@
     </kw-search>
     <div class="result-area">
       <kw-action-top>
+        <template #left>
+          <kw-paging-info :total-count="totalCount" />
+        </template>
         <kw-btn
           icon="print"
           dense
@@ -150,6 +153,7 @@ const codes = await codeUtil.getMultiCodes(
   'PD_GD_CD',
   'COD_YN',
   'MAT_LGST_TP_DV_CD',
+  'COD_PAGE_SIZE_OPTIONS',
 );
 
 const searchParams = ref({
@@ -166,8 +170,11 @@ const searchParams = ref({
   useYn: '',
 });
 
+const totalCount = ref(0);
+
 async function fetchData() {
   const res = await dataService.get('/sms/wells/service/in-aggregate', { params: { ...cachedParams } });
+  totalCount.value = res.data.length;
   const view = grdMainRef.value.getView();
   view.getDataSource().setRows(res.data);
 }

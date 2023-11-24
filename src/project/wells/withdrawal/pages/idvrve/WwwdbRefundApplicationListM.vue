@@ -585,8 +585,6 @@ const initGrid = defineGrid((data, view) => {
           await onClickSearch();
         }
       }
-
-      await onClickSearch();
     }
     // 첨부파일 다운로드
     if (column === 'rfndEvidMtrFileId') {
