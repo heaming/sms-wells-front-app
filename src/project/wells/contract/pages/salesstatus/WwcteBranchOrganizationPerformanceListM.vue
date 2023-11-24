@@ -282,6 +282,11 @@ async function onClickSearch() {
   await fetchData();
 }
 
+// 초기화버튼 클릭 이벤트
+async function onClickReset() {
+  grdMainRef.value.getData().clearRows();
+}
+
 async function onClickExcelDownload() {
   const view = grdMainRef.value.getView();
   const res = await dataService.get('/sms/wells/contract/contracts/branch-organization-performance-list/excel-download', { params: cachedParams });
