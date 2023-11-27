@@ -18,7 +18,7 @@
     <kw-search
       class="kw-search-style"
       :cols="2"
-      default-visible-rows="3"
+      :default-visible-rows="3"
       no-reset-btn
     >
       <kw-search-row>
@@ -84,6 +84,7 @@
             v-model="searchParams.trnspnCd"
             :label="$t('MSG_TXT_TRNSPN_CD')"
             rules="required"
+            first-option="select"
             :options="trnspnCds"
             :readonly="hasProps()"
           />
@@ -250,7 +251,6 @@ const RETURN_OUTSIDE = '262'; // 반품출고(외부)
 const grdMainRef = ref(getComponentType('KwGrid'));
 
 const codes = await codeUtil.getMultiCodes(
-  'COD_PAGE_SIZE_OPTIONS',
   'OSTR_TP_CD', // 출고구분코드
   'WARE_DV_CD', // 창고구분코드
   'MNGT_UNIT_CD', // 관리단위코드
@@ -668,7 +668,7 @@ const initGrdMain = defineGrid((data, view) => {
     { fieldName: 'ostrQty', dataType: 'number' }, // 출고수량
     { fieldName: 'rmkCn' }, // 비고
     { fieldName: 'strConfDt' }, // 입고확인일자
-    { fieldName: 'itmOstrNo' }, // 품목춟고번호
+    { fieldName: 'itmOstrNo' }, // 품목출고번호
     { fieldName: 'ostrSn' }, // 출고일련번호
     { fieldName: 'itmStrNo' }, // 품목입고번호
     { fieldName: 'strSn' }, // 입고일련번호
