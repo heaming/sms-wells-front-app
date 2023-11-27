@@ -16,19 +16,20 @@
 <template>
   <kw-page>
     <kw-search
-      :cols="2"
+      :cols="4"
       @search="onClickSearch"
       @reset="onClickReset"
     >
       <kw-search-row>
         <!-- 실적기간 -->
         <kw-search-item
+          :colspan="2"
           :label="$t('MSG_TXT_PERF_PRD')"
           required
         >
           <kw-date-range-picker
-            v-model:from="searchParams.perfStrtDt"
-            v-model:to="searchParams.perfEndDt"
+            v-model:from="fieldParams.perfStrtDt"
+            v-model:to="fieldParams.perfEndDt"
             :label="$t('MSG_TXT_PERF_PRD')"
             rules="date_range_required"
             @change="onChangePerfDt"
@@ -40,7 +41,7 @@
           :label="$t('MSG_TXT_PERF_BASE')"
         >
           <kw-option-group
-            v-model="searchParams.perfDv"
+            v-model="fieldParams.perfDv"
             type="radio"
             :options="[{ codeId: 'T', codeName: t('MSG_TXT_TOT_ORD') },
                        { codeId: 'S', codeName: t('MSG_TXT_NTOR') }]"
@@ -48,45 +49,48 @@
         </kw-search-item>
       </kw-search-row>
       <kw-search-row>
-        <!-- 조직구분 -->
+        <!-- 소속구분 -->
         <kw-search-item
-          :label="$t('MSG_TXT_OG_DV')"
+          :label="$t('MSG_TXT_AFF_CSS')"
           required
         >
-          <kw-field-wrap
-            rules="required"
-            class="equal_division--3"
-          >
-            <!-- 총괄단 선택 -->
-            <kw-select
-              v-model="searchParams.dgr1LevlOgCd"
-              :options="codesDgr1Levl"
-              option-value="dgr1LevlOgCd"
-              option-label="dgr1LevlOgNm"
-              first-option="select"
-              :first-option-label="$t('MSG_TXT_GNRDV_CHO')"
-              @change="onUpdateDgr1Levl"
-            />
-            <!-- 지역단 선택 -->
-            <kw-select
-              v-model="searchParams.dgr2LevlOgCd"
-              :options="filteredDgr2LevlOgCds"
-              option-value="dgr2LevlOgCd"
-              option-label="dgr2LevlOgNm"
-              first-option="select"
-              :first-option-label="$t('MSG_TXT_RGNL_GRP')+ ' ' +$t('MSG_TXT_SELT')"
-              @change="onUpdateDgr2Levl"
-            />
-            <!-- 지점 선택 -->
-            <kw-select
-              v-model="searchParams.dgr3LevlOgCd"
-              :options="filteredDgr3LevlOgCds"
-              option-value="dgr3LevlOgCd"
-              option-label="dgr3LevlOgNm"
-              first-option="select"
-              :first-option-label="$t('MSG_TXT_SLCT_BRANCH')"
-            />
-          </kw-field-wrap>
+          <kw-select
+            v-model="fieldParams.mngerOgAgrgTpCd"
+            first-option-value=""
+            :options="commonCodes.MNGER_OG_AGRG_TP_CD"
+          />
+        </kw-search-item>
+        <!-- 조직레벨 -->
+        <kw-search-item
+          :label="t('MSG_TXT_OG_LEVL')"
+          :colspan="2"
+        >
+          <kw-select
+            v-model="fieldParams.dgr1LevlOgId"
+            :options="codes.codesDgr1Levl"
+            first-option="all"
+            first-option-val=""
+            option-value="dgr1LevlOgId"
+            option-label="dgr1LevlOgNm"
+            @update:model-value="onUpdateDgr1Levl(fieldParams.dgr1LevlOgId)"
+          />
+          <kw-select
+            v-model="fieldParams.dgr2LevlOgId"
+            :options="codes.codesDgr2Levl"
+            first-option="all"
+            first-option-val=""
+            option-value="dgr2LevlOgId"
+            option-label="dgr2LevlOgNm"
+            @update:model-value="onUpdateDgr2Levl(fieldParams.dgr2LevlOgId)"
+          />
+          <kw-select
+            v-model="fieldParams.dgr3LevlOgId"
+            :options="codes.codesDgr3Levl"
+            first-option="all"
+            first-option-val=""
+            option-value="dgr3LevlOgId"
+            option-label="dgr3LevlOgNm"
+          />
         </kw-search-item>
       </kw-search-row>
     </kw-search>
@@ -133,7 +137,7 @@
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
-import { codeUtil, defineGrid, getComponentType, useDataService, gridUtil, useMeta, stringUtil /* , notify */ } from 'kw-lib';
+import { codeUtil, defineGrid, getComponentType, useDataService, gridUtil, useMeta /* , notify */ } from 'kw-lib';
 import { cloneDeep, isEmpty } from 'lodash-es';
 import { openReportPopup } from '~common/utils/cmPopupUtil';
 import dayjs from 'dayjs';
@@ -148,20 +152,18 @@ const grdMainRef = ref(getComponentType('KwGrid'));
 
 let cachedParams;
 const now = dayjs();
-const searchParams = ref({
+const fieldParams = ref({
   perfStrtDt: now.startOf('month').format('YYYYMMDD'), // 실적기간-시작일자
   perfEndDt: now.format('YYYYMMDD'), // 실적기간-종료일자
   perfDv: 'T', // 실적구분 (default : 총주문)
-  optnDv: '', // 가동구분
-  inqrDv: '1', // 조회구분 (default : 총괄단)
-  dgr1LevlOgCd: '', // 조직코드-총괄단
-  dgr2LevlOgCd: '', // 조직코드-지역단
-  dgr3LevlOgCd: '', // 조직코드-지점
-  ogTpCd: '', // 조직구분
+  mngerOgAgrgTpCd: '04', // 소속구분
+  dgr1LevlOgId: '', // 조직코드-총괄단
+  dgr2LevlOgId: '', // 조직코드-지역단
+  dgr3LevlOgId: '', // 조직코드-지점
 });
 
-const codes = await codeUtil.getMultiCodes(
-  'RSB_DV_CD',
+const commonCodes = await codeUtil.getMultiCodes(
+  'MNGER_OG_AGRG_TP_CD', // 매니저조직집계유형코드(소속구분)
 );
 
 const pageInfo = ref({
@@ -171,78 +173,163 @@ const pageInfo = ref({
   needTotalCount: true,
 });
 
-codes.OPTN_DV = [
+commonCodes.OPTN_DV = [
   { codeId: 'O', codeName: t('MSG_TXT_OPTN') },
   { codeId: 'N', codeName: t('MSG_TXT_NOPR') },
 ];
-codes.OG_CP_CD = [
+commonCodes.OG_CP_CD = [
   { codeId: 'W01', codeName: `P${t('MSG_TXT_OG')}` },
   { codeId: 'W02', codeName: `M${t('MSG_TXT_OG')}` },
 ];
 
-// 조직코드 조회
-const codesDgr1Levl = ref([]);
-const codesDgr2Levl = ref([]);
-const codesDgr3Levl = ref([]);
-const filteredDgr2LevlOgCds = ref([]);
-const filteredDgr3LevlOgCds = ref([]);
+const codes = ref({
+  highClass: [],
+  middleClass: [],
+  middleClassAll: [],
+  codesDgr1Levl: [],
+  codesDgr1LevlAll: [],
+  codesDgr2Levl: [],
+  codesDgr2LevlAll: [],
+  codesDgr3Levl: [],
+  codesDgr3LevlAll: [],
+});
 
-const summaryData = ref({});
+const levlOgCodes = ref({
+  levl1OgCd: '',
+  levl2OgCd: '',
+});
 
 // -------------------------------------------------------------------------------------------------
 // Function & Event
 // -------------------------------------------------------------------------------------------------
+async function fetchCodes() {
+  const highCodes = await dataService.get('/sms/wells/contract/product/high-classes');
+  const middleCodes = await dataService.get('/sms/wells/contract/product/middle-classes');
 
-// 조직 조회
-async function searchOrg(paramDt) {
-  const searchOgParams = ref({
-    baseYm: isEmpty(paramDt) ? searchParams.value.perfStrtDt : paramDt,
+  const codesDgr1 = await dataService.get('/sms/wells/contract/partners/general-divisions');
+  const codesDgr2 = await dataService.get('/sms/wells/contract/partners/regional-divisions');
+  const codesDgr3 = await dataService.get('/sms/wells/contract/partners/branch-divisions');
+
+  const initHighCodes = [];
+  const initMiddleCodes = [];
+
+  highCodes.data.forEach((v) => {
+    if (!isEmpty(v.pdClsfId)) initHighCodes.push({ codeId: v.pdClsfId, codeName: v.pdClsfNm });
   });
 
-  let res = [];
-  res = await dataService.get('/sms/wells/contract/partners/general-divisions', { params: searchOgParams.value }); // 총괄단
-  codesDgr1Levl.value = res.data;
-  res = await dataService.get('/sms/wells/contract/partners/regional-divisions', { params: searchOgParams.value }); // 지역단
-  codesDgr2Levl.value = res.data;
-  res = await dataService.get('/sms/wells/contract/partners/branch-divisions', { params: searchOgParams.value }); // 지점
-  codesDgr3Levl.value = res.data;
+  middleCodes.data.forEach((v) => {
+    if (!isEmpty(v.pdClsfId)) {
+      initMiddleCodes.push({ codeId: v.pdClsfId, codeName: v.pdClsfNm, hgrPdClsfId: v.hgrPdClsfId });
+    }
+  });
+
+  Object.assign(codes.value.codesDgr1LevlAll, codesDgr1.data);
+  Object.assign(codes.value.codesDgr2LevlAll, codesDgr2.data);
+  Object.assign(codes.value.codesDgr3LevlAll, codesDgr3.data);
+
+  Object.assign(codes.value.highClass, initHighCodes);
+  Object.assign(codes.value.middleClassAll, initMiddleCodes);
+
+  if (!isEmpty(codes.value.middleClassAll)) {
+    Object.assign(codes.value.middleClass, codes.value.middleClassAll);
+  }
+  if (!isEmpty(codes.value.codesDgr1LevlAll)) {
+    Object.assign(codes.value.codesDgr1Levl, codes.value.codesDgr1LevlAll);
+  }
+  if (!isEmpty(codes.value.codesDgr2LevlAll)) {
+    Object.assign(codes.value.codesDgr2Levl, codes.value.codesDgr2LevlAll);
+  }
+  if (!isEmpty(codes.value.codesDgr3LevlAll)) {
+    Object.assign(codes.value.codesDgr3Levl, codes.value.codesDgr3LevlAll);
+  }
 }
 
-// 시작일 변경 시, 조직 재조회
-async function onChangePerfDt(dt) {
-  searchOrg(dt[0]);
+async function onUpdateDgr1Levl(ogId) {
+  // 선택한 지역단, 지점 초기화
+  fieldParams.value.dgr2LevlOgId = '';
+  fieldParams.value.dgr3LevlOgId = '';
+
+  if (!isEmpty(ogId)) {
+    levlOgCodes.value.levl1OgCd = codes.value.codesDgr1LevlAll.filter(
+      (v) => ogId.includes(v.dgr1LevlOgId),
+    )[0].dgr1LevlOgCd;
+
+    let dgr1LevlOgCd = '';
+    dgr1LevlOgCd = levlOgCodes.value.levl1OgCd;
+
+    // 지역단 코드 필터링. 선택한 총괄단의 하위 지역단으로 필터링
+    codes.value.codesDgr2Levl = codes.value.codesDgr2LevlAll.filter(
+      (v) => dgr1LevlOgCd.includes(v.dgr1LevlOgCd),
+    );
+
+    codes.value.codesDgr3Levl = codes.value.codesDgr3LevlAll.filter(
+      (v) => dgr1LevlOgCd.includes(v.dgr1LevlOgCd),
+    );
+  } else {
+    levlOgCodes.value.levl1OgCd = '';
+    levlOgCodes.value.levl2OgCd = '';
+
+    codes.value.codesDgr1Levl = codes.value.codesDgr1LevlAll;
+    codes.value.codesDgr2Levl = codes.value.codesDgr2LevlAll;
+    codes.value.codesDgr3Levl = codes.value.codesDgr3LevlAll;
+  }
 }
 
-// 조직코드 총괄단 변경 이벤트
-async function onUpdateDgr1Levl(selectedValues) {
-  // init
-  filteredDgr2LevlOgCds.value = [];
-  filteredDgr3LevlOgCds.value = [];
+async function onUpdateDgr2Levl(ogId) {
+  // 선택한 지점 초기화
+  fieldParams.value.dgr3LevlOgId = '';
 
-  // 지역단 코드 필터링. 선택한 총괄단의 하위 지역단으로 필터링
-  filteredDgr2LevlOgCds.value = codesDgr2Levl.value.filter((v) => selectedValues.includes(v.dgr1LevlOgCd));
+  if (!isEmpty(ogId)) {
+    levlOgCodes.value.levl2OgCd = codes.value.codesDgr2LevlAll.filter(
+      (v) => ogId.includes(v.dgr2LevlOgId),
+    )[0].dgr2LevlOgCd;
 
-  // value init
-  searchParams.value.dgr2LevlOgCd = '';
-  searchParams.value.dgr3LevlOgCd = '';
+    let dgr2LevlOgCd = '';
+    dgr2LevlOgCd = levlOgCodes.value.levl2OgCd;
+
+    // 지역단 코드 필터링. 선택한 총괄단의 하위 지역단으로 필터링
+    codes.value.codesDgr3Levl = codes.value.codesDgr3LevlAll.filter(
+      (v) => dgr2LevlOgCd.includes(v.dgr2LevlOgCd),
+    );
+  } else {
+    let dgr1LevlOgCd = '';
+    dgr1LevlOgCd = levlOgCodes.value.levl1OgCd;
+
+    levlOgCodes.value.levl2OgCd = '';
+
+    if (!isEmpty(dgr1LevlOgCd)) {
+      // 선택한 총괄단 코드로 필터링
+      codes.value.codesDgr3Levl = codes.value.codesDgr3LevlAll.filter(
+        (v) => dgr1LevlOgCd.includes(v.dgr1LevlOgCd),
+      );
+    } else {
+      codes.value.codesDgr3Levl = codes.value.codesDgr3LevlAll;
+    }
+  }
 }
 
-// 조직코드 지역단 변경 이벤트
-async function onUpdateDgr2Levl(selectedValues) {
-  filteredDgr3LevlOgCds.value = [];
-
-  // 지점 코드 필터링. 선택한 지역단의 하위 지점으로 필터링.
-  filteredDgr3LevlOgCds.value = codesDgr3Levl.value.filter((v) => selectedValues.includes(v.dgr2LevlOgCd));
-
-  // value init
-  searchParams.value.dgr3LevlOgCd = '';
-}
+onMounted(async () => {
+  fetchCodes();
+});
 
 async function fetchData() {
+  let res = '';
+
+  if (fieldParams.value.perStrDt.substring(0, 6) !== fieldParams.value.perEndDt.substring(0, 6)) {
+    await alert(t('MSG_ALT_SAM_MON')); // 같은 달만 조회 가능합니다.
+    return;
+  }
+
+  cachedParams = cloneDeep(fieldParams.value);
+
   if (isEmpty(cachedParams)) return;
 
-  const res = await dataService.get('/sms/wells/contract/contracts/branch-organization-performance-list/paging', { params: { ...cachedParams, ...pageInfo.value } });
+  res = await dataService.get('/sms/wells/contract/contracts/branch-organization-performance-list/paging', { params: { ...cachedParams, ...pageInfo.value } });
   const { list: pages, pageInfo: pagingResult } = res.data;
+  if (res.data.length === 0) {
+    await alert(t('MSG_ALT_NO_DATA')); // 데이터가 존재하지 않습니다.
+    return;
+  }
   pageInfo.value = pagingResult;
 
   const view = grdMainRef.value.getView();
@@ -252,33 +339,11 @@ async function fetchData() {
   dataSource.checkRowStates(true);
 }
 
-async function fetchSummaryData() {
-  if (isEmpty(cachedParams)) return;
-
-  const res = await dataService.get('/sms/wells/contract/contracts/branch-organization-performance-list/summary', { params: { ...cachedParams } });
-  summaryData.value = res.data;
-}
-
 async function onClickSearch() {
   grdMainRef.value.getData().clearRows();
   pageInfo.value.pageIndex = 1;
-  cachedParams = cloneDeep(searchParams.value);
+  cachedParams = cloneDeep(fieldParams.value);
 
-  // 서버 검색 조건에 ogCd -> ogId 변경(속도개선)
-  if (!isEmpty(cachedParams.dgr1LevlOgCd)) {
-    const selId = (codesDgr1Levl.value.filter((v) => v.dgr1LevlOgCd === cachedParams.dgr1LevlOgCd))[0].dgr1LevlOgId;
-    cachedParams.dgr1LevlOgId = selId;
-  }
-  if (!isEmpty(cachedParams.dgr2LevlOgCd)) {
-    const selId = (codesDgr2Levl.value.filter((v) => v.dgr2LevlOgCd === cachedParams.dgr2LevlOgCd))[0].dgr2LevlOgId;
-    cachedParams.dgr2LevlOgId = selId;
-  }
-  if (!isEmpty(cachedParams.dgr3LevlOgCd)) {
-    const selId = (codesDgr3Levl.value.filter((v) => v.dgr3LevlOgCd === cachedParams.dgr3LevlOgCd))[0].dgr3LevlOgId;
-    cachedParams.dgr3LevlOgId = selId;
-  }
-
-  await fetchSummaryData();
   await fetchData();
 }
 
@@ -306,14 +371,7 @@ async function onClickPrint() {
   };
 
   // 조회조건 파라미터 추출
-  const { perfStrtDt, perfEndDt, dgr1LevlOgCd, dgr2LevlOgCd, optnDv } = cachedParams;
-  const dgr1Levl = (codesDgr1Levl.value.filter((v) => v.dgr1LevlOgCd === dgr1LevlOgCd))[0]; // 총괄단
-  const dgr2Levl = (codesDgr2Levl.value.filter((v) => v.dgr2LevlOgCd === dgr2LevlOgCd))[0]; // 지역단
-  const optnDvFilter = (codes.OPTN_DV.filter((v) => v.codeId === optnDv))[0]; // 가동구분
-
-  const srchOco = isEmpty(dgr1Levl) ? '' : dgr1Levl.dgr1LevlOgNm; // 총괄단
-  const srchRgnDan = isEmpty(dgr2Levl) ? '' : dgr2Levl.dgr2LevlOgNm; // 지역단
-  const srchOprtDiv = isEmpty(optnDvFilter) ? '' : optnDvFilter.codeName; // 가동구분
+  cachedParams = cloneDeep(fieldParams.value);
 
   let inqrDv = ''; // 조회구분
   let perfDv = ''; // 실적구분
@@ -344,39 +402,11 @@ async function onClickPrint() {
   }
 
   cachedParams.pritChpr = `${userName}(${employeeIDNumber})`; // 출력담당자
-  cachedParams.srchAcrsPerd = `${stringUtil.getDateFormat(perfStrtDt)} ~ ${stringUtil.getDateFormat(perfEndDt)}`; // 실적기간
   cachedParams.srchAcrsBas = perfDv; // 실적구분
   cachedParams.srchDiv = inqrDv; // 조회구분
-  cachedParams.srchOco = srchOco; // 총괄단
-  cachedParams.srchRgnDan = srchRgnDan; // 지역단
-  cachedParams.srchOprtDiv = srchOprtDiv; // 가동구분
-
-  // 조회조건 및 리스트 파라미터 설정 (샘플데이터)
-  // ozParams.args = { jsondata: {
-  //   deptCd: 'B941010', // 소속
-  //   bzopNm: 'KimGwonJu', // 성명
-  //   bzopNo: '1033699', // 사번
-  //   newCnt: 1, // 신규 신규
-  //   reRntlCnt: 5, // 신규 재렌탈
-  //   rePromLcpCnt: 0, // 신규 팜재렌탈
-  //   intmChngCnt1: 0, // 신규 기변1
-  //   intmChngCnt2: 5, // 신규 기변2
-  //   rcgnCnt: 38, // 신규 인정
-  //   lspyTotCnt: 0, // 일시불 총건수
-  //   lspyRcgnCnt: 0, // 일시불 인정
-  //   sumTotCnt: 0, // 합계 총건수
-  //   sumRcgnCnt: 0, // 헙걔 안종
-  //   pstnNm: 'asdf', // 직급
-  // },
-
-  // pritChpr: `${userName}(${employeeIDNumber})`, // 출력담당자
-  // srchAcrsPerd: `${stringUtil.getDateFormat(perfStrtDt)} ~ ${stringUtil.getDateFormat(perfEndDt)}`, // 실적기간
-  // srchAcrsBas: perfDv, // 실적구분
-  // srchDiv: inqrDv, // 조회구분
-  // srchOco, // 총괄단
-  // srchRgnDan, // 지역단
-  // srchOprtDiv, // 가동구분
-  // };
+  // cachedParams.srchOco = srchOco; // 총괄단
+  // cachedParams.srchRgnDan = srchRgnDan; // 지역단
+  // cachedParams.srchOprtDiv = srchOprtDiv; // 가동구분
 
   const args = { searchApiUrl: '/api/v1/sms/wells/contract/contracts/new-machine-changes/oz', ...cachedParams };
 
@@ -388,51 +418,43 @@ async function onClickPrint() {
   );
 }
 
-onMounted(async () => {
-  await searchOrg();
-});
-
 // -------------------------------------------------------------------------------------------------
 // Initialize Grid
 // -------------------------------------------------------------------------------------------------
 
 const initGrid = defineGrid((data, view) => {
   const fields = [
-    { fieldName: 'col1' },
-    { fieldName: 'col2' },
-    { fieldName: 'col3' },
-    { fieldName: 'col4' },
-    { fieldName: 'col5' },
-    { fieldName: 'col6' },
-    { fieldName: 'col7' },
-    { fieldName: 'col8' },
-    { fieldName: 'col9' },
+    { fieldName: 'prtnrNm' }, // 성명
+    { fieldName: 'ogCd' }, // 소속
+    { fieldName: 'branchCnt' }, // 지점
+    { fieldName: 'optnPerfCnt' }, // 가동실적
+    { fieldName: 'optnBrnchAvg' }, // 가동지평
+    { fieldName: 'engmPerfCnt' }, // 채용실적 : 채용 건수
+    { fieldName: 'engmBrnchAvg' }, // 채용지평 : 채용 지점 평균 건수
+    { fieldName: 'welsMngerEnrlCnt' }, // 웰스매니저재적
+    { fieldName: 'welsMngerAclActiCnt' }, // 웰스매니저 실활동
   ];
 
   const columns = [
-    { fieldName: 'col1', header: '성명', width: '145', styleName: 'text-center' },
-    { fieldName: 'col2', header: '소속코드', width: '145', styleName: 'text-center' },
-    { fieldName: 'col3', header: '지점', width: '145', styleName: 'text-right' },
-    { fieldName: 'col4', header: '가동실적', width: '145', styleName: 'text-right' },
-    { fieldName: 'col5', header: '가동지평', width: '145', styleName: 'text-right' },
-    { fieldName: 'col6', header: '채용실적', width: '145', styleName: 'text-right' },
-    { fieldName: 'col7', header: '채용자평', width: '145', styleName: 'text-right' },
-    { fieldName: 'col8', header: '웰스매니저재적', width: '240', styleName: 'text-right' },
-    { fieldName: 'col9', header: '웰스매니저 실활동', width: '239', styleName: 'text-right' },
+    { fieldName: 'prtnrNm', header: t('MSG_TXT_EMPL_NM'), width: '145', styleName: 'text-center' },
+    { fieldName: 'ogCd', header: t('MSG_TXT_BLG_CD'), width: '145', styleName: 'text-center' },
+    { fieldName: 'branchCnt', header: t('MSG_TXT_BRANCH'), width: '145', styleName: 'text-right' },
+    { fieldName: 'optnPerfCnt', header: t('MSG_TXT_OPTN') + t('MSG_TXT_PERF'), width: '145', styleName: 'text-right' }, // 가동실적
+    { fieldName: 'optnBrnchAvg', header: t('MSG_TXT_OPTN') + t('MSG_TXT_BRNCH_OFFC_AVG'), width: '145', styleName: 'text-right' }, // 가동지평
+    { fieldName: 'engmPerfCnt', header: t('MSG_TXT_ENGM') + t('MSG_TXT_PERF'), width: '145', styleName: 'text-right' }, // 채용실적
+    { fieldName: 'engmBrnchAvg', header: t('MSG_TXT_ENGM') + t('MSG_TXT_BRNCH_OFFC_AVG'), width: '145', styleName: 'text-right' }, // 채용지평
+    { fieldName: 'welsMngerEnrlCnt', header: t('MSG_TXT_WELS_MNGER') + t('MSG_TXT_ENRL'), width: '240', styleName: 'text-right' }, // 웰스매니저재적
+    { fieldName: 'welsMngerAclActiCnt', header: t('MSG_TXT_WELS_MNGER') + t('MSG_TXT_ACL_ACTI'), width: '239', styleName: 'text-right' }, // 웰스매니저 실활동
   ];
 
+  // const fields = columns.map(({ fieldName, dataType }) => (dataType ? { fieldName, dataType } : { fieldName }));
   data.setFields(fields);
   view.setColumns(columns);
 
-  view.checkBar.visible = false;
-  view.rowIndicator.visible = true;
-
-  data.setRows([
-    { col1: '김교원', col2: 'A000000', col3: '11', col4: '67', col5: '60', col6: '17', col7: '1.5', col8: '43', col9: '45' },
-    { col1: '김교원', col2: 'A000000', col3: '7', col4: '42', col5: '60', col6: '6', col7: '0.8', col8: '34', col9: '28' },
-    { col1: '김교원', col2: 'A000000', col3: '8', col4: '45', col5: '56', col6: '11', col7: '1.3', col8: '38', col9: '31' },
-    { col1: '김교원', col2: 'A000000', col3: '7', col4: '47', col5: '67', col6: '12', col7: '1.7', col8: '33', col9: '31' },
-  ]);
+  const layout1 = [
+    'prtnrNm', 'ogCd', 'branchCnt', 'optnPerfCnt', 'optnBrnchAvg', 'engmPerfCnt', 'engmBrnchAvg', 'welsMngerEnrlCnt', 'welsMngerAclActiCnt',
+  ];
+  view.setColumnLayout(layout1);
 });
 
 </script>
