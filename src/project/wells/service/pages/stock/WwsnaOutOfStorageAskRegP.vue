@@ -237,7 +237,6 @@ const loginUserParams = ref({
 });
 
 const codes = await codeUtil.getMultiCodes(
-  'COD_PAGE_SIZE_OPTIONS',
   'OVIV_TP_CD',
   'OSTR_AK_TP_CD', // check: 출고요청유형코드 공통코드에서 가져오는데 갯수가 많음.
   'ITM_KND_CD',
