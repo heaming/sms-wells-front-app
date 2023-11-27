@@ -979,9 +979,9 @@ const initGridState = defineGrid((data, view) => {
       header: t('MSG_TXT_PROCS_RS'),
       width: '100',
       styleName: 'text-center',
-      styleCallback(grd, dataCell) {
-        const procStus = grd.getValue(dataCell.item.dataRow, 'procStus');
-        return (procStus === '00' || procStus === '10' || procStus === '20') ? { styleName: 'rg-button-link', renderer: { type: 'button' } } : { renderer: { type: 'text' } };
+      styleCallback(grid, dataCell) {
+        const { procStus, prtnrNo, ogNm } = grid.getValues(dataCell.index.itemIndex);
+        return (prtnrNo !== '99992' && ogNm !== '71321') && (procStus === '00' || procStus === '10' || procStus === '20') ? { styleName: 'rg-button-link', renderer: { type: 'button' } } : { renderer: { type: 'text' } };
       },
     },
     { fieldName: 'asCaus', header: t('MSG_TXT_PROCS_IZ'), width: '100' },
@@ -1052,26 +1052,29 @@ const initGridState = defineGrid((data, view) => {
         procStus,
         cntrNo,
         cntrSn,
+        ogNm,
       } = g.getValues(cData.itemIndex);
 
-      if (procStus === '00' || procStus === '10' || procStus === '20') {
-        const bypassPrtnrNo = prtnrNo;
-        const wkPrgsStatCd = procStus;
+      if (prtnrNo !== '99992' && ogNm !== '71321') {
+        if (procStus === '00' || procStus === '10' || procStus === '20') {
+          const bypassPrtnrNo = prtnrNo;
+          const wkPrgsStatCd = procStus;
 
-        const param = `cstSvAsnNo=${cstSvAsnNo}&bypassPrtnrNo=${bypassPrtnrNo}&svHshdNo=${svHshdNo}&svHshdNoCnt=${svHshdNoCnt}&svBizHclsfCd=${svBizHclsfCd}&svBizDclsfCd=${svBizDclsfCd}&wkPrgsStatCd=${wkPrgsStatCd}&cntrNo=${cntrNo}&cntrSn=${cntrSn}`;
-        const redirectUrl = encodeURIComponent(`/popup/mobile/wmsnb-as-work-list?${param}`);
-        // const queryString = new URLSearchParams(param);
+          const param = `cstSvAsnNo=${cstSvAsnNo}&bypassPrtnrNo=${bypassPrtnrNo}&svHshdNo=${svHshdNo}&svHshdNoCnt=${svHshdNoCnt}&svBizHclsfCd=${svBizHclsfCd}&svBizDclsfCd=${svBizDclsfCd}&wkPrgsStatCd=${wkPrgsStatCd}&cntrNo=${cntrNo}&cntrSn=${cntrSn}`;
+          const redirectUrl = encodeURIComponent(`/popup/mobile/wmsnb-as-work-list?${param}`);
+          // const queryString = new URLSearchParams(param);
 
-        let url = '';
-        if (import.meta.env.MODE === 'dev') {
-          url = 'https://d-m-wpm.kyowon.co.kr';
-        } else if (import.meta.env.MODE === 'qa') {
-          url = 'https://q-m-wpm.kyowon.co.kr';
-        } else {
-          url = 'https://m-wpm.kyowon.co.kr';
+          let url = '';
+          if (import.meta.env.MODE === 'dev') {
+            url = 'https://d-m-wpm.kyowon.co.kr';
+          } else if (import.meta.env.MODE === 'qa') {
+            url = 'https://q-m-wpm.kyowon.co.kr';
+          } else {
+            url = 'https://m-wpm.kyowon.co.kr';
+          }
+          // window.open(`${url}/certification/sso/login?redirectUrl=${redirectUrl}`);
+          popupUtil.open(`${url}/certification/sso/login?redirectUrl=${redirectUrl}`, { width: 400, height: 844 });
         }
-        // window.open(`${url}/certification/sso/login?redirectUrl=${redirectUrl}`);
-        popupUtil.open(`${url}/certification/sso/login?redirectUrl=${redirectUrl}`, { width: 400, height: 844 });
       }
     }
 
