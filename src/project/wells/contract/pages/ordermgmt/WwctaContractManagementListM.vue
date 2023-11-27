@@ -393,6 +393,7 @@ const searchParams = ref({
   cstKnm: '', // 고객명
   cntrCstNo: '', // 고객번호
   sellChnlSnrDv: '', // 판매채널
+  incDlYn: 'N', // 삭제데이터 포함여부
 });
 
 const searchDtlParams = ref({
@@ -617,12 +618,20 @@ async function onChangeCntrwTpCd() {
 // 조회결과
 async function fetchMstData() {
   // changing api & cacheparams according to search classification
+  // 계약상태 항목에서 삭제 선택시, 삭제데이터포함 변수 따로 세팅
+  if (searchParams.value.cntrPrgsStatCd.includes('99')) {
+    searchParams.value.incDlYn = 'Y';
+  } else {
+    searchParams.value.incDlYn = 'N';
+  }
+
   let res = '';
   cachedParams = cloneDeep(searchParams.value);
   // console.log(cachedParams);
   // res = await dataService.get('/sms/wells/contract/contracts/managements', { params: { ...cachedParams } });
   res = await dataService.post('/sms/wells/contract/contracts/managements', { ...cachedParams });
   console.log(res.data);
+  console.log(res.data.dLRstrYn);
 
   if (['A', 'N', 'U'].includes(searchParams.value.cntrDv)) {
     // console.log(res.data.searchKssOrdrListResList);
@@ -646,7 +655,12 @@ async function fetchMstData() {
       view.columnByName('ocyCntrwBrws').visible = false; // 원본 계약서출력 컬럼 Hide
     }
     view.columnByName('cstSignCn').visible = false; // 서명 컬럼 Hide
-    view.columnByName('dlRstr').visible = false; // 삭제원복 컬럼 Hide
+    // 삭제원복 컬럼 표시
+    if (res.data.dLRstrYn === 'N') {
+      view.columnByName('dlRstr').visible = false; // 삭제원복 컬럼 Hide
+    } else if (res.data.dLRstrYn === 'Y') {
+      view.columnByName('dlRstr').visible = true; // 삭제원복 컬럼 Show
+    }
   } else if (searchParams.value.cntrDv === 'R') {
     // console.log(res.data.searchRePromConcListResList);
     if (res.data.searchRePromConcListResList.length === 0) {
@@ -792,7 +806,7 @@ async function onClickSearch() {
   // 계약상태 조회조건 최소 한가지 이상 선택해야 함.
   if (searchParams.value.cntrDv === 'A' || searchParams.value.cntrDv === 'N' || searchParams.value.cntrDv === 'U') {
     if (isEmpty(searchParams.value.cntrPrgsStatCd)) {
-      await alert('계약상태를 하나 이상 선택하셔야 합니다.');
+      await alert(t('MSG_ALT_SELT_CNTR_STAT_NEED_ONE_AMONG')); // 계약상태를 하나 이상 선택하셔야 합니다.
       return;
     }
   }
@@ -1195,6 +1209,9 @@ const initGrdMstList = defineGrid((data, view) => {
     { fieldName: 'notakRcvDt' }, // 알림톡 수신일자
     { fieldName: 'cntrAprYn' }, // 확정승인여부
     { fieldName: 'histStrtDtm' }, // 계약이력시작일시
+    { fieldName: 'ogTpCd' }, // 조직유형코드
+    { fieldName: 'ogId' }, // 조직ID
+    { fieldName: 'restoreYn' }, // 삭제원복표시여부
   ];
 
   const columns = [
@@ -1234,23 +1251,12 @@ const initGrdMstList = defineGrid((data, view) => {
       styleName: 'text-center',
       renderer: { type: 'button', hideWhenEmpty: false },
       displayCallback(grid, index) {
-        const { cntrPrgsStatCd } = grid.getValues(index.itemIndex);
-        const { cntrwTpCd } = grid.getValues(index.itemIndex);
-        const { rgstDv } = grid.getValues(index.itemIndex);
-        // return cntrPrgsStatCd >= '90' && cntrPrgsStatCd !== '98'
-        return cntrPrgsStatCd === '99'
-            && (cntrwTpCd === '3' || cntrwTpCd === '8')
-            && rgstDv === '1' ? t('MSG_TXT_DL_RSTR') : ''; // 계약진행상태코드(확정)
+        const { restoreYn } = grid.getValues(index.itemIndex);
+        return restoreYn === 'Y' ? t('MSG_TXT_DL_RSTR') : ''; // 삭제원복버툰 표시여부
       },
       styleCallback(grid, dataCell) {
-        const { cntrPrgsStatCd } = grid.getValues(dataCell.index.itemIndex);
-        const { cntrwTpCd } = grid.getValues(dataCell.index.itemIndex);
-        const { rgstDv } = grid.getValues(dataCell.index.itemIndex);
-        // const retrunValue = cntrPrgsStatCd >= '90' && cntrPrgsStatCd !== '98'
-        const retrunValue = cntrPrgsStatCd === '99'
-            && (cntrwTpCd === '3' || cntrwTpCd === '8')
-            && rgstDv === '1' ? cntrPrgsStatCd : 0;
-        return retrunValue !== 0 ? { renderer: { type: 'button', hideWhenEmpty: false } } : { renderer: { type: 'text', styleName: 'text-center' } };
+        const { restoreYn } = grid.getValues(dataCell.index.itemIndex);
+        return restoreYn === 'Y' ? { renderer: { type: 'button', hideWhenEmpty: false } } : { renderer: { type: 'text', styleName: 'text-center' } };
       },
     }, // 삭제원복
     { fieldName: 'cnfm',
@@ -1350,6 +1356,8 @@ const initGrdMstList = defineGrid((data, view) => {
     // const paramHistStrtDtm = `${gridUtil.getCellValue(g, dataRow, 'histStrtDtm')}`;
     const { cntrPrgsStatCd } = g.getValues(dataRow);
     const { cntrwTpCd } = g.getValues(dataRow);
+    const { ogTpCd } = g.getValues(dataRow); // 조직유형코드
+    const { ogId } = g.getValues(dataRow); // 조직ID
     const fileRow = gridUtil.getRowValue(g, dataRow);
 
     if (['cnfmApr'].includes(column)) { // 확정승인 버튼 클릭
@@ -1384,6 +1392,23 @@ const initGrdMstList = defineGrid((data, view) => {
           }
         } else {
           // console.log(res.data.processCount);
+        }
+      }
+    } else if (['dlRstr'].includes(column)) { // 삭제원복버튼 클릭
+      // searchDlRstrParams.value.cntrNo = paramCntrNo;
+      // searchDlRstrParams.value.ogTpCd = ogTpCd;
+      // searchDlRstrParams.value.ogId = ogId;
+      const rows = [
+        { cntrNo: paramCntrNo, ogTpCd, ogId },
+      ];
+
+      // cachedParams = cloneDeep(searchDlRstrParams.value);
+      if (await confirm(t('MSG_ALT_ORDR_RSTR_WANT'))) { // 해당 주문을 원복하시겠습니까?
+        res = await dataService.put('/sms/wells/contract/contracts/managements/recovery', rows);
+        if (res.data.processCount > 0) {
+          await notify(t('MSG_ALT_ORDR_RSTR')); // 주문이 원복되었습니다.
+          // 재조회 호출
+          await fetchMstData();
         }
       }
     } else if (['cnfm'].includes(column)) { // 확정버튼 클릭
