@@ -497,6 +497,7 @@
               :label="`${t('MSG_BTN_RSV')}${t('MSG_BTN_DTRM')}${t('MSG_BTN_RGST')}`"
               @click="onClickDelverRsvDtrmRgstEtc(item.sellTpCd, item.cntrNo)"
             />
+            <!-- 접수 -->
             <kw-btn
               v-if="item.asnCnt <= 0"
               v-permission:create
@@ -1074,17 +1075,22 @@ async function checkKiwiTimeAssign(dataList, prdDiv) {
 // 배송접수
 async function deliveryReceipt(dataList) {
   const { cntrNo, cntrSn } = dataList;
-  const cntrDtlNo = `${cntrNo}-${cntrSn}`;
+  const { istPcsvDvCd } = searchParams.value;
 
   if (isEmpty(cntrNo) || isEmpty(cntrSn)) { return; }
 
-  await dataService.post('/sms/wells/contract/contracts/settlements/install-order-batch', {
+  const saveParams = ref({
     cntrNo,
     cntrSn,
-    cntrDtlNo,
+    istPcsvDvCd,
   });
 
-  alert('작업 완료 후 추가예정 입니다.');
+  const { data } = await dataService.post('/sms/wells/contract/contracts/installation-shippings', saveParams.value);
+
+  if (isEqual(data, 'Y')) {
+    notify(t('MSG_ALT_SPP_SUCCESS'));
+    fetchData();
+  }
 }
 
 // 접수(설치 / 배송)
