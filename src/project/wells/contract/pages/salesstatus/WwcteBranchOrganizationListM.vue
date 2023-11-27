@@ -2,8 +2,8 @@
 ****************************************************************************************************
 * 프로그램 개요
 ****************************************************************************************************
-1. 모듈 : CTA
-2. 프로그램 ID : WwcteBranchOrganizationPerformanceM
+1. 모듈 : CTE
+2. 프로그램 ID : WwcteBranchOrganizationListM
 3. 작성자 : gs.itsm211 / YS.JEON
 4. 작성일 : 2023.11.10
 ****************************************************************************************************
@@ -324,7 +324,7 @@ async function fetchData() {
 
   if (isEmpty(cachedParams)) return;
 
-  res = await dataService.get('/sms/wells/contract/contracts/branch-organization-performance-list/paging', { params: { ...cachedParams, ...pageInfo.value } });
+  res = await dataService.get('/sms/wells/contract/contracts/branch-organization-list/paging', { params: { ...cachedParams, ...pageInfo.value } });
   const { list: pages, pageInfo: pagingResult } = res.data;
   if (res.data.length === 0) {
     await alert(t('MSG_ALT_NO_DATA')); // 데이터가 존재하지 않습니다.
