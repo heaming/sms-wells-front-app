@@ -21,13 +21,6 @@
       @search="onClickSearch"
     >
       <kw-search-row>
-        <kw-search-item :label="$t('MSG_TXT_DELV_WARE')">
-          <kw-select
-            v-model="searchParams.wareNo"
-            :options="logisticsCenters"
-            readonly
-          />
-        </kw-search-item>
         <kw-search-item :label="$t('MSG_TXT_WK_STS')">
           <kw-select
             v-model="searchParams.findGb"
@@ -44,8 +37,6 @@
             :label="$t('MSG_TXT_AK_DT')"
           />
         </kw-search-item>
-      </kw-search-row>
-      <kw-search-row>
         <kw-search-item :label="$t('MSG_TXT_PRTNR_BZS')">
           <kw-select
             v-model="searchParams.prtnrBzsCd"
@@ -173,15 +164,6 @@ const searchParams = ref({
 const totalCount = ref(0);
 
 let cachedParams;
-const logisticsCenters = ref();
-
-/* 물류센터 조회 */
-async function fetchLogisticsCenters() {
-  const res = await dataService.get(`${baseUrl}/logistics-centers`, {});
-  logisticsCenters.value = res.data;
-}
-
-await fetchLogisticsCenters();
 
 /* 택배상품 반품조회 */
 async function fetchData() {
