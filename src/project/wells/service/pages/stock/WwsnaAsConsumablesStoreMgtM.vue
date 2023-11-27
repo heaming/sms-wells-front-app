@@ -503,7 +503,6 @@ const initGrdMain = defineGrid((data, view) => {
 
     const changedFieldName = grid.getDataSource().getOrgFieldName(field);
 
-    console.log(changedFieldName);
     if (changedFieldName === 'strWareNo') {
       await findWareNm(strWareNo, itemIndex, grid);
     } else if (changedFieldName === 'sapCd') {
