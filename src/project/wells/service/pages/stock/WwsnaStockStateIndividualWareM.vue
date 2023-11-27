@@ -193,7 +193,7 @@ let cachedParams;
 const searchParams = ref({
   stockDt: now.format('YYYYMMDD'),
   baseYm: now.format('YYYYMM'),
-  wareNo: '200001', // 서비스센타 성수 세팅
+  wareNo: '', // 서비스센타 성수 세팅
   itmGdCd: '', // 등급
   useYn: '', // 사용여부
   wareUseYn: '', // 창고사용여부
@@ -210,12 +210,23 @@ let fieldsWidth;
 const servierCenterOrg = ref();
 
 async function fetchServiceCenters() {
-  const res = await dataService.get(`${baseUrl}/service_center`, { params: searchParams.value });
+  const res = await dataService.get(`${baseUrl}/service-center`, { params: searchParams.value });
   const resList = res.data;
   servierCenterOrg.value = resList.map((v) => ({ codeId: v.wareNo, codeName: v.wareNm }));
 }
 
 await fetchServiceCenters();
+
+async function fetchMyServiceCenters() {
+  const res = await dataService.get(`${baseUrl}/my-service-center`, { params: searchParams.value });
+  if (res.data !== '') {
+    searchParams.value.wareNo = res.data.toString();
+  } else {
+    searchParams.value.wareNo = '200001';
+  }
+}
+
+await fetchMyServiceCenters();
 
 const totalCount = ref(0);
 
