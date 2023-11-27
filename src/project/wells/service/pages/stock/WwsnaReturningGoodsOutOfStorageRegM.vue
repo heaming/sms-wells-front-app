@@ -685,10 +685,10 @@ const initGrdMain = defineGrid((data, view) => {
       header: t('MSG_TXT_ITM_NM'),
       width: '200',
       button: 'action',
-      styleName: 'rg-button-icon--search',
+      styleName: 'text-left rg-button-icon--search',
       styleCallback: () => {
         if (canEdit()) {
-          return { styleName: 'rg-button-hide' };
+          return { styleName: 'text-left rg-button-hide' };
         }
       },
     },

@@ -501,7 +501,7 @@ const initGrdMain = defineGrid((data, view) => {
       styleCallback: (grid, dataCell) => {
         const rowState = gridUtil.getCellValue(view, dataCell.index.itemIndex, 'rowState');
         if (rowState !== 'created') {
-          return { styleName: 'rg-button-hide' };
+          return { styleName: 'text-center rg-button-hide' };
         }
       } },
     { fieldName: 'itmPdNm',
