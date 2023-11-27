@@ -149,7 +149,7 @@ ogTpCds.value = codes.OG_TP_CD.filter((v) => ['W02', 'W03'].includes(v.codeId));
 const actiGdsSns = ref();
 const actiGdsStddCds = ref();
 const searchParams = ref({
-  ogTpCd: '', /* 조직유형코드 */
+  ogTpCd: userInfo.wkOjOgTpCd, /* 조직유형코드 */
   aplcDt: now.format('YYYYMM'),
   prtnrNo: '',
   prtnrKnm: '',
