@@ -456,16 +456,19 @@ const initGrdMain = defineGrid((data, view) => {
     grid.checkItem(itemIndex, true);
 
     const { apyStrtdt, apyStrtdtOrigin, apyEnddt } = grid.getValues(itemIndex);
-
+    // 기존 적용시작일자보다 작은값 선택 시
     if (apyStrtdt < apyStrtdtOrigin) {
-      notify(t('MSG_ALT_APY_STRT_D_CONF_BFDT'));
+      notify(t('MSG_ALT_APY_STRT_D_CONF_BFDT')); // 이전일자보다 작습니다. 적용시작일을 확인하시기 바랍니다.
       grid.setValue(itemIndex, 'apyStrtdt', apyStrtdtOrigin);
     }
 
-    if (field === 10 && apyStrtdt > apyEnddt) {
-      grid.setValue(itemIndex, 'apyEnddt', apyStrtdt);
-    } else if (field === 11 && apyStrtdt > apyEnddt) {
-      grid.setValue(itemIndex, 'apyStrtdt', apyEnddt);
+    const fieldName = grid.getDataSource().getOrgFieldName(field);
+    if (fieldName === 'apyStrtdt' && apyStrtdt > apyEnddt) {
+      notify(t('MSG_ALT_INVAILD_RANGE_STRT_DT')); // 적용시작일은 적용종료일보다 작은 값이어야 합니다.
+      grid.setValue(itemIndex, 'apyStrtdt', apyStrtdtOrigin);
+    } else if (fieldName === 'apyEnddt' && apyStrtdt > apyEnddt) {
+      notify(t('MSG_ALT_INVAILD_RANGE_END_DT')); // 적용종료일은 적용시작일보다 큰 값이어야 합니다.
+      grid.setValue(itemIndex, 'apyEnddt', '99991231');
     }
   };
 });

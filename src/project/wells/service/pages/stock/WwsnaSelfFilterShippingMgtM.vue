@@ -89,14 +89,14 @@
             v-if="!isPaging"
             :total-count="totalCount"
           />
-          <kw-paging-info
+          <!-- <kw-paging-info
             v-if="isPaging"
             v-model:page-index="pageInfo.pageIndex"
             v-model:page-size="pageInfo.pageSize"
             :page-size-options="codes.COD_PAGE_SIZE_OPTIONS"
             :total-count="pageInfo.totalCount"
             @change="fetchData"
-          />
+          /> -->
           <span class="ml8">{{ t('MSG_TXT_UNIT_EA') }}</span>
         </template>
         <!-- 엑셀다운로드 버튼 -->
@@ -152,7 +152,7 @@ import {
   useMeta,
   gridUtil,
   useGlobal,
-  codeUtil,
+  // codeUtil,
 } from 'kw-lib';
 import snConst from '~sms-wells/service/constants/snConst';
 import dayjs from 'dayjs';
@@ -182,9 +182,9 @@ const searchParams = ref({
   pgGb: '', // 상품그룹핑코드
 });
 
-const codes = await codeUtil.getMultiCodes(
-  'COD_PAGE_SIZE_OPTIONS',
-);
+// const codes = await codeUtil.getMultiCodes(
+//   'COD_PAGE_SIZE_OPTIONS',
+// );
 const pageInfo = ref({
   totalCount: 0,
   pageIndex: 1,
