@@ -360,7 +360,8 @@ async function onClickExcelUpload() {
   const { result } = await modal({
     component: 'ZctzExcelUploadP',
     componentProps: {
-      templateDocId: `${currentRoute.value.meta.menuName}_${t('MSG_TXT_PCSV_IVC')}_${t('MSG_TXT_WK_RS')}`,
+      // templateDocId: `${currentRoute.value.meta.menuName}_${t('MSG_TXT_PCSV_IVC')}_${t('MSG_TXT_WK_RS')}`,
+      templateDocId: 'FOM_MD_PRODUCT_UPLOAD',
       headerRows: 2,
       validationBtn: true,
       downloadBtn: true,

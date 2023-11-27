@@ -231,9 +231,9 @@
             </kw-form-item>
           </kw-form-row>
 
-          <kw-form-row>
+          <kw-form-row v-show="singlePaymentDetail.sellTpCd!=='2' || singlePaymentDetail.islease==='N'">
             <kw-form-item
-              :label="$t('MSG_TXT_UC_AMT')"
+              :label="$t('MSG_TXT_SL_UC_AMT')"
             >
               <p>
                 {{ stringUtil.getNumberWithComma(toInteger(singlePaymentDetail.eotUcAmt)) }}
@@ -261,7 +261,45 @@
               </p>
             </kw-form-item>
           </kw-form-row>
+          <kw-form-row v-show="singlePaymentDetail.sellTpCd==='2' && singlePaymentDetail.islease==='Y'">
+            <kw-form-item
+              :label="$t('MSG_TXT_SL_UC_AMT')"
+            >
+              <p>
+                {{ stringUtil.getNumberWithComma(toInteger(singlePaymentDetail.eotUcAmt)) }}
+              </p>
+            </kw-form-item>
+            <kw-form-item
+              :label="$t('MSG_TXT_OC_UC_AMT')"
+            >
+              <p>
+                {{ stringUtil.getNumberWithComma(toInteger(singlePaymentDetail.eotBilUcSumAmt)) }}
+              </p>
+            </kw-form-item>
+            <kw-form-item
+              :label="$t('MSG_TXT_DLQ_AMT')"
+            >
+              <p>
+                {{ stringUtil.getNumberWithComma(toInteger(singlePaymentDetail.eotDlqAmt)) }}
+              </p>
+            </kw-form-item>
+            <kw-form-item
+              :label="$t('MSG_TXT_SL_STP')"
+            >
+              <p>
+                {{ stringUtil.getNumberWithComma(toInteger(singlePaymentDetail.slStpAmt)) }}
+              </p>
+            </kw-form-item>
+          </kw-form-row>
           <kw-form-row>
+            <kw-form-item
+              v-show="singlePaymentDetail.sellTpCd==='2' && singlePaymentDetail.islease==='Y'"
+              :label="$t('MSG_TXT_ADD_AMT')"
+            >
+              <p>
+                {{ stringUtil.getNumberWithComma(toInteger(singlePaymentDetail.eotDlqAddAmt)) }}
+              </p>
+            </kw-form-item>
             <kw-form-item
               :label="$t('MSG_TXT_DFA_AMT')"
             >
@@ -511,7 +549,7 @@
             <kw-form-item
               :label="$t('MSG_TXT_OC_UC_AMT')"
             >
-              <p>{{ stringUtil.getNumberWithComma(toInteger(singlePaymentDetail.eotBilUcAmt)) }}</p>
+              <p>{{ stringUtil.getNumberWithComma(toInteger(singlePaymentDetail.eotBilUcSumAmt)) }}</p>
             </kw-form-item>
           </kw-form-row><kw-form-row>
             <kw-form-item
@@ -603,6 +641,7 @@
 // -------------------------------------------------------------------------------------------------
 import { gridUtil, codeUtil, getComponentType, useGlobal, useMeta, useDataService, defineGrid, stringUtil } from 'kw-lib';
 import { cloneDeep, isEmpty, toInteger } from 'lodash-es';
+import dayjs from 'dayjs';
 import ZctzContractDetailNumber from '~sms-common/contract/components/ZctzContractDetailNumber.vue';
 
 const { t } = useI18n();
@@ -624,7 +663,7 @@ let cachedParams;
 const searchParams = ref({
   cntrNo: '',
   cntrSn: '',
-  fromSlClYy: '',
+  fromSlClYy: dayjs().format('YYYY'),
   toSlClYy: '',
   slClYm: '',
 });
@@ -754,7 +793,7 @@ async function setGridColumnLayout(data, view) { // 일시불
     { fieldName: 'thmDlqAddDpSumAmt', header: t('MSG_TXT_DP_AMT'), width: '100', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' }, // 입금금액
     { fieldName: 'thmDlqAddRfndSumAmt', header: t('MSG_TXT_RFND_AMT'), width: '100', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' }, // 환불금액
     { fieldName: 'eotDlqAddAmt', header: t('MSG_TXT_EOT_AMT'), width: '100', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' }, // 기말금액
-    { fieldName: 'eotUcAmt', header: t('MSG_TXT_OC_UC_AMT'), width: '100', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' }, // 미수금액
+    { fieldName: 'eotUcAmt', header: t('MSG_TXT_OC_UC_AMT'), width: '100', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' }, // 발생미수금액
     { fieldName: 'borAmt', header: t('MSG_TXT_CCAM'), width: '134', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' }, // 위약금
     { fieldName: 'slStpAmt', header: t('MSG_TXT_SL_STP_AMT'), width: '180', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' }, // 매출중지금액
   ];

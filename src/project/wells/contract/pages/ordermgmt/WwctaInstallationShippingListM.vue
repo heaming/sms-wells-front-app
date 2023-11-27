@@ -312,7 +312,7 @@
                   && isEqual(item.istPcsvSellTpCd, '1')"
                 v-permission:create
                 :label="t('MSG_BTN_RECEIPT')"
-                @click="onClickReceipt(item)"
+                @click="onClickReceipt(item, 'inst')"
               />
               <!-- 재접수 -->
               <kw-btn
@@ -345,12 +345,22 @@
             >
               {{ item.cntrDtlNo }}
             </p>
-            <!-- 상태 -->
-            <kw-chip
-              :label="item.sellTpNm"
-              color="cyan"
-              outline
-            />
+            <span>
+              <!-- 배정상태 -->
+              <kw-chip
+                v-if="item.asnCnt <= 0"
+                class="mr5"
+                :label="item.msg"
+                :color="item.cr"
+                outline
+              />
+              <!-- 상태 -->
+              <kw-chip
+                :label="item.sellTpNm"
+                color="cyan"
+                outline
+              />
+            </span>
           </div>
           <!-- 고객명 -->
           <p class="kw-font-subtitle mt20">
@@ -487,6 +497,13 @@
               :label="`${t('MSG_BTN_RSV')}${t('MSG_BTN_DTRM')}${t('MSG_BTN_RGST')}`"
               @click="onClickDelverRsvDtrmRgstEtc(item.sellTpCd, item.cntrNo)"
             />
+            <!-- 접수 -->
+            <kw-btn
+              v-if="item.asnCnt <= 0"
+              v-permission:create
+              :label="t('MSG_BTN_RECEIPT')"
+              @click="onClickReceipt(item, 'deli')"
+            />
           </kw-card-actions>
         </kw-card>
       </div>
@@ -602,85 +619,91 @@ function getInstallStatus() {
     sellTpCd = element.sellTpCd;
     lcCanyn = element.lcCanyn;
 
-    if (isEqual(kaetc1, '8') && isEqual(sellTpCd, '1') && isEqual(cttRsCd, '91')) {
-      element.cr = 'red';
-      if (isEqual(lcCanyn, 'Y')) {
-        element.msg = t('MSG_TXT_RFND');
-        element.acpgStat = '99';
-      } else {
-        element.msg = t('MSG_TXT_RFND_AK');
-        element.acpgStat = '98';
+    if (!isDelivery.value) {
+      if (isEqual(kaetc1, '8') && isEqual(sellTpCd, '1') && isEqual(cttRsCd, '91')) {
+        element.cr = 'red';
+        if (isEqual(lcCanyn, 'Y')) {
+          element.msg = t('MSG_TXT_RFND');
+          element.acpgStat = '99';
+        } else {
+          element.msg = t('MSG_TXT_RFND_AK');
+          element.acpgStat = '98';
+        }
       }
-    }
-    if (!hasKiwiOrd) {
-      element.msg = t('MSG_TXT_NOT_ASN');
-      element.cr = 'orange';
-      element.acpgStat = '1';
+      if (!hasKiwiOrd) {
+        element.msg = t('MSG_TXT_NOT_ASN');
+        element.cr = 'orange';
+        element.acpgStat = '1';
 
-      if (isEqual(istPcsvSellTpCd, '4')) {
-        if (isEqual(cttRsCd, '99')) {
-          element.msg = t('MSG_TXT_SB');
-          element.cr = 'red';
-          element.acpgStat = '9';
-        } else if (!isEmpty(istDt)) {
+        if (isEqual(istPcsvSellTpCd, '4')) {
+          if (isEqual(cttRsCd, '99')) {
+            element.msg = t('MSG_TXT_SB');
+            element.cr = 'red';
+            element.acpgStat = '9';
+          } else if (!isEmpty(istDt)) {
+            element.msg = t('MSG_TXT_INST_COMP');
+            element.cr = 'cyan';
+            element.acpgStat = '4';
+          } else {
+            element.msg = `${t('MSG_TXT_INSTALLATION')}${t('MSG_TXT_ASGN')}`;
+            element.cr = 'blue';
+            element.acpgStat = '2';
+          }
+        }
+        if (isEqual(istPcsvSellTpCd, '1') && isEqual(kaetc1, '7')) {
+          if (!isEmpty(istDt)) {
+            element.msg = t('MSG_TXT_INST_COMP');
+            element.cr = 'cyan';
+            element.acpgStat = '4';
+          } else if (!isEmpty(sppDuedt)) {
+            element.msg = `${t('MSG_TXT_INSTALLATION')}${t('MSG_TXT_ASGN')}`;
+            element.cr = 'blue';
+            element.acpgStat = '2';
+          }
+        }
+      } else if (hasKiwiOrd) {
+        if (isEqual(wkPrgsStatCd, '00') && isEmpty(wkAcpteStatCd)) {
+          element.msg = `${t('MSG_TXT_INSTALLATION')}${t('MSG_TXT_ASGN')}`;
+          element.cr = 'blue';
+          element.acpgStat = '2';
+        } else if (wkPrgsStatCd < 20 && isEqual(wkAcpteStatCd, 'Y')) {
+          element.msg = t('MSG_TXT_ACPTE');
+          element.cr = 'cyan';
+          element.acpgStat = '3';
+        } else if (isEqual(wkPrgsStatCd, '20') && !isEqual(retrTrgtYn, 'Y')) {
           element.msg = t('MSG_TXT_INST_COMP');
           element.cr = 'cyan';
           element.acpgStat = '4';
         } else {
-          element.msg = `${t('MSG_TXT_INSTALLATION')}${t('MSG_TXT_ASGN')}`;
-          element.cr = 'blue';
-          element.acpgStat = '2';
+          element.msg = t('MSG_TXT_SB');
+          element.cr = 'red';
+          element.acpgStat = '9';
         }
       }
-      if (isEqual(istPcsvSellTpCd, '1') && isEqual(kaetc1, '7')) {
-        if (!isEmpty(istDt)) {
-          element.msg = t('MSG_TXT_INST_COMP');
-          element.cr = 'cyan';
-          element.acpgStat = '4';
-        } else if (!isEmpty(sppDuedt)) {
-          element.msg = `${t('MSG_TXT_INSTALLATION')}${t('MSG_TXT_ASGN')}`;
-          element.cr = 'blue';
-          element.acpgStat = '2';
-        }
-      }
-    } else if (hasKiwiOrd) {
-      if (isEqual(wkPrgsStatCd, '00') && isEmpty(wkAcpteStatCd)) {
-        element.msg = `${t('MSG_TXT_INSTALLATION')}${t('MSG_TXT_ASGN')}`;
-        element.cr = 'blue';
-        element.acpgStat = '2';
-      } else if (wkPrgsStatCd < 20 && isEqual(wkAcpteStatCd, 'Y')) {
-        element.msg = t('MSG_TXT_ACPTE');
-        element.cr = 'cyan';
-        element.acpgStat = '3';
-      } else if (isEqual(wkPrgsStatCd, '20') && !isEqual(retrTrgtYn, 'Y')) {
-        element.msg = t('MSG_TXT_INST_COMP');
-        element.cr = 'cyan';
-        element.acpgStat = '4';
-      } else {
-        element.msg = t('MSG_TXT_SB');
-        element.cr = 'red';
-        element.acpgStat = '9';
-      }
-    }
 
-    // 엔진니어 표시 문자열 만들기
-    element.engineer = '';
-    if (!isEmpty(element.ogNm)) {
-      element.engineer += `${element.ogNm}/`;
-    }
-    if (!isEmpty(element.egerNm)) {
-      element.engineer += `${element.egerNm}/`;
-    }
-    if (isEmpty(element.egerCrallocaraTno) || isEmpty(element.egerMexnoEncr) || isEmpty(element.egerCralIdvTno)) {
-      element.engineer += '';
+      // 엔지니어 표시 문자열 만들기
+      element.engineer = '';
+      if (!isEmpty(element.ogNm)) {
+        element.engineer += `${element.ogNm}/`;
+      }
+      if (!isEmpty(element.egerNm)) {
+        element.engineer += `${element.egerNm}/`;
+      }
+      if (isEmpty(element.egerCrallocaraTno) || isEmpty(element.egerMexnoEncr) || isEmpty(element.egerCralIdvTno)) {
+        element.engineer += '';
+      } else {
+        element.engineer += `${element.egerCrallocaraTno.trim()}-${element.egerMexnoEncr}-${element.egerCralIdvTno}`;
+      }
     } else {
-      element.engineer += `${element.egerCrallocaraTno.trim()}-${element.egerMexnoEncr}-${element.egerCralIdvTno}`;
+      element.msg = t('MSG_TXT_NOT_ASN');
+      element.cr = 'orange';
     }
   });
 }
 
 async function fetchData() {
-  if (isEqual(searchParams.value.istPcsvDvCd, '2')) {
+  const { istPcsvDvCd } = searchParams.value;
+  if (isEqual(istPcsvDvCd, '2')) {
     searchParams.value.wkGrpDv = '';
     isDelivery.value = true;
   } else {
@@ -1049,10 +1072,31 @@ async function checkKiwiTimeAssign(dataList, prdDiv) {
   }
 }
 
-// 접수(설치)
-async function onClickReceipt(dataList) {
+// 배송접수
+async function deliveryReceipt(dataList) {
+  const { cntrNo, cntrSn } = dataList;
+  const { istPcsvDvCd } = searchParams.value;
+
+  if (isEmpty(cntrNo) || isEmpty(cntrSn)) { return; }
+
+  const saveParams = ref({
+    cntrNo,
+    cntrSn,
+    istPcsvDvCd,
+  });
+
+  const { data } = await dataService.post('/sms/wells/contract/contracts/installation-shippings', saveParams.value);
+
+  if (isEqual(data, 'Y')) {
+    notify(t('MSG_ALT_SPP_SUCCESS'));
+    fetchData();
+  }
+}
+
+// 접수(설치 / 배송)
+async function onClickReceipt(dataList, rcpDiv) {
   if (!await confirm(t('MSG_ALT_WANT', [t('MSG_TXT_RCP')]))) { return; }
-  checkKiwiTimeAssign(dataList, '1');
+  if (isEqual(rcpDiv, 'inst')) { checkKiwiTimeAssign(dataList, '1'); } else { deliveryReceipt(dataList); }
 }
 
 // 재접수(설치)
