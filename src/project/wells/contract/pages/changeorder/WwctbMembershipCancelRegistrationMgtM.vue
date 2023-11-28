@@ -502,12 +502,14 @@
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
-import { codeUtil, getComponentType, notify, stringUtil, useGlobal } from 'kw-lib';
+import { codeUtil, getComponentType, notify, stringUtil, useGlobal, useMeta } from 'kw-lib';
 import dayjs from 'dayjs';
 
 const { t } = useI18n();
 const frmMainMembership = ref(getComponentType('KwForm'));
 const { modal } = useGlobal();
+const { getUserInfo } = useMeta();
+const sessionUserInfo = getUserInfo();
 const now = dayjs();
 
 const codes = await codeUtil.getMultiCodes(
@@ -536,6 +538,8 @@ const isReSearch = ref('N');
 
 codes.CCAM_EXMPT_DV_CD.forEach((e) => { e.codeName = `(${e.codeId})${e.codeName}`; });
 codes.CMN_STAT_CH_RSON_CD.forEach((e) => { e.codeName = `(${e.codeId})${e.codeName}`; });
+
+searchDetail.slCtrRqrId = searchDetail.slCtrRqrId ?? sessionUserInfo.employeeIDNumber;
 // -------------------------------------------------------------------------------------------------
 // Function & Event
 // -------------------------------------------------------------------------------------------------

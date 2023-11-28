@@ -40,7 +40,7 @@
           <kw-select
             v-model="searchParams.ogId"
             first-option="all"
-            :options="centerOptions"
+            :options="serviceCenter"
           />
         </kw-search-item>
         <!-- <wwsn-engineer-og-search-item-group
@@ -165,6 +165,7 @@
 import { defineGrid, codeUtil, useMeta, useDataService, getComponentType, gridUtil, useGlobal } from 'kw-lib';
 import dayjs from 'dayjs';
 import { cloneDeep } from 'lodash-es';
+import useSnCode from '~sms-wells/service/composables/useSnCode';
 // import WwsnEngineerOgSearchItemGroup from '~sms-wells/service/components/WwsnEngineerOgSearchItemGroup.vue';
 
 const router = useRouter();
@@ -174,6 +175,7 @@ const now = dayjs();
 const { t } = useI18n();
 const dataService = useDataService();
 const { currentRoute } = useRouter();
+const { getServiceCenterOrgs } = useSnCode();
 // -------------------------------------------------------------------------------------------------
 // Function & Event
 // -------------------------------------------------------------------------------------------------
@@ -188,9 +190,14 @@ const codes = await codeUtil.getMultiCodes(
 
 // const { companyCode } = store.getters['meta/getUserInfo'];
 
-const centerOptions = ref();
+// const centerOptions = ref();
 
 // const STLM_DV_CD = codes.STLM_DV_CD.filter((e) => ['01', '02', '03'].includes(e.codeId));
+
+const serviceCode = ['71350', '71367', '71359', '71919', '71356', '71355', '71352', '71360', '71917', '71364', '71363', '71918', '71784', '71361', '71937', '71387', '71357', '71366', '71365'];
+const serviceCenterOrgs = await getServiceCenterOrgs();
+const serviceCenter = serviceCenterOrgs.filter((item) => serviceCode.some((code) => code === item.ogCd))
+  .map((p1) => ({ codeId: p1.ogId, codeName: `${p1.ogNm}(${p1.ogCd})` }));
 
 const grdMainRef = ref(getComponentType('KwGrid'));
 
@@ -274,7 +281,7 @@ async function onClickRefundRegP() {
 
   const checkItem = gridUtil.getCheckedRowValues(view);
   if (checkItem.length === 0) return notify(t('MSG_ALT_NO_CHECK_DATA')); // 선택된 데이터가 없습니다.
-  if (Number(checkItem[0].blam) < 1) return notify(t('잔액이 존재하지 않습니다.'));
+  if (Number(checkItem[0].blam) < 1) return notify(t('MSG_ALT_NOT_EXIST', [t('MSG_TXT_BLAM')])); // 잔액이 존재하지 않습니다.
 
   const { result } = await modal({
     component: 'WwwdbServiceRefundRegP',
@@ -306,17 +313,17 @@ async function onClickExcelDownload() {
   });
 }
 
-// 조직 내역 조회
-async function onChangeEngineer() {
-  const res = await dataService.get(
-    '/sms/wells/withdrawal/idvrve/deposit-aggregate-service/center-code',
-    { params: searchParams.value },
-  );
+// // 조직 내역 조회
+// async function onChangeEngineer() {
+//   const res = await dataService.get(
+//     '/sms/wells/withdrawal/idvrve/deposit-aggregate-service/center-code',
+//     { params: searchParams.value },
+//   );
 
-  centerOptions.value = res.data;
-}
+//   centerOptions.value = res.data;
+// }
 
-onChangeEngineer();
+// onChangeEngineer();
 // -------------------------------------------------------------------------------------------------
 // Initialize Grid
 // -------------------------------------------------------------------------------------------------

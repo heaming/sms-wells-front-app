@@ -37,6 +37,7 @@
           />
         </kw-search-item>
         <kw-search-item
+          v-show="searchParams.vocBizTpCd !== '40'"
           :label="t('MSG_TXT_PROS_IPVM_TP')"
         >
           <kw-select
@@ -44,6 +45,17 @@
             :options="commonCodes.IPVM_PROS_TP_CD"
             first-option="all"
             :disable="searchParams.vocBizTpCd !== '20'"
+          />
+        </kw-search-item>
+        <kw-search-item
+          v-show="searchParams.vocBizTpCd === '40'"
+          :label="t('MSG_TXT_MATT_DTL_TP')"
+        >
+          <kw-select
+            v-model="searchParams.mattVocDvTpCd"
+            :options="commonCodes.MATT_VOC_DV_CD"
+            first-option="all"
+            :disable="searchParams.vocBizTpCd !== '40'"
           />
         </kw-search-item>
       </kw-search-row>
@@ -124,6 +136,7 @@ const searchParams = ref({
   ichrDeptId: '',
   vocBizTpCd: '',
   ipvmProsTpCd: '',
+  mattVocDvTpCd: '',
 });
 let cachedParams;
 const pageInfo = ref({
@@ -136,6 +149,7 @@ const codes = [];
 const commonCodes = await codeUtil.getMultiCodes(
   'VOC_BIZ_TP_CD',
   'IPVM_PROS_TP_CD',
+  'MATT_VOC_DV_CD',
   'COD_PAGE_SIZE_OPTIONS',
   'VOC_BIZ_TP_DTL_CD',
 );
@@ -210,6 +224,10 @@ async function onClickSave() {
 watch(() => searchParams.value.vocBizTpCd, async (val) => {
   if (val !== '20') {
     searchParams.value.ipvmProsTpCd = '';
+  }
+
+  if (val !== '40') {
+    searchParams.value.mattVocDvTpCd = '';
   }
 });
 

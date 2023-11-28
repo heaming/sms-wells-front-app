@@ -38,9 +38,7 @@
           <!-- 서비스센터 -->
           <kw-select
             v-model="searchParams.svCnr"
-            :options="svCnrList"
-            option-value="ogId"
-            option-label="ogNm"
+            :options="serviceCenter"
             first-option="all"
           />
           <!-- first-option-value="ALL" -->
@@ -105,12 +103,14 @@
 import { codeUtil, useMeta, defineGrid, useDataService, getComponentType, gridUtil, modal } from 'kw-lib';
 import { cloneDeep } from 'lodash-es';
 import dayjs from 'dayjs';
+import useSnCode from '~sms-wells/service/composables/useSnCode';
 
 const dataService = useDataService();
 const { getConfig } = useMeta();
 const now = dayjs();
 const { t } = useI18n();
 const { currentRoute } = useRouter();
+const { getServiceCenterOrgs } = useSnCode();
 const apiUri = '/sms/wells/withdrawal/idvrve/aggregate-service-centers';
 // -------------------------------------------------------------------------------------------------
 // Function & Event
@@ -120,8 +120,14 @@ const grdMainRef = ref(getComponentType('KwGrid'));
 const codes = await codeUtil.getMultiCodes(
   'COD_PAGE_SIZE_OPTIONS',
 );
-const svCnrList = ref([]);
+
+const serviceCode = ['71350', '71367', '71359', '71919', '71356', '71355', '71352', '71360', '71917', '71364', '71363', '71918', '71784', '71361', '71937', '71387', '71357', '71366', '71365'];
+const serviceCenterOrgs = await getServiceCenterOrgs();
+const serviceCenter = serviceCenterOrgs.filter((item) => serviceCode.some((code) => code === item.ogCd))
+  .map((p1) => ({ codeId: p1.ogId, codeName: `${p1.ogNm}(${p1.ogCd})` }));
+
 let cachedParams;
+// const svCnrList = ref([]);
 
 const searchParams = ref({
   strtSvDt: now.subtract(1, 'month').subtract(-1, 'day').format('YYYYMMDD'), // 서비스일자시작
@@ -192,14 +198,14 @@ async function onClickExcelDownload() {
   });
 }
 
-async function fetchSvCnrList() {
-  return await dataService.get(`${apiUri}/service-center`, { params: cloneDeep(searchParams.value) });
-}
+// async function fetchSvCnrList() {
+//   return await dataService.get(`${apiUri}/service-center`, { params: cloneDeep(searchParams.value) });
+// }
 
-async function getSvCnrList() {
-  const res = await fetchSvCnrList();
-  svCnrList.value = res.data;
-}
+// async function getSvCnrList() {
+//   const res = await fetchSvCnrList();
+//   svCnrList.value = res.data;
+// }
 
 async function onClickSearch() {
   cachedParams = cloneDeep(searchParams.value);
@@ -208,22 +214,22 @@ async function onClickSearch() {
   await fetchData();
 }
 
-onMounted(async () => {
-  await getSvCnrList();
-});
+// onMounted(async () => {
+//   await getSvCnrList();
+// });
 
-let startYm = dayjs(searchParams.value.strtSvDt).format('YYYYMM');
-let endYm = dayjs(searchParams.value.endSvDt).format('YYYYMM');
-watch(() => [searchParams.value.strtSvDt, searchParams.value.endSvDt], (val) => {
-  const chngStartYm = dayjs(val[0]).format('YYYYMM');
-  const chngEndYm = dayjs(val[1]).format('YYYYMM');
+// let startYm = dayjs(searchParams.value.strtSvDt).format('YYYYMM');
+// let endYm = dayjs(searchParams.value.endSvDt).format('YYYYMM');
+// watch(() => [searchParams.value.strtSvDt, searchParams.value.endSvDt], (val) => {
+//   const chngStartYm = dayjs(val[0]).format('YYYYMM');
+//   const chngEndYm = dayjs(val[1]).format('YYYYMM');
 
-  if (startYm !== chngStartYm || endYm !== chngEndYm) {
-    getSvCnrList();
-    startYm = chngStartYm;
-    endYm = chngEndYm;
-  }
-}, { immediate: true });
+//   if (startYm !== chngStartYm || endYm !== chngEndYm) {
+//     getSvCnrList();
+//     startYm = chngStartYm;
+//     endYm = chngEndYm;
+//   }
+// }, { immediate: true });
 // -------------------------------------------------------------------------------------------------
 // Initialize Grid
 // -------------------------------------------------------------------------------------------------

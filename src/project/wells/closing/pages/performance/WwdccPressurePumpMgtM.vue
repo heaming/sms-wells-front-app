@@ -357,6 +357,7 @@ async function onClickSave() {
       istDt: obj.istDt,
       fnlVstFshDt: obj.fnlVstFshDt,
       svBizHclsfCd: obj.svBizHclsfCd,
+      pdctPdCd: obj.pdctPdCd,
     });
   });
 
@@ -418,6 +419,7 @@ const initGridConfirm = defineGrid((data, view) => {
     { fieldName: 'fnlMdfcUsrId' },
     { fieldName: 'adnSvStrtYm' },
     { fieldName: 'istDuedt' },
+    { fieldName: 'pdctPdCd' },
 
   ];
 
@@ -467,6 +469,7 @@ const initGridConfirm = defineGrid((data, view) => {
     { fieldName: 'fnlMdfcUsrId', header: t('MSG_TIT_MDFC_USR'), width: '120', styleName: 'text-left' }, // 수정자
     { fieldName: 'adnSvStrtYm', header: t('MSG_TXT_ADN_SV_STRT_YM'), width: '120', styleName: 'text-center', visible: false }, // 부가서비스시작년월
     { fieldName: 'istDuedt', header: t('MSG_TXT_IST_EXP_DT'), width: '120', styleName: 'text-center', visible: false }, // 설치예정일자
+    { fieldName: 'pdctPdCd', width: '120', styleName: 'text-center', visible: false }, // 제품상품코드
 
   ];
 
