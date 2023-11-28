@@ -298,9 +298,14 @@ async function onClickExcelDownload() {
 // 그리드의 입력된 창고번호로 창고명 조회
 async function findWareNm(strWareNo, itemIndex, grid) {
   if (!isEmpty(strWareNo)) {
-    const res = await dataService.get(`/sms/wells/service/as-consumables-stores/${searchParams.value.strRgstDt}-${strWareNo}/warehouse`);
-    const { strWareNm } = res.data;
-    grid.setValue(itemIndex, 'wareNm', strWareNm);
+    try {
+      const res = await dataService.get(`/sms/wells/service/as-consumables-stores/${searchParams.value.strRgstDt}-${strWareNo}/warehouse`);
+      const { strWareNm } = res.data;
+      grid.setValue(itemIndex, 'wareNm', strWareNm);
+    } catch (e) {
+      grid.setValue(itemIndex, 'strWareNo', '');
+      grid.setValue(itemIndex, 'wareNm', '');
+    }
   } else {
     grid.setValue(itemIndex, 'wareNm', '');
   }
@@ -309,10 +314,16 @@ async function findWareNm(strWareNo, itemIndex, grid) {
 // 그리드의 입력된 SAP코드로 품목코드, 품목명 조회
 async function findPdCdNm(sapCd, itemIndex, grid) {
   if (!isEmpty(sapCd)) {
-    const res = await dataService.get(`/sms/wells/service/as-consumables-stores/${sapCd}/sapcd`);
-    const { itmPdCd, itmPdNm } = res.data;
-    grid.setValue(itemIndex, 'itmPdCd', itmPdCd);
-    grid.setValue(itemIndex, 'itmPdNm', itmPdNm);
+    try {
+      const res = await dataService.get(`/sms/wells/service/as-consumables-stores/${sapCd}/sapcd`);
+      const { itmPdCd, itmPdNm } = res.data;
+      grid.setValue(itemIndex, 'itmPdCd', itmPdCd);
+      grid.setValue(itemIndex, 'itmPdNm', itmPdNm);
+    } catch (e) {
+      grid.setValue(itemIndex, 'sapCd', '');
+      grid.setValue(itemIndex, 'itmPdCd', '');
+      grid.setValue(itemIndex, 'itmPdNm', '');
+    }
   } else {
     grid.setValue(itemIndex, 'itmPdCd', '');
     grid.setValue(itemIndex, 'itmPdNm', '');
@@ -322,10 +333,16 @@ async function findPdCdNm(sapCd, itemIndex, grid) {
 // 그리드의 입력된 품목코드로 sap코드, 품목명조회
 async function findSapCdNm(itmPdCd, itemIndex, grid) {
   if (!isEmpty(itmPdCd)) {
-    const res = await dataService.get(`/sms/wells/service/as-consumables-stores/${itmPdCd}/pdcd`);
-    const { sapCd, itmPdNm } = res.data;
-    grid.setValue(itemIndex, 'sapCd', sapCd);
-    grid.setValue(itemIndex, 'itmPdNm', itmPdNm);
+    try {
+      const res = await dataService.get(`/sms/wells/service/as-consumables-stores/${itmPdCd}/pdcd`);
+      const { sapCd, itmPdNm } = res.data;
+      grid.setValue(itemIndex, 'sapCd', sapCd);
+      grid.setValue(itemIndex, 'itmPdNm', itmPdNm);
+    } catch (e) {
+      grid.setValue(itemIndex, 'itmPdCd', '');
+      grid.setValue(itemIndex, 'sapCd', '');
+      grid.setValue(itemIndex, 'itmPdNm', '');
+    }
   } else {
     grid.setValue(itemIndex, 'sapCd', '');
     grid.setValue(itemIndex, 'itmPdNm', '');
