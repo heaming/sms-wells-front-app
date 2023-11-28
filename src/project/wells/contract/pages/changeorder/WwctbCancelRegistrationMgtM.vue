@@ -212,7 +212,7 @@
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
-import { getComponentType, gridUtil, stringUtil, useDataService, useGlobal, useMeta } from 'kw-lib';
+import { getComponentType, gridUtil, stringUtil, useDataService, useGlobal } from 'kw-lib';
 import { cloneDeep, isEmpty } from 'lodash-es';
 import { openReportPopup } from '~common/utils/cmPopupUtil';
 import dayjs from 'dayjs';
@@ -226,8 +226,6 @@ import WwctbMembershipCancelRegistrationMgtM from './WwctbMembershipCancelRegist
 const { t } = useI18n();
 const { alert, confirm, modal, notify } = useGlobal();
 const dataService = useDataService();
-const { getUserInfo } = useMeta();
-const sessionUserInfo = getUserInfo();
 const grdMain = ref(getComponentType('KwGrid'));
 const grdMainView = computed(() => grdMain.value?.getView());
 const now = dayjs();
@@ -610,12 +608,10 @@ async function onSearchDetail(subParam) {
       const resOne = res.data.filter((v) => (v.cntrNo === one.cntrNo && v.cntrSn === one.cntrSn));
 
       resOne[0].isSearch = 'Y';
-      resOne[0].slCtrRqrId = sessionUserInfo.employeeIDNumber;
       calTotRfndAmt(cancelDetailList.value[idx.value], one, resOne[0]); // 환불총액 재계산
 
       // 취소 조회 결과 셋팅
       Object.assign(one, resOne[0]);
-      console.log(one.reqdCsBorAmt2);
     });
 
     // 나머지 배열에 입력값 동일화
@@ -624,7 +620,6 @@ async function onSearchDetail(subParam) {
     const resOne = res.data[0];
 
     resOne.isSearch = 'Y';
-    resOne.slCtrRqrId = sessionUserInfo.employeeIDNumber;
     calTotRfndAmt(cancelDetailList.value[idx.value], cancelDetailList.value[idx.value], resOne);
 
     Object.assign(cancelDetailList.value[idx.value], resOne);
