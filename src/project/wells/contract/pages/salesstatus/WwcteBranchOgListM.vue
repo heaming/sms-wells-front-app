@@ -126,7 +126,10 @@
         />
       </kw-action-top>
       <kw-grid
-        :visible-rows="4"
+        ref="grdMainRef"
+        view-classification
+        :page-size="pageInfo.pageSize"
+        :total-count="pageInfo.totalCount"
         @init="initGrid"
       />
     </div>
@@ -340,7 +343,7 @@ async function fetchData() {
 }
 
 async function onClickSearch() {
-  // grdMainRef.value.getData().clearRows();
+  grdMainRef.value.getData().clearRows();
   pageInfo.value.pageIndex = 1;
   cachedParams = cloneDeep(fieldParams.value);
 
@@ -353,7 +356,7 @@ async function onClickReset() {
 }
 
 async function onClickExcelDownload() {
-  const view = defineGrid.value.getView();
+  const view = grdMainRef.value.getView();
   const res = await dataService.get('/sms/wells/contract/contracts/branch-organization-performance-list/excel-download', { params: cachedParams });
   await gridUtil.exportView(view, {
     fileName: currentRoute.value.meta.menuName,
