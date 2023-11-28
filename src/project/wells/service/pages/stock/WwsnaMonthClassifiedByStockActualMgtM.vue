@@ -548,7 +548,7 @@ const initGrdMain = defineGrid((data, view) => {
     { fieldName: 'acinspRmkCn',
       header: t('MSG_TXT_NOTE'),
       width: '150',
-      styleName: 'text-right',
+      styleName: 'text-left',
       editable: true,
       editor: {
         maxLength: 4000 },
