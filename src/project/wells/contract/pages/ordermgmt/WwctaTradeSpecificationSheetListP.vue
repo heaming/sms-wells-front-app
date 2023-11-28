@@ -405,6 +405,7 @@ async function fetchTrdSpcData() {
     return;
   }
 
+  grdRef.value.getData().clearRows();
   const view = grdRef.value.getView();
   const { list: pages, pageInfo: pagingResult } = res.data;
   ozParamsList.value = pages;
