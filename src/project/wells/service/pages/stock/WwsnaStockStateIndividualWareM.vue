@@ -56,6 +56,7 @@
           <kw-select
             v-model="searchParams.itmKndCd"
             :options="codes.ITM_KND_CD"
+            first-option="all"
           />
         </kw-search-item>
       </kw-search-row>
@@ -198,7 +199,7 @@ const searchParams = ref({
   useYn: '', // 사용여부
   wareUseYn: '', // 창고사용여부
   stndUnuseYn: '', // 표준미사용여부
-  itmKndCd: '4', // 품목구분 - 디폴트 4 상품
+  itmKndCd: '', // 품목구분 - 디폴트 4 상품
 });
 
 let gridView;
@@ -348,7 +349,6 @@ async function onClickExcelDownload() {
 
 onMounted(async () => {
   // 품목구분 : 상품 기본설정(4)
-  searchParams.value.itmKndCd = '4';
   searchParams.value.itmGdCd = 'A';
   searchParams.value.baseYm = searchParams.value.stockDt.substring(0, 6);
   searchParams.value.stndUnuseYn = 'Y';
