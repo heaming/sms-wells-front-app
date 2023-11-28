@@ -135,6 +135,7 @@ const { t } = useI18n();
 const now = dayjs();
 const { currentRoute } = useRouter();
 const dataService = useDataService();
+const router = useRouter();
 
 // -------------------------------------------------------------------------------------------------
 // Function & Event
@@ -185,20 +186,23 @@ const selectedProductByPdGrpCd = ref([]);
 
 async function getProductList() {
   cachedParams = cloneDeep(searchParams);
-  const response = await dataService.get('/sms/wells/service/product-list/by-itmkndcd', { params: { itmKndCd: searchParams.value.itmKndCd } });
+  const response = await dataService.get('/sms/wells/service/product-list/by-itmkndcd', { params: { itmKndCd: '4' } });
   products.value = response.data;
 }
 
-onBeforeMount(async () => {
-  searchParams.value.itmKndCd = '4';
-});
+// onBeforeMount(async () => {
+//   searchParams.value.itmKndCd = '4';
+// });
 
-onMounted(async () => {
-  await getProductList();
-  selectedProductByPdGrpCd.value = cloneDeep(products.value);
-  selectedProductByPdGrpCd.value = selectedProductByPdGrpCd.value.map((v) => ({ codeId: v.codeId, codeName: `${v.codeId} - ${v.codeName}` }));
-  // console.log(selectedProductByItmKnd.value);
-});
+// onMounted(async () => {
+//   await getProductList();
+//   // selectedProductByPdGrpCd.value = cloneDeep(products.value);
+//   // eslint-disable-next-line max-len
+// eslint-disable-next-line max-len
+//   // selectedProductByPdGrpCd.value = selectedProductByPdGrpCd.value.map((v) => ({ codeId: v.codeId, codeName: `${v.codeId} - ${v.codeName}` }));
+//   // console.log(selectedProductByItmKnd.value);
+// });
+await getProductList();
 
 const onChangePdGrpCd = (val) => {
   if (val.length < 1) {
@@ -219,7 +223,7 @@ async function fetchData() {
   view.getDataSource().setRows(state);
   console.log(state);
   view.resetCurrent();
-  await gridUtil.reset(view);
+  // await gridUtil.reset(view);
 }
 
 /*
@@ -252,9 +256,9 @@ const initGrid = defineGrid((data, view) => {
     {
       fieldName: 'cntrNoSn',
       header: t('MSG_TXT_CNTR_DTL_NO'),
+      width: '160',
       styleName: 'text-center',
-      width: '150',
-
+      renderer: { type: 'button', hideWhenEmpty: false },
       displayCallback(grid, index) {
         const { cntrNo, cntrSn } = grid.getValues(index.itemIndex);
         if (!isEmpty(cntrNo)) {
@@ -326,6 +330,20 @@ const initGrid = defineGrid((data, view) => {
   view.checkBar.visible = false;
   view.rowIndicator.visible = true;
   view.filteringOptions.enabled = false;
+
+  view.onCellItemClicked = async (grid, { column, dataRow }) => {
+    const { cntrNo, cntrSn } = gridUtil.getRowValue(grid, dataRow);
+
+    if (column === 'cntrNoSn') {
+      router.push({
+        path: '/service/wwsnb-individual-service-list',
+        query: {
+          cntrNo,
+          cntrSn,
+        },
+      });
+    }
+  };
 });
 
 </script>
