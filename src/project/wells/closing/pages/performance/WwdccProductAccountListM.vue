@@ -75,7 +75,6 @@
             v-model="searchParams.inqrDv"
             type="radio"
             :options="selectInqrDv.options"
-            @change="onSelectInqrDv"
           />
         </kw-search-item>
         <kw-search-item :label="$t('MSG_TXT_OG_TP')">
@@ -121,8 +120,19 @@
         />
         <kw-btn
           v-permission:download
+          :label="$t('MSG_BTN_FILE_SAVE')"
+          secondary
+          dense
+          @click="onClickDetailFileSave"
+        />
+        <kw-separator
+          vertical
+          inset
+          spaced
+        />
+        <kw-btn
+          v-permission:download
           :label="$t('MSG_BTN_DTL_IZ_DLD')"
-          :disable="totalCount === 0"
           secondary
           dense
           @click="onClickDetailExportView"
@@ -156,7 +166,7 @@
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
-import { codeUtil, gridUtil, defineGrid, getComponentType, useDataService } from 'kw-lib';
+import { codeUtil, gridUtil, defineGrid, getComponentType, useDataService, useGlobal, fileUtil } from 'kw-lib';
 import { cloneDeep, isEmpty } from 'lodash-es';
 import dayjs from 'dayjs';
 import ZwpdProductClassificationSelect from '~sms-common/product/pages/standard/components/ZwpdProductClassificationSelect.vue';
@@ -165,6 +175,7 @@ const now = dayjs();
 const { t } = useI18n();
 const dataService = useDataService();
 const { currentRoute } = useRouter();
+const { notify, ok } = useGlobal();
 
 // -------------------------------------------------------------------------------------------------
 // Function & Event
@@ -237,15 +248,21 @@ async function onClickExportView() {
   });
 }
 
+let jobId;
+// 상세내역 파일 생성
+async function onClickDetailFileSave() {
+  console.log('searchParams:', searchParams.value);
+  const response = await dataService.post('/sms/wells/closing/product-account/make-file', searchParams.value, { timeout: 500000 });
+  ok(true);
+  jobId.value = response.data;
+  if (!isEmpty(response.data)) notify(t('MSG_ALT_CREATE')); // 생성되었습니다.
+  // else if (response.data === 'Ended Not OK') notify(t('MSG_ALT_CRT_FAIL')); // 생성에 실패 하였습니다.
+}
+
 // 상세내역 다운로드
 async function onClickDetailExportView() {
-  const view = grdExcelRef.value.getView();
-  gridUtil.exportBulkView(view, {
-    url: '/sms/wells/closing/product-account/bulk-excel-download', // url 지정
-    parameter: { // 검색 조건을 그대로 넣어준다. 없을 경우 추가하지 않아도 됨
-      ...cachedParams, timeout: 1000000,
-    },
-  });
+  const res = await dataService.post('/sms/wells/closing/product-account/download', { responseType: 'blob' });
+  fileUtil.downloadBlob(res.data, currentRoute.value.meta.menuName);
 }
 
 watch(() => searchParams.value.sellTpCd, async (val) => {
