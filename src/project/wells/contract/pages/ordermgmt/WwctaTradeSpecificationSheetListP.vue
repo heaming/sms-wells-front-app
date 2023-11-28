@@ -90,7 +90,7 @@
         dense
         secondary
         :label="$t('MSG_BTN_EMAIL_SEND')"
-        :disable="searchParams.cntrDvCd === '1' || (searchParams.cntrDvCd === '2' && pageInfo.totalCount1 === 0)"
+        :disable="searchParams.cntrDvCd === '2' && pageInfo.totalCount1 === 0"
         @click="onClickEmailSend"
       />
       <kw-separator
@@ -256,6 +256,7 @@ const checkOption = ref([
   { codeId: '2', codeName: `${t('MSG_TXT_CST_NO')}(${props.cntrCstNo})` }, // 고객번호
 ]);
 
+// 증빙서류 종류 변경 이벤트 호출
 async function onChangeDocDvCd() {
   if (searchParams.value.docDvCd === '1') { // 입금내역서
     grdRef = grdDepositItemizationSheet;
@@ -292,27 +293,18 @@ async function onChangeDocDvCd() {
     // eslint-disable-next-line no-use-before-define
     await fetchTrdSpcData(); // 증빙서류 종류
   } else if (searchParams.value.cntrDvCd === '2') { // 고객번호
-    pageInfo.value.totalCount2 = 0;
-
-    grdContracts.value.getData().clearRows();
-    if (grdContracts.value?.getView()) gridUtil.reset(grdContracts.value.getView());
-
-    pageInfo.value.pageIndex = 1;
-    pageInfo.value.totalCount = 0;
-    pageInfoContracts.value.pageIndex = 1;
-    pageInfoContracts.value.totalCount = 0;
-
-    // eslint-disable-next-line no-use-before-define
-    await fetchCtnrLstData(isOnly); // 계약목록
+    searchParams.value.cntrDvCd = '1'; // 계약번호
+    pageInfo.value.totalCount1 = 0;
   }
 }
 
+// 고객번호 변경 이벤트 호출
 async function onChangeCntrDvCd() {
   if (searchParams.value.cntrDvCd === '1') { // 계약번호
     isGrdContractsVisible.value = false;
     isSearchDivVisible.value = false;
 
-    grdRef.value.getData().clearRows();
+    // grdRef.value.getData().clearRows();
     pageInfo.value.pageIndex = 1;
     pageInfo.value.totalCount = 0;
     // pageInfo.value.totalCount1 = pageInfo.value.totalCount;
@@ -468,23 +460,52 @@ async function onClickSearch() {
 
 // 메일발송
 async function onClickEmailSend() {
+  let view;
+
   if (searchParams.value.cntrDvCd === '1') {
-    return;
+    if (searchParams.value.docDvCd === '1') {
+      view = grdDepositItemizationSheet.value.getView();
+    } else if (searchParams.value.docDvCd === '2') {
+      view = grdTradeSpecificationSheet.value.getView();
+    } else if (searchParams.value.docDvCd === '3') {
+      view = grdCardSalesSlipSheet.value.getView();
+    } else if (searchParams.value.docDvCd === '4') {
+      view = grdContractArticlesSheet.value.getView();
+    }
+  } else if (searchParams.value.cntrDvCd === '2') {
+    view = grdContracts.value.getView();
   }
 
-  const view = grdContracts.value.getView();
+  const count = view.getItemCount(view);
   const checkedItems = view.getCheckedItems();
   const cntrList = [];
 
-  if (checkedItems.length === 0) {
-    notify(t('MSG_ALT_BEFORE_SELECT_IT', [t('MSG_TXT_ITEM')]));
+  if (searchParams.value.cntrDvCd === '2' && count === 0) {
+    notify(t('MSG_ALT_NO_PRINT_LIST')); // 출력 내역이 없습니다.
+    return;
+  }
+
+  if (searchParams.value.cntrDvCd === '2' && checkedItems.length === 0) {
+    notify(t('MSG_ALT_BEFORE_SELECT_IT', [t('MSG_TXT_ITEM')])); // 항목 (을)를 선택해주세요
   } else {
-    const cntrs = gridUtil.getCheckedRowValues(view);
-    cntrs.forEach((row) => {
-      cntrList.push({
-        cntrNoFull: row.cntrDtlNo,
-      });
-    });
+    switch (searchParams.value.cntrDvCd) { // 계약/고객번호 구분
+      case '1': // 계약상세번호
+        cntrList.push({
+          cntrNoFull: ozParamsList.value[0].cntrDtlNo,
+        });
+        break;
+      case '2': // 고객번호
+        // eslint-disable-next-line no-case-declarations
+        const cntrs = gridUtil.getCheckedRowValues(view);
+        cntrs.forEach((row) => {
+          cntrList.push({
+            cntrNoFull: row.cntrDtlNo,
+          });
+        });
+        break;
+      default:
+        break;
+    }
 
     const searchPopupParams = {
       docDvCd: searchParams.value.docDvCd, // 증빙서류종류
@@ -610,7 +631,7 @@ async function onClickPblPrnt() {
 
         // OZ 리포트 호출 Api 설정
         // eslint-disable-next-line no-case-declarations
-        const args1 = { searchApiUrl: '/api/v1/sms/wells/contract/contracts/order-details/specification/deposit-itemizations/oz', ...cachedParams, cntrDtlNoList };
+        const args1 = { searchApiUrl: '/api/v1/sms/wells/contract/contracts/order-details/specification/deposit-itemizations/anonymous/oz', ...cachedParams, cntrDtlNoList };
         // console.log(args1);
 
         // OZ 레포트 팝업호출
@@ -631,7 +652,7 @@ async function onClickPblPrnt() {
 
         // OZ 리포트 호출 Api 설정
         // eslint-disable-next-line no-case-declarations
-        const args2 = { searchApiUrl: '/api/v1/sms/wells/contract/contracts/order-details/specification/trade-specification/oz', ...cachedParams, cntrDtlNoList };
+        const args2 = { searchApiUrl: '/api/v1/sms/wells/contract/contracts/order-details/specification/trade-specification/anonymous/oz', ...cachedParams, cntrDtlNoList };
         // console.log(args2);
 
         // OZ 레포트 팝업호출
@@ -647,7 +668,7 @@ async function onClickPblPrnt() {
 
         // OZ 리포트 호출 Api 설정
         // eslint-disable-next-line no-case-declarations
-        const args3 = { searchApiUrl: '/api/v1/sms/wells/contract/contracts/order-details/specification/card-sales-slips/oz', ...cachedParams, cntrDtlNoList };
+        const args3 = { searchApiUrl: '/api/v1/sms/wells/contract/contracts/order-details/specification/card-sales-slips/anonymous/oz', ...cachedParams, cntrDtlNoList };
         // console.log(args3);
 
         // OZ 레포트 팝업호출
@@ -663,7 +684,7 @@ async function onClickPblPrnt() {
 
         // OZ 리포트 호출 Api 설정
         // eslint-disable-next-line no-case-declarations
-        const args4 = { searchApiUrl: '/api/v1/sms/wells/contract/contracts/order-details/specification/contract-articles/oz', ...cachedParams, cntrDtlNoList };
+        const args4 = { searchApiUrl: '/api/v1/sms/wells/contract/contracts/order-details/specification/contract-articles/anonymous/oz', ...cachedParams, cntrDtlNoList };
         // console.log(args4);
 
         // OZ 레포트 팝업호출
