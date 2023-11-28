@@ -31,6 +31,7 @@
             option-label="ogNm"
             option-value="ogId"
             class="w180"
+            :readonly="isOutsourcing()"
             @update:model-value="onUpdateSvcCode"
           />
         </kw-search-item>
@@ -80,10 +81,20 @@
             first-option="all"
           />
         </kw-search-item>
-        <kw-search-item
+        <!-- <kw-search-item
           :label="$t('MSG_TXT_ASN_DT')"
           :colspan="2"
+        > -->
+        <kw-search-item
+          :label="$t('MSG_TXT_INQR_BASE')"
+          :colspan="2"
         >
+          <kw-select
+            v-model="searchParams.inquiryBase"
+            :options="customCodes.inquiryBases"
+            :disable="searchParams.cfrmOnlyYn === 'Y'"
+            class="w120"
+          />
           <kw-date-range-picker
             v-model:from="searchParams.baseDateFrom"
             v-model:to="searchParams.baseDateTo"
@@ -93,7 +104,7 @@
       </kw-search-row>
 
       <kw-search-row>
-        <kw-search-item
+        <!-- <kw-search-item
           :label="$t('MSG_TXT_VST_CNFM_DT')"
           :colspan="2"
         >
@@ -110,7 +121,7 @@
               />
             </template>
           </kw-field>
-        </kw-search-item>
+        </kw-search-item> -->
 
         <kw-search-item
           :label="$t('MSG_TXT_SEL_TYPE')"
@@ -153,6 +164,7 @@
           dense
           secondary
           :label="t('MSG_BTN_PRTG')"
+          :disable="pageInfo.totalCount === 0"
           @click="onClickPrintEl"
         />
         <kw-btn
@@ -160,6 +172,7 @@
           dense
           secondary
           :label="$t('MSG_BTN_EXCEL_DOWN')"
+          :disable="pageInfo.totalCount === 0"
           @click="onClickExcelDownload"
         />
         <kw-separator
@@ -171,6 +184,7 @@
           secondary
           dense
           :label="$t('MSG_BTN_INSTL') + $t('MSG_BTN_PRINT_LABEL')"
+          :disable="pageInfo.totalCount === 0"
           @click="onClickLabelPrint"
         />
       </kw-action-top>
@@ -207,14 +221,38 @@ const now = dayjs();
 const { t } = useI18n();
 const router = useRouter();
 const { currentRoute } = useRouter();
+const { getters } = useStore();
 // -------------------------------------------------------------------------------------------------
 // Function & Event
 // -------------------------------------------------------------------------------------------------
 const codes = await codeUtil.getMultiCodes(
   'COD_PAGE_SIZE_OPTIONS',
 );
+const searchParams = ref({
+  ogId: '',
+  engId: '',
+  rgsnYn: 'Y',
+  svDvCd: '',
+  prgsDvCd: '',
+  baseDateFrom: `${now.format('YYYYMM')}01`,
+  baseDateTo: now.format('YYYYMMDD'),
+  // vstCfrmDt: '',
+  // cfrmOnlyYn: 'N',
+  sellTpCd: '',
+  istConfCd: '',
+  inquiryBase: '2',
+});
 
-const svcCode = (await dataService.get('/sms/wells/service/organizations/service-center', { params: { authYn: 'Y' } })).data;
+const { loginId, ogId } = getters['meta/getUserInfo'];
+function isOutsourcing() {
+  if (loginId.substring(0, 1) === '9') {
+    searchParams.value.ogId = ogId;
+    return true;
+  }
+  return false;
+}
+// searchParams.value.ogId = baseRleCd;
+const svcCode = (await dataService.get('/sms/wells/service/organizations/service-center', { params: { authYn: isOutsourcing() ? 'Y' : 'N' } })).data;
 const engineers = ref([]);
 
 const pageInfo = ref({
@@ -243,27 +281,19 @@ const customCodes = {
     { codeId: '1', codeName: '확인' },
     { codeId: '2', codeName: '미확인' },
   ],
+  inquiryBases: [
+    { codeId: '1', codeName: '접수일자' },
+    { codeId: '2', codeName: '처리일자' },
+    { codeId: '3', codeName: '방문확정일' },
+    { codeId: '4', codeName: '예정일자' },
+  ],
 };
-
-const searchParams = ref({
-  ogId: '',
-  engId: '',
-  rgsnYn: 'Y',
-  svDvCd: '',
-  prgsDvCd: '',
-  baseDateFrom: `${now.format('YYYYMM')}01`,
-  baseDateTo: now.format('YYYYMMDD'),
-  vstCfrmDt: '',
-  cfrmOnlyYn: 'N',
-  sellTpCd: '',
-  istConfCd: '',
-});
 
 async function setEngineers() {
   if (searchParams.value.ogId === '') {
     engineers.value = [];
   } else {
-    const eng = (await dataService.get('/sms/wells/service/organizations/engineer', { params: { dgr1LevlOgId: searchParams.value.ogId, authYn: 'Y' } })).data;
+    const eng = (await dataService.get('/sms/wells/service/organizations/engineer', { params: { dgr1LevlOgId: searchParams.value.ogId, authYn: isOutsourcing() ? 'Y' : 'N' } })).data;
     if (searchParams.value.rgsnYn === 'Y') {
       const wrkEngByOdId = eng.filter((v) => v.cltnDt === null || v.cltnDt === '');
       engineers.value = wrkEngByOdId.map((v) => ({ codeId: v.prtnrNo, codeName: v.prtnrNm }));
@@ -344,10 +374,10 @@ function getPhoneNo(locaraTno, exnoEncr, idvTno) {
   return `${locaraTno}-${exnoEncr}-${idvTno}`;
 }
 
-function getCntrNo(cntrNo, cntrSn) {
-  if (isEmpty(cntrNo) || isEmpty(cntrSn)) return '';
-  return `${cntrNo}-${cntrSn}`;
-}
+// function getCntrNo(cntrNo, cntrSn) {
+//   if (isEmpty(cntrNo) || isEmpty(cntrSn)) return '';
+//   return `${cntrNo}-${cntrSn}`;
+// }
 // -------------------------------------------------------------------------------------------------
 // Initialize Grid
 // -------------------------------------------------------------------------------------------------
@@ -368,6 +398,7 @@ function initGrid(data, view) {
     { fieldName: 'mexnoEncr' },
     { fieldName: 'cralIdvTno' },
     { fieldName: 'cntrDt' },
+    { fieldName: 'cntrCnfmAprDtm' },
     { fieldName: 'sapMatCd' },
     { fieldName: 'pdctPdCd' },
     { fieldName: 'pdNm' },
@@ -402,7 +433,8 @@ function initGrid(data, view) {
 
   const columns = [
     { fieldName: 'cntrNo',
-      header: t('MSG_TXT_CNTR_NO'),
+      // header: t('MSG_TXT_CNTR_NO'),
+      header: t('MSG_TXT_CNTR_DTL_NO'), // 계약상세번호
       width: '150',
       styleName: 'text-center rg-button-link',
       renderer: {
@@ -410,7 +442,9 @@ function initGrid(data, view) {
       },
       displayCallback: (grid, index) => {
         const { cntrNo, cntrSn } = grid.getValues(index.dataRow);
-        return getCntrNo(cntrNo, cntrSn);
+        // console.log('cntrSn >>', cntrSn);
+        // return getCntrNo(cntrNo, cntrSn);
+        return `${cntrNo}-${cntrSn}`;
       } },
     { fieldName: 'sellTp', header: t('MSG_TXT_SEL_TYPE'), width: '100', styleName: 'text-center' },
     { fieldName: 'istllKnm', header: t('MSG_TXT_CST_NM'), width: '100', styleName: 'text-center' },
@@ -432,7 +466,8 @@ function initGrid(data, view) {
         const { cralLocaraTno, mexnoEncr, cralIdvTno } = grid.getValues(index.dataRow);
         return getPhoneNo(cralLocaraTno, mexnoEncr, cralIdvTno);
       } },
-    { fieldName: 'cntrDt', header: t('MSG_TXT_CNTR_DATE'), width: '100', styleName: 'text-center' },
+    { fieldName: 'cntrDt', header: t('MSG_TXT_CNTR_DATE'), width: '100', styleName: 'text-center' }, // 방문예정일
+    { fieldName: 'cntrCnfmAprDtm', header: t('MSG_TXT_CTT_DT'), width: '100', styleName: 'text-center' }, // 컨택일자
     { fieldName: 'sapMatCd', header: t('MSG_TXT_SAPCD'), width: '180', styleName: 'text-center' },
     { fieldName: 'pdctPdCd', header: t('MSG_TXT_ITM_CD'), width: '120', styleName: 'text-center' },
     { fieldName: 'pdNm', header: t('MSG_TXT_PRDT_NM'), width: '200', styleName: 'text-left' },
@@ -465,53 +500,76 @@ function initGrid(data, view) {
 
   data.setFields(fields);
   view.setColumns(columns);
-  view.setColumnLayout([
-    'cntrNo',
-    'sellTp',
-    'istllKnm',
-    'cstGd',
-    'svTp',
-    'wkPrgsStat',
-    'tellNo',
-    'phoneNo',
-    'cntrDt',
-    'sapMatCd',
-    'pdctPdCd',
-    'pdNm',
-    'fgptNm',
-    'alncmpCd',
-    'pdUswyCd',
-    'newAdrZip',
-    'adrDtl',
-    'cnslMoCn',
-    'svBizDclsf',
-    'asRefriDvCd',
-    'bsRefriDvCd',
-    'istDt',
-    'expireDt',
-    'egerAsnDt',
-    'vstDt',
-    'dtChange',
-    'cfrmDt',
-    'dtmChRsonCd',
-    'dtmChRsonDtlCn',
-    'prtnrNm',
-  ]);
+  view.setFixedOptions({ colCount: 3, resizable: true });
+  // view.setColumnLayout([
+  //   'cntrNo',
+  //   'sellTp',
+  //   'istllKnm',
+  //   'cstGd',
+  //   'svTp',
+  //   'wkPrgsStat',
+  //   'tellNo',
+  //   'phoneNo',
+  //   'cntrDt',
+  //   'sapMatCd',
+  //   'pdctPdCd',
+  //   'pdNm',
+  //   'fgptNm',
+  //   'alncmpCd',
+  //   'pdUswyCd',
+  //   'newAdrZip',
+  //   'adrDtl',
+  //   'cnslMoCn',
+  //   'svBizDclsf',
+  //   'asRefriDvCd',
+  //   'bsRefriDvCd',
+  //   'istDt',
+  //   'expireDt',
+  //   'egerAsnDt',
+  //   'vstDt',
+  //   'dtChange',
+  //   'cfrmDt',
+  //   'dtmChRsonCd',
+  //   'dtmChRsonDtlCn',
+  //   'prtnrNm',
+  // ]);
   view.checkBar.visible = false; // create checkbox column
   view.rowIndicator.visible = true; // create number indicator column
 
   view.onCellItemClicked = async (g, { column, itemIndex }) => {
     if (column === 'cntrNo') {
-      const cntrNo = g.getValue(itemIndex, 'cntrNo');
-      const cntrSn = g.getValue(itemIndex, 'cntrSn');
+      if (isOutsourcing) {
+        const cntrNo = g.getValue(itemIndex, 'cntrNo');
+        const cntrSn = g.getValue(itemIndex, 'cntrSn');
+        const cstSvAsnNo = g.getValue(itemIndex, 'cstSvAsnNo');
+        let gubun = '';
+        if (g.getValue(itemIndex, 'wkPrgsStatCd') === '20') {
+          gubun = 'AD';
+        } else {
+          gubun = 'AY';
+        }
 
-      router.push({
-        path: '/service/wwsnb-individual-service-list',
-        query: {
-          cntrNo,
-          cntrSn,
-        },
-      });
+        router.push({
+          path: '/service/wwsnb-individual-service-list',
+          query: {
+            cntrNo,
+            cntrSn,
+            cstSvAsnNo,
+            gubun,
+          },
+        });
+      } else {
+        const cntrNo = g.getValue(itemIndex, 'cntrNo');
+        const cntrSn = g.getValue(itemIndex, 'cntrSn');
+
+        router.push({
+          path: '/service/wwsnb-individual-service-list',
+          query: {
+            cntrNo,
+            cntrSn,
+          },
+        });
+      }
     }
 
     if (column === 'wkPrgsStat') {

@@ -214,6 +214,7 @@ const configGrid = async (config) => {
     { fieldName: 'prtnrNo' },
     { fieldName: 'prtnrKnm' },
     { fieldName: 'evlDvCd' },
+    { fieldName: 'evlRfltDtm' },
   ];
 
   const columns = [
@@ -221,6 +222,7 @@ const configGrid = async (config) => {
     { fieldName: 'ogNm', header: '소속', width: '100', styleName: 'text-center', editable: false },
     { fieldName: 'prtnrNo', header: '번호', width: '100', styleName: 'text-center', editable: false },
     { fieldName: 'prtnrKnm', header: '성명', width: '100', styleName: 'text-center', editable: false },
+    { fieldName: 'evlRfltDtm', header: '반영일시', width: '100', styleName: 'text-center', editable: false, datetimeFormat: 'datetime' },
   ];
 
   config.forEach((k) => {
@@ -237,7 +239,7 @@ const configGrid = async (config) => {
   data.setFields(fields);
   view.setColumns(columns);
 
-  const header = ['ogNm', 'prtnrNo', 'prtnrKnm'];
+  const header = ['ogNm', 'prtnrNo', 'prtnrKnm', 'evlRfltDtm'];
 
   config.forEach((k) => {
     if (k.dvCd === '3' && k.num === 1) {

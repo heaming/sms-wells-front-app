@@ -194,6 +194,9 @@ const onClickEvlSave = async () => {
   if (await gridUtil.alertIfIsNotModified(view)) { return; }
   if (!await gridUtil.validate(view)) { return; }
   const changedRows = gridUtil.getChangedRowValues(view);
+  changedRows.forEach((obj) => {
+    obj.rsbDvCdList = obj.rsbDvCds.split(',');
+  });
   await dataService.post('/sms/wells/competence/excellent-division-base/evaluation', changedRows);
   notify(t('MSG_ALT_SAVE_DATA'));
   await evlFetchData();

@@ -71,6 +71,13 @@
         dense
         @click="onClickTrgSave"
       />
+      <kw-btn
+        primary
+        dense
+        :label="$t('MSG_TXT_CL_TI')"
+        class="mr8"
+        @click="onClickclosingTimePop"
+      />
     </kw-action-top>
     <kw-grid
       ref="trgGrdMainRef"
@@ -93,7 +100,7 @@
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
-import { useGlobal, useDataService, getComponentType, codeUtil, useMeta, defineGrid, gridUtil } from 'kw-lib';
+import { useGlobal, useDataService, getComponentType, codeUtil, useMeta, defineGrid, gridUtil, modal } from 'kw-lib';
 import dayjs from 'dayjs';
 import { cloneDeep } from 'lodash-es';
 
@@ -155,6 +162,12 @@ const onClickTrgSave = async () => {
 
   notify(t('MSG_ALT_SAVE_DATA'));
   await fetchData();
+};
+
+const onClickclosingTimePop = async () => {
+  await modal({
+    component: 'WwpsdExcellentDivClHhMgtP',
+  });
 };
 
 const evaluateResponsibilityCdChang = async () => {
