@@ -28,8 +28,8 @@
           required
         >
           <kw-date-range-picker
-            v-model:from="fieldParams.perfStrtDt"
-            v-model:to="fieldParams.perfEndDt"
+            v-model:from="fieldParams.perStrDt"
+            v-model:to="fieldParams.perEndDt"
             :label="$t('MSG_TXT_PERF_PRD')"
             rules="date_range_required"
             @change="onChangePerfDt"
@@ -153,8 +153,8 @@ const grdMainRef = ref(getComponentType('KwGrid'));
 let cachedParams;
 const now = dayjs();
 const fieldParams = ref({
-  perfStrtDt: now.startOf('month').format('YYYYMMDD'), // 실적기간-시작일자
-  perfEndDt: now.format('YYYYMMDD'), // 실적기간-종료일자
+  perStrDt: now.startOf('month').format('YYYYMMDD'), // 실적기간-시작일자
+  perEndDt: now.format('YYYYMMDD'), // 실적기간-종료일자
   perfDv: 'T', // 실적구분 (default : 총주문)
   mngerOgAgrgTpCd: '04', // 소속구분
   dgr1LevlOgId: '', // 조직코드-총괄단
@@ -340,7 +340,7 @@ async function fetchData() {
 }
 
 async function onClickSearch() {
-  grdMainRef.value.getData().clearRows();
+  // grdMainRef.value.getData().clearRows();
   pageInfo.value.pageIndex = 1;
   cachedParams = cloneDeep(fieldParams.value);
 
@@ -353,7 +353,7 @@ async function onClickReset() {
 }
 
 async function onClickExcelDownload() {
-  const view = grdMainRef.value.getView();
+  const view = defineGrid.value.getView();
   const res = await dataService.get('/sms/wells/contract/contracts/branch-organization-performance-list/excel-download', { params: cachedParams });
   await gridUtil.exportView(view, {
     fileName: currentRoute.value.meta.menuName,
