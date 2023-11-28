@@ -505,12 +505,14 @@
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
-import { codeUtil, getComponentType, stringUtil, useGlobal } from 'kw-lib';
+import { codeUtil, getComponentType, stringUtil, useGlobal, useMeta } from 'kw-lib';
 import { isEmpty } from 'lodash';
 
 const { t } = useI18n();
-const frmMainRegularSp = ref(getComponentType('KwForm'));
 const { modal, notify } = useGlobal();
+const { getUserInfo } = useMeta();
+const sessionUserInfo = getUserInfo();
+const frmMainRegularSp = ref(getComponentType('KwForm'));
 
 const codes = await codeUtil.getMultiCodes(
   'CCAM_EXMPT_DV_CD', // 위약금면책구분코드
@@ -539,6 +541,8 @@ const isReSearch = ref('N');
 
 codes.CCAM_EXMPT_DV_CD.forEach((e) => { e.codeName = `(${e.codeId})${e.codeName}`; });
 codes.RGLR_SPP_STAT_CH_RSON_CD.forEach((e) => { e.codeName = `(${e.codeId})${e.codeName}`; });
+
+searchDetail.slCtrRqrId = searchDetail.slCtrRqrId ?? sessionUserInfo.employeeIDNumber;
 // -------------------------------------------------------------------------------------------------
 // Function & Event
 // -------------------------------------------------------------------------------------------------
