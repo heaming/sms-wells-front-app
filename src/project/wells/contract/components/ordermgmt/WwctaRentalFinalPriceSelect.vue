@@ -40,7 +40,8 @@
               outline
             />
           </div>
-          <div class="row items-center">
+          <!--가격 표기-->
+          <div class="scoped-item__price row items-center">
             <kw-item-label class="kw-fc--black3 kw-font-pt14">
               금액
             </kw-item-label>
@@ -68,10 +69,11 @@
         </div>
       </kw-item-section>
       <kw-item-section
+        v-if="!readonly"
         side
         top
       >
-        <kw-item-label class="flex gap-xs">
+        <kw-item-label class="scoped-item__header-btns flex gap-xs">
           <kw-btn-dropdown
             v-if="showPackageBtn"
             :disable="disablePackage"
@@ -117,9 +119,10 @@
         side
       >
         <kw-btn
+          v-if="!modify"
           borderless
           icon="close_24"
-          class="w24 kw-font-pt24"
+          class="scoped-item__delete-btn w24 kw-font-pt24"
           @click="onClickDelete"
         />
       </kw-item-section>
@@ -135,9 +138,9 @@
             :cols="0"
             :label-size="150"
           >
-            <kw-form-row>
+            <kw-form-row :cols="2">
               <kw-form-item
-                v-if="multiplePossible"
+                v-if="multiplePossible && !readonly"
                 :label="'수량변경'"
               >
                 <zwcm-counter
@@ -154,6 +157,7 @@
                 <kw-select
                   v-model="priceDefineVariables.cntrAmt"
                   :options="priceDefineVariableOptions.cntrAmt"
+                  :readonly="readonly"
                   placeholder="등록비"
                   first-option="select"
                   dense
@@ -169,6 +173,7 @@
                 <kw-select
                   v-model="priceDefineVariables.stplPrdCd"
                   :options="priceDefineVariableOptions.stplPrdCd"
+                  :readonly="readonly"
                   dense
                   placeholder="약정기간"
                   first-option="select"
@@ -182,6 +187,7 @@
                 <kw-select
                   v-model="priceDefineVariables.cntrPtrm"
                   :options="priceDefineVariableOptions.cntrPtrm"
+                  :readonly="readonly"
                   placeholder="계약기간"
                   first-option="select"
                   dense
@@ -197,6 +203,7 @@
                 <kw-select
                   v-model="priceDefineVariables.rentalDscDvCd"
                   :options="priceDefineVariableOptions.rentalDscDvCd"
+                  :readonly="readonly"
                   placeholder="렌탈할인구분"
                   first-option="select"
                   dense
@@ -221,7 +228,7 @@
                 >
                   <template #append>
                     <kw-btn
-                      v-if="notNullRentalDscTpCdSelected
+                      v-if="!readonly
                         && RENTAL_DSC_TP_CD_USER_SELECTABLE.includes(priceDefineVariables.rentalDscTpCd)
                         && !cntrRels?.length"
                       borderless
@@ -234,6 +241,7 @@
                   v-if="!notNullRentalDscTpCdSelected && userSelectableRentalDscTpCd?.length"
                   v-model="priceDefineVariables.rentalDscTpCd"
                   :options="userSelectableRentalDscTpCd"
+                  :readonly="readonly"
                   placeholder="렌탈할인유형"
                   clearable
                   first-option="select"
@@ -252,6 +260,7 @@
                 <kw-select
                   :model-value="priceDefineVariables.rentalCrpDscrCd"
                   :options="priceDefineVariableOptions.rentalCrpDscrCd"
+                  :readonly="readonly"
                   :label="'법인할인율'"
                   dense
                   @change="onChangeRentalCrpDscrCd"
@@ -262,6 +271,7 @@
               >
                 <kw-input
                   :model-value="sellDscCtrAmtStr"
+                  :readonly="readonly"
                   align="right"
                   dense
                   suffix="원"
@@ -278,6 +288,7 @@
                 <kw-select
                   v-model="priceDefineVariables.svPdCd"
                   :options="priceDefineVariableOptions.svPdCd"
+                  :readonly="readonly"
                   placeholder="서비스(용도/방문주기)"
                   first-option="select"
                   dense
@@ -293,6 +304,7 @@
                 <kw-select
                   v-model="priceDefineVariables.asMcn"
                   :options="priceDefineVariableOptions.asMcn"
+                  :readonly="readonly"
                   first-option="select"
                   :label="'AS기간'"
                   dense
@@ -306,6 +318,7 @@
                 <kw-select
                   v-model="wellsDtl.sellEvCd"
                   :options="sellEvCdsBySellChnlDtlCd"
+                  :readonly="readonly"
                   placeholder="행사코드"
                   dense
                 />
@@ -322,7 +335,8 @@
                   v-model="alncCntrNms"
                   :options="filteredAlncCntrPriceCodes"
                   :model-value="alncCntrNms ? alncCntrNms : []"
-                  :multiple="true"
+                  multiple
+                  :readonly="readonly"
                   placeholder="제휴 계약"
                   dense
                   @change="onChangeAlncCntr"
@@ -367,7 +381,7 @@
           top
         >
           <kw-btn
-            v-if="cntrRel.cntrRelDtlCd === CNTR_REL_DTL_CD.LK_ONE_PLUS_ONE"
+            v-if="cntrRel.cntrRelDtlCd === CNTR_REL_DTL_CD.LK_ONE_PLUS_ONE && !readonly"
             borderless
             icon="close_24"
             class="w24 kw-font-pt24"
@@ -415,6 +429,7 @@
         </kw-item-section>
         <kw-item-section side>
           <kw-btn
+            v-if="!readonly"
             borderless
             icon="close_24"
             class="w24 kw-font-pt24"
@@ -451,6 +466,7 @@ const props = defineProps({
   modelValue: { type: Object, default: undefined },
   bas: { type: Object, default: undefined },
   modify: Boolean,
+  readonly: Boolean, // 변경시 요청에 의해 모든 수정을 막고 조회만 해야하는 경우가 있다고 합니다. - 한상일 부장님 요청 사항.
 });
 const emit = defineEmits([
   'select:device',

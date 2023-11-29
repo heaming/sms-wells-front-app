@@ -141,7 +141,7 @@
       </kw-item-section>
       <kw-item-section side>
         <kw-btn
-          v-if="promotion.pmotNapdPsbYn === 'Y'"
+          v-if="promotion.pmotNapdPsbYn === 'Y' && !readonly"
           borderless
           :icon="applied ? 'close_24' :'retry' "
           class="w24 kw-font-pt24"
@@ -209,6 +209,7 @@
 <script setup>
 const props = defineProps({
   promotion: { type: Object, required: true },
+  readonly: Boolean,
 });
 const emit = defineEmits(['change-applied']);
 
