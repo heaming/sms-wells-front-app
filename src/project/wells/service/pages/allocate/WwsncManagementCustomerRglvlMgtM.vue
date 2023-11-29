@@ -9,7 +9,7 @@
  ****************************************************************************************************
  * 프로그램 설명
  ****************************************************************************************************
- - 변경된 관리고객 급지 및 배정담당자 정보를 변경한다.
+ - 변경된 관리고객 급지와 배정담당자 정보를 변경한다.
  ****************************************************************************************************
 --->
 <template>
@@ -275,7 +275,7 @@
       <kw-grid
         ref="grdMainRef"
         name="grdMain"
-        :page-size="codes.COD_PAGE_SIZE_OPTIONS.find((x) => x.codeId === '30').codeName"
+        :page-size="codes.COD_PAGE_SIZE_OPTIONS.find((x) => x.codeId === '20').codeName"
         :total-count="totalCount"
         @init="initGrdMain"
       />
@@ -569,6 +569,10 @@ async function onClickBulkUpdateCurMnthAlctn() {
 
   data.beginUpdate();
   checkedRows.forEach((rowValue) => {
+    // 2023.11.29 ::: 당월배정 매니저가 없을 경우 데이터 세팅 안함.
+    if (isEmpty(rowValue.curMnthAlctnPrtnrKnm)) {
+      return;
+    }
     data.updateRow(rowValue.dataRow, {
       curMnthAlctnDgr2LevlOgCd: dgr2LevlOgCd,
       curMnthAlctnDgr3LevlOgCd: ogCd,
