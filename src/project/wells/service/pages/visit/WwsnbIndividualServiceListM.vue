@@ -981,7 +981,10 @@ const initGridState = defineGrid((data, view) => {
       styleName: 'text-center',
       styleCallback(grid, dataCell) {
         const { procStus, prtnrNo } = grid.getValues(dataCell.index.itemIndex);
-        return (prtnrNo !== '99992' && !isEmpty(prtnrNo)) && (procStus === '00' || procStus === '10' || procStus === '20') ? { styleName: 'rg-button-link', renderer: { type: 'button' } } : { renderer: { type: 'text' } };
+        if (prtnrNo === '99992' || isEmpty(prtnrNo)) {
+          return { renderer: { type: 'text' } };
+        }
+        return (procStus === '00' || procStus === '10' || procStus === '20') ? { styleName: 'rg-button-link', renderer: { type: 'button' } } : { renderer: { type: 'text' } };
       },
     },
     { fieldName: 'asCaus', header: t('MSG_TXT_PROCS_IZ'), width: '100' },
