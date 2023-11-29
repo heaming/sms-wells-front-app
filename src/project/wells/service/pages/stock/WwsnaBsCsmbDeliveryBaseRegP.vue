@@ -76,7 +76,7 @@
             :disable="isDisable"
           />
         </kw-form-item>
-        <kw-form-item :label="$t('MSG_TXT_ITM_DV')">
+        <kw-form-item :label="$t('MSG_TXT_GO_DV')">
           <kw-select
             v-model="basData.goDvCd"
             :options="codes.GO_DV_CD"
@@ -104,6 +104,7 @@
             type="textarea"
             :rows="3"
             :disable="isDisable"
+            :maxlength="4000"
           />
         </kw-form-item>
       </kw-form-row>
@@ -128,6 +129,7 @@
               v-model="ddlvOjCd1Data.bfsvcCsmbDdlvTpCd"
               :label="$t('MSG_TXT_DDLV_TP')"
               :options="codes.BFSVC_CSMB_DDLV_TP_CD"
+              placeholder=""
               :disable="isDisableYn1 || isDisable"
               :rules="isRequiredDdlvTp1"
               class="mr8 w167"
@@ -137,6 +139,7 @@
               v-model="ddlvOjCd1Data.bfsvcCsmbDdlvCmptBaseCd"
               :label="$t('MSG_TXT_DDLV_TP')"
               :options="codes.BFSVC_CSMB_DDLV_CMPT_BASE_CD"
+              placeholder=""
               :disable="isDisableYn1 || isDisableCmptBaseCd1"
               :rules="isRequiredCmptBaseCd1"
               class="w167"
@@ -148,7 +151,8 @@
             v-model="ddlvOjCd1Data.bfsvcCsmbDdlvOjPdGrpCd"
             :label="$t('MSG_TXT_DDLV_OJ_PD_GRP')"
             :options="codes.PD_GRP_CD"
-            first-option="all"
+            first-option=""
+            placeholder=""
             :disable="isDisableYn1 || isDisable"
             :rules="isRequiredAccPrpnYn1"
           />
@@ -228,6 +232,7 @@
               v-model="ddlvOjCd2Data.bfsvcCsmbDdlvTpCd"
               :label="$t('MSG_TXT_DDLV_TP')"
               :options="codes.BFSVC_CSMB_DDLV_TP_CD"
+              placeholder=""
               :disable="isDisableYn2 || isDisable"
               :rules="isRequiredDdlvTp2"
               class="mr8 w167"
@@ -237,6 +242,7 @@
               v-model="ddlvOjCd2Data.bfsvcCsmbDdlvCmptBaseCd"
               :label="$t('MSG_TXT_DDLV_TP')"
               :options="codes.BFSVC_CSMB_DDLV_CMPT_BASE_CD"
+              placeholder=""
               :disable="isDisableYn2 || isDisableCmptBaseCd2"
               :rules="isRequiredCmptBaseCd2"
               class="w167"
@@ -248,7 +254,8 @@
             v-model="ddlvOjCd2Data.bfsvcCsmbDdlvOjPdGrpCd"
             :label="$t('MSG_TXT_DDLV_OJ_PD_GRP')"
             :options="codes.PD_GRP_CD"
-            first-option="all"
+            first-option=""
+            placeholder=""
             :disable="isDisableYn2 || isDisable"
             :rules="isRequiredAccPrpnYn2"
           />
@@ -328,6 +335,7 @@
               v-model="ddlvOjCd3Data.bfsvcCsmbDdlvTpCd"
               :label="$t('MSG_TXT_DDLV_TP')"
               :options="codes.BFSVC_CSMB_DDLV_TP_CD"
+              placeholder=""
               :disable="isDisableYn3 || isDisable"
               :rules="isRequiredDdlvTp3"
               class="mr8 w167"
@@ -337,6 +345,7 @@
               v-model="ddlvOjCd3Data.bfsvcCsmbDdlvCmptBaseCd"
               :label="$t('MSG_TXT_DDLV_TP')"
               :options="codes.BFSVC_CSMB_DDLV_CMPT_BASE_CD"
+              placeholder=""
               :disable="isDisableYn3 || isDisableCmptBaseCd3"
               :rules="isRequiredCmptBaseCd3"
               class="w167"
@@ -347,7 +356,8 @@
           <kw-select
             v-model="ddlvOjCd3Data.bfsvcCsmbDdlvOjPdGrpCd"
             :label="$t('MSG_TXT_DDLV_OJ_PD_GRP')"
-            first-option="all"
+            first-option=""
+            placeholder=""
             :options="codes.PD_GRP_CD"
             :disable="isDisableYn3 || isDisable"
             :rules="isRequiredAccPrpnYn3"
@@ -448,8 +458,10 @@ const props = defineProps({
 // Function & Event
 // -------------------------------------------------------------------------------------------------
 
+const curYm = dayjs().format('YYYYMM');
+
 const isDisable = computed(
-  () => (props.csmbPdCd !== '' && props.mngtYm !== '') && (Number(props.mngtYm) < Number(dayjs().format('YYYYMM'))),
+  () => (props.csmbPdCd !== '' && props.mngtYm !== '') && (props.mngtYm < curYm),
 );
 
 const frmMainRef = ref(getComponentType('KwObserver'));
@@ -464,16 +476,17 @@ const codes = await codeUtil.getMultiCodes(
 );
 
 const basData = ref({
-  mngtYm: props.mngtYm ?? dayjs().format('YYYYMM'),
+  mngtYm: props.mngtYm ?? curYm,
   csmbPdCd: props.csmbPdCd,
   itmKnm: '',
-  mngtUnitCd: '',
+  mngtUnitCd: '10',
   goDvCd: '',
   boxUnitQty: '',
   goUprc: '',
   rmkCn: '',
 });
 
+// 신입
 const ddlvOjCd1Data = ref({
   mngtYm: basData.value.mngtYm,
   csmbPdCd: basData.value.csmbPdCd,
@@ -489,6 +502,7 @@ const ddlvOjCd1Data = ref({
   sortOdr: '',
 });
 
+// 개인
 const ddlvOjCd2Data = ref({
   mngtYm: basData.value.mngtYm,
   csmbPdCd: basData.value.csmbPdCd,
@@ -504,6 +518,7 @@ const ddlvOjCd2Data = ref({
   sortOdr: '',
 });
 
+// 빌딩
 const ddlvOjCd3Data = ref({
   mngtYm: basData.value.mngtYm,
   csmbPdCd: basData.value.csmbPdCd,
@@ -524,17 +539,17 @@ const isDisableYn2 = computed(() => ddlvOjCd2Data.value.bfsvcCsmbDdlvOrtYn === '
 const isDisableYn3 = computed(() => ddlvOjCd3Data.value.bfsvcCsmbDdlvOrtYn === 'N');
 
 const isDisableCmptBaseCd1 = computed(
-  () => ((props.csmbPdCd !== '' && props.mngtYm !== '') && (Number(props.mngtYm) < Number(dayjs().format('YYYYMM'))))
+  () => ((props.csmbPdCd !== '' && props.mngtYm !== '') && (props.mngtYm < curYm))
           || ddlvOjCd1Data.value.bfsvcCsmbDdlvTpCd === '2',
 );
 
 const isDisableCmptBaseCd2 = computed(
-  () => ((props.csmbPdCd !== '' && props.mngtYm !== '') && (Number(props.mngtYm) < Number(dayjs().format('YYYYMM'))))
+  () => ((props.csmbPdCd !== '' && props.mngtYm !== '') && (props.mngtYm < curYm))
           || ddlvOjCd2Data.value.bfsvcCsmbDdlvTpCd === '2',
 );
 
 const isDisableCmptBaseCd3 = computed(
-  () => ((props.csmbPdCd !== '' && props.mngtYm !== '') && (Number(props.mngtYm) < Number(dayjs().format('YYYYMM'))))
+  () => ((props.csmbPdCd !== '' && props.mngtYm !== '') && (props.mngtYm < curYm))
           || ddlvOjCd3Data.value.bfsvcCsmbDdlvTpCd === '2',
 );
 
@@ -813,10 +828,10 @@ const isRequiredAccPrpnYn3 = async (val, options) => {
   return errors[0] || true;
 };
 
+// 품목 기본정보 팝업 호출
 async function onClickItemSearch() {
   const { result, payload } = await modal({
     component: 'WwsnaItemBaseInformationListP',
-    // componentProps: { chk: '1', itmKndCd: '8', lpGbYn: 'Y', itmPdNm: basData.value.itmKnm },
     componentProps: { chk: '1', lpGbYn: 'Y', itmPdNm: basData.value.itmKnm },
   });
 
@@ -830,6 +845,7 @@ async function onClickItemSearch() {
 }
 
 let isNewMode = true;
+// 저장
 async function onClickRgst() {
   if (!await frmMainRef.value.validate()) { return; }
   if (await frmMainRef.value.alertIfIsNotModified()) { return; }
@@ -841,61 +857,81 @@ async function onClickRgst() {
   dataParams.push(ddlvOjCd2Data.value);
   dataParams.push(ddlvOjCd3Data.value);
 
+  let res;
   if (isNewMode) {
-    await dataService.post('/sms/wells/service/delivery-bases', dataParams);
+    res = await dataService.post('/sms/wells/service/delivery-bases', dataParams);
   } else {
-    await dataService.put('/sms/wells/service/delivery-bases', dataParams);
+    res = await dataService.put('/sms/wells/service/delivery-bases', dataParams);
   }
 
-  ok();
-  notify(t('MSG_ALT_SAVE_DATA'));
+  const { processCount } = res.data;
+  if (processCount > 0) {
+    ok();
+    notify(t('MSG_ALT_SAVE_DATA'));
+  }
 }
 
+// 배부기준 상세 조회
 async function getDeliveryBase() {
   const res = await dataService.get(`/sms/wells/service/delivery-bases/${props.mngtYm}-${props.csmbPdCd}`);
 
-  basData.value.itmKnm = res.data.itmKnm;
-  basData.value.mngtUnitCd = res.data.mngtUnitCd;
-  basData.value.goDvCd = res.data.goDvCd;
-  basData.value.boxUnitQty = res.data.boxUnitQty;
-  basData.value.goUprc = res.data.goUprc;
-  basData.value.rmkCn = res.data.rmkCn;
+  // 기본정보
+  const { mngtYm, csmbPdCd, itmKnm, mngtUnitCd, goDvCd, boxUnitQty, goUprc, rmkCn } = res.data;
 
-  ddlvOjCd1Data.value.mngtYm = res.data.mngtYm;
-  ddlvOjCd1Data.value.csmbPdCd = res.data.csmbPdCd;
-  ddlvOjCd1Data.value.bfsvcCsmbDdlvOrtYn = res.data.nwcmrOrtYn;
-  ddlvOjCd1Data.value.bfsvcCsmbDdlvTpCd = res.data.nwcmrTpCd;
-  ddlvOjCd1Data.value.bfsvcCsmbDdlvCmptBaseCd = res.data.nwcmrCmptBase;
-  ddlvOjCd1Data.value.bfsvcCsmbDdlvOjPdGrpCd = res.data.nwcmrOjPdGrpCd;
-  ddlvOjCd1Data.value.bfsvcCsmbDdlvOjAccTpCd = res.data.nwcmrOjAccTpCd;
-  ddlvOjCd1Data.value.bfsvcCsmbDdlvUnitAccN = res.data.nwcmrUnitAccN;
-  ddlvOjCd1Data.value.bfsvcCsmbDdlvUnitQty = res.data.nwcmrUnitQty;
-  ddlvOjCd1Data.value.bfsvcCsmbAplcLmQty = res.data.nwcmrAplcLmQty;
-  ddlvOjCd1Data.value.sortOdr = res.data.nwcmrSortOdr;
+  basData.value.itmKnm = itmKnm;
+  basData.value.mngtUnitCd = mngtUnitCd;
+  basData.value.goDvCd = goDvCd;
+  basData.value.boxUnitQty = boxUnitQty;
+  basData.value.goUprc = goUprc;
+  basData.value.rmkCn = rmkCn;
 
-  ddlvOjCd2Data.value.mngtYm = res.data.mngtYm;
-  ddlvOjCd2Data.value.csmbPdCd = res.data.csmbPdCd;
-  ddlvOjCd2Data.value.bfsvcCsmbDdlvOrtYn = res.data.indvOrtYn;
-  ddlvOjCd2Data.value.bfsvcCsmbDdlvTpCd = res.data.indvTpCd;
-  ddlvOjCd2Data.value.bfsvcCsmbDdlvCmptBaseCd = res.data.indvCmptBase;
-  ddlvOjCd2Data.value.bfsvcCsmbDdlvOjPdGrpCd = res.data.indvOjPdGrpCd;
-  ddlvOjCd2Data.value.bfsvcCsmbDdlvOjAccTpCd = res.data.indvOjAccTpCd;
-  ddlvOjCd2Data.value.bfsvcCsmbDdlvUnitAccN = res.data.indvUnitAccN;
-  ddlvOjCd2Data.value.bfsvcCsmbDdlvUnitQty = res.data.indvUnitQty;
-  ddlvOjCd2Data.value.bfsvcCsmbAplcLmQty = res.data.indvAplcLmQty;
-  ddlvOjCd2Data.value.sortOdr = res.data.indvSortOdr;
+  // 신입 배부기준
+  const { nwcmrOrtYn, nwcmrTpCd, nwcmrCmptBaseCd, nwcmrPdGrpCd,
+    nwcmrAccTpCd, nwcmrUnitAccN, nwcmrUnitQty, nwcmrLmQty, nwcmrSortOdr } = res.data;
 
-  ddlvOjCd3Data.value.mngtYm = res.data.mngtYm;
-  ddlvOjCd3Data.value.csmbPdCd = res.data.csmbPdCd;
-  ddlvOjCd3Data.value.bfsvcCsmbDdlvOrtYn = res.data.bldOrtYn;
-  ddlvOjCd3Data.value.bfsvcCsmbDdlvTpCd = res.data.bldvTpCd;
-  ddlvOjCd3Data.value.bfsvcCsmbDdlvCmptBaseCd = res.data.bldCmptBase;
-  ddlvOjCd3Data.value.bfsvcCsmbDdlvOjPdGrpCd = res.data.bldOjPdGrpCd;
-  ddlvOjCd3Data.value.bfsvcCsmbDdlvOjAccTpCd = res.data.bldOjAccTpCd;
-  ddlvOjCd3Data.value.bfsvcCsmbDdlvUnitAccN = res.data.bldUnitAccN;
-  ddlvOjCd3Data.value.bfsvcCsmbDdlvUnitQty = res.data.bldUnitQty;
-  ddlvOjCd3Data.value.bfsvcCsmbAplcLmQty = res.data.bldAplcLmQty;
-  ddlvOjCd3Data.value.sortOdr = res.data.bldSortOdr;
+  ddlvOjCd1Data.value.mngtYm = mngtYm;
+  ddlvOjCd1Data.value.csmbPdCd = csmbPdCd;
+  ddlvOjCd1Data.value.bfsvcCsmbDdlvOrtYn = nwcmrOrtYn;
+  ddlvOjCd1Data.value.bfsvcCsmbDdlvTpCd = nwcmrTpCd;
+  ddlvOjCd1Data.value.bfsvcCsmbDdlvCmptBaseCd = nwcmrCmptBaseCd;
+  ddlvOjCd1Data.value.bfsvcCsmbDdlvOjPdGrpCd = nwcmrPdGrpCd;
+  ddlvOjCd1Data.value.bfsvcCsmbDdlvOjAccTpCd = nwcmrAccTpCd;
+  ddlvOjCd1Data.value.bfsvcCsmbDdlvUnitAccN = nwcmrUnitAccN;
+  ddlvOjCd1Data.value.bfsvcCsmbDdlvUnitQty = nwcmrUnitQty;
+  ddlvOjCd1Data.value.bfsvcCsmbAplcLmQty = nwcmrLmQty;
+  ddlvOjCd1Data.value.sortOdr = nwcmrSortOdr;
+
+  // 개인 배부기준
+  const { indvOrtYn, indvTpCd, indvCmptBaseCd, indvPdGrpCd,
+    indvAccTpCd, indvUnitAccN, indvUnitQty, indvLmQty, indvSortOdr } = res.data;
+
+  ddlvOjCd2Data.value.mngtYm = mngtYm;
+  ddlvOjCd2Data.value.csmbPdCd = csmbPdCd;
+  ddlvOjCd2Data.value.bfsvcCsmbDdlvOrtYn = indvOrtYn;
+  ddlvOjCd2Data.value.bfsvcCsmbDdlvTpCd = indvTpCd;
+  ddlvOjCd2Data.value.bfsvcCsmbDdlvCmptBaseCd = indvCmptBaseCd;
+  ddlvOjCd2Data.value.bfsvcCsmbDdlvOjPdGrpCd = indvPdGrpCd;
+  ddlvOjCd2Data.value.bfsvcCsmbDdlvOjAccTpCd = indvAccTpCd;
+  ddlvOjCd2Data.value.bfsvcCsmbDdlvUnitAccN = indvUnitAccN;
+  ddlvOjCd2Data.value.bfsvcCsmbDdlvUnitQty = indvUnitQty;
+  ddlvOjCd2Data.value.bfsvcCsmbAplcLmQty = indvLmQty;
+  ddlvOjCd2Data.value.sortOdr = indvSortOdr;
+
+  // 빌딩 배부기준
+  const { bldOrtYn, bldTpCd, bldCmptBaseCd, bldPdGrpCd,
+    bldAccTpCd, bldUnitAccN, bldUnitQty, bldLmQty, bldSortOdr } = res.data;
+
+  ddlvOjCd3Data.value.mngtYm = mngtYm;
+  ddlvOjCd3Data.value.csmbPdCd = csmbPdCd;
+  ddlvOjCd3Data.value.bfsvcCsmbDdlvOrtYn = bldOrtYn;
+  ddlvOjCd3Data.value.bfsvcCsmbDdlvTpCd = bldTpCd;
+  ddlvOjCd3Data.value.bfsvcCsmbDdlvCmptBaseCd = bldCmptBaseCd;
+  ddlvOjCd3Data.value.bfsvcCsmbDdlvOjPdGrpCd = bldPdGrpCd;
+  ddlvOjCd3Data.value.bfsvcCsmbDdlvOjAccTpCd = bldAccTpCd;
+  ddlvOjCd3Data.value.bfsvcCsmbDdlvUnitAccN = bldUnitAccN;
+  ddlvOjCd3Data.value.bfsvcCsmbDdlvUnitQty = bldUnitQty;
+  ddlvOjCd3Data.value.bfsvcCsmbAplcLmQty = bldLmQty;
+  ddlvOjCd3Data.value.sortOdr = bldSortOdr;
 
   isNewMode = false;
 

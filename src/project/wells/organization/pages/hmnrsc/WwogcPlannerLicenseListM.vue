@@ -256,7 +256,7 @@ async function fetchData() {
   grdMain1Datas.value.forEach((item) => {
     if (item.bizUseLocaraTno && item.bizUseExnoEncr && item.bizUseIdvTno) {
       item.biztelephone = `${item.bizUseLocaraTno}${item.bizUseExnoEncr}${item.bizUseIdvTno}`;
-    } else {
+    } else if (item.cralLocaraTno && item.mexnoEncr && item.cralIdvTno) {
       item.biztelephone = `${item.cralLocaraTno}${item.mexnoEncr}${item.cralIdvTno}`;
     }
     return item;
@@ -915,6 +915,10 @@ const initGrid2 = defineGrid((data, view) => {
       fieldName: 'qlfDvCd', // 자격구분코드
       visible: false,
     },
+    {
+      fieldName: 'cntrSn', // 계약일련번호
+      visible: false,
+    },
   ];
 
   // eslint-disable-next-line max-len
@@ -942,22 +946,24 @@ const initGrid2 = defineGrid((data, view) => {
     const {
       cntrDt: reportParamCntrDt,
       prtnrCntrTpCd: currentPrtnrCntrTpCd,
+      cntrSn: currentRowCntrSn,
     } = g.getValues(itemIndex);
 
     if (column === 'report') {
       // 계약서 보기
       console.log('계약서');
+      console.log('계약일련번호: ', currentRowCntrSn);
       console.log('조직유형코드: ', currentRowOgTpCd);
       console.log('번호: ', currentRowPrtnrNo);
       console.log('파트너계약유형코드: ', currentPrtnrCntrTpCd);
       console.log('계약일자: ', reportParamCntrDt);
 
       const param = {
+        cntrSn: currentRowCntrSn,
         ogTpCd: currentRowOgTpCd,
         prtnrNo: currentRowPrtnrNo,
         prtnrCntrTpCd: currentPrtnrCntrTpCd,
         cntrDt: reportParamCntrDt,
-
       };
       openReport(param);
     }

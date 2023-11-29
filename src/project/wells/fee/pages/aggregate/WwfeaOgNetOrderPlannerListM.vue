@@ -769,6 +769,7 @@ const initGrd1Main = defineGrid((data, view) => {
     { fieldName: 'perfExcd' },
     { fieldName: 'bizRgstMm' },
     { fieldName: 'bizRgstNm' },
+    { fieldName: 'hsPrchs' },
   ];
 
   const columns = [
@@ -813,6 +814,7 @@ const initGrd1Main = defineGrid((data, view) => {
     { fieldName: 'perfExcd', header: t('MSG_TXT_PERF_EXCD') + t('MSG_TXT_RGST_YN'), width: '113', styleName: 'text-center' },
     { fieldName: 'bizRgstMm', header: t('MSG_TXT_BIZ_RGST_MM'), width: '113', styleName: 'text-center', datetimeFormat: 'yyyy-MM' },
     { fieldName: 'bizRgstNm', header: t('MSG_TXT_BIZ_RGST_NM'), width: '113', styleName: 'text-right' },
+    { fieldName: 'hsPrchs', header: t('MSG_TXT_SELF') + t('MSG_TXT_PRCHS'), width: '113', styleName: 'text-center' },
 
   ];
 
@@ -867,6 +869,7 @@ const initGrd2Main = defineGrid((data, view) => {
     { fieldName: 'perfExcd' },
     { fieldName: 'bizRgstMm' },
     { fieldName: 'bizRgstNm' },
+    { fieldName: 'hsPrchs' },
   ];
 
   const columns = [
@@ -911,6 +914,7 @@ const initGrd2Main = defineGrid((data, view) => {
     { fieldName: 'perfExcd', header: t('MSG_TXT_PERF_EXCD') + t('MSG_TXT_RGST_YN'), width: '113', styleName: 'text-center' },
     { fieldName: 'bizRgstMm', header: t('MSG_TXT_BIZ_RGST_MM'), width: '113', styleName: 'text-center', datetimeFormat: 'yyyy-MM' },
     { fieldName: 'bizRgstNm', header: t('MSG_TXT_BIZ_RGST_NM'), width: '113', styleName: 'text-right' },
+    { fieldName: 'hsPrchs', header: t('MSG_TXT_SELF') + t('MSG_TXT_PRCHS'), width: '113', styleName: 'text-center' },
 
   ];
 

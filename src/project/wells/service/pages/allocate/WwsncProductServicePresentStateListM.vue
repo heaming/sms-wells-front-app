@@ -261,7 +261,7 @@ const initGrdMain = defineGrid((data, view) => {
     { fieldName: 'totalCount',
       header: t('MSG_TXT_SUM'),
       width: '150',
-      styleName: 'text-left',
+      styleName: 'text-right',
       numberFormat: '#,##0',
       footer: { expression: 'sum', numberFormat: '#,##0', styleName: 'text-right' } },
 

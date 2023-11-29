@@ -232,6 +232,13 @@
                   <span class="text-bold kw-font-pt18">
                     {{ $t('MSG_TXT_ODER') + $t('MSG_TXT_PRDT') + ' ' + $t('MSG_TXT_SELT') }}
                   </span>
+
+                  <span
+                    v-if="fieldData.svcPdChYn==='Y'"
+                    style="float: right; color: red;"
+                  >
+                    {{ '※ 서비스제품변경 건으로 가격 수정이 불가합니다.' }}
+                  </span>
                 </kw-item-label>
               </kw-item-section>
             </template>
@@ -246,7 +253,7 @@
                   icon="search"
                   maxlength="100"
                   grow
-                  :disable="!isFetched || fieldData.slClYn==='Y'"
+                  :disable="!isFetched || fieldData.slClYn==='Y' || fieldData.svcPdChYn==='Y'"
                   @click-icon="onClickSelectProduct"
                 />
               </kw-form-item>
@@ -281,18 +288,6 @@
                       v-model="productExtra.alncmpCd"
                       :options="codes.ALNCMP_CD"
                       first-option="select"
-                      :disable="fieldData.slClYn==='Y'"
-                    />
-                  </kw-form-item>
-
-                  <kw-form-item
-                    label="법인추가할인"
-                  >
-                    <kw-input
-                      v-model="productExtra.sellDscCtrAmt"
-                      maxlength="10"
-                      type="number"
-                      :readonly="fieldData.copnDvCd !== '2'"
                       :disable="fieldData.slClYn==='Y'"
                     />
                   </kw-form-item>
@@ -1048,7 +1043,6 @@ const promotions = ref([]); // 적용가능한 프로모션
 // ADMIN용 추가 데이터
 const productExtra = ref({
   alncmpCd: '', // 제휴상품
-  sellDscCtrAmt: 0, // 법인추가할인
   cntrChAkCn: '', // 변경사유
   ackmtAmt: 0, // 인정실적
   ackmtRt: 0, // 인정실적율
@@ -1256,7 +1250,6 @@ function onPriceChanged(item, price) {
 
     // 적용되있는 제휴사코드, 판매할인조정금액(법인추가할인) 세팅
     productExtra.value.alncmpCd = fieldData.value.alncmpCd;
-    productExtra.value.sellDscCtrAmt = fieldData.value.sellDscCtrAmt;
 
     isCnfmPd.value = true;
     obsRef.value.init();
@@ -1632,14 +1625,6 @@ watch(() => orderProduct.value.finalPrice?.ackmtRt, async () => {
 
 watch(() => orderProduct.value.finalPrice?.feeAckmtBaseAmt, async () => {
   productExtra.value.feeAckmtBaseAmt = orderProduct.value?.finalPrice?.feeAckmtBaseAmt;
-});
-
-watch(() => productExtra.value.sellDscCtrAmt, async () => {
-  if (toNumber(productExtra.value.sellDscCtrAmt || 0) > toNumber(orderProduct.value.fnlAmt || 0)) {
-    productExtra.value.sellDscCtrAmt = 0;
-    alert('할인금액이 렌탈금액보다 높을 수 없습니다.');
-  }
-  orderProduct.value.sellDscCtrAmt = productExtra.value.sellDscCtrAmt;
 });
 
 // -------------------------------------------------------------------------------------------------
