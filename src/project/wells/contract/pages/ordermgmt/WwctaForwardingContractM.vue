@@ -54,8 +54,9 @@
             v-model="searchParams.bzrno"
             :label="$t('MSG_TXT_ENTRP_NO')"
             rules="required"
+            mask="###-##-#####"
             :placeholder="`${t('MSG_TXT_ENTRP_NO')} 10${t('MSG_TXT_DIGITS')}`"
-            :maxlength="10"
+            :maxlength="12"
           />
         </slot>
       </template>
