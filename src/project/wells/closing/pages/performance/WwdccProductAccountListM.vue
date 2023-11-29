@@ -175,7 +175,7 @@ const now = dayjs();
 const { t } = useI18n();
 const dataService = useDataService();
 const { currentRoute } = useRouter();
-const { notify, ok } = useGlobal();
+const { notify } = useGlobal();
 
 // -------------------------------------------------------------------------------------------------
 // Function & Event
@@ -200,6 +200,9 @@ const searchParams = ref({
   ogTpCd: 'ALL', // 조직유형
   prdtCateHigh: '', // 상품대분류
   prdtCateMid: '', // 상품중분류
+});
+const batchParams = ref({
+  jobId: '', // 배치수행후 리턴받은 id, 상태값 조회를위한 필수값
 });
 
 let cachedParams;
@@ -248,14 +251,12 @@ async function onClickExportView() {
   });
 }
 
-let jobId;
 // 상세내역 파일 생성
 async function onClickDetailFileSave() {
-  console.log('searchParams:', searchParams.value);
   const response = await dataService.post('/sms/wells/closing/product-account/make-file', searchParams.value, { timeout: 500000 });
-  ok(true);
-  jobId.value = response.data;
-  if (!isEmpty(response.data)) notify(t('MSG_ALT_CREATE')); // 생성되었습니다.
+  batchParams.value.jobId = response.data;
+  // console.log('batchParams.value.jobId:', batchParams.value.jobId);
+  if (!isEmpty(response.data)) notify(t('MSG_ALT_DTL_IZ_FILE_CRT_STRT')); // 상세내역 파일 생성작업을 시작하였습니다.
   // else if (response.data === 'Ended Not OK') notify(t('MSG_ALT_CRT_FAIL')); // 생성에 실패 하였습니다.
 }
 
