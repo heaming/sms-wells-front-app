@@ -479,7 +479,7 @@ const basData = ref({
   mngtYm: props.mngtYm ?? curYm,
   csmbPdCd: props.csmbPdCd,
   itmKnm: '',
-  mngtUnitCd: '',
+  mngtUnitCd: '10',
   goDvCd: '',
   boxUnitQty: '',
   goUprc: '',
