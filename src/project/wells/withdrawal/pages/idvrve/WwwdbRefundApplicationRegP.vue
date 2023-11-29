@@ -841,7 +841,7 @@ async function onClickRefundAsk(stateCode) {
   let errorCount = 0;
 
   rows3.forEach((p1) => {
-    if (p1.attachFiles.length < 1 && p1.bltfRfndMbDvCd === '02') {
+    if (isEmpty(p1.attachFiles) < 1 && p1.bltfRfndMbDvCd === '02') {
       errorCount += 1;
       return false;
     }
@@ -868,6 +868,10 @@ async function onClickRefundAsk(stateCode) {
       .reduce((acc, cur) => acc += Number(cur.rfndCshAkAmt) + Number(cur.rfndCardAkAmt) + Number(cur.rfndBltfAkAmt), 0);
     if (Number(el.rfndPsbAmt) < Number(refundAmt)) {
       checkYn = 'Y';
+    }
+
+    if (!isEmpty(props.rfndAkNo)) {
+      el.rfndAkNo = props.rfndAkNo;
     }
   });
 
@@ -896,6 +900,8 @@ async function onClickRefundAsk(stateCode) {
     saveDtlReqs: rows2, /* 환불요청상세 */
     saveBltfReqs: rows3, /* 환불요청전금상세  */
   };
+
+  console.log(params);
 
   await dataService.post('/sms/wells/withdrawal/idvrve/refund-applications/reg/save', params);
   notify(t('MSG_ALT_SAVE_DATA')); // 저장되었습니다.
