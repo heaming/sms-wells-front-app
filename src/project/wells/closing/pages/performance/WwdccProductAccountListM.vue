@@ -261,7 +261,8 @@ async function onClickDetailFileSave() {
 
 // 상세내역 다운로드
 async function onClickDetailExportView() {
-  const res = await dataService.post('/sms/wells/closing/product-account/download', { responseType: 'blob' });
+  const { baseYm } = searchParams.value;
+  const res = await dataService.post('/sms/wells/closing/product-account/download', { baseYm }, { responseType: 'blob' });
   fileUtil.downloadBlob(res.data, currentRoute.value.meta.menuName);
 }
 
