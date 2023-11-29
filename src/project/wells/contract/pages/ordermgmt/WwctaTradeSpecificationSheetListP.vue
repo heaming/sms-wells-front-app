@@ -231,7 +231,7 @@ const pageInfoContracts = ref({
 });
 
 let isOnly = false;
-let isFirstSearch = true;
+let isFirstOnly = true;
 
 // -------------------------------------------------------------------------------------------------
 // Function & Event
@@ -291,9 +291,9 @@ async function onChangeDocDvCd() {
     // grdRef.value.getData().clearRows();
     pageInfo.value.pageIndex = 1;
     pageInfo.value.totalCount = 0;
-    isFirstSearch = true;
+    isFirstOnly = true;
     // eslint-disable-next-line no-use-before-define
-    await fetchTrdSpcData(isFirstSearch); // 증빙서류 종류
+    await fetchTrdSpcData(isFirstOnly); // 증빙서류 종류
   } else if (searchParams.value.cntrDvCd === '2') { // 고객번호
     searchParams.value.cntrDvCd = '1'; // 계약번호
     pageInfo.value.totalCount1 = 0;
@@ -311,9 +311,9 @@ async function onChangeCntrDvCd() {
     pageInfo.value.totalCount = 0;
     // pageInfo.value.totalCount1 = pageInfo.value.totalCount;
 
-    isFirstSearch = true;
+    isFirstOnly = true;
     // eslint-disable-next-line no-use-before-define
-    await fetchTrdSpcData(isFirstSearch); // 증빙서류 종류
+    await fetchTrdSpcData(isFirstOnly); // 증빙서류 종류
   } else if (searchParams.value.cntrDvCd === '2') { // 고객번호
     isGrdContractsVisible.value = true;
     isSearchDivVisible.value = true;
@@ -363,16 +363,16 @@ async function fetchCtnrLstData(bOnly) {
   view.resetCurrent();
 
   if (bOnly === false) {
-    isFirstSearch = true;
+    isFirstOnly = true;
     // eslint-disable-next-line no-use-before-define
-    await fetchTrdSpcData(isFirstSearch); // 증빙서류 종류
+    await fetchTrdSpcData(isFirstOnly); // 증빙서류 종류
   }
   isOnly = false;
 }
 
 // 증빙서류종류
 // eslint-disable-next-line no-shadow
-async function fetchTrdSpcData(isFirstSearch) {
+async function fetchTrdSpcData(bFirstOnly) {
   // changing api & cacheparams according to search classification
   let res = '';
 
@@ -389,8 +389,8 @@ async function fetchTrdSpcData(isFirstSearch) {
   cachedParams = cloneDeep(searchParams.value);
 
   // 증빙서류종류 조회 시 기간제외
-  cachedParams.cntrCnfmStrtDt = '';
-  cachedParams.cntrCnfmEndDt = '';
+  // cachedParams.cntrCnfmStrtDt = '';
+  // cachedParams.cntrCnfmEndDt = '';
 
   // console.log(cachedParams);
   // console.log(pageInfo.value);
@@ -410,9 +410,11 @@ async function fetchTrdSpcData(isFirstSearch) {
     return;
   }
 
-  if (isFirstSearch === true) {
+  // 조회 시 Infinite Scroll 아닐 경우 증빙서류 종류 그리드 초기화
+  if (bFirstOnly === true) {
     grdRef.value.getData().clearRows();
   }
+
   const view = grdRef.value.getView();
   const { list: pages, pageInfo: pagingResult } = res.data;
   ozParamsList.value = pages;
@@ -451,8 +453,8 @@ async function onClickSearch() {
     pageInfo.value.pageIndex = 1;
     pageInfo.value.totalCount = 0;
 
-    isFirstSearch = true;
-    await fetchTrdSpcData(isFirstSearch); // 증빙서류 종류
+    isFirstOnly = true;
+    await fetchTrdSpcData(isFirstOnly); // 증빙서류 종류
   } else if (searchParams.value.cntrDvCd === '2') {
     grdRef.value.getData().clearRows();
     grdContracts.value.getData().clearRows();
@@ -710,7 +712,7 @@ async function onClickPblPrnt() {
 }
 
 onMounted(async () => {
-  await fetchTrdSpcData(isFirstSearch); // 증빙서류 종류(입금내역)
+  await fetchTrdSpcData(isFirstOnly); // 증빙서류 종류(입금내역)
 });
 
 // -------------------------------------------------------------------------------------------------
@@ -831,8 +833,8 @@ const initGrdDepositItemizationSheet = defineGrid((data, view) => {
   view.onScrollToBottom = async (g) => {
     if (pageInfo.value.pageIndex * pageInfo.value.pageSize <= g.getItemCount()) {
       pageInfo.value.pageIndex += 1;
-      isFirstSearch = false;
-      await fetchTrdSpcData(isFirstSearch);
+      isFirstOnly = false;
+      await fetchTrdSpcData(isFirstOnly);
     }
   };
 });
@@ -878,8 +880,8 @@ const initGrdTradeSpecificationSheet = defineGrid((data, view) => {
   view.onScrollToBottom = async (g) => {
     if (pageInfo.value.pageIndex * pageInfo.value.pageSize <= g.getItemCount()) {
       pageInfo.value.pageIndex += 1;
-      isFirstSearch = false;
-      await fetchTrdSpcData(isFirstSearch);
+      isFirstOnly = false;
+      await fetchTrdSpcData(isFirstOnly);
     }
   };
 });
@@ -928,8 +930,8 @@ const initGrdCardSalesSlip = defineGrid((data, view) => {
   view.onScrollToBottom = async (g) => {
     if (pageInfo.value.pageIndex * pageInfo.value.pageSize <= g.getItemCount()) {
       pageInfo.value.pageIndex += 1;
-      isFirstSearch = false;
-      await fetchTrdSpcData(isFirstSearch);
+      isFirstOnly = false;
+      await fetchTrdSpcData(isFirstOnly);
     }
   };
 });
@@ -971,8 +973,8 @@ const initGrdContractArticles = defineGrid((data, view) => {
   view.onScrollToBottom = async (g) => {
     if (pageInfo.value.pageIndex * pageInfo.value.pageSize <= g.getItemCount()) {
       pageInfo.value.pageIndex += 1;
-      isFirstSearch = false;
-      await fetchTrdSpcData(isFirstSearch);
+      isFirstOnly = false;
+      await fetchTrdSpcData(isFirstOnly);
     }
   };
 });
