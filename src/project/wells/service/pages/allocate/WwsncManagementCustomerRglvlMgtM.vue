@@ -569,6 +569,10 @@ async function onClickBulkUpdateCurMnthAlctn() {
 
   data.beginUpdate();
   checkedRows.forEach((rowValue) => {
+    // 2023.11.29 ::: 당월배정 매니저가 없을 경우 데이터 세팅 안함.
+    if (isEmpty(rowValue.curMnthAlctnPrtnrKnm)) {
+      return;
+    }
     data.updateRow(rowValue.dataRow, {
       curMnthAlctnDgr2LevlOgCd: dgr2LevlOgCd,
       curMnthAlctnDgr3LevlOgCd: ogCd,
