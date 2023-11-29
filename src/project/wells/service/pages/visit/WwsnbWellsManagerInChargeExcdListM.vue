@@ -31,27 +31,6 @@
             :label="$t('MSG_TXT_MGT_YNM')"
           />
         </kw-search-item>
-        <kw-search-item
-          :label="$t('MSG_TXT_ZIP')"
-          :colspan="2"
-        >
-          <!--우편번호-->
-          <kw-input
-            v-model="searchParams.fromAdrZip"
-            :maxlength="5"
-            :regex="/^[0-9]*$/i"
-            @blur="zipFromPad"
-            @keydown.enter="zipFromPad"
-          />
-          <span>~</span>
-          <kw-input
-            v-model="searchParams.toAdrZip"
-            :maxlength="5"
-            :regex="/^[0-9]*$/i"
-            @blur="zipToPad"
-            @keydown.enter="zipToPad"
-          />
-        </kw-search-item>
         <kw-search-item :label="$t('MSG_TXT_ACC_DV')">
           <!--계정구분-->
           <kw-select
@@ -60,8 +39,6 @@
                        {codeId: '1', codeName: t('MSG_TXT_VST_ACC') }]"
           /><!--관리계정,방문계정-->
         </kw-search-item>
-      </kw-search-row>
-      <kw-search-row>
         <wwsn-manager-og-search-item-group
           v-model:dgr1-levl-og-id="searchParams.dgr1LevlOgId"
           v-model:dgr2-levl-og-id="searchParams.dgr2LevlOgId"
@@ -72,6 +49,8 @@
           dgr1-levl-og-first-option="all"
           dgr2-levl-og-first-option="all"
         />
+      </kw-search-row>
+      <kw-search-row>
         <kw-search-item
           :label="$t('MSG_TXT_SEARCH_EXCD')"
           :colspan="2"
@@ -136,8 +115,8 @@
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
-import { useDataService, useMeta, codeUtil, gridUtil, useGlobal } from 'kw-lib';
-import { cloneDeep, isEmpty } from 'lodash-es';
+import { useDataService, useMeta, codeUtil, gridUtil } from 'kw-lib';
+import { cloneDeep } from 'lodash-es';
 import dayjs from 'dayjs';
 
 import WwsnManagerOgSearchItemGroup from '~sms-wells/service/components/WwsnManagerOgSearchItemGroup.vue';
@@ -147,7 +126,6 @@ const now = dayjs();
 const { getConfig } = useMeta();
 const dataService = useDataService();
 const { currentRoute } = useRouter();
-const { alert } = useGlobal();
 const router = useRouter();
 // -------------------------------------------------------------------------------------------------
 // Function & Event
@@ -167,8 +145,6 @@ const grdMainRef = ref();
 let cachedParams;
 const searchParams = ref({
   mngtYm: now.format('YYYYMM'),
-  fromAdrZip: '',
-  toAdrZip: '',
   dgr1LevlOgId: '',
   dgr2LevlOgId: '',
   accountDivCd: '0',
@@ -225,35 +201,6 @@ async function onClickExcelDownload() {
   });
 }
 
-function isValidZip() {
-  if (isEmpty(searchParams.value.fromAdrZip) || isEmpty(searchParams.value.toAdrZip)) {
-    return true;
-  }
-  if (searchParams.value.fromAdrZip > searchParams.value.toAdrZip) {
-    alert(t('MSG_TXT_ZIP_VALIDATE')); // 정확한 우편번호를 입력하세요.
-    return false;
-  }
-  return true;
-}
-
-function zipPad(value) {
-  if (value.length > 0) {
-    return value.padStart(5, '0');
-  }
-}
-async function zipFromPad() {
-  searchParams.value.fromAdrZip = zipPad(searchParams.value.fromAdrZip);
-  if (!isValidZip()) {
-    searchParams.value.fromAdrZip = '';
-  }
-}
-async function zipToPad() {
-  searchParams.value.toAdrZip = zipPad(searchParams.value.toAdrZip);
-  if (!isValidZip()) {
-    searchParams.value.toAdrZip = '';
-  }
-}
-
 // -------------------------------------------------------------------------------------------------
 // Initialize Grid
 // -------------------------------------------------------------------------------------------------
@@ -262,7 +209,6 @@ async function initGrdMain(data, view) {
     { fieldName: 'mngtYm' },
     { fieldName: 'dgr1LevlOgCd' },
     { fieldName: 'dgr2LevlOgCd' },
-    { fieldName: 'ogTp' },
     { fieldName: 'cntrNo' },
     { fieldName: 'cntrSn' },
     { fieldName: 'cntr' },
@@ -280,13 +226,11 @@ async function initGrdMain(data, view) {
     { fieldName: 'clsfCdSrnPrntCn' },
     { fieldName: 'egerWk' },
     { fieldName: 'fix' },
-    { fieldName: 'chRsonCn' },
   ];
 
   const columns = [
     { fieldName: 'dgr1LevlOgCd', header: t('MSG_TXT_MANAGEMENT_DEPARTMENT'), styleName: 'text-center', width: '90' }, // 총괄단
     { fieldName: 'dgr2LevlOgCd', header: t('MSG_TXT_RGNL_GRP'), styleName: 'text-center', width: '90' }, // 지역단
-    { fieldName: 'ogTp', header: t('MSG_TXT_ZIP_PSIC'), styleName: 'text-center', width: '120' }, // 우편번호 담당자
     { fieldName: 'cntr',
       header: t('계약상세번호'),
       styleName: 'rg-button-link text-center',
@@ -328,7 +272,6 @@ async function initGrdMain(data, view) {
     { fieldName: 'clsfCdSrnPrntCn', header: t('MSG_TXT_TASK_TYPE'), styleName: 'text-center', width: '100' }, // 업무유형
     { fieldName: 'egerWk', header: t('MSG_TXT_CPSN_ASGN'), styleName: 'text-center', width: '80' }, // 강제배정
     { fieldName: 'fix', header: t('MSG_TXT_FXN'), styleName: 'text-center', width: '50' }, // 고정
-    { fieldName: 'chRsonCn', header: t('MSG_TXT_FXN_RGST_RSON'), styleName: 'text-left', width: '200' }, // 고정등록 사유
   ];
 
   data.setFields(fields);
@@ -337,7 +280,7 @@ async function initGrdMain(data, view) {
   view.rowIndicator.visible = true; // create number indicator column
 
   view.setFixedOptions({
-    colCount: 5,
+    colCount: 4,
   });
 
   view.onCellItemClicked = (grid, clickData) => {
