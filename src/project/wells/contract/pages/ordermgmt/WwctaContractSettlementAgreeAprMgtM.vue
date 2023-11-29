@@ -126,16 +126,15 @@ const isSigned = computed(() => {
 const reportChecked = ref(false);
 
 async function fetchContract() {
-  try {
-    const response = await dataService.post('/sms/wells/contract/contracts/settlements/contract', {
-      cntrNo: params.cntrNo,
-    });
-    contract.value = response.data;
-    includeAccountAutoTransfer.value = contract.value.stlms.some((s) => s.dpTpCd === DP_TP_CD.AC_AFTN);
-  } catch (e) {
-    postMessage('cancelled');
+  const response = await dataService.post('/sms/wells/contract/contracts/settlements/contract', {
+    cntrNo: params.cntrNo,
+  }).catch(async () => {
+    await alert('계약 조회에 실패했습니다.');
+    postMessage('forceClosed', false);
     window.close();
-  }
+  });
+  contract.value = response.data;
+  includeAccountAutoTransfer.value = contract.value.stlms.some((s) => s.dpTpCd === DP_TP_CD.AC_AFTN);
 }
 
 function onConfirmAgrees(agreedInfos) {

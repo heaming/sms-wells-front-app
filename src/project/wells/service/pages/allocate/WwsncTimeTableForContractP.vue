@@ -627,18 +627,21 @@ async function getTimeTables() {
   data.value.totalMaxAbleCnt = 0; // total_max_able_cnt
   data.value.amShowVar = 0; // am_show_var
   data.value.pmShowVar = 0; // pm_show_var
-  const amAbleCnt = toInteger(data.value.psic.amWrkCnt);
-  const pmAbleCnt = toInteger(data.value.psic.pmWrkCnt);
+  const amAbleCnt = toInteger(data.value.psic.amWrkCnt); // 6
+  const pmAbleCnt = toInteger(data.value.psic.pmWrkCnt); // 8
 
+  // 오전 배정건수 계산
   data.value.amTimes.forEach((item) => {
-    data.value.amWrkCnt += toInteger(item.cnt);
-  });
-  data.value.pmTimes1.forEach((item) => {
-    data.value.pmWrkCnt += toInteger(item.cnt);
+    data.value.amWrkCnt += toInteger(item.wrkCCnt); // 47
   });
 
-  data.value.amAlloCnt = amAbleCnt - data.value.amWrkCnt < 0 ? 0 : amAbleCnt - data.value.amWrkCnt;
-  data.value.pmAlloCnt = pmAbleCnt - data.value.pmWrkCnt < 0 ? 0 : pmAbleCnt - data.value.pmWrkCnt;
+  // 오후 배정건수 계산
+  data.value.pmTimes1.forEach((item) => {
+    data.value.pmWrkCnt += toInteger(item.wrkCCnt); // 0
+  });
+
+  data.value.amAlloCnt = (amAbleCnt - data.value.amWrkCnt) < 0 ? 0 : amAbleCnt - data.value.amWrkCnt;
+  data.value.pmAlloCnt = (pmAbleCnt - data.value.pmWrkCnt) < 0 ? 0 : pmAbleCnt - data.value.pmWrkCnt;
 
   data.value.totalAbleCnt = data.value.amAlloCnt + data.value.pmAlloCnt;
   data.value.totalMaxAbleCnt = amAbleCnt + pmAbleCnt - data.value.amWrkCnt + data.value.pmWrkCnt;
