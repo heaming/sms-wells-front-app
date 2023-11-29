@@ -256,7 +256,7 @@ async function fetchData() {
   grdMain1Datas.value.forEach((item) => {
     if (item.bizUseLocaraTno && item.bizUseExnoEncr && item.bizUseIdvTno) {
       item.biztelephone = `${item.bizUseLocaraTno}${item.bizUseExnoEncr}${item.bizUseIdvTno}`;
-    } else {
+    } else if (item.cralLocaraTno && item.mexnoEncr && item.cralIdvTno) {
       item.biztelephone = `${item.cralLocaraTno}${item.mexnoEncr}${item.cralIdvTno}`;
     }
     return item;
