@@ -472,7 +472,10 @@ const initGrdMain = defineGrid((data, view) => {
         componentProps: { mngtYm, csmbPdCd },
       });
 
-      if (result) await fetchData();
+      if (result) {
+        pageInfo.value.needTotalCount = true;
+        await fetchData();
+      }
     }
   };
 });
