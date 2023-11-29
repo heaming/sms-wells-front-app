@@ -305,6 +305,7 @@ async function onClickDdlvBaseCrdovr() {
   if (processCount > 0) {
     // 이월작업이 완료되었습니다.
     notify(t('MSG_ALT_CRDOVR_WK_FSH'));
+    pageInfo.value.needTotalCount = true;
     await fetchData();
   }
 }
