@@ -19,6 +19,7 @@
     v-for="(promotion) in singlePromotions"
     :key="`promotion-${promotion.pmotCd}-${promotion.pmotCndtFvrRelId}`"
     :promotion="promotion"
+    :readonly="readonly"
     @change-applied="((applied) => {promotion.applied = applied})"
   />
   <template
@@ -39,6 +40,7 @@
           <kw-btn-toggle
             v-if="grouped.pmotApyOptCds"
             v-model="grouped.pmotApyOptCd"
+            :disable="readonly"
             dense
             :options="grouped.pmotApyOptCds"
             @change="onChangePmotApyOptCd"
@@ -51,6 +53,7 @@
       v-for="(promotion) in groupingPromotionDict[grouped.pmotApyGrpCd][grouped.pmotApyOptCd]"
       :key="`promotion-${promotion.pmotCd}-${promotion.pmotCndtFvrRelId}`"
       :promotion="promotion"
+      :readonly="readonly"
     />
   </template>
 </template>
@@ -62,6 +65,7 @@ import Promotion from './WwctaPromotion.vue';
 const props = defineProps({
   modelValue: { type: Array, default: () => [] },
   promotions: { type: Array, default: () => [] },
+  readonly: Boolean,
 });
 
 const emit = defineEmits([
