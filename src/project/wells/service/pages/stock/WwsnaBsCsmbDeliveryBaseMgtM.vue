@@ -355,7 +355,7 @@ const initGrdMain = defineGrid((data, view) => {
     { fieldName: 'nwcmrUnitAccN', dataType: 'number' },
     { fieldName: 'nwcmrUnitQty', dataType: 'number' },
     { fieldName: 'nwcmrLmQty', dataType: 'number' },
-    { fieldName: 'nwcmrSortOdr' },
+    { fieldName: 'nwcmrSortOdr', dataType: 'number' },
     { fieldName: 'indvOrtYn' },
     { fieldName: 'indvTpCd' },
     { fieldName: 'indvTpNm' },
@@ -368,7 +368,7 @@ const initGrdMain = defineGrid((data, view) => {
     { fieldName: 'indvUnitAccN', dataType: 'number' },
     { fieldName: 'indvUnitQty', dataType: 'number' },
     { fieldName: 'indvLmQty', dataType: 'number' },
-    { fieldName: 'indvSortOdr' },
+    { fieldName: 'indvSortOdr', dataType: 'number' },
     { fieldName: 'bldOrtYn' },
     { fieldName: 'bldTpCd' },
     { fieldName: 'bldTpNm' },
@@ -381,7 +381,7 @@ const initGrdMain = defineGrid((data, view) => {
     { fieldName: 'bldUnitAccN', dataType: 'number' },
     { fieldName: 'bldUnitQty', dataType: 'number' },
     { fieldName: 'bldLmQty', dataType: 'number' },
-    { fieldName: 'bldSortOdr' },
+    { fieldName: 'bldSortOdr', dataType: 'number' },
   ];
 
   const columns = [
@@ -400,7 +400,7 @@ const initGrdMain = defineGrid((data, view) => {
     { fieldName: 'nwcmrUnitAccN', header: t('MSG_TXT_ACC_UNIT'), width: '100', styleName: 'text-right' },
     { fieldName: 'nwcmrUnitQty', header: t('MSG_TXT_QTY_UNIT'), width: '100', styleName: 'text-right' },
     { fieldName: 'nwcmrLmQty', header: t('MSG_TXT_LM_QTY'), width: '100', styleName: 'text-right' },
-    { fieldName: 'nwcmrSortOdr', header: t('MSG_TXT_SORT_ORDER'), width: '100', styleName: 'text-right' },
+    { fieldName: 'nwcmrSortOdr', header: t('MSG_TXT_SORT_ORDER'), width: '100', styleName: 'text-right', numberFormat: '######' },
     { fieldName: 'indvOrtYn', header: t('MSG_TXT_ORT_YN'), width: '100', styleName: 'text-center' },
     { fieldName: 'indvTpNm', header: `${t('MSG_TXT_TYPE')}1`, width: '100', styleName: 'text-center' },
     { fieldName: 'indvCmptBaseNm', header: `${t('MSG_TXT_TYPE')}2`, width: '100', styleName: 'text-center' },
@@ -409,7 +409,7 @@ const initGrdMain = defineGrid((data, view) => {
     { fieldName: 'indvUnitAccN', header: t('MSG_TXT_ACC_UNIT'), width: '100', styleName: 'text-right' },
     { fieldName: 'indvUnitQty', header: t('MSG_TXT_QTY_UNIT'), width: '100', styleName: 'text-right' },
     { fieldName: 'indvLmQty', header: t('MSG_TXT_LM_QTY'), width: '100', styleName: 'text-right' },
-    { fieldName: 'indvSortOdr', header: t('MSG_TXT_SORT_ORDER'), width: '100', styleName: 'text-right' },
+    { fieldName: 'indvSortOdr', header: t('MSG_TXT_SORT_ORDER'), width: '100', styleName: 'text-right', numberFormat: '######' },
     { fieldName: 'bldOrtYn', header: t('MSG_TXT_ORT_YN'), width: '100', styleName: 'text-center' },
     { fieldName: 'bldTpNm', header: `${t('MSG_TXT_TYPE')}1`, width: '100', styleName: 'text-center' },
     { fieldName: 'bldCmptBaseNm', header: `${t('MSG_TXT_TYPE')}2`, width: '100', styleName: 'text-center' },
@@ -418,7 +418,7 @@ const initGrdMain = defineGrid((data, view) => {
     { fieldName: 'bldUnitAccN', header: t('MSG_TXT_ACC_UNIT'), width: '100', styleName: 'text-right' },
     { fieldName: 'bldUnitQty', header: t('MSG_TXT_QTY_UNIT'), width: '100', styleName: 'text-right' },
     { fieldName: 'bldLmQty', header: t('MSG_TXT_LM_QTY'), width: '100', styleName: 'text-right' },
-    { fieldName: 'bldSortOdr', header: t('MSG_TXT_SORT_ORDER'), width: '100', styleName: 'text-right' },
+    { fieldName: 'bldSortOdr', header: t('MSG_TXT_SORT_ORDER'), width: '100', styleName: 'text-right', numberFormat: '######' },
   ];
 
   const columnLayout = [
