@@ -886,19 +886,19 @@ async function getDeliveryBase() {
   basData.value.rmkCn = rmkCn;
 
   // 신입 배부기준
-  const { nwcmrOrtYn, nwcmrTpCd, nwcmrCmptBaseCd, nwcmrOjPdGrpCd,
-    nwcmrOjAccTpCd, nwcmrUnitAccN, nwcmrUnitQty, nwcmrAplcLmQty, nwcmrSortOdr } = res.data;
+  const { nwcmrOrtYn, nwcmrTpCd, nwcmrCmptBaseCd, nwcmrPdGrpCd,
+    nwcmrAccTpCd, nwcmrUnitAccN, nwcmrUnitQty, nwcmrLmQty, nwcmrSortOdr } = res.data;
 
   ddlvOjCd1Data.value.mngtYm = mngtYm;
   ddlvOjCd1Data.value.csmbPdCd = csmbPdCd;
   ddlvOjCd1Data.value.bfsvcCsmbDdlvOrtYn = nwcmrOrtYn;
   ddlvOjCd1Data.value.bfsvcCsmbDdlvTpCd = nwcmrTpCd;
   ddlvOjCd1Data.value.bfsvcCsmbDdlvCmptBaseCd = nwcmrCmptBaseCd;
-  ddlvOjCd1Data.value.bfsvcCsmbDdlvOjPdGrpCd = nwcmrOjPdGrpCd;
-  ddlvOjCd1Data.value.bfsvcCsmbDdlvOjAccTpCd = nwcmrOjAccTpCd;
+  ddlvOjCd1Data.value.bfsvcCsmbDdlvOjPdGrpCd = nwcmrPdGrpCd;
+  ddlvOjCd1Data.value.bfsvcCsmbDdlvOjAccTpCd = nwcmrAccTpCd;
   ddlvOjCd1Data.value.bfsvcCsmbDdlvUnitAccN = nwcmrUnitAccN;
   ddlvOjCd1Data.value.bfsvcCsmbDdlvUnitQty = nwcmrUnitQty;
-  ddlvOjCd1Data.value.bfsvcCsmbAplcLmQty = nwcmrAplcLmQty;
+  ddlvOjCd1Data.value.bfsvcCsmbAplcLmQty = nwcmrLmQty;
   ddlvOjCd1Data.value.sortOdr = nwcmrSortOdr;
 
   // 개인 배부기준
