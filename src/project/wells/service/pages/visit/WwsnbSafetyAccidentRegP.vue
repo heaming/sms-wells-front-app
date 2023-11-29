@@ -190,12 +190,17 @@
           />
         </kw-form-item>
         <!-- 사고일시 -->
-        <kw-form-item :label="$t('MSG_TXT_ACDN_DTM')">
+        <kw-form-item
+          :label="$t('MSG_TXT_ACDN_DTM')"
+          required
+        >
           <kw-date-picker
             v-model="safetyAccident.acdnDt"
+            rules="required"
           />
           <kw-time-picker
             v-model="safetyAccident.acdnTm"
+            rules="required"
           />
         </kw-form-item>
         <!-- 위치 -->
