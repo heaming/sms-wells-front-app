@@ -431,6 +431,9 @@ async function onChangeAgrgDv() {
   } else {
     isDisable.value = false;
   }
+  if (agrgDv === '2' || agrgDv === '4') {
+    searchParams.value.inquiryDivide = '1';
+  }
 }
 
 async function onChangeSellTpCd() {

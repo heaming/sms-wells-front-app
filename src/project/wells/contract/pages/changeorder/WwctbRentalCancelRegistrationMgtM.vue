@@ -676,16 +676,18 @@
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
-import { codeUtil, getComponentType, stringUtil, store, useDataService, useGlobal } from 'kw-lib';
+import { codeUtil, getComponentType, store, stringUtil, useDataService, useGlobal, useMeta } from 'kw-lib';
 import dayjs from 'dayjs';
 import { isEmpty, isEqual } from 'lodash';
 import { openReportPopup } from '~common/utils/cmPopupUtil';
 
 const { t } = useI18n();
-const dataService = useDataService();
-const frmMainRental = ref(getComponentType('KwForm'));
 const { notify, modal } = useGlobal();
+const dataService = useDataService();
 const { companyCode } = store.getters['meta/getUserInfo'];
+const frmMainRental = ref(getComponentType('KwForm'));
+const { getUserInfo } = useMeta();
+const sessionUserInfo = getUserInfo();
 
 const codes = await codeUtil.getMultiCodes(
   'CCAM_EXMPT_DV_CD', // 위약금면책구분코드
@@ -719,6 +721,9 @@ codes.CCAM_EXMPT_DV_CD.forEach((e) => { e.codeName = `(${e.codeId})${e.codeName}
 codes.CMN_STAT_CH_RSON_CD.forEach((e) => { e.codeName = `(${e.codeId})${e.codeName}`; });
 codes.CSMB_CS_EXMPT_DV_CD.forEach((e) => { e.codeName = `(${e.codeId})${e.codeName}`; });
 codes.REQD_CS_EXMPT_DV_CD.forEach((e) => { e.codeName = `(${e.codeId})${e.codeName}`; });
+
+searchDetail.slCtrRqrId = searchDetail.slCtrRqrId ?? sessionUserInfo.employeeIDNumber;
+
 // -------------------------------------------------------------------------------------------------
 // Function & Event
 // -------------------------------------------------------------------------------------------------

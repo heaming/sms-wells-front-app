@@ -26,8 +26,6 @@
             v-model="searchParams.ogId"
             :options="serviceCenter"
             first-option="all"
-            option-label="ogNm"
-            option-value="ogId"
           />
         </kw-search-item>
         <kw-search-item
@@ -91,7 +89,6 @@
         :total-count="pageInfo.totalCount"
         @init="initGrid"
       />
-      />
       <kw-pagination
         v-model:page-index="pageInfo.pageIndex"
         v-model:page-size="pageInfo.pageSize"
@@ -133,9 +130,12 @@ const codes = await codeUtil.getMultiCodes(
   'COD_PAGE_SIZE_OPTIONS',
 );
 
-const serviceCode = ['71350', '71352', '71355', '71356', '71357', '71359', '71360', '71361', '71363', '71364', '71365', '71366', '71367', '71387', '71784', '71917', '71918', '71919', '71937'];
+// eslint-disable-next-line max-len
+// const serviceCode = ['71350', '71352', '71355', '71356', '71357', '71359', '71360', '71361', '71363', '71364', '71365', '71366', '71367', '71387', '71784', '71917', '71918', '71919', '71937'];
+const serviceCode = ['71350', '71367', '71359', '71919', '71356', '71355', '71352', '71360', '71917', '71364', '71363', '71918', '71784', '71361', '71937', '71387', '71357', '71366', '71365'];
 const serviceCenterOrgs = await getServiceCenterOrgs();
-const serviceCenter = serviceCenterOrgs.filter((item) => serviceCode.some((code) => code === item.ogCd));
+const serviceCenter = serviceCenterOrgs.filter((item) => serviceCode.some((code) => code === item.ogCd))
+  .map((p1) => ({ codeId: p1.ogId, codeName: `${p1.ogNm}(${p1.ogCd})` }));
 
 const pageInfo = ref({
   totalCount: 0,

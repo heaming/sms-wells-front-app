@@ -696,8 +696,8 @@ function initGrdMain(data, view) {
     { fieldName: 'cntrNo' }, // 계약번호
     { fieldName: 'cntrSn' }, // 계약번호
     { fieldName: 'rcgvpKnm' }, // 고객명
-    { fieldName: 'svpdSapCd' }, // SAP코드
-    { fieldName: 'pdctPdCd' }, // 품목코드
+    // { fieldName: 'svpdSapCd' }, // SAP코드
+    // { fieldName: 'pdctPdCd' }, // 품목코드
     { fieldName: 'svpdNmAbbr1' }, // 상품명
     { fieldName: 'istDt' }, // 설치일자
     { fieldName: 'newAdrZip' }, // 우편번호
@@ -740,8 +740,8 @@ function initGrdMain(data, view) {
   const columns = [
     { fieldName: 'cntr', header: t('MSG_TXT_CNTR_DTL_NO'), width: '140', styleName: 'rg-button-link text-center', renderer: { type: 'button' } }, // 계약번호
     { fieldName: 'rcgvpKnm', header: t('MSG_TXT_CST_NM'), width: '100', styleName: 'text-center' }, // 고객명
-    { fieldName: 'svpdSapCd', header: t('MSG_TXT_SAP_CD'), width: '180', styleName: 'text-center' }, // SAP 코드
-    { fieldName: 'pdctPdCd', header: t('MSG_TXT_ITM_CD'), width: '110', styleName: 'text-center' }, // 품목코드
+    // { fieldName: 'svpdSapCd', header: t('MSG_TXT_SAP_CD'), width: '180', styleName: 'text-center' }, // SAP 코드
+    // { fieldName: 'pdctPdCd', header: t('MSG_TXT_ITM_CD'), width: '110', styleName: 'text-center' }, // 품목코드
     { fieldName: 'svpdNmAbbr1', header: t('MSG_TXT_PRDT_NM'), width: '110', styleName: 'text-center' }, // 상품명
     { fieldName: 'istDt', header: t('MSG_TXT_IST_DT'), width: '100', datetimeFormat: 'yyyy-MM-dd', styleName: 'text-center' }, // 설치일자
     { fieldName: 'newAdrZip', header: t('MSG_TXT_ZIP'), width: '70', styleName: 'text-center' }, // 우편번호
@@ -786,13 +786,13 @@ function initGrdMain(data, view) {
   view.setColumns(columns);
   view.checkBar.visible = true; // create checkbox column
   view.rowIndicator.visible = true; // create number indicator column
-  view.fixedOptions.colCount = 4;
+  view.fixedOptions.colCount = 2;
 
   view.setColumnLayout([
     'cntr',
     'rcgvpKnm',
-    'svpdSapCd',
-    'pdctPdCd',
+    // 'svpdSapCd',
+    // 'pdctPdCd',
     'svpdNmAbbr1',
     'istDt',
     'newAdrZip',
