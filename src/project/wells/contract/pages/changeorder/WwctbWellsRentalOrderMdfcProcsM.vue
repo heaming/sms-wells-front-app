@@ -232,6 +232,13 @@
                   <span class="text-bold kw-font-pt18">
                     {{ $t('MSG_TXT_ODER') + $t('MSG_TXT_PRDT') + ' ' + $t('MSG_TXT_SELT') }}
                   </span>
+
+                  <span
+                    v-if="fieldData.svcPdChYn==='Y'"
+                    style="float: right; color: red;"
+                  >
+                    {{ '※ 서비스제품변경 건으로 가격 수정이 불가합니다.' }}
+                  </span>
                 </kw-item-label>
               </kw-item-section>
             </template>
@@ -246,7 +253,7 @@
                   icon="search"
                   maxlength="100"
                   grow
-                  :disable="!isFetched || fieldData.slClYn==='Y'"
+                  :disable="!isFetched || fieldData.slClYn==='Y' || fieldData.svcPdChYn==='Y'"
                   @click-icon="onClickSelectProduct"
                 />
               </kw-form-item>
