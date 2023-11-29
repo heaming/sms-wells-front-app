@@ -284,18 +284,6 @@
                       :disable="fieldData.slClYn==='Y'"
                     />
                   </kw-form-item>
-
-                  <kw-form-item
-                    label="법인추가할인"
-                  >
-                    <kw-input
-                      v-model="productExtra.sellDscCtrAmt"
-                      maxlength="10"
-                      type="number"
-                      :readonly="fieldData.copnDvCd !== '2'"
-                      :disable="fieldData.slClYn==='Y'"
-                    />
-                  </kw-form-item>
                 </kw-form-row>
 
                 <kw-form-row>
@@ -1048,7 +1036,6 @@ const promotions = ref([]); // 적용가능한 프로모션
 // ADMIN용 추가 데이터
 const productExtra = ref({
   alncmpCd: '', // 제휴상품
-  sellDscCtrAmt: 0, // 법인추가할인
   cntrChAkCn: '', // 변경사유
   ackmtAmt: 0, // 인정실적
   ackmtRt: 0, // 인정실적율
@@ -1256,7 +1243,6 @@ function onPriceChanged(item, price) {
 
     // 적용되있는 제휴사코드, 판매할인조정금액(법인추가할인) 세팅
     productExtra.value.alncmpCd = fieldData.value.alncmpCd;
-    productExtra.value.sellDscCtrAmt = fieldData.value.sellDscCtrAmt;
 
     isCnfmPd.value = true;
     obsRef.value.init();
@@ -1632,14 +1618,6 @@ watch(() => orderProduct.value.finalPrice?.ackmtRt, async () => {
 
 watch(() => orderProduct.value.finalPrice?.feeAckmtBaseAmt, async () => {
   productExtra.value.feeAckmtBaseAmt = orderProduct.value?.finalPrice?.feeAckmtBaseAmt;
-});
-
-watch(() => productExtra.value.sellDscCtrAmt, async () => {
-  if (toNumber(productExtra.value.sellDscCtrAmt || 0) > toNumber(orderProduct.value.fnlAmt || 0)) {
-    productExtra.value.sellDscCtrAmt = 0;
-    alert('할인금액이 렌탈금액보다 높을 수 없습니다.');
-  }
-  orderProduct.value.sellDscCtrAmt = productExtra.value.sellDscCtrAmt;
 });
 
 // -------------------------------------------------------------------------------------------------
