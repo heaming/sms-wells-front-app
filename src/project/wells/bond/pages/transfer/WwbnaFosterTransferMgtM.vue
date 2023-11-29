@@ -356,6 +356,7 @@ const onClickCustomer = async () => {
     componentProps: {
       baseYm: searchParams.value.baseYm,
       cstNm: searchParams.value.cstNm,
+      cstNo: searchParams.value.cstNo,
       bndClctnPrpDvCd: '03',
     },
   });
