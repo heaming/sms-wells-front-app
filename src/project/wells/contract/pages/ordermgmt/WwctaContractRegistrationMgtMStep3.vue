@@ -251,6 +251,16 @@
                   :options="codes.WPRS_ITST_TP_CD"
                 />
               </kw-form-item>
+              <kw-form-item
+                v-if="item.wellsDtl.wrfrIstMthCds"
+                label="설치방식"
+              >
+                <kw-option-group
+                  v-model="item.wellsDtl.wrfrIstMthCd"
+                  type="radio"
+                  :options="codes.PNCH_IST_TP_CD.filter((code) => item.wellsDtl.wrfrIstMthCds?.includes(code.codeId))"
+                />
+              </kw-form-item>
             </kw-form-row>
           </template>
           <kw-form-row>
@@ -452,11 +462,12 @@
 // -------------------------------------------------------------------------------------------------
 import ZwcmTelephoneNumber from '~common/components/ZwcmTelephoneNumber.vue';
 import ZwcmPostCode from '~common/components/ZwcmPostCode.vue';
-import { alert, codeUtil, notify, useDataService } from 'kw-lib';
+import { alert, notify, useDataService } from 'kw-lib';
 import { cloneDeep } from 'lodash-es';
 import { getNumberWithComma } from '~sms-common/contract/util';
 import { COPN_DV_CD, SELL_TP_CD, SELL_TP_DTL_CD } from '~sms-wells/contract/constants/ctConst';
 import { getDisplayPriceByCntrDtl } from '~sms-wells/contract/utils/CtPriceUtil';
+import { useCtCode } from '~sms-common/contract/composable';
 
 const props = defineProps({
   contract: { type: Object, required: true },
@@ -472,7 +483,7 @@ const { getters } = useStore();
 const { baseRleCd } = getters['meta/getUserInfo'];
 
 const dataService = useDataService();
-const codes = await codeUtil.getMultiCodes(
+const { codes } = await useCtCode(
   'CNTRT_REL_CD',
   'IST_PLC_TP_CD',
   'WRFR_IST_MTH_CD',
@@ -480,6 +491,7 @@ const codes = await codeUtil.getMultiCodes(
   'WPRS_ITST_TP_CD',
   'USE_ELECT_TP_CD',
   'HCR_DV_CD',
+  'PNCH_IST_TP_CD',
   'COD_YN',
 );
 codes.FMMB_N = [
