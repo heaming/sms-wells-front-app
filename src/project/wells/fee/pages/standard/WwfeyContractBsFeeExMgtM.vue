@@ -298,6 +298,7 @@ async function onClickExcelDownload() {
     fileName: currentRoute.value.meta.menuName,
     timePostfix: true,
     exportData: res.data, // 현재 그리드에 보여지는 데이터가 아닌 전체 데이터 다운로드 시 사용
+    applyFixed: true,
   });
 }
 
