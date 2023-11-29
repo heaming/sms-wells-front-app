@@ -231,6 +231,7 @@ const pageInfoContracts = ref({
 });
 
 let isOnly = false;
+let isFirstSearch = true;
 
 // -------------------------------------------------------------------------------------------------
 // Function & Event
@@ -290,8 +291,9 @@ async function onChangeDocDvCd() {
     // grdRef.value.getData().clearRows();
     pageInfo.value.pageIndex = 1;
     pageInfo.value.totalCount = 0;
+    isFirstSearch = true;
     // eslint-disable-next-line no-use-before-define
-    await fetchTrdSpcData(); // 증빙서류 종류
+    await fetchTrdSpcData(isFirstSearch); // 증빙서류 종류
   } else if (searchParams.value.cntrDvCd === '2') { // 고객번호
     searchParams.value.cntrDvCd = '1'; // 계약번호
     pageInfo.value.totalCount1 = 0;
@@ -309,8 +311,9 @@ async function onChangeCntrDvCd() {
     pageInfo.value.totalCount = 0;
     // pageInfo.value.totalCount1 = pageInfo.value.totalCount;
 
+    isFirstSearch = true;
     // eslint-disable-next-line no-use-before-define
-    await fetchTrdSpcData(); // 증빙서류 종류
+    await fetchTrdSpcData(isFirstSearch); // 증빙서류 종류
   } else if (searchParams.value.cntrDvCd === '2') { // 고객번호
     isGrdContractsVisible.value = true;
     isSearchDivVisible.value = true;
@@ -360,14 +363,16 @@ async function fetchCtnrLstData(bOnly) {
   view.resetCurrent();
 
   if (bOnly === false) {
+    isFirstSearch = true;
     // eslint-disable-next-line no-use-before-define
-    await fetchTrdSpcData(); // 증빙서류 종류
+    await fetchTrdSpcData(isFirstSearch); // 증빙서류 종류
   }
   isOnly = false;
 }
 
 // 증빙서류종류
-async function fetchTrdSpcData() {
+// eslint-disable-next-line no-shadow
+async function fetchTrdSpcData(isFirstSearch) {
   // changing api & cacheparams according to search classification
   let res = '';
 
@@ -405,7 +410,9 @@ async function fetchTrdSpcData() {
     return;
   }
 
-  grdRef.value.getData().clearRows();
+  if (isFirstSearch === true) {
+    grdRef.value.getData().clearRows();
+  }
   const view = grdRef.value.getView();
   const { list: pages, pageInfo: pagingResult } = res.data;
   ozParamsList.value = pages;
@@ -444,7 +451,8 @@ async function onClickSearch() {
     pageInfo.value.pageIndex = 1;
     pageInfo.value.totalCount = 0;
 
-    await fetchTrdSpcData(); // 증빙서류 종류
+    isFirstSearch = true;
+    await fetchTrdSpcData(isFirstSearch); // 증빙서류 종류
   } else if (searchParams.value.cntrDvCd === '2') {
     grdRef.value.getData().clearRows();
     grdContracts.value.getData().clearRows();
@@ -702,7 +710,7 @@ async function onClickPblPrnt() {
 }
 
 onMounted(async () => {
-  await fetchTrdSpcData(); // 증빙서류 종류(입금내역)
+  await fetchTrdSpcData(isFirstSearch); // 증빙서류 종류(입금내역)
 });
 
 // -------------------------------------------------------------------------------------------------
@@ -823,7 +831,8 @@ const initGrdDepositItemizationSheet = defineGrid((data, view) => {
   view.onScrollToBottom = async (g) => {
     if (pageInfo.value.pageIndex * pageInfo.value.pageSize <= g.getItemCount()) {
       pageInfo.value.pageIndex += 1;
-      await fetchTrdSpcData();
+      isFirstSearch = false;
+      await fetchTrdSpcData(isFirstSearch);
     }
   };
 });
@@ -869,7 +878,8 @@ const initGrdTradeSpecificationSheet = defineGrid((data, view) => {
   view.onScrollToBottom = async (g) => {
     if (pageInfo.value.pageIndex * pageInfo.value.pageSize <= g.getItemCount()) {
       pageInfo.value.pageIndex += 1;
-      await fetchTrdSpcData();
+      isFirstSearch = false;
+      await fetchTrdSpcData(isFirstSearch);
     }
   };
 });
@@ -918,7 +928,8 @@ const initGrdCardSalesSlip = defineGrid((data, view) => {
   view.onScrollToBottom = async (g) => {
     if (pageInfo.value.pageIndex * pageInfo.value.pageSize <= g.getItemCount()) {
       pageInfo.value.pageIndex += 1;
-      await fetchTrdSpcData();
+      isFirstSearch = false;
+      await fetchTrdSpcData(isFirstSearch);
     }
   };
 });
@@ -960,7 +971,8 @@ const initGrdContractArticles = defineGrid((data, view) => {
   view.onScrollToBottom = async (g) => {
     if (pageInfo.value.pageIndex * pageInfo.value.pageSize <= g.getItemCount()) {
       pageInfo.value.pageIndex += 1;
-      await fetchTrdSpcData();
+      isFirstSearch = false;
+      await fetchTrdSpcData(isFirstSearch);
     }
   };
 });
