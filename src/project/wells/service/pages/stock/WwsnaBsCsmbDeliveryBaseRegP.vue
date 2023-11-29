@@ -76,7 +76,7 @@
             :disable="isDisable"
           />
         </kw-form-item>
-        <kw-form-item :label="$t('MSG_TXT_ITM_DV')">
+        <kw-form-item :label="$t('MSG_TXT_GO_DV')">
           <kw-select
             v-model="basData.goDvCd"
             :options="codes.GO_DV_CD"
@@ -129,6 +129,7 @@
               v-model="ddlvOjCd1Data.bfsvcCsmbDdlvTpCd"
               :label="$t('MSG_TXT_DDLV_TP')"
               :options="codes.BFSVC_CSMB_DDLV_TP_CD"
+              placeholder=""
               :disable="isDisableYn1 || isDisable"
               :rules="isRequiredDdlvTp1"
               class="mr8 w167"
@@ -138,6 +139,7 @@
               v-model="ddlvOjCd1Data.bfsvcCsmbDdlvCmptBaseCd"
               :label="$t('MSG_TXT_DDLV_TP')"
               :options="codes.BFSVC_CSMB_DDLV_CMPT_BASE_CD"
+              placeholder=""
               :disable="isDisableYn1 || isDisableCmptBaseCd1"
               :rules="isRequiredCmptBaseCd1"
               class="w167"
@@ -149,7 +151,8 @@
             v-model="ddlvOjCd1Data.bfsvcCsmbDdlvOjPdGrpCd"
             :label="$t('MSG_TXT_DDLV_OJ_PD_GRP')"
             :options="codes.PD_GRP_CD"
-            first-option="all"
+            first-option=""
+            placeholder=""
             :disable="isDisableYn1 || isDisable"
             :rules="isRequiredAccPrpnYn1"
           />
@@ -229,6 +232,7 @@
               v-model="ddlvOjCd2Data.bfsvcCsmbDdlvTpCd"
               :label="$t('MSG_TXT_DDLV_TP')"
               :options="codes.BFSVC_CSMB_DDLV_TP_CD"
+              placeholder=""
               :disable="isDisableYn2 || isDisable"
               :rules="isRequiredDdlvTp2"
               class="mr8 w167"
@@ -238,6 +242,7 @@
               v-model="ddlvOjCd2Data.bfsvcCsmbDdlvCmptBaseCd"
               :label="$t('MSG_TXT_DDLV_TP')"
               :options="codes.BFSVC_CSMB_DDLV_CMPT_BASE_CD"
+              placeholder=""
               :disable="isDisableYn2 || isDisableCmptBaseCd2"
               :rules="isRequiredCmptBaseCd2"
               class="w167"
@@ -249,7 +254,8 @@
             v-model="ddlvOjCd2Data.bfsvcCsmbDdlvOjPdGrpCd"
             :label="$t('MSG_TXT_DDLV_OJ_PD_GRP')"
             :options="codes.PD_GRP_CD"
-            first-option="all"
+            first-option=""
+            placeholder=""
             :disable="isDisableYn2 || isDisable"
             :rules="isRequiredAccPrpnYn2"
           />
@@ -329,6 +335,7 @@
               v-model="ddlvOjCd3Data.bfsvcCsmbDdlvTpCd"
               :label="$t('MSG_TXT_DDLV_TP')"
               :options="codes.BFSVC_CSMB_DDLV_TP_CD"
+              placeholder=""
               :disable="isDisableYn3 || isDisable"
               :rules="isRequiredDdlvTp3"
               class="mr8 w167"
@@ -338,6 +345,7 @@
               v-model="ddlvOjCd3Data.bfsvcCsmbDdlvCmptBaseCd"
               :label="$t('MSG_TXT_DDLV_TP')"
               :options="codes.BFSVC_CSMB_DDLV_CMPT_BASE_CD"
+              placeholder=""
               :disable="isDisableYn3 || isDisableCmptBaseCd3"
               :rules="isRequiredCmptBaseCd3"
               class="w167"
@@ -348,7 +356,8 @@
           <kw-select
             v-model="ddlvOjCd3Data.bfsvcCsmbDdlvOjPdGrpCd"
             :label="$t('MSG_TXT_DDLV_OJ_PD_GRP')"
-            first-option="all"
+            first-option=""
+            placeholder=""
             :options="codes.PD_GRP_CD"
             :disable="isDisableYn3 || isDisable"
             :rules="isRequiredAccPrpnYn3"
@@ -893,35 +902,35 @@ async function getDeliveryBase() {
   ddlvOjCd1Data.value.sortOdr = nwcmrSortOdr;
 
   // 개인 배부기준
-  const { indvOrtYn, indvTpCd, indvCmptBaseCd, indvOjPdGrpCd,
-    indvOjAccTpCd, indvUnitAccN, indvUnitQty, indvAplcLmQty, indvSortOdr } = res.data;
+  const { indvOrtYn, indvTpCd, indvCmptBaseCd, indvPdGrpCd,
+    indvAccTpCd, indvUnitAccN, indvUnitQty, indvLmQty, indvSortOdr } = res.data;
 
   ddlvOjCd2Data.value.mngtYm = mngtYm;
   ddlvOjCd2Data.value.csmbPdCd = csmbPdCd;
   ddlvOjCd2Data.value.bfsvcCsmbDdlvOrtYn = indvOrtYn;
   ddlvOjCd2Data.value.bfsvcCsmbDdlvTpCd = indvTpCd;
   ddlvOjCd2Data.value.bfsvcCsmbDdlvCmptBaseCd = indvCmptBaseCd;
-  ddlvOjCd2Data.value.bfsvcCsmbDdlvOjPdGrpCd = indvOjPdGrpCd;
-  ddlvOjCd2Data.value.bfsvcCsmbDdlvOjAccTpCd = indvOjAccTpCd;
+  ddlvOjCd2Data.value.bfsvcCsmbDdlvOjPdGrpCd = indvPdGrpCd;
+  ddlvOjCd2Data.value.bfsvcCsmbDdlvOjAccTpCd = indvAccTpCd;
   ddlvOjCd2Data.value.bfsvcCsmbDdlvUnitAccN = indvUnitAccN;
   ddlvOjCd2Data.value.bfsvcCsmbDdlvUnitQty = indvUnitQty;
-  ddlvOjCd2Data.value.bfsvcCsmbAplcLmQty = indvAplcLmQty;
+  ddlvOjCd2Data.value.bfsvcCsmbAplcLmQty = indvLmQty;
   ddlvOjCd2Data.value.sortOdr = indvSortOdr;
 
   // 빌딩 배부기준
-  const { bldOrtYn, bldvTpCd, bldCmptBaseCd, bldOjPdGrpCd,
-    bldOjAccTpCd, bldUnitAccN, bldUnitQty, bldAplcLmQty, bldSortOdr } = res.data;
+  const { bldOrtYn, bldTpCd, bldCmptBaseCd, bldPdGrpCd,
+    bldAccTpCd, bldUnitAccN, bldUnitQty, bldLmQty, bldSortOdr } = res.data;
 
   ddlvOjCd3Data.value.mngtYm = mngtYm;
   ddlvOjCd3Data.value.csmbPdCd = csmbPdCd;
   ddlvOjCd3Data.value.bfsvcCsmbDdlvOrtYn = bldOrtYn;
-  ddlvOjCd3Data.value.bfsvcCsmbDdlvTpCd = bldvTpCd;
+  ddlvOjCd3Data.value.bfsvcCsmbDdlvTpCd = bldTpCd;
   ddlvOjCd3Data.value.bfsvcCsmbDdlvCmptBaseCd = bldCmptBaseCd;
-  ddlvOjCd3Data.value.bfsvcCsmbDdlvOjPdGrpCd = bldOjPdGrpCd;
-  ddlvOjCd3Data.value.bfsvcCsmbDdlvOjAccTpCd = bldOjAccTpCd;
+  ddlvOjCd3Data.value.bfsvcCsmbDdlvOjPdGrpCd = bldPdGrpCd;
+  ddlvOjCd3Data.value.bfsvcCsmbDdlvOjAccTpCd = bldAccTpCd;
   ddlvOjCd3Data.value.bfsvcCsmbDdlvUnitAccN = bldUnitAccN;
   ddlvOjCd3Data.value.bfsvcCsmbDdlvUnitQty = bldUnitQty;
-  ddlvOjCd3Data.value.bfsvcCsmbAplcLmQty = bldAplcLmQty;
+  ddlvOjCd3Data.value.bfsvcCsmbAplcLmQty = bldLmQty;
   ddlvOjCd3Data.value.sortOdr = bldSortOdr;
 
   isNewMode = false;
