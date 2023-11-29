@@ -275,7 +275,7 @@
       <kw-grid
         ref="grdMainRef"
         name="grdMain"
-        :page-size="codes.COD_PAGE_SIZE_OPTIONS.find((x) => x.codeId === '30').codeName"
+        :page-size="codes.COD_PAGE_SIZE_OPTIONS.find((x) => x.codeId === '20').codeName"
         :total-count="totalCount"
         @init="initGrdMain"
       />
