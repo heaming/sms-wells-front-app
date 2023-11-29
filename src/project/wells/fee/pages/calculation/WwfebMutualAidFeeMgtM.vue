@@ -206,6 +206,7 @@ async function onClickExcelDownload() {
     fileName: currentRoute.value.meta.menuName,
     timePostfix: true,
     exportData: data,
+    applyFixed: true,
   });
 }
 // 수수료 생성 버튼
