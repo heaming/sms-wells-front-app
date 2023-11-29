@@ -56,7 +56,7 @@
           <!--계정구분-->
           <kw-select
             v-model="searchParams.accountDivCd"
-            :options="[{codeId: '', codeName: t('MSG_TXT_MNGT_ACC') },
+            :options="[{codeId: '0', codeName: t('MSG_TXT_MNGT_ACC') },
                        {codeId: '1', codeName: t('MSG_TXT_VST_ACC') }]"
           /><!--관리계정,방문계정-->
         </kw-search-item>
@@ -171,7 +171,7 @@ const searchParams = ref({
   toAdrZip: '',
   dgr1LevlOgId: '',
   dgr2LevlOgId: '',
-  accountDivCd: '',
+  accountDivCd: '0',
   exceptWellsFarmYn: '',
   exceptFixYn: '',
   exceptEgerWkYn: '',
