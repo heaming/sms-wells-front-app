@@ -17,6 +17,7 @@
   <kw-page>
     <kw-search
       :cols="4"
+      :default-visible-rows="3"
       @search="onClickSearch"
     >
       <kw-search-row>
@@ -51,12 +52,14 @@
         </kw-search-item>
         <kw-search-item
           v-if="isCompStatus"
+          :colspan="2"
           :label="$t('MSG_TXT_WK_DT')"
         >
-          <kw-date-picker
-            v-model="searchParams.ostrCnfmDt"
+          <kw-date-range-picker
+            v-model:from="searchParams.wkStartDt"
+            v-model:to="searchParams.wkEndDt"
             :label="$t('MSG_TXT_WK_DT')"
-            rules="required"
+            rules="date_range_required"
           />
         </kw-search-item>
       </kw-search-row>
@@ -123,13 +126,13 @@
             :total-count="totalCount"
           />
         </template>
-        <!-- 택배송장 -->
+        <!-- 엑셀 업로드 -->
         <kw-btn
           v-show="isCompStatus"
           icon="download_on"
           dense
           secondary
-          :label="$t('MSG_TXT_PCSV_IVC')"
+          :label="$t('MSG_BTN_ULD_SMP_FORM')"
           @click="onClickExcelDownload2"
         />
         <!-- 엑셀업로드 -->
@@ -210,9 +213,10 @@ const customCodes = {
   ],
 };
 const searchParams = ref({
-  startDt: now.startOf('month').format('YYYYMMDD'), // 시작일자
-  endDt: now.format('YYYYMMDD'), // 종료일자
-  ostrCnfmDt: now.format('YYYYMMDD'),
+  startDt: now.startOf('month').format('YYYYMMDD'), /*  계약 시작일자 */
+  endDt: now.format('YYYYMMDD'), /* 계약 종료일자 */
+  wkStartDt: now.format('YYYYMMDD'), /*  작업 시작일자 */
+  wkEndDt: now.format('YYYYMMDD'), /* 작업 종료일자 */
   firstSppGb: 'ALL', /* 첫 배송 여부 */
   findGb: '2', /* 조회 구분 */
   selCnt: '', /* 조회 제한건수  */
@@ -249,7 +253,7 @@ async function fetchData() {
   const view = grdMainRef.value.getView();
   view.getDataSource().setRows(list);
   view.resetCurrent();
-  // 택배송장 목록
+  // 엑셀 업로드 목록
   const view2 = grdSppIvcRef.value.getView();
   view2.getDataSource().setRows(list);
 }
@@ -282,7 +286,7 @@ async function onClickExcelDownload() {
 async function onClickExcelDownload2() {
   const view = grdSppIvcRef.value.getView();
   await gridUtil.exportView(view, {
-    fileName: `${currentRoute.value.meta.menuName}_${t('MSG_TXT_PCSV_IVC')}_${t('MSG_BTN_ULD_SMP')}`,
+    fileName: `${t('MSG_BTN_ULD_SMP_FORM')}`,
     timePostfix: true,
     exportData: gridUtil.getAllRowValues(view),
   });
@@ -372,13 +376,14 @@ async function onClickExcelUpload() {
         cntrDtlNo: { label: t('MSG_TXT_CNTR_DTL_NO'), width: 160, rules: 'max:17|regex:W\\d{11}-[0-9]', required: true },
         pcsvCompDv: { label: t('MSG_TXT_PCSV_CO'), width: 130, options: codes.PCSV_BZS_CD, rules: 'max:2|regex:[0-9]', required: true },
         sppIvcNo: { label: t('MSG_TXT_IVC_NO'), width: 150, rules: 'max:15|regex:[0-9]', required: true },
-        sppBzsPdId: { label: t('MSG_TXT_SR_NO'), width: 130, rules: 'max:20', required: true },
+        sppBzsPdId: { label: t('MSG_TXT_SR_NO'), width: 130, rules: 'max:20' },
       },
     },
   });
   console.log(excelUploadRows);
   if (result) {
     await dataService.post(`${baseUrl}/excel-upload`, excelUploadRows);
+    await onClickSearch();
   }
 }
 
