@@ -705,6 +705,7 @@ async function fetchData() {
     pdCd: fieldData.value.pdCd,
     cntrNo: fieldData.value.cntrNo,
     pdClsfNm: fieldData.value.pdMclsfNm,
+    sellDscCtrAmt: fieldData.value.sellDscCtrAmt,
     wellsDtl: {
       sellEvCd: isEmpty(fieldData.value.sellEvCd) ? '' : fieldData.value.sellEvCd,
     },
@@ -779,7 +780,6 @@ async function fetchData() {
 
 // 상품 가격이 바꼈을 때, 이벤트
 function onPriceChanged(item, price) {
-  // console.log('onPriceChanged');
   item.finalPrice = price;
 
   orderProduct.value = item;
