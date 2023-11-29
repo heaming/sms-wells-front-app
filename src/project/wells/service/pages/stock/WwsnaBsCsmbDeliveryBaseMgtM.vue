@@ -312,13 +312,19 @@ async function onClickDdlvBaseCrdovr() {
 
 // 배부기준 정보 등록 팝업 호출
 async function onClickDdlvBaseInfGrst() {
+  const props = isEmpty(cachedParams) ? searchParams.value : cachedParams;
   const { result } = await modal({
     component: 'WwsnaBsCsmbDeliveryBaseRegP',
+    componentProps: { ...props },
   });
 
   if (result) {
-    pageInfo.value.needTotalCount = true;
-    await fetchData();
+    if (isEmpty(cachedParams)) {
+      await onClickSearch();
+    } else {
+      pageInfo.value.needTotalCount = true;
+      await fetchData();
+    }
   }
 }
 
