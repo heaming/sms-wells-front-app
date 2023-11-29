@@ -165,10 +165,6 @@ const pageInfo = ref({
   pageSize: Number(getConfig('CFG_CMZ_DEFAULT_PAGE_SIZE')),
 });
 
-// const codes = await codeUtil.getMultiCodes(
-//   'COD_PAGE_SIZE_OPTIONS',
-// );
-
 const searchParams = ref({
   mngtYm: dayjs().format('YYYYMM'),
   bldCds: [],
@@ -273,12 +269,11 @@ async function reAryGrid() {
   const fxnItems = gridData.filter((v) => v.bfsvcCsmbDdlvTpCd === '1'); // 고정품목
   const aplcItems = gridData.filter((v) => v.bfsvcCsmbDdlvTpCd === '2'); // 신청품목
 
-  let j = 1;
   for (let i = 0; i < fxnItems.length; i += 1) {
     // 고정품목 갯수만큼 field, column 추가
-    fields.push({ fieldName: `fxnQty${j}`, dataType: 'number' });
+    fields.push({ fieldName: `qty${fxnItems[i].fxnSapMatCd}`, dataType: 'number' });
     columns.push({
-      fieldName: `fxnQty${j}`,
+      fieldName: `qty${fxnItems[i].fxnSapMatCd}`,
       header: fxnItems[i].fxnSapMatCd,
       width: '180',
       styleName: 'text-center',
@@ -297,21 +292,18 @@ async function reAryGrid() {
           {
             header: `${fxnItems[i].fxnPckngUnit}`,
             direction: 'horizontal',
-            items: [`fxnQty${j}`],
+            items: [`qty${fxnItems[i].fxnSapMatCd}`],
           },
         ],
       },
     );
-
-    j += 1;
   }
 
-  let k = 1;
   for (let i = 0; i < aplcItems.length; i += 1) {
     // 신청품목 갯수만큼 field, column 추가
-    fields.push({ fieldName: `aplcQty${k}`, dataType: 'number' });
+    fields.push({ fieldName: `qty${aplcItems[i].aplcSapMatCd}`, dataType: 'number' });
     columns.push({
-      fieldName: `aplcQty${k}`,
+      fieldName: `qty${aplcItems[i].aplcSapMatCd}`,
       header: aplcItems[i].aplcSapMatCd,
       width: '180',
       styleName: 'text-center',
@@ -330,13 +322,11 @@ async function reAryGrid() {
           {
             header: `${aplcItems[i].aplcPckngUnit}`,
             direction: 'horizontal',
-            items: [`aplcQty${k}`],
+            items: [`qty${aplcItems[i].aplcSapMatCd}`],
           },
         ],
       },
     );
-
-    k += 1;
   }
 
   fields.push({ fieldName: 'bfsvcCsmbDdlvStatCd' });
@@ -398,33 +388,11 @@ async function fetchData() {
   await getApplicationLimitQty();
 
   const res = await dataService.get('/sms/wells/service/newmanager-bsconsumables', { params: { ...cachedParams, timeout: 300000 } });
-  // const { list: bldCsmbDeliveries } = res.data;
 
   pageInfo.value.totalCount = res.data.length;
   const view = grdMainRef.value.getView();
 
-  if (res.data.length !== 0) {
-    res.data.forEach((bldCsmbDelivery) => {
-      // 리스트 내 고정수량 array 재조합
-      for (let i = 0; i < bldCsmbDelivery.fxnQtys.length; i += 1) {
-        const j = i + 1;
-        const fxnKeyNm = {};
-        fxnKeyNm[`fxnQty${j}`] = bldCsmbDelivery.fxnQtys[i];
-        Object.assign(bldCsmbDelivery, fxnKeyNm);
-      }
-
-      // 리스트 내 신청수량 array 재조합
-      for (let i = 0; i < bldCsmbDelivery.aplcQtys.length; i += 1) {
-        const j = i + 1;
-        const aplcKeyNm = {};
-        aplcKeyNm[`aplcQty${j}`] = bldCsmbDelivery.aplcQtys[i];
-        Object.assign(bldCsmbDelivery, aplcKeyNm);
-      }
-    });
-  }
-
   view.getDataSource().setRows(res.data);
-  // view.rowIndicator.indexOffset = gridUtil.getPageIndexOffset(pageInfo);
 }
 
 function validateRegPeriod() {
@@ -458,7 +426,6 @@ async function onClickRgstPtrmSe() {
 }
 
 async function onClickSearch() {
-  // pageInfo.value.pageIndex = 1;
   cachedParams = cloneDeep(searchParams.value);
 
   await fetchData();
@@ -477,8 +444,6 @@ async function onClickSave() {
 
   const errorYn = false;
   checkedRows.forEach((checkedRow) => {
-    let f = 1;
-    let a = 1;
     for (let i = 0; i < itemsData.value.length; i += 1) {
       if (itemsData.value[i].bfsvcCsmbDdlvTpCd === '1') {
         saveData.push({
@@ -487,35 +452,19 @@ async function onClickSave() {
           strWareNo: checkedRow.prtnrNo,
           csmbPdCd: itemsData.value[i].fxnPdCd,
           sapMatCd: itemsData.value[i].fxnSapMatCd,
-          bfsvcCsmbDdlvQty: checkedRow[`fxnQty${f}`] === undefined ? '0' : checkedRow[`fxnQty${f}`],
+          bfsvcCsmbDdlvQty: checkedRow[`qty${itemsData.value[i].fxnSapMatCd}`] === undefined ? '0' : checkedRow[`qty${itemsData.value[i].fxnSapMatCd}`],
           bfsvcCsmbDdlvStatCd: isBusinessSupportTeam.value ? '20' : '10',
         });
-
-        f += 1;
       } else if (itemsData.value[i].bfsvcCsmbDdlvTpCd === '2') {
-        // if (Number(itemsData.value[i].aplcPckngUnit.replace(/[^0-9]/g, '')) < Number(checkedRow[`aplcQty${a}`])) {
-        //   // alert(t('MSG_ALT_PSBL_MAX_CNT_DATA'), [itemsData.value[i].aplcPdNm],
-        //   //  [itemsData.value[i].aplcPckngUnit.replace(/[^0-9]/g, '')]);
-
-        //   // i18n 다국어모듈 사용으로 처리하면 파라미터 값 표시 안됨. 확인 필요
-        //   alert(`${itemsData.value[i].aplcPdNm}은(는)
-        //  ${itemsData.value[i].aplcPckngUnit.replace(/[^0-9]/g, '')}개까지 가능합니다.`);
-        //   errorYn = true;
-        //   saveData = [];
-        //   return;
-        // }
-
         saveData.push({
           mngtYm: searchParams.value.mngtYm,
           bfsvcCsmbDdlvOjCd: '1',
           strWareNo: checkedRow.prtnrNo,
           csmbPdCd: itemsData.value[i].aplcPdCd,
           sapMatCd: itemsData.value[i].aplcSapMatCd,
-          bfsvcCsmbDdlvQty: checkedRow[`aplcQty${a}`] === undefined ? '0' : checkedRow[`aplcQty${a}`],
+          bfsvcCsmbDdlvQty: checkedRow[`qty${itemsData.value[i].aplcSapMatCd}`] === undefined ? '0' : checkedRow[`qty${itemsData.value[i].aplcSapMatCd}`],
           bfsvcCsmbDdlvStatCd: isBusinessSupportTeam.value ? '20' : '10',
         });
-
-        a += 1;
       }
     }
   });
@@ -550,20 +499,6 @@ async function onClickOstrAk() {
 
   let errorYn = false;
 
-  // checkedRows.forEach((checkedRow) => {
-  //   if (checkedRow.bfsvcCsmbDdlvStatCd !== '20') {
-  //     alert(`${checkedRow.prtnrNmNo}님의 신청 상태를 확인해주세요`);
-  //     errorYn = true;
-  //     return;
-  //   }
-
-  //   requestData.push({
-  //     mngtYm: searchParams.value.mngtYm,
-  //     bfsvcCsmbDdlvOjCd: '1',
-  //     strWareNo: checkedRow.prtnrNo,
-  //   });
-  // });
-
   checkedRows.forEach((checkedRow) => {
     if (checkedRow.bfsvcCsmbDdlvStatCd !== '20') {
       alert(`${checkedRow.prtnrNmNo}님의 신청 상태를 확인해주세요`);
@@ -571,8 +506,6 @@ async function onClickOstrAk() {
       return;
     }
 
-    let f = 1;
-    let a = 1;
     for (let i = 0; i < itemsData.value.length; i += 1) {
       if (itemsData.value[i].bfsvcCsmbDdlvTpCd === '1') {
         requestData.push({
@@ -581,11 +514,9 @@ async function onClickOstrAk() {
           strWareNo: checkedRow.prtnrNo,
           csmbPdCd: itemsData.value[i].fxnPdCd,
           sapMatCd: itemsData.value[i].fxnSapMatCd,
-          bfsvcCsmbDdlvQty: checkedRow[`fxnQty${f}`] === undefined ? '0' : checkedRow[`fxnQty${f}`],
+          bfsvcCsmbDdlvQty: checkedRow[`qty${itemsData.value[i].fxnSapMatCd}`] === undefined ? '0' : checkedRow[`qty${itemsData.value[i].fxnSapMatCd}`],
           bfsvcCsmbDdlvStatCd: isBusinessSupportTeam.value ? '20' : '10',
         });
-
-        f += 1;
       } else if (itemsData.value[i].bfsvcCsmbDdlvTpCd === '2') {
         requestData.push({
           mngtYm: searchParams.value.mngtYm,
@@ -593,11 +524,9 @@ async function onClickOstrAk() {
           strWareNo: checkedRow.prtnrNo,
           csmbPdCd: itemsData.value[i].aplcPdCd,
           sapMatCd: itemsData.value[i].aplcSapMatCd,
-          bfsvcCsmbDdlvQty: checkedRow[`aplcQty${a}`] === undefined ? '0' : checkedRow[`aplcQty${a}`],
+          bfsvcCsmbDdlvQty: checkedRow[`qty${itemsData.value[i].aplcSapMatCd}`] === undefined ? '0' : checkedRow[`qty${itemsData.value[i].aplcSapMatCd}`],
           bfsvcCsmbDdlvStatCd: isBusinessSupportTeam.value ? '20' : '10',
         });
-
-        a += 1;
       }
     }
   });
@@ -644,12 +573,12 @@ const initGrdMain = defineGrid(async (data, view) => {
   const fxnItems = gridData.filter((v) => v.bfsvcCsmbDdlvTpCd === '1'); // 고정품목
   const aplcItems = gridData.filter((v) => v.bfsvcCsmbDdlvTpCd === '2'); // 신청품목
 
-  let j = 1;
+  // let j = 1;
   for (let i = 0; i < fxnItems.length; i += 1) {
     // 고정품목 갯수만큼 field, column 추가
-    fields.push({ fieldName: `fxnQty${j}`, dataType: 'number' });
+    fields.push({ fieldName: `qty${fxnItems[i].fxnSapMatCd}`, dataType: 'number' });
     columns.push({
-      fieldName: `fxnQty${j}`,
+      fieldName: `qty${fxnItems[i].fxnSapMatCd}`,
       header: fxnItems[i].fxnSapMatCd,
       width: '180',
       styleName: 'text-center',
@@ -668,21 +597,21 @@ const initGrdMain = defineGrid(async (data, view) => {
           {
             header: `${fxnItems[i].fxnPckngUnit}`,
             direction: 'horizontal',
-            items: [`fxnQty${j}`],
+            items: [`qty${fxnItems[i].fxnSapMatCd}`],
           },
         ],
       },
     );
 
-    j += 1;
+    // j += 1;
   }
 
-  let k = 1;
+  // let k = 1;
   for (let i = 0; i < aplcItems.length; i += 1) {
     // 신청품목 갯수만큼 field, column 추가
-    fields.push({ fieldName: `aplcQty${k}`, dataType: 'number' });
+    fields.push({ fieldName: `qty${aplcItems[i].aplcSapMatCd}`, dataType: 'number' });
     columns.push({
-      fieldName: `aplcQty${k}`,
+      fieldName: `qty${aplcItems[i].aplcSapMatCd}`,
       header: aplcItems[i].aplcSapMatCd,
       width: '180',
       styleName: 'text-center',
@@ -701,13 +630,13 @@ const initGrdMain = defineGrid(async (data, view) => {
           {
             header: `${aplcItems[i].aplcPckngUnit}`,
             direction: 'horizontal',
-            items: [`aplcQty${k}`],
+            items: [`qty${aplcItems[i].aplcSapMatCd}`],
           },
         ],
       },
     );
 
-    k += 1;
+    // k += 1;
   }
 
   const columnLayout = [
@@ -782,22 +711,19 @@ const initGrdMain = defineGrid(async (data, view) => {
     grid.checkItem(itemIndex, true);
 
     const fixedFieldIndex = fieldIndex - 1;
-    const { fieldName } = grid.getColumn(fixedFieldIndex);
     const sapMatCd = grid.getColumn(fixedFieldIndex).header.text;
     const aplcQty = view.getValue(row, fieldIndex);
     const aplcLmQty = aplcLmQtyData.value.find((obj) => obj.sapMatCd === sapMatCd)?.bfsvcCsmbAplcLmQty;
 
-    if (fieldName.indexOf('aplcQty') !== -1) {
-      if (!aplcLmQty || Number(aplcLmQty) === 0) {
-        await alert(t(`${sapMatCd}의 신청 제한 갯수가 0개입니다.`));
-        view.setValue(row, fieldIndex, 0);
-        return;
-      }
+    if (!aplcLmQty || Number(aplcLmQty) === 0) {
+      await alert(t(`${sapMatCd}의 신청 제한 갯수가 0개입니다.`));
+      view.setValue(row, fieldIndex, 0);
+      return;
+    }
 
-      if (Number(aplcQty) > Number(aplcLmQty)) {
-        await alert(t(`${sapMatCd}은 ${aplcLmQty}개까지 신청 가능합니다.`));
-        view.setValue(row, fieldIndex, 0);
-      }
+    if (Number(aplcQty) > Number(aplcLmQty)) {
+      await alert(t(`${sapMatCd}은 ${aplcLmQty}개까지 신청 가능합니다.`));
+      view.setValue(row, fieldIndex, 0);
     }
   };
 
