@@ -359,10 +359,12 @@ async function onClickSave() {
 
   if (!await gridUtil.validate(view)) { return; }
 
-  await dataService.post('/sms/wells/service/bs-consumables', rowValues);
-
-  notify(t('MSG_ALT_SAVE_DATA'));
-  await fetchData();
+  const res = await dataService.post('/sms/wells/service/bs-consumables', rowValues);
+  const { processCount } = res.data;
+  if (processCount > 0) {
+    notify(t('MSG_ALT_SAVE_DATA'));
+    await fetchData();
+  }
 }
 
 // round 처리
