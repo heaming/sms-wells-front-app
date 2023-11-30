@@ -286,9 +286,19 @@ async function onClickExcelDownload() {
 }
 async function onClickExcelDownload2() {
   const view = grdSppIvcRef.value.getView();
+
+  // 택배사 코드 엑셀 헤더에 표시
+  let pcsvBzsStr = '';
+  const pcsvBzs = codes.PCSV_BZS_CD;
+  pcsvBzs.forEach((item) => {
+    pcsvBzsStr += `${item.codeId}: ${item.codeName} | `;
+  });
+
+  // 송장 양식 다운로드
   await gridUtil.exportView(view, {
     fileName: `${t('MSG_TXT_IVC_FORM')}`,
     timePostfix: true,
+    userCells: [{ row: 0, col: 0, value: pcsvBzsStr }],
     exportData: gridUtil.getAllRowValues(view),
   });
 }
@@ -381,7 +391,7 @@ async function onClickExcelUpload() {
     },
   });
   console.log(excelUploadRows);
-  if (result) {
+  if (result && excelUploadRows > 0) {
     await dataService.post(`${baseUrl}/excel-upload`, excelUploadRows);
     await onClickSearch();
   }
@@ -557,7 +567,7 @@ const initGrdMain = defineGrid((data, view) => {
 // 송장양식 Grid
 const initGrdSppIvc = defineGrid((data, view) => {
   const columns = [
-    { fieldName: 'cstSvAsnNo', header: t('MSG_TXT_ASGN_NO'), width: 160 },
+    { fieldName: 'cstSvAsnNo', header: t('MSG_TXT_ASGN_NO'), width: 180, styleName: 'text-center' },
     {
       fieldName: 'cntrNo',
       header: t('MSG_TXT_CNTR_DTL_NO'),
@@ -571,9 +581,9 @@ const initGrdSppIvc = defineGrid((data, view) => {
       },
     },
     { fieldName: 'cntrSn', visible: false },
-    { fieldName: 'pcsvCompDv', header: `${t('MSG_TXT_PCSV_CO')}`, width: 120 },
-    { fieldName: 'sppIvcNo', header: t('MSG_TXT_IVC_NO'), width: 150 },
-    { fieldName: 'sppBzsPdId', header: t('MSG_TXT_SR_NO'), width: 130 },
+    { fieldName: 'pcsvCompDv', header: `${t('MSG_TXT_PCSV_CO')}`, width: 120, styleName: 'text-center' },
+    { fieldName: 'sppIvcNo', header: t('MSG_TXT_IVC_NO'), width: 150, styleName: 'text-center' },
+    { fieldName: 'sppBzsPdId', header: t('MSG_TXT_SR_NO'), width: 160, styleName: 'text-center' },
   ];
   const fields = columns.map(({ fieldName, dataType }) => (dataType ? { fieldName, dataType } : { fieldName }));
   data.setFields(fields);
