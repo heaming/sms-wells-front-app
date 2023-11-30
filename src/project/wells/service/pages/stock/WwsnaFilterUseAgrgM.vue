@@ -92,6 +92,7 @@
             dgr2-levl-og-label="ogCdNm"
             dgr3-levl-og-label="ogCdNm"
             partner-label="prtnrNoNm"
+            bzns-psic-auth-yn="Y"
           />
         </template>
         <template v-if="isEngineerSelected">
