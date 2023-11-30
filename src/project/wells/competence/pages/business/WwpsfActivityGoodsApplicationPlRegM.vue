@@ -108,6 +108,7 @@
             v-model:page-size="pageInfo.pageSize"
             :total-count="pageInfo.totalCount"
             :page-size-options="codes.COD_PAGE_SIZE_OPTIONS"
+            @change="fetchPages"
           />
         </template>
       </kw-action-top>
@@ -203,6 +204,7 @@
         v-model:page-index="pageInfo.pageIndex"
         v-model:page-size="pageInfo.pageSize"
         :total-count="pageInfo.totalCount"
+        @change="fetchPages"
       />
     </div>
   </kw-page>
