@@ -40,9 +40,7 @@
           <kw-select
             v-model="searchParams.rcgvpDiv"
             :options="tempOptions.custDiv"
-            first-option
-            first-option-value="ALL"
-            :first-option-label="$t('MSG_TXT_ALL')"
+            first-option="all"
           />
         </kw-search-item>
         <kw-search-item
@@ -52,10 +50,7 @@
           <kw-select
             v-model="searchParams.mngerRglvlDvCd"
             :options="codes.RGLVL_DV_CD"
-            first-option
-            first-option-value=""
-            :first-option-label="$t('MSG_TXT_ALL')"
-            :label="$t('MSG_TXT_MNGER_RGLVL_DV')"
+            first-option="all"
           />
         </kw-search-item>
       </kw-search-row>
@@ -163,7 +158,7 @@ const tempOptions = {
 };
 const searchParams = ref({
   visitYm: now.format('YYYYMM'),
-  rcgvpDiv: 'ALL', /* 고객구분 */
+  rcgvpDiv: '', /* 고객구분 */
   mngerRglvlDvCd: '', /* 관리급지 */
   executiveGroup: '', /* 총괄단 */
   localGroup: '', /* 지역단 */
@@ -234,6 +229,7 @@ const initGrdMain = defineGrid((data, view) => {
     { fieldName: 'mngerRglvlDvCd' },
     { fieldName: 'hgrOgId' },
     { fieldName: 'dgr2LevlOgCd' },
+    { fieldName: 'dgr2LevlOgNm' },
     { fieldName: 'svpdSapCd' },
     { fieldName: 'rglvlDstn' },
     { fieldName: 'cstSvAsnNo' },
@@ -262,7 +258,7 @@ const initGrdMain = defineGrid((data, view) => {
     { fieldName: 'addr', header: t('MSG_TXT_ADDR'), width: '430', styleName: 'text-left' }, // 주소
     { fieldName: 'rglvlDstn', header: t('MSG_TXT_RGLVL_DSTN'), width: '80', styleName: 'text-center' }, // 급간거리
     { fieldName: 'mngerRglvlDvCd', header: t('MSG_TXT_RGLVL'), width: '60', styleName: 'text-center', options: codes.mngerRglvlDvCd }, // 급지
-    { fieldName: 'dgr2LevlOgCd', header: t('MSG_TXT_CENTER_DIVISION'), width: '100', styleName: 'text-center' }, // 센터
+    { fieldName: 'dgr2LevlOgNm', header: t('MSG_TXT_CENTER_DIVISION'), width: '100', styleName: 'text-center' }, // 센터
     { fieldName: 'fxnPrtnrYnNm', header: t('MSG_TXT_DIV'), width: '60', styleName: 'text-center' }, // 구분
     { fieldName: 'prtnrKnm', header: t('MSG_TXT_PIC'), width: '80', styleName: 'text-center' }, // 담당자
   ];
