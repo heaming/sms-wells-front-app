@@ -208,8 +208,8 @@ const initGrdMain = defineGrid((data, view) => {
     { fieldName: 'vhcOprtnDt', header: t('MSG_TXT_OPERATION_DT'), width: '107', styleName: 'text-center', datetimeFormat: 'yyyy-MM-dd' }, // 일자
     { fieldName: 'dptuAcuDstn', header: `${t('MSG_TXT_ACML_DSTN')}(ON)`, width: '106', styleName: 'text-center', dataType: 'number' }, // 누적거리(시동ON)
     { fieldName: 'arvAcuDstn', header: `${t('MSG_TXT_ACML_DSTN')}(OFF)`, width: '106', styleName: 'text-center', dataType: 'number' }, // 누적거리(시동ON)
-    { fieldName: 'distSum', header: t('MSG_TXT_OPRTN_DSTN'), width: '106', styleName: 'text-center', dataType: 'number' }, // 운행거리 sum
-    { fieldName: 'timeSum', header: t('MSG_TXT_OPRTN_TIME'), width: '100', styleName: 'text-center', dataType: 'number' }, // 운행시간 sum
+    { fieldName: 'oprtnDstn', header: t('MSG_TXT_OPRTN_DSTN'), width: '106', styleName: 'text-center', dataType: 'number' }, // 운행거리 sum
+    { fieldName: 'oprtnHh', header: t('MSG_TXT_OPRTN_TIME'), width: '100', styleName: 'text-center', dataType: 'number' }, // 운행시간 sum
     { fieldName: 'lbrcqVal',
       header: t('MSG_TXT_RFLNG_QTY'),
       width: '100',
