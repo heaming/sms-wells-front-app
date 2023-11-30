@@ -841,7 +841,7 @@ async function onClickRefundAsk(stateCode) {
   let errorCount = 0;
 
   rows3.forEach((p1) => {
-    if (isEmpty(p1.attachFiles) < 1 && p1.bltfRfndMbDvCd === '02') {
+    if (isEmpty(p1.attachFiles) && p1.bltfRfndMbDvCd === '02' && p1.rowState !== 'deleted') {
       errorCount += 1;
       return false;
     }
@@ -900,8 +900,6 @@ async function onClickRefundAsk(stateCode) {
     saveDtlReqs: rows2, /* 환불요청상세 */
     saveBltfReqs: rows3, /* 환불요청전금상세  */
   };
-
-  console.log(params);
 
   await dataService.post('/sms/wells/withdrawal/idvrve/refund-applications/reg/save', params);
   notify(t('MSG_ALT_SAVE_DATA')); // 저장되었습니다.
@@ -1105,7 +1103,7 @@ async function onClickRfndAddRow(cntrNo, cntrSn, cntrDtlNo, dpDt, dpMesCd, dpAmt
 async function onClickRfndDelete() {
   const view = grdPopRef3.value.getView();
   const deleteRows = await gridUtil.confirmDeleteCheckedRows(view, true);
-  console.log(deleteRows);
+
   const bltfData = gridUtil.getAllRowValues(view);
   pageInfo3.value.totalCount = bltfData.length;
 
@@ -1589,7 +1587,7 @@ const initGrid2 = defineGrid((data, view) => {
   // eslint-disable-next-line no-unused-vars
   view.onValidate = (g, index, value) => {
     // eslint-disable-next-line max-len
-    const { rfndCshAkAmt, rfndCardAkAmt, rfndBltfAkAmt, rfndRsonCd, rfndRsonCn } = g.getValues(index.dataRow);
+    const { rfndCshAkAmt, rfndCardAkAmt, rfndBltfAkAmt, rfndRsonCd, rfndRsonCn } = g.getValues(index.itemIndex);
     // eslint-disable-next-line max-len
     // const { rfndPsbAmt, rfndCshAkAmt, rfndCardAkAmt, rfndBltfAkAmt, crdcdFeeAmt, rfndRsonCd, rfndRsonCn } = g.getValues(index.dataRow);
     // eslint-disable-next-line max-len
@@ -1812,7 +1810,7 @@ const initGrid3 = defineGrid((data, view) => {
 
   // eslint-disable-next-line no-unused-vars
   view.onValidate = (g, index, value) => {
-    const { cntrDtlNo, bltfOjCntrDtlNo, rfndBltfAkAmt } = g.getValues(index.dataRow);
+    const { cntrDtlNo, bltfOjCntrDtlNo, rfndBltfAkAmt } = g.getValues(index.itemIndex);
     if (cntrDtlNo === bltfOjCntrDtlNo) {
       // g.setValue(index.dataRow, 'bltfRfndMbDvCd', '01');
       // g.setValue(index.dataRow, 'bltfRfndMbDvCd', '02');
