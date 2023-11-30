@@ -39,8 +39,8 @@
         <!-- 품목명 -->
         <kw-search-item :label="$t('MSG_TXT_ITM_NM')">
           <kw-select
-            v-model="searchParams.itmKnms"
-            :multiple="true"
+            v-model="searchParams.csmbPdCd"
+            first-option="all"
             :options="itmKnms"
             option-value="pdCd"
             option-label="pdNm"
@@ -203,6 +203,7 @@ const codes = await codeUtil.getMultiCodes(
 const searchParams = ref({
   mngtYm: dayjs().format('YYYYMM'),
   goDvCd: '',
+  csmbPdCd: '',
   csmbPdCdStrt: '',
   csmbPdCdEnd: '',
   sapMatCdStrt: '',
