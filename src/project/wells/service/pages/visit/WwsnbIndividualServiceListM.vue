@@ -980,8 +980,8 @@ const initGridState = defineGrid((data, view) => {
       width: '100',
       styleName: 'text-center',
       styleCallback(grid, dataCell) {
-        const { procStus, prtnrNo, ogNm } = grid.getValues(dataCell.index.itemIndex);
-        if (prtnrNo === '99992' || ogNm === '71321') {
+        const { procStus, prtnrNo, ogNm, svBizDclsfCd } = grid.getValues(dataCell.index.itemIndex);
+        if (prtnrNo === '99992' || ogNm === '71321' || ['1112', '1113', '3460'].includes(svBizDclsfCd)) {
           return { renderer: { type: 'text' } };
         }
         return (procStus === '00' || procStus === '10' || procStus === '20') ? { styleName: 'rg-button-link', renderer: { type: 'button' } } : { renderer: { type: 'text' } };
@@ -1031,6 +1031,7 @@ const initGridState = defineGrid((data, view) => {
     if (cData.fieldName === 'wkPrgsStat' || cData.fieldName === 'imgYn') { return false; }
 
     const { cstSvAsnNo, gubun } = g.getValues(cData.itemIndex);
+
     await modal({
       component: 'WwsnbServiceProcDetailListP',
       componentProps: {
