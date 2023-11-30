@@ -65,6 +65,7 @@
             v-model:page-size="pageInfo.pageSize"
             :total-count="pageInfo.totalCount"
             :page-size-options="codes.COD_PAGE_SIZE_OPTIONS"
+            @change="fetchPages"
           />
           <span class="ml8">({{ $t('단위:원') }})</span>
         </template>
@@ -114,6 +115,7 @@
         v-model:page-index="pageInfo.pageIndex"
         v-model:page-size="pageInfo.pageSize"
         :total-count="pageInfo.totalCount"
+        @change="fetchPages"
       />
       <kw-separator />
     </div>
