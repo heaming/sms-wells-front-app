@@ -282,7 +282,7 @@
         <h3>결제정보</h3>
 
         <kw-form
-          :cols="2"
+          :cols="4"
           class="mt20"
         >
           <!-- 총판계약유형 -->
@@ -389,9 +389,7 @@
             <template
               v-else
             >
-              <kw-form-row
-                :cols="3"
-              >
+              <kw-form-row>
                 <kw-form-item
                   label="자동이체"
                   :colspan="2"
@@ -404,18 +402,32 @@
                       codes.DP_TP_CD_AFTN"
                   />
                 </kw-form-item>
+                <kw-form-item
+                  no-label
+                  :colspan="1"
+                >
+                  <kw-select
+                    v-if="item.dpTpCdAftn === DP_TP_CD.IDV_RVE_VAC"
+                    v-model="item.mpyBsdt"
+                    borderless
+                    class="scoped-mpy-bsdt-select"
+                    label="이체일자"
+                    rules="required"
+                    prefix="매월"
+                    suffix="이체"
+                    :options="mpyBsdtOptions"
+                  />
+                </kw-form-item>
                 <kw-form-item no-label>
                   <p class="kw-fc--black2 kw-font-pt14 text-weight-regular">
                     월납부금 : {{ getNumberWithComma((item.fnlAmt || 0) / (item.sellTpCd === '6' ? item.svPrd : 1)) }}원
                   </p>
                 </kw-form-item>
               </kw-form-row>
-              <kw-form-row
-                :cols="3"
-              >
+              <kw-form-row>
                 <kw-form-item
                   label="등록비결제유형"
-                  :colspan="2"
+                  :colspan="3"
                 >
                   <kw-option-group
                     v-model="item.dpTpCdIdrv"
@@ -465,7 +477,7 @@ import ZwcmPostCode from '~common/components/ZwcmPostCode.vue';
 import { alert, notify, useDataService } from 'kw-lib';
 import { cloneDeep } from 'lodash-es';
 import { getNumberWithComma } from '~sms-common/contract/util';
-import { COPN_DV_CD, SELL_TP_CD, SELL_TP_DTL_CD } from '~sms-wells/contract/constants/ctConst';
+import { COPN_DV_CD, DP_TP_CD, SELL_TP_CD, SELL_TP_DTL_CD } from '~sms-wells/contract/constants/ctConst';
 import { getDisplayPriceByCntrDtl } from '~sms-wells/contract/utils/CtPriceUtil';
 import { useCtCode } from '~sms-common/contract/composable';
 
@@ -507,17 +519,17 @@ const ogStep3 = ref({});
 const { t } = useI18n();
 
 codes.DP_TP_CD_IDRV = [
-  { codeId: '0201', codeName: '카드' },
-  { codeId: '0101', codeName: '가상계좌' },
+  { codeId: DP_TP_CD.IDV_RVE_CRDCD, codeName: '카드' },
+  { codeId: DP_TP_CD.IDV_RVE_VAC, codeName: '가상계좌' },
 ];
 codes.DP_TP_CD_AFTN = [
-  { codeId: '0203', codeName: '카드이체' },
-  { codeId: '0102', codeName: '계좌이체' },
+  { codeId: DP_TP_CD.CRDCD_AFTN, codeName: '카드이체' },
+  { codeId: DP_TP_CD.AC_AFTN, codeName: '계좌이체' },
 ];
 codes.DP_TP_CD_AFTN_CRP = [
-  { codeId: '0203', codeName: '카드이체' },
-  { codeId: '0102', codeName: '계좌이체' },
-  { codeId: '0104', codeName: '법인계좌' },
+  { codeId: DP_TP_CD.CRDCD_AFTN, codeName: '카드이체' },
+  { codeId: DP_TP_CD.AC_AFTN, codeName: '계좌이체' },
+  { codeId: DP_TP_CD.IDV_RVE_VAC, codeName: '법인계좌' }, // 가상계좌이다.
 ];
 
 const adrs = ref([]);
@@ -529,9 +541,18 @@ const showAdrCount = computed(() => (showAllAdrs.value ? 10 : 5));
 const isPsbBlkApy = ref(true);
 const isSodbt = computed(() => (step3.value?.bas.sellOgTpCd === 'W05'));
 const isCcs = computed(() => baseRleCd === 'W8010');
+const mpyBsdtOptions = ref([]);
 // -------------------------------------------------------------------------------------------------
 // Function & Event
 // -------------------------------------------------------------------------------------------------
+
+async function fetchRegularFundTransferDayOptions() {
+  // 계좌 자동이체 기준을 우선 따릅니다.
+  const { data } = await dataService.get(`/sms/common/contract/settlement/regular-fund-transfers-day-options/${DP_TP_CD.AC_AFTN}`);
+  mpyBsdtOptions.value = data?.map((value) => ({ codeId: value, codeName: `${value}일` }));
+}
+
+await fetchRegularFundTransferDayOptions();
 
 async function getCntrInfo() {
   if (!cntrNo.value) {
@@ -555,8 +576,8 @@ async function getCntrInfo() {
         dtl.crpUcAmt = 0;
       }
     } else {
-      dtl.dpTpCdAftn ??= '0203';
-      dtl.dpTpCdIdrv ??= '0201';
+      dtl.dpTpCdAftn ??= DP_TP_CD.CRDCD_AFTN;
+      dtl.dpTpCdIdrv ??= DP_TP_CD.IDV_RVE_CRDCD;
     }
   });
 
@@ -723,6 +744,15 @@ onActivated(() => {
 </script>
 
 <style lang="scss" scoped>
+:deep(.scoped-mpy-bsdt-select) {
+  flex: 0 0 160px !important;
+
+  .q-field__native {
+    justify-content: flex-end;
+    padding-right: $spacing-xs;
+  }
+}
+
 .normal-area--button-set-bottom {
   max-height: calc(100vh - 222px);
   min-height: 715px;

@@ -310,7 +310,6 @@ async function fetchProducts() {
     params: {
       cntrNo: cntrNo.value,
       rglrSppMchnTpCd: cachedParams.value.rglrSppMchnTpCd,
-      rentalDscTpCd: cachedParams.value.rentalDscTpCd,
     },
   });
   products.value = data;
@@ -348,7 +347,7 @@ watch(() => props.cntrNo, () => {
 });
 
 async function onClickSearch() {
-  const shouldFetchProduct = cachedParams.value.rentalDscTpCd !== searchParams.value.rentalDscTpCd;
+  const shouldFetchProduct = false;
 
   cachedParams.value = searchParams.value;
   if (shouldFetchProduct) {
@@ -365,7 +364,7 @@ async function onClickSearch() {
 function onClickReset() {
   searchParams.value.filterText = '';
   searchParams.value.sellTpCd = undefined;
-  searchParams.value.rentalDscTpCd = undefined;
+  searchParams.value.rglrSppMchnTpCd = undefined;
   selectedProductCode.value = undefined;
   onClickSearch();
 }

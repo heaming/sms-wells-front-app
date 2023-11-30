@@ -54,11 +54,10 @@
 
 <script setup>
 import { warn } from 'vue';
+import { DP_TP_CD, RVE_DV_CD } from '~sms-wells/contract/constants/ctConst';
 import SinglePaymentApproval from './WwctaContractSettlementAgreeAprMgtMPaymentSpayAprAk.vue';
-import CardAutomaticTransferApproval
-  from './WwctaContractSettlementAgreeAprMgtMPaymentCrdCdAftnAprAk.vue';
-import AccountAutomaticTransferApproval
-  from './WwctaContractSettlementAgreeAprMgtMPaymentAcAftnAprAk.vue';
+import CardAutomaticTransferApproval from './WwctaContractSettlementAgreeAprMgtMPaymentCrdCdAftnAprAk.vue';
+import AccountAutomaticTransferApproval from './WwctaContractSettlementAgreeAprMgtMPaymentAcAftnAprAk.vue';
 import VirtualAccountIssue from './WwctaContractSettlementAgreeAprMgtMPaymentVacIssue.vue';
 import CashSalesReceipt from './WwctaContractSettlementAgreeAprMgtMPaymentCashSalesReceipt.vue';
 
@@ -83,19 +82,15 @@ defineExpose(exposed);
 const emit = defineEmits(['activated']);
 
 const CREDIT_CARD_DP_TP_CDS = [
-  '0201', /* 개별수납(신용카드) */
-  '0202', /* 여민동락카드(바우처) */
+  DP_TP_CD.IDV_RVE_CRDCD, /* 개별수납(신용카드) */
+  DP_TP_CD.YMDR_CARD_VCH, /* 여민동락카드(바우처) */
 ]; /* 아마 06*, 07*, 08* 다 될거 같아. */
 
 const MILEAGE_DP_TP_CDS = [
-  '0702', /* 스마트마일리지 */
-  '0802', /* K머니 */
-  '0803', /* K멤버스 캐시 */
+  DP_TP_CD.SMT_MLG, /* 스마트마일리지 */
+  DP_TP_CD.K_MONEY, /* K머니 */
+  DP_TP_CD.KMBRS_CASH, /* K멤버스 캐시 */
 ]; /* 아마 06*, 07*, 08* 다 될거 같아. */
-
-const CARD_AUTOMATIC_TRANSFER_DP_TP_CD = '0203';
-const ACCOUNT_AUTOMATIC_TRANSFER_DP_TP_CD = '0102';
-const VIRTUAL_ACCOUNT_ISSUE_DP_TP_CD = '0101';
 
 /* rearrange base data */
 const stlmRels = computed(() => props.stlmRels || []);
@@ -142,7 +137,7 @@ function onApproveCanceledSpayStlms() {
 
 /* account auto transfer */
 const crdCdAftnStlm = computed(() => Object.values(stlmInfo.value)
-  .find((stlm) => CARD_AUTOMATIC_TRANSFER_DP_TP_CD === stlm.dpTpCd));
+  .find((stlm) => DP_TP_CD.CRDCD_AFTN === stlm.dpTpCd));
 
 const crdCdAftnStlmsUpdateInfo = ref([]);
 
@@ -151,7 +146,7 @@ function onApprovedCrdCdAftnStlms(stlmUpdateInfo) {
 }
 
 const acAftnStlm = computed(() => Object.values(stlmInfo.value)
-  .find((stlm) => ACCOUNT_AUTOMATIC_TRANSFER_DP_TP_CD === stlm.dpTpCd));
+  .find((stlm) => DP_TP_CD.AC_AFTN === stlm.dpTpCd));
 
 const acAftnStlmsUpdateInfo = ref([]);
 
@@ -159,9 +154,10 @@ function onApprovedAcAftnStlms(stlmUpdateInfo) {
   acAftnStlmsUpdateInfo.value = [stlmUpdateInfo];
 }
 
-/* virtual account */
+/* virtual account 수납유형이 가상계좌이며, 입금구분이 계약금인 건 */
 const vacStlm = computed(() => Object.values(stlmInfo.value)
-  .find((stlm) => VIRTUAL_ACCOUNT_ISSUE_DP_TP_CD === stlm.dpTpCd));
+  .find((stlm) => DP_TP_CD.IDV_RVE_VAC === stlm.dpTpCd
+      && stlm.stlmRels.find((stlmRel) => stlmRel.rveDvCd === RVE_DV_CD.CNTRAM)));
 
 const vacStlmsUpdateInfo = ref([]);
 
@@ -171,7 +167,7 @@ function onIssuedVirtualAccount(stlmUpdateInfo) {
 
 /* cash sales receipt */
 // const cashSalesStlmRels = computed(() => stlmRels.value
-//   .filter((rel) => VIRTUAL_ACCOUNT_ISSUE_DP_TP_CD === rel.dpTpCd));
+//   .filter((rel) => DP_TP_CD.IDV_RVE_VAC === rel.dpTpCd));
 
 function getDefaultReceiptInfo(vacStlmId, cntrCstInfo) {
   if (!vacStlmId) {
