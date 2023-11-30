@@ -3,7 +3,7 @@
  * 프로그램 개요
  ****************************************************************************************************
  1. 모듈 : SNA
- 2. 프로그램 ID : WwsnaBsCsmbDeliveryBaseRegP - BS소모품 배부기준 등록
+ 2. 프로그램 ID : WwsnaBsCsmbDeliveryBaseRegP - BS소모품 배부기준 등록(W-SV-U-0295P01)
  3. 작성자 : seungsoo.kim
  4. 작성일 : 2023.04.03
  ****************************************************************************************************
@@ -17,6 +17,7 @@
     <h3>{{ $t('MSG_TXT_DDLV_BASE_INF') }}</h3>
     <kw-form ref="frmMainRef">
       <kw-form-row>
+        <!-- 관리년월 -->
         <kw-form-item
           :label="$t('MSG_TXT_MGT_YNM')"
           required
@@ -29,6 +30,7 @@
             :disable="isDisable"
           />
         </kw-form-item>
+        <!-- 품목명 -->
         <kw-form-item
           :label="$t('MSG_TXT_ITM_NM')"
           required
@@ -52,6 +54,7 @@
             />
           </kw-field-wrap>
         </kw-form-item>
+        <!-- 재고단위 -->
         <kw-form-item
           :label="$t('MSG_TXT_STOC_UNIT')"
           required
@@ -66,16 +69,18 @@
         </kw-form-item>
       </kw-form-row>
       <kw-form-row>
+        <!-- 박스단위수량 -->
         <kw-form-item :label="$t('MSG_TXT_BOX_UNIT_QTY')">
           <kw-input
             v-model="basData.boxUnitQty"
-            type="number"
+            mask="number"
             maxlength="10"
             rules="min_value:0"
             :label="$t('MSG_TXT_BOX_UNIT_QTY')"
             :disable="isDisable"
           />
         </kw-form-item>
+        <!-- 발주구분 -->
         <kw-form-item :label="$t('MSG_TXT_GO_DV')">
           <kw-select
             v-model="basData.goDvCd"
@@ -83,10 +88,11 @@
             :disable="isDisable"
           />
         </kw-form-item>
+        <!-- 단가(원) -->
         <kw-form-item :label="$t('MSG_TXT_UPRC_WON')">
           <kw-input
             v-model="basData.goUprc"
-            type="number"
+            mask="number"
             maxlength="10"
             rules="min_value:0"
             :label="$t('MSG_TXT_UPRC_WON')"
@@ -95,6 +101,7 @@
         </kw-form-item>
       </kw-form-row>
       <kw-form-row>
+        <!-- 메모 -->
         <kw-form-item
           :label="$t('MSG_TXT_MEMO')"
           :colspan="3"
@@ -108,8 +115,10 @@
           />
         </kw-form-item>
       </kw-form-row>
+      <!-- 신입 -->
       <h3>{{ $t('MSG_TXT_NWCMR') }}</h3>
       <kw-form-row>
+        <!-- 운영여부 -->
         <kw-form-item
           :label="$t('MSG_TXT_ORT_YN')"
           required
@@ -123,42 +132,38 @@
             @update:model-value="onChangeOrtYn(1)"
           />
         </kw-form-item>
+        <!-- 배부유형 -->
         <kw-form-item :label="$t('MSG_TXT_DDLV_TP')">
-          <kw-field-wrap>
-            <kw-select
-              v-model="ddlvOjCd1Data.bfsvcCsmbDdlvTpCd"
-              :label="$t('MSG_TXT_DDLV_TP')"
-              :options="codes.BFSVC_CSMB_DDLV_TP_CD"
-              placeholder=""
-              :disable="isDisableYn1 || isDisable"
-              :rules="isRequiredDdlvTp1"
-              class="mr8 w167"
-              @update:model-value="onChangeBfsvcCsmbDdlvTpCd(1)"
-            />
-            <kw-select
-              v-model="ddlvOjCd1Data.bfsvcCsmbDdlvCmptBaseCd"
-              :label="$t('MSG_TXT_DDLV_TP')"
-              :options="codes.BFSVC_CSMB_DDLV_CMPT_BASE_CD"
-              placeholder=""
-              :disable="isDisableYn1 || isDisableCmptBaseCd1"
-              :rules="isRequiredCmptBaseCd1"
-              class="w167"
-            />
-          </kw-field-wrap>
+          <kw-select
+            v-model="ddlvOjCd1Data.bfsvcCsmbDdlvTpCd"
+            :label="$t('MSG_TXT_DDLV_TP')"
+            :options="codes.BFSVC_CSMB_DDLV_TP_CD"
+            :disable="isDisableYn1 || isDisable"
+            :rules="isRequiredDdlvTp1"
+            @update:model-value="onChangeBfsvcCsmbDdlvTpCd(1)"
+          />
+          <kw-select
+            v-model="ddlvOjCd1Data.bfsvcCsmbDdlvCmptBaseCd"
+            :label="$t('MSG_TXT_DDLV_TP')"
+            :options="codes.BFSVC_CSMB_DDLV_CMPT_BASE_CD"
+            :disable="isDisableYn1 || isDisableCmptBaseCd1"
+            :rules="isRequiredCmptBaseCd1"
+          />
         </kw-form-item>
+        <!-- 배부대상 상품그룹 -->
         <kw-form-item :label="$t('MSG_TXT_DDLV_OJ_PD_GRP')">
           <kw-select
             v-model="ddlvOjCd1Data.bfsvcCsmbDdlvOjPdGrpCd"
             :label="$t('MSG_TXT_DDLV_OJ_PD_GRP')"
             :options="codes.PD_GRP_CD"
             first-option=""
-            placeholder=""
             :disable="isDisableYn1 || isDisable"
             :rules="isRequiredAccPrpnYn1"
           />
         </kw-form-item>
       </kw-form-row>
       <kw-form-row>
+        <!-- 배부대상 계정유형 -->
         <kw-form-item :label="$t('MSG_TXT_DDLV_OJ_ACC_TP')">
           <kw-select
             v-model="ddlvOjCd1Data.bfsvcCsmbDdlvOjAccTpCd"
@@ -168,21 +173,23 @@
             :rules="isRequiredAccPrpnYn1"
           />
         </kw-form-item>
+        <!-- 배부단위 계정 수 -->
         <kw-form-item :label="$t('MSG_TXT_DDLV_UNIT_ACC_N')">
           <kw-input
             v-model="ddlvOjCd1Data.bfsvcCsmbDdlvUnitAccN"
             :label="$t('MSG_TXT_DDLV_UNIT_ACC_N')"
-            type="number"
+            mask="number"
             maxlength="10"
             :disable="isDisableYn1 || isDisable"
             :rules="isRequiredAccPrpnYn1"
           />
         </kw-form-item>
+        <!-- 배부단위 수량 -->
         <kw-form-item :label="$t('MSG_TXT_DDLV_UNIT_QTY_EA')">
           <kw-input
             v-model="ddlvOjCd1Data.bfsvcCsmbDdlvUnitQty"
             :label="$t('MSG_TXT_DDLV_UNIT_QTY_EA')"
-            type="number"
+            mask="number"
             maxlength="10"
             :disable="isDisableYn1 || isDisable"
             :rules="isRequiredUnitQty1 || isRequiredAccPrpnYn1"
@@ -190,29 +197,33 @@
         </kw-form-item>
       </kw-form-row>
       <kw-form-row>
+        <!-- 신청제한 수량 -->
         <kw-form-item :label="$t('MSG_TXT_APLC_LM_QTY')">
           <kw-input
             v-model="ddlvOjCd1Data.bfsvcCsmbAplcLmQty"
             :label="$t('MSG_TXT_APLC_LM_QTY')"
-            type="number"
+            mask="number"
             maxlength="10"
             :disable="isDisableYn1 || isDisable"
             :rules="isRequiredLmQty1"
           />
         </kw-form-item>
+        <!-- 정렬순서 -->
         <kw-form-item :label="$t('MSG_TXT_SORT_ORDER')">
           <kw-input
             v-model="ddlvOjCd1Data.sortOdr"
             :label="$t('MSG_TXT_SORT_ORDER')"
-            type="number"
+            mask="##########"
             maxlength="10"
             rules="min_value:0"
             :disable="isDisableYn1 || isDisable"
           />
         </kw-form-item>
       </kw-form-row>
+      <!-- 개인 -->
       <h3>{{ $t('MSG_TXT_INDV') }}</h3>
       <kw-form-row>
+        <!-- 운영여부 -->
         <kw-form-item
           :label="$t('MSG_TXT_ORT_YN')"
           required
@@ -226,42 +237,38 @@
             @update:model-value="onChangeOrtYn(2)"
           />
         </kw-form-item>
+        <!-- 배부유형 -->
         <kw-form-item :label="$t('MSG_TXT_DDLV_TP')">
-          <kw-field-wrap>
-            <kw-select
-              v-model="ddlvOjCd2Data.bfsvcCsmbDdlvTpCd"
-              :label="$t('MSG_TXT_DDLV_TP')"
-              :options="codes.BFSVC_CSMB_DDLV_TP_CD"
-              placeholder=""
-              :disable="isDisableYn2 || isDisable"
-              :rules="isRequiredDdlvTp2"
-              class="mr8 w167"
-              @update:model-value="onChangeBfsvcCsmbDdlvTpCd(2)"
-            />
-            <kw-select
-              v-model="ddlvOjCd2Data.bfsvcCsmbDdlvCmptBaseCd"
-              :label="$t('MSG_TXT_DDLV_TP')"
-              :options="codes.BFSVC_CSMB_DDLV_CMPT_BASE_CD"
-              placeholder=""
-              :disable="isDisableYn2 || isDisableCmptBaseCd2"
-              :rules="isRequiredCmptBaseCd2"
-              class="w167"
-            />
-          </kw-field-wrap>
+          <kw-select
+            v-model="ddlvOjCd2Data.bfsvcCsmbDdlvTpCd"
+            :label="$t('MSG_TXT_DDLV_TP')"
+            :options="codes.BFSVC_CSMB_DDLV_TP_CD"
+            :disable="isDisableYn2 || isDisable"
+            :rules="isRequiredDdlvTp2"
+            @update:model-value="onChangeBfsvcCsmbDdlvTpCd(2)"
+          />
+          <kw-select
+            v-model="ddlvOjCd2Data.bfsvcCsmbDdlvCmptBaseCd"
+            :label="$t('MSG_TXT_DDLV_TP')"
+            :options="codes.BFSVC_CSMB_DDLV_CMPT_BASE_CD"
+            :disable="isDisableYn2 || isDisableCmptBaseCd2"
+            :rules="isRequiredCmptBaseCd2"
+          />
         </kw-form-item>
+        <!-- 배부대상 상품그룹 -->
         <kw-form-item :label="$t('MSG_TXT_DDLV_OJ_PD_GRP')">
           <kw-select
             v-model="ddlvOjCd2Data.bfsvcCsmbDdlvOjPdGrpCd"
             :label="$t('MSG_TXT_DDLV_OJ_PD_GRP')"
             :options="codes.PD_GRP_CD"
             first-option=""
-            placeholder=""
             :disable="isDisableYn2 || isDisable"
             :rules="isRequiredAccPrpnYn2"
           />
         </kw-form-item>
       </kw-form-row>
       <kw-form-row>
+        <!-- 배부대상 계정유형 -->
         <kw-form-item :label="$t('MSG_TXT_DDLV_OJ_ACC_TP')">
           <kw-select
             v-model="ddlvOjCd2Data.bfsvcCsmbDdlvOjAccTpCd"
@@ -271,21 +278,23 @@
             :rules="isRequiredAccPrpnYn2"
           />
         </kw-form-item>
+        <!-- 배부단위 계정수 -->
         <kw-form-item :label="$t('MSG_TXT_DDLV_UNIT_ACC_N')">
           <kw-input
             v-model="ddlvOjCd2Data.bfsvcCsmbDdlvUnitAccN"
             :label="$t('MSG_TXT_DDLV_UNIT_ACC_N')"
-            type="number"
+            mask="number"
             maxlength="10"
             :disable="isDisableYn2 || isDisable"
             :rules="isRequiredAccPrpnYn2"
           />
         </kw-form-item>
+        <!-- 배부단위 수량 -->
         <kw-form-item :label="$t('MSG_TXT_DDLV_UNIT_QTY_EA')">
           <kw-input
             v-model="ddlvOjCd2Data.bfsvcCsmbDdlvUnitQty"
             :label="$t('MSG_TXT_DDLV_UNIT_QTY_EA')"
-            type="number"
+            mask="number"
             maxlength="10"
             :disable="isDisableYn2 || isDisable"
             :rules="isRequiredUnitQty2 || isRequiredAccPrpnYn2"
@@ -293,29 +302,33 @@
         </kw-form-item>
       </kw-form-row>
       <kw-form-row>
+        <!-- 신청제한 수량 -->
         <kw-form-item :label="$t('MSG_TXT_APLC_LM_QTY')">
           <kw-input
             v-model="ddlvOjCd2Data.bfsvcCsmbAplcLmQty"
             :label="$t('MSG_TXT_APLC_LM_QTY')"
-            type="number"
+            mask="number"
             maxlength="10"
             :disable="isDisableYn2 || isDisable"
             :rules="isRequiredLmQty2"
           />
         </kw-form-item>
+        <!-- 정렬순서 -->
         <kw-form-item :label="$t('MSG_TXT_SORT_ORDER')">
           <kw-input
             v-model="ddlvOjCd2Data.sortOdr"
             :label="$t('MSG_TXT_SORT_ORDER')"
-            type="number"
+            mask="##########"
             maxlength="10"
             rules="min_value:0"
             :disable="isDisableYn2 || isDisable"
           />
         </kw-form-item>
       </kw-form-row>
+      <!-- 빌딩 -->
       <h3>{{ $t('MSG_TXT_BUILDING') }}</h3>
       <kw-form-row>
+        <!-- 운영여부 -->
         <kw-form-item
           :label="$t('MSG_TXT_ORT_YN')"
           required
@@ -329,35 +342,30 @@
             @update:model-value="onChangeOrtYn(3)"
           />
         </kw-form-item>
+        <!-- 배부유형 -->
         <kw-form-item :label="$t('MSG_TXT_DDLV_TP')">
-          <kw-field-wrap>
-            <kw-select
-              v-model="ddlvOjCd3Data.bfsvcCsmbDdlvTpCd"
-              :label="$t('MSG_TXT_DDLV_TP')"
-              :options="codes.BFSVC_CSMB_DDLV_TP_CD"
-              placeholder=""
-              :disable="isDisableYn3 || isDisable"
-              :rules="isRequiredDdlvTp3"
-              class="mr8 w167"
-              @update:model-value="onChangeBfsvcCsmbDdlvTpCd(3)"
-            />
-            <kw-select
-              v-model="ddlvOjCd3Data.bfsvcCsmbDdlvCmptBaseCd"
-              :label="$t('MSG_TXT_DDLV_TP')"
-              :options="codes.BFSVC_CSMB_DDLV_CMPT_BASE_CD"
-              placeholder=""
-              :disable="isDisableYn3 || isDisableCmptBaseCd3"
-              :rules="isRequiredCmptBaseCd3"
-              class="w167"
-            />
-          </kw-field-wrap>
+          <kw-select
+            v-model="ddlvOjCd3Data.bfsvcCsmbDdlvTpCd"
+            :label="$t('MSG_TXT_DDLV_TP')"
+            :options="codes.BFSVC_CSMB_DDLV_TP_CD"
+            :disable="isDisableYn3 || isDisable"
+            :rules="isRequiredDdlvTp3"
+            @update:model-value="onChangeBfsvcCsmbDdlvTpCd(3)"
+          />
+          <kw-select
+            v-model="ddlvOjCd3Data.bfsvcCsmbDdlvCmptBaseCd"
+            :label="$t('MSG_TXT_DDLV_TP')"
+            :options="codes.BFSVC_CSMB_DDLV_CMPT_BASE_CD"
+            :disable="isDisableYn3 || isDisableCmptBaseCd3"
+            :rules="isRequiredCmptBaseCd3"
+          />
         </kw-form-item>
+        <!-- 배부대상 상품그룹 -->
         <kw-form-item :label="$t('MSG_TXT_DDLV_OJ_PD_GRP')">
           <kw-select
             v-model="ddlvOjCd3Data.bfsvcCsmbDdlvOjPdGrpCd"
             :label="$t('MSG_TXT_DDLV_OJ_PD_GRP')"
             first-option=""
-            placeholder=""
             :options="codes.PD_GRP_CD"
             :disable="isDisableYn3 || isDisable"
             :rules="isRequiredAccPrpnYn3"
@@ -365,6 +373,7 @@
         </kw-form-item>
       </kw-form-row>
       <kw-form-row>
+        <!-- 배부대상 계정유형 -->
         <kw-form-item :label="$t('MSG_TXT_DDLV_OJ_ACC_TP')">
           <kw-select
             v-model="ddlvOjCd3Data.bfsvcCsmbDdlvOjAccTpCd"
@@ -374,21 +383,23 @@
             :rules="isRequiredAccPrpnYn3"
           />
         </kw-form-item>
+        <!-- 배부단위 계정 수 -->
         <kw-form-item :label="$t('MSG_TXT_DDLV_UNIT_ACC_N')">
           <kw-input
             v-model="ddlvOjCd3Data.bfsvcCsmbDdlvUnitAccN"
             :label="$t('MSG_TXT_DDLV_UNIT_ACC_N')"
-            type="number"
+            mask="number"
             maxlength="10"
             :disable="isDisableYn3 || isDisable"
             :rules="isRequiredAccPrpnYn3"
           />
         </kw-form-item>
+        <!-- 배부단위 수량 -->
         <kw-form-item :label="$t('MSG_TXT_DDLV_UNIT_QTY_EA')">
           <kw-input
             v-model="ddlvOjCd3Data.bfsvcCsmbDdlvUnitQty"
             :label="$t('MSG_TXT_DDLV_UNIT_QTY_EA')"
-            type="number"
+            mask="number"
             maxlength="10"
             :disable="isDisableYn3 || isDisable"
             :rules="isRequiredUnitQty3 || isRequiredAccPrpnYn3"
@@ -396,21 +407,23 @@
         </kw-form-item>
       </kw-form-row>
       <kw-form-row>
+        <!-- 신청제한 수량 -->
         <kw-form-item :label="$t('MSG_TXT_APLC_LM_QTY')">
           <kw-input
             v-model="ddlvOjCd3Data.bfsvcCsmbAplcLmQty"
             :label="$t('MSG_TXT_APLC_LM_QTY')"
-            type="number"
+            mask="number"
             maxlength="10"
             :disable="isDisableYn3 || isDisable"
             :rules="isRequiredLmQty3"
           />
         </kw-form-item>
+        <!-- 정렬순서 -->
         <kw-form-item :label="$t('MSG_TXT_SORT_ORDER')">
           <kw-input
             v-model="ddlvOjCd3Data.sortOdr"
             :label="$t('MSG_TXT_SORT_ORDER')"
-            type="number"
+            mask="##########"
             maxlength="10"
             rules="min_value:0"
             :disable="isDisableYn3 || isDisable"
@@ -419,12 +432,14 @@
       </kw-form-row>
     </kw-form>
     <template #action>
+      <!-- 취소 -->
       <kw-btn
         v-permission:read
         negative
         :label="$t('MSG_BTN_CANCEL')"
         @click="onClickCancel"
       />
+      <!-- 등록 -->
       <kw-btn
         v-permission:create
         primary
