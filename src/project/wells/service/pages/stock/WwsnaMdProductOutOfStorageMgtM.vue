@@ -101,7 +101,8 @@
           <kw-select
             v-model="searchParams.prtnrBzsCd"
             :label="$t('MSG_TXT_PRTNR_BZS_CD')"
-            first-option="all"
+            rules="required"
+            :placeholder="prtnrBzs"
             readonly
           />
         </kw-search-item>
@@ -364,8 +365,7 @@ async function onClickExcelUpload() {
   const { result } = await modal({
     component: 'ZctzExcelUploadP',
     componentProps: {
-      // templateDocId: `${currentRoute.value.meta.menuName}_${t('MSG_TXT_PCSV_IVC')}_${t('MSG_TXT_WK_RS')}`,
-      templateDocId: 'FOM_MD_PRODUCT_UPLOAD',
+      size: '2xl',
       headerRows: 2,
       validationBtn: true,
       downloadBtn: true,
@@ -386,12 +386,13 @@ async function onClickExcelUpload() {
     await onClickSearch();
   }
 }
+const prtnrBzs = ref();
 async function getLoginPrtnrBzs() {
   // 로그인된 사용자기준으로 파트너업체를 설정한다.
   const res = await dataService.get(`${baseUrl}/login-prtnr-bzs`, { params: cachedParams });
   const result = res.data;
-  console.log(result);
-  if (result !== '') {
+  if (!isEmpty(result)) {
+    prtnrBzs.value = result;
     searchParams.value.prtnrBzsCd = result;
   }
 }
