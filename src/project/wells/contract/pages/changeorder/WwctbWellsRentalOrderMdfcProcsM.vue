@@ -253,7 +253,11 @@
                   icon="search"
                   maxlength="100"
                   grow
-                  :disable="!isFetched || fieldData.slClYn==='Y' || fieldData.svcPdChYn==='Y'"
+                  :disable="!isFetched
+                    || fieldData.slClYn==='Y'
+                    || !isEmpty(fieldData.istDt)
+                    || !isEmpty(fieldData.vstSchDt)
+                    || fieldData.svcPdChYn==='Y'"
                   @click-icon="onClickSelectProduct"
                 />
               </kw-form-item>
@@ -266,6 +270,7 @@
                 :model-value="orderProduct"
                 :bas="fieldData"
                 modify
+                :readonly="!isEmpty(fieldData.istDt) || fieldData.svcPdChYn==='Y'"
                 @select:one-plus-one="onClickOnePlusOne"
                 @delete:one-plus-one="onDeleteOnePlusOne"
                 @select:device="onClickDeviceChange"
@@ -1217,12 +1222,14 @@ async function fetchData() {
   compKey.value += 1;
   orderProduct.value = product;
 
-  if (!isEmpty(fieldData.value.vstSchDt)) {
-    isFetched.value = false;
-    alert(t('MSG_ALT_ALRDY_HAVE_IST_EXP_DT')); // 이미 설치 예약된 계약건 입니다.
-  } else {
-    isFetched.value = true;
-  }
+  isFetched.value = true;
+
+  // if (!isEmpty(fieldData.value.vstSchDt)) {
+  //   isFetched.value = false;
+  //   alert(t('MSG_ALT_ALRDY_HAVE_IST_EXP_DT')); // 이미 설치 예약된 계약건 입니다.
+  // } else {
+  //   isFetched.value = true;
+  // }
   isCnfmPd.value = true;
   obsRef.value.init();
 }
