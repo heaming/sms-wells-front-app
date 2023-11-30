@@ -163,6 +163,7 @@ const codes = await codeUtil.getMultiCodes(
   'SELL_TP_CD',
   'OG_TP_CD',
   'PD_TP_CD',
+  'MSG_OJ_DV_CD',
   'COD_PAGE_SIZE_OPTIONS',
 );
 
@@ -184,12 +185,12 @@ let cachedParams;
 
 // 조회 이벤트
 async function fetchData() {
-  console.log(JSON.stringify(cachedParams, null, '\t'));
+  // console.log(JSON.stringify(cachedParams, null, '\t'));
   const res = await dataService.get('sms/wells/contract/sellqty/paging', { params: cachedParams });
-  console.log(JSON.stringify(res.data, null, '\t'));
+  console.log(JSON.stringify(res.data.list, null, '\t'));
   const view = gridMainRef.value.getView();
   const dataSource = view.getDataSource();
-  dataSource.setRows(res.data);
+  dataSource.setRows(res.data.list);
   pageInfo.value.totalCount = view.getItemCount();
 
   view.rowIndicator.indexOffset = gridUtil.getPageIndexOffset(pageInfo);
@@ -220,7 +221,7 @@ async function onClickDelete() {
 
   if (deletedRows.length > 0) {
     const sellLmPdBaseIds = deletedRows.map(({ sellLmPdBaseId }) => sellLmPdBaseId);
-    await dataService.delete('sms/wells/contract/sales-limits/users', { params: { sellLmPdBaseIds } });
+    await dataService.post('sms/wells/contract/sellqty/delete', sellLmPdBaseIds);
     notify(t('MSG_ALT_DELETED'));
     await onClickSearch();
   }
@@ -251,7 +252,7 @@ async function onClickSave() {
   }
 
   const changedRows = gridUtil.getChangedRowValues(view);
-  await dataService.post('sms/wells/contract/sales-limits/users', changedRows);
+  await dataService.post('sms/wells/contract/sellqty/create', changedRows);
 
   notify(t('MSG_ALT_SAVE_DATA'));
   await onClickSearch();
@@ -291,6 +292,7 @@ function initGrid(data, view) {
     { fieldName: 'vlEndDtm' }, // 적용종료일시
     { fieldName: 'sellBaseQty' }, // 제한수량
     { fieldName: 'sellAcuQty' }, // 접수수량
+    { fieldName: 'sellAcuQtyBtn' },
     { fieldName: 'msgOjDvCd' }, // 메시지대상구분코드
     { fieldName: 'msgOjUsrId' }, // 케이톡 발송대상
     { fieldName: 'fwDtm' }, // 케이톡 발송일시
@@ -306,15 +308,14 @@ function initGrid(data, view) {
     { fieldName: 'sellLmPdBaseId', visible: false }, // 판매제한상품기준ID
     { fieldName: 'pdTpCd',
       header: t('MSG_TXT_PRDT_TYPE_CD'),
-      width: '180',
+      width: '140',
       styleName: 'text-center',
-      displayCallback(grid, index, value) {
-        return codes.PD_TP_CD.find((v) => (v.codeId === value))?.codeName || '';
-      },
+      options: codes.PD_TP_CD.map((v) => ({ codeId: v.codeId, codeName: `${v.codeId}-${v.codeName}` })),
+      editor: { type: 'list' },
     }, // 상품유형코드
     { fieldName: 'pdCd',
       header: t('MSG_TXT_PRDT_CODE'),
-      width: '180',
+      width: '140',
       styleName: 'text-center rg-button-icon--search',
       button: 'action',
       editor: { maxLength: 10 },
@@ -330,7 +331,7 @@ function initGrid(data, view) {
       styleName: 'text-center',
       options: codes.OG_TP_CD,
       editor: { type: 'list' },
-    }, // 조직
+    }, // 판매구분
     { fieldName: 'sellTpCd',
       header: t('MSG_TXT_SELL_TP_CD'),
       width: '120',
@@ -348,38 +349,93 @@ function initGrid(data, view) {
     },
     { fieldName: 'vlStrtDtm',
       header: '적용시작일시',
-      width: '196',
+      width: '186',
       styleName: 'text-center',
-      datetimeFormat: 'date',
+      datetimeFormat: 'datetime',
       rules: 'required',
-      editor: {
-        type: 'btdate',
-      },
+      editor: { type: 'btdate' },
     }, // 적용시작일시
     { fieldName: 'vlEndDtm',
       header: '적용종료일시 ',
-      width: '196',
+      width: '186',
       styleName: 'text-center',
-      datetimeFormat: 'date',
-      editor: {
-        type: 'btdate',
-      },
+      datetimeFormat: 'datetime',
+      editor: { type: 'btdate' },
     }, // 적용종료일시
-    { fieldName: 'sellBaseQty', header: t('MSG_TXT_LM_QTY'), styleName: 'text-right' }, // 제한수량
-    { fieldName: 'sellAcuQty', header: '접수수량', styleName: 'text-right' }, // 접수수량
-    { fieldName: 'msgOjDvCd', header: '메시지대상구분코드', width: '196' }, // 메시지대상구분코드
+    { fieldName: 'sellBaseQty',
+      header: t('MSG_TXT_LM_QTY'),
+      styleName: 'text-right',
+      numberFormat: '#,###,##0',
+    }, // 제한수량
+    { fieldName: 'sellAcuQty',
+      header: '접수수량',
+      width: '80',
+      styleName: 'text-right',
+      numberFormat: '#,###,##0',
+      editable: false,
+    }, // 접수수량
+    { fieldName: 'sellAcuQtyBtn',
+      width: '80',
+      styleName: 'text-center',
+      renderer: { type: 'button', hideWhenEmpty: false },
+      displayCallback() {
+        return '수량확인';
+      },
+    }, // 접수수량 - 버튼
+    { fieldName: 'msgOjDvCd',
+      header: '메시지대상구분코드',
+      width: '156',
+      options: [{ codeId: '', codeName: '' }]
+        .concat(codes.MSG_OJ_DV_CD.map((v) => ({ codeId: v.codeId, codeName: `${v.codeId}-${v.codeName}` }))),
+      editor: { type: 'list' },
+    }, // 메시지대상구분코드
     { fieldName: 'msgOjUsrId', header: 'K-works 발송대상', width: '196' }, /* 케이톡 발송대상 */
-    { fieldName: 'fwDtm', header: 'K-works 발송일시', datetimeFormat: 'date', width: '196', styleName: 'text-center', editable: false }, // 케이톡 발송일시
-    { fieldName: 'fstRgstDtm', header: t('MSG_TXT_RGST_DTM'), datetimeFormat: 'date', width: '196', styleName: 'text-center', editable: false }, // 동록일자
+    { fieldName: 'fwDtm', header: 'K-works 발송일시', datetimeFormat: 'datetime', width: '186', styleName: 'text-center', editor: { type: 'btdate' } }, // 케이톡 발송일시
+    { fieldName: 'fstRgstDtm', header: t('MSG_TXT_RGST_DTM'), datetimeFormat: 'datetime', width: '176', styleName: 'text-center', editable: false }, // 동록일자
     { fieldName: 'fstRgstUsrId', visible: false }, // 등록자
-    { fieldName: 'fstRgstUsrNm', header: t('MSG_TXT_FST_RGST_USR'), width: '131', styleName: 'text-center', editable: false }, // 등록자
-    { fieldName: 'fnlMdfcDtm', header: t('MSG_TXT_MDFC_DTM'), datetimeFormat: 'date', width: '196', styleName: 'text-center', editable: false }, // 동록일자
+    { fieldName: 'fstRgstUsrNm', header: t('MSG_TXT_FST_RGST_USR'), width: '111', styleName: 'text-center', editable: false }, // 등록자
+    { fieldName: 'fnlMdfcDtm', header: t('MSG_TXT_MDFC_DTM'), datetimeFormat: 'datetime', width: '176', styleName: 'text-center', editable: false }, // 동록일자
     { fieldName: 'fnlMdfcUsrId', visible: false }, // 수정자
-    { fieldName: 'fnlMdfcUsrNm', header: t('MSG_TXT_MDFC_USR'), width: '131', styleName: 'text-center', editable: false }, // 수정자
+    { fieldName: 'fnlMdfcUsrNm', header: t('MSG_TXT_MDFC_USR'), width: '111', styleName: 'text-center', editable: false }, // 수정자
+  ];
+
+  const layout = [
+    'sellLmPdBaseId',
+    'pdCd',
+    'pdTpCd',
+    'pdNm',
+    'ogTpCd',
+    'sellTpCd',
+    'ogCd',
+    'vlStrtDtm',
+    'vlEndDtm',
+    'sellBaseQty',
+    {
+      name: 'sellAcuQtyGroup',
+      direction: 'horizontal',
+      header: { visible: false },
+      items: [
+        {
+          column: 'sellAcuQty',
+          headerSpan: 2,
+        },
+        'sellAcuQtyBtn',
+      ],
+    },
+    'msgOjDvCd',
+    'msgOjUsrId',
+    'fwDtm',
+    'fstRgstDtm',
+    'fstRgstUsrId',
+    'fstRgstUsrNm',
+    'fnlMdfcDtm',
+    'fnlMdfcUsrId',
+    'fnlMdfcUsrNm',
   ];
 
   data.setFields(fields);
   view.setColumns(columns);
+  view.setColumnLayout(layout);
   view.checkBar.visible = true; // create checkbox column
   view.rowIndicator.visible = true; // create number indicator column
   view.editOptions.editable = true;
@@ -402,19 +458,12 @@ function initGrid(data, view) {
     });
 
     if (returnPdInfo.result) {
-      const pdClsfNm = returnPdInfo.payload?.[0].pdClsfNm.split('>');
       data.setValue(itemIndex, 'pdCd', '');
       data.setValue(itemIndex, 'pdNm', '');
-      data.setValue(itemIndex, 'pdMclsfNm', '');
-      data.setValue(itemIndex, 'pdLclsfNm', '');
       data.setValue(updateRow, 'pdCd', returnPdInfo.payload?.[0].pdCd);
       data.setValue(updateRow, 'pdNm', returnPdInfo.payload?.[0].pdNm);
-      data.setValue(updateRow, 'pdMclsfNm', !isEmpty(pdClsfNm[1]) ? pdClsfNm[1] : '');
-      data.setValue(updateRow, 'pdLclsfNm', !isEmpty(pdClsfNm[2]) ? pdClsfNm[2] : '');
     } else {
       data.setValue(itemIndex, 'pdNm', '');
-      data.setValue(itemIndex, 'pdMclsfNm', '');
-      data.setValue(itemIndex, 'pdLclsfNm', '');
     }
   };
   view.onCellEdited = async (grid, itemIndex, dataRow, fieldIndex) => {
