@@ -381,7 +381,7 @@ async function onClickExcelUpload() {
     },
   });
   console.log(excelUploadRows);
-  if (result) {
+  if (result && excelUploadRows > 0) {
     await dataService.post(`${baseUrl}/excel-upload`, excelUploadRows);
     await onClickSearch();
   }
