@@ -233,8 +233,17 @@
               <kw-item-section>
                 <kw-item-label>
                   <!-- 주문상품 선택 -->
-                  <h3>
+                  <h3
+                    style="display: inline-block;"
+                  >
                     {{ $t('MSG_TXT_ODER') + $t('MSG_TXT_PRDT') + ' ' + $t('MSG_TXT_SELT') }}
+                  </h3>
+
+                  <h3
+                    v-if="fieldData.svcPdChYn==='Y'"
+                    style="float: right; color: red;"
+                  >
+                    {{ '※ 서비스제품변경 건으로 가격 수정이 불가합니다.' }}
                   </h3>
                 </kw-item-label>
               </kw-item-section>
@@ -251,7 +260,10 @@
                   icon="search"
                   maxlength="100"
                   grow
-                  :disable="fieldData.slClYn==='Y' || !isEmpty(fieldData.vstSchDt)"
+                  :disable="fieldData.slClYn==='Y'
+                    || !isEmpty(fieldData.vstSchDt)
+                    || !isEmpty(fieldData.istDt)
+                    || fieldData.svcPdChYn==='Y'"
                   @click-icon="onClickSelectProduct"
                 />
               </kw-form-item>
@@ -264,6 +276,7 @@
                 :model-value="orderProduct"
                 :bas="fieldData"
                 modify
+                :readonly="!isEmpty(fieldData.istDt) || fieldData.svcPdChYn==='Y'"
                 @select:one-plus-one="onClickOnePlusOne"
                 @delete:one-plus-one="onDeleteOnePlusOne"
                 @select:device="onClickDeviceChange"
@@ -780,6 +793,7 @@ async function fetchData() {
 
 // 상품 가격이 바꼈을 때, 이벤트
 function onPriceChanged(item, price) {
+  compKey.value += 1;
   item.finalPrice = price;
 
   orderProduct.value = item;
