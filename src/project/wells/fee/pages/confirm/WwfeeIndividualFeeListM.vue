@@ -116,7 +116,6 @@
         </template>
         <kw-btn
           v-if="isReportVisible"
-          v-permission:read
           :label="$t('MSG_BTN_DSB_SPCSH_PRNT')"
           icon="report"
           dense
