@@ -114,7 +114,7 @@ import { openReportPopup } from '~common/utils/cmPopupUtil';
 
 const dataService = useDataService();
 const { t } = useI18n();
-const { alert, notify } = useGlobal();
+const { alert, notify, confirm } = useGlobal();
 // -------------------------------------------------------------------------------------------------
 // Function & Event
 // -------------------------------------------------------------------------------------------------
@@ -182,10 +182,24 @@ async function onClickSend() {
     return;
   }
 
-  await dataService.post('sms/wells/contract/contracts/send-trade-specification-sheets', checkRows);
+  // eslint-disable-next-line no-restricted-syntax
+  for (const row of checkRows) {
+    if (isEmpty(row.emadr)) { // 이메일 주소가 존재하지 않는 경우
+      notify(`${t('MSG_ALT_USER_NOT_FOUND')}[그룹번호 : ${row.spectxGrpNo}]`); // 해당 이메일 또는 이름이 등록되어 있지 않습니다.
+      return;
+    }
+  }
 
-  notify(t('MSG_ALT_SAVE_DATA'));
-  await onClickSearch();
+  if (await confirm(t(
+    'MSG_ALT_EML_FW_CONF',
+    [checkRows.length > 1 ? `${checkRows[0].cstKnm} 외 ${checkRows.length - 1}명` : checkRows[0].cstKnm,
+      checkRows.length > 1 ? `${checkRows[0].emadr} 외 ${checkRows.length - 1}건` : checkRows[0].emadr],
+  ))) { // 이메일을 발송 하시겠습니까?[수신자(외 x명)]님에게 메일을 발송하겠습니까?[수신자 메일(외 x건)]
+    await dataService.post('sms/wells/contract/contracts/send-trade-specification-sheets', checkRows);
+
+    notify(t('MSG_ALT_EML_FW_FSH')); // 메일 발송이 완료 되었습니다.
+    await onClickSearch();
+  }
 }
 
 async function onClickPriview(item) {
