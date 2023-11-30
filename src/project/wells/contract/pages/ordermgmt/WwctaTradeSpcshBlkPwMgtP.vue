@@ -110,6 +110,7 @@
 import { codeUtil, gridUtil, getComponentType, defineGrid, useDataService, useMeta, useGlobal } from 'kw-lib';
 import dayjs from 'dayjs';
 import { cloneDeep, isEmpty } from 'lodash-es';
+import { openReportPopup } from '~common/utils/cmPopupUtil';
 
 const dataService = useDataService();
 const { t } = useI18n();
@@ -180,10 +181,30 @@ async function onClickSend() {
     notify(t('MSG_ALT_CHK_ID', [t('MSG_TXT_FW_CN')]));
     return;
   }
+
   await dataService.post('sms/wells/contract/contracts/send-trade-specification-sheets', checkRows);
 
   notify(t('MSG_ALT_SAVE_DATA'));
   await onClickSearch();
+}
+
+async function onClickPriview(item) {
+  const rptParams = {
+    spectxGrpNo: item.spectxGrpNo, // 그룹번호
+    spectxPblDDvCd: item.spectxPblDDvCd, // 발행일자구분코드
+    cntrCnfmStrtDt: item.slClYm, // 확정일자(cntrCnfmStrtDt)
+    custNm: item.cstNm, // 계약자명
+    reportHeaderTitle: '거래명세서 조회', // 리포트타이틀
+  };
+  const searchApiUrl = '/api/v1/sms/wells/contract/contracts/send-trade-specification-sheets/oz';
+  const args = { searchApiUrl, ...rptParams };
+
+  console.log(args);
+  openReportPopup(
+    '/kstation-w/dpst/dealSpec.ozr',
+    '',
+    JSON.stringify(args),
+  );
 }
 // -------------------------------------------------------------------------------------------------
 // Initialize Grid
@@ -266,10 +287,11 @@ const initTradeSpcshBlkPwMgtList = defineGrid((data, view) => {
   view.checkBar.visible = true;
   view.rowIndicator.visible = true;
 
-  view.onCellItemClicked = async (g, { column }) => {
-    // TODO: 미리보기 팝업화면 개발진행 후 변경 예정
+  view.onCellItemClicked = async (g, { column, dataRow }) => {
     if (column === 'preview') {
-      notify(t('팝업 준비중 입니다.')); // 리포트 팝업 준비 중
+      const item = gridUtil.getRowValue(g, dataRow);
+      console.log('ok', item);
+      onClickPriview(item);
     }
   };
 });
