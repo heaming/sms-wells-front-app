@@ -824,7 +824,7 @@ async function onClickRefundAsk(stateCode) {
 
   if (!await cntrValidateView3()) {
     // 계약번호 - 전금계약번호가 동일하거나 , 전금계약상 데이터에 전금계약번호가 동일한경우.
-    notify(t('MSG_ALT_DUPLICATE_VALUE_EXISTS', [t('MSG_TXT_BLTF') + t('MSG_TXT_CNTR_NO')])); // 동일한 전금계약번호가 존재합니다.
+    alert(t('MSG_ALT_DUPLICATE_VALUE_EXISTS', [t('MSG_TXT_BLTF') + t('MSG_TXT_CNTR_NO')])); // 동일한 전금계약번호가 존재합니다.
     return false;
   }
   if (pageInfo1.value.totalCount < 1) {

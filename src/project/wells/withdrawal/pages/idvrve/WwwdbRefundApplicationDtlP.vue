@@ -440,9 +440,9 @@ const arfndYnChk = ref(false);
 const minDate = ref();
 const dataService = useDataService();
 const { ok } = useModal();
-const adminChk = ref(false);
 const { getUserInfo } = useMeta();
 const userInfo = getUserInfo();
+const adminChk = ref(userInfo.roles.filter((e) => e.roleId === 'ROL_G2010').length > 0);
 
 const saveParams = ref({
   arfndYn: 'Y', // 선환불정보
@@ -910,20 +910,6 @@ async function onClickSave() {
   ok();
 }
 
-// Mounting
-onBeforeMount(async () => {
-  // 승인담당자의 경우 수정이 가능해야한다
-  // adminChk.value = true;
-
-  const userRole = userInfo.roles.map((e) => e.roleId);
-
-  // 채권관리부문 수정가능
-  userRole.forEach((e) => {
-    if (e === 'ROL_G2010') {
-      adminChk.value = true;
-    }
-  });
-});
 onMounted(async () => {
   const data = [{
     totRfndCshAkAmt: 0,
@@ -949,7 +935,6 @@ onMounted(async () => {
   };
 
   saveParams.value.rfndAkNo = props.rfndAkNo;
-  console.log('onMounted', adminChk.value);
   await fetchData();
   onClickArfndYn();
 
@@ -1697,10 +1682,9 @@ const initGrid3 = defineGrid((data, view) => {
       },
       // styleName: 'rg-button-excelup',
       renderer: { type: 'button' },
+      // eslint-disable-next-line no-unused-vars
       styleCallback: (grid, model) => {
-        const bltfRfndMbDvCd = grid.getValue(model.item.dataRow, 'bltfRfndMbDvCd');
-
-        if (bltfRfndMbDvCd !== '01') {
+        if (adminChk.value) {
           return {
             styleName: 'rg-button-excelup',
           };
