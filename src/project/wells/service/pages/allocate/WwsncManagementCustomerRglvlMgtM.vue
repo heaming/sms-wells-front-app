@@ -710,11 +710,11 @@ function initGrdMain(data, view) {
     { fieldName: 'rcgvpDiv' }, // 고객구분
     { fieldName: 'fix' }, // 고정
     { fieldName: 'vstDuedt' }, // 차기방문월
-    { fieldName: 'mngStdDgr2LevlOgCd' }, // 관리기준(관리계정) - 지역단
+    // { fieldName: 'mngStdDgr2LevlOgCd' }, // 관리기준(관리계정) - 지역단
     { fieldName: 'mngStdDgr3LevlOgCd' }, // 관리기준(관리계정) - 지점
     { fieldName: 'mngStdPrtnrKnm' }, // 관리기준(관리계정) - 매니저
     { fieldName: 'mngStdMngerRglvlDvCd' }, // 관리기준(관리계정) - 관리기준급지
-    { fieldName: 'curMnthAlctnDgr2LevlOgCd' }, // 당월배정 - 지역단
+    // { fieldName: 'curMnthAlctnDgr2LevlOgCd' }, // 당월배정 - 지역단
     { fieldName: 'curMnthAlctnDgr3LevlOgCd' }, // 당월배정 - 지점
     { fieldName: 'curMnthAlctnPrtnrKnm' }, // 당월배정 - 매니저
     { fieldName: 'bfchIchrBrchOgId' }, // 당월배정
@@ -761,7 +761,8 @@ function initGrdMain(data, view) {
       } }, // 고객구분
     { fieldName: 'fix', header: t('MSG_TXT_FXN'), width: '50', styleName: 'text-center' }, // 고정
     { fieldName: 'vstDuedt', header: t('MSG_TXT_NX_VISIT_MON'), width: '100', styleName: 'text-center' }, // 차기방문월
-    { fieldName: 'mngStdDgr2LevlOgCd', header: t('MSG_TXT_RGNL_GRP'), width: '100', styleName: 'text-center' }, // 관리기준(관리계정): 지역단
+    // { fieldName: 'mngStdDgr2LevlOgCd', header: t('MSG_TXT_RGNL_GRP')
+    // , width: '100', styleName: 'text-center' }, // 관리기준(관리계정):지역단
     { fieldName: 'mngStdDgr3LevlOgCd', header: t('MSG_TXT_BRANCH'), width: '100', styleName: 'text-center' }, // 관리기준(관리계정): 지점
     { fieldName: 'mngStdPrtnrKnm', header: t('MSG_TXT_MANAGER'), width: '100', styleName: 'text-center' }, // 관리기준(관리계정): 매니저
     { fieldName: 'mngStdMngerRglvlDvCd',
@@ -772,7 +773,8 @@ function initGrdMain(data, view) {
       editor: {
         type: 'dropdown',
       } }, // 관리기준(관리계정): 관리기준급지
-    { fieldName: 'curMnthAlctnDgr2LevlOgCd', header: t('MSG_TXT_RGNL_GRP'), width: '100', styleName: 'text-center' }, // 당월배정: 지역단
+    // { fieldName: 'curMnthAlctnDgr2LevlOgCd', header: t('MSG_TXT_RGNL_GRP')
+    // , width: '100', styleName: 'text-center' }, // 당월배정: 지역단
     { fieldName: 'curMnthAlctnDgr3LevlOgCd', header: t('MSG_TXT_BRANCH'), width: '100', styleName: 'text-center' }, // 당월배정: 지점
     { fieldName: 'curMnthAlctnPrtnrKnm', header: t('MSG_TXT_MANAGER'), width: '100', styleName: 'text-center' }, // 당월배정: 매니저
     { fieldName: 'curMnthAlctnMngerRglvlDvCd',
@@ -808,12 +810,12 @@ function initGrdMain(data, view) {
     {
       header: t('MSG_TXT_MNGER_RGLVL'), // 관리기준(관리계정)
       direction: 'horizontal', // merge type
-      items: ['mngStdDgr2LevlOgCd', 'mngStdDgr3LevlOgCd', 'mngStdPrtnrKnm', 'mngStdMngerRglvlDvCd'],
+      items: ['mngStdDgr3LevlOgCd', 'mngStdPrtnrKnm', 'mngStdMngerRglvlDvCd'], // 지역단 제외 'mngStdDgr2LevlOgCd',
     }, // 이관전담당자
     {
       header: t('MSG_TXT_CRT_TRGT'), // 당월배정
       direction: 'horizontal',
-      items: ['curMnthAlctnDgr2LevlOgCd', 'curMnthAlctnDgr3LevlOgCd', 'curMnthAlctnPrtnrKnm', 'curMnthAlctnMngerRglvlDvCd'],
+      items: ['curMnthAlctnDgr3LevlOgCd', 'curMnthAlctnPrtnrKnm', 'curMnthAlctnMngerRglvlDvCd'], // 지역단 제외 'curMnthAlctnDgr2LevlOgCd',
     }, // 이관후담당자
   ]);
 
