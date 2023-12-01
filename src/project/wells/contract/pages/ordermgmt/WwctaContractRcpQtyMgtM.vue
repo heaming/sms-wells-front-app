@@ -145,16 +145,16 @@
 // -------------------------------------------------------------------------------------------------
 import { getComponentType, gridUtil, useGlobal, codeUtil, useDataService, useMeta } from 'kw-lib';
 import { cloneDeep, isEmpty } from 'lodash-es';
-import dayjs from 'dayjs';
 import pdConst from '~sms-common/product/constants/pdConst';
+// import dayjs from 'dayjs';
 
+// const now = dayjs();
 const gridMainRef = ref(getComponentType('KwGrid'));
 const { notify, modal } = useGlobal();
 const { currentRoute } = useRouter();
 const { getConfig } = useMeta();
 const { t } = useI18n();
 
-const now = dayjs();
 const dataService = useDataService();
 // -------------------------------------------------------------------------------------------------
 // Function & Event
@@ -170,7 +170,7 @@ const codes = await codeUtil.getMultiCodes(
 const searchParams = ref({
   pdCd: '', // 상품코드
   pdNm: '', // 상품명
-  vlYyyyMmDd: now.format('YYYYMMDD'), // 기준일자
+  vlYyyyMmDd: '', // now.format('YYYYMMDD'), // 기준일자
   sellTpCd: '', // 판매유형
   ogTpCd: '', // 조직코드
 });
@@ -252,7 +252,7 @@ async function onClickSave() {
   }
 
   const changedRows = gridUtil.getChangedRowValues(view);
-  await dataService.post('sms/wells/contract/sellqty/create', changedRows);
+  await dataService.post('sms/wells/contract/sellqty/save', changedRows);
 
   notify(t('MSG_ALT_SAVE_DATA'));
   await onClickSearch();
@@ -282,20 +282,21 @@ async function fetchProduct(gbn) {
 function initGrid(data, view) {
   const fields = [
     { fieldName: 'sellLmPdBaseId' }, // 판매제한상품기준ID
-    { fieldName: 'pdCd' }, // 상품코드
     { fieldName: 'pdTpCd' }, // 상품유형코드
+    { fieldName: 'pdCd' }, // 상품코드
     { fieldName: 'pdNm' }, // 상품명
     { fieldName: 'ogTpCd' }, // 판매구분
     { fieldName: 'sellTpCd' }, // 판매유형
     { fieldName: 'ogCd' }, // 조직 (null이면 ALL로)
     { fieldName: 'vlStrtDtm' }, // 적용시작일시
     { fieldName: 'vlEndDtm' }, // 적용종료일시
-    { fieldName: 'sellBaseQty' }, // 제한수량
-    { fieldName: 'sellAcuQty' }, // 접수수량
-    { fieldName: 'sellAcuQtyBtn' },
-    { fieldName: 'msgOjDvCd' }, // 메시지대상구분코드
+    { fieldName: 'msgOjDvCd' }, // 제한수량 - 메시지대상구분코드
+    { fieldName: 'sellBaseQty', dataType: 'number' }, // 제한수량
+    { fieldName: 'sellAcuQty', dataType: 'number' }, // 접수수량
+    { fieldName: 'sellAcuQtyBtn' }, // 접수수량 - 수량확인
     { fieldName: 'msgOjUsrId' }, // 케이톡 발송대상
     { fieldName: 'fwDtm' }, // 케이톡 발송일시
+    { fieldName: 'sellLmRsonCn' }, // 비고
     { fieldName: 'fstRgstDtm' }, // 등록일시
     { fieldName: 'fstRgstUsrId' }, // 등록자
     { fieldName: 'fstRgstUsrNm' },
@@ -308,29 +309,32 @@ function initGrid(data, view) {
     { fieldName: 'sellLmPdBaseId', visible: false }, // 판매제한상품기준ID
     { fieldName: 'pdTpCd',
       header: t('MSG_TXT_PRDT_TYPE_CD'),
-      width: '140',
+      width: '130',
       styleName: 'text-center',
       options: codes.PD_TP_CD.map((v) => ({ codeId: v.codeId, codeName: `${v.codeId}-${v.codeName}` })),
       editor: { type: 'list' },
     }, // 상품유형코드
     { fieldName: 'pdCd',
       header: t('MSG_TXT_PRDT_CODE'),
-      width: '140',
+      width: '160',
       styleName: 'text-center rg-button-icon--search',
       button: 'action',
       editor: { maxLength: 10 },
       rules: 'required',
-      buttonVisibleCallback(grid, index) {
-        return grid.getCurrent().dataRow === index.dataRow;
-      },
+      buttonVisibility: 'always',
+      // always: 항상 표시, default: hovering, focused상태에서 표시
+      // visible: focused상태만 표시, hidden: 표시하지 않음
     }, // 상품코드
     { fieldName: 'pdNm', header: t('MSG_TXT_PRDT_NM'), width: '220', editable: false }, // 상품명
     { fieldName: 'ogTpCd',
       header: t('MSG_TXT_SLS_CAT'),
       width: '120',
       styleName: 'text-center',
-      options: codes.OG_TP_CD,
+      options: [{ codeId: '', codeName: 'ALL' }].concat(codes.OG_TP_CD),
       editor: { type: 'list' },
+      displayCallback(grid, index, value) {
+        return isEmpty(value) ? 'ALL' : value;
+      },
     }, // 판매구분
     { fieldName: 'sellTpCd',
       header: t('MSG_TXT_SELL_TP_CD'),
@@ -362,14 +366,24 @@ function initGrid(data, view) {
       datetimeFormat: 'datetime',
       editor: { type: 'btdate' },
     }, // 적용종료일시
+    { fieldName: 'msgOjDvCd',
+      header: t('MSG_TXT_LM_QTY'),
+      width: '100',
+      options: codes.MSG_OJ_DV_CD.map((v) => ({ codeId: v.codeId, codeName: `${v.codeId}-${v.codeName}` })),
+      editor: { type: 'list' },
+      displayCallback(grid, index, value) {
+        return isEmpty(value) ? 'A-전체' : value;
+      },
+    }, // 메시지대상구분코드
     { fieldName: 'sellBaseQty',
       header: t('MSG_TXT_LM_QTY'),
       styleName: 'text-right',
+      width: '90',
       numberFormat: '#,###,##0',
     }, // 제한수량
     { fieldName: 'sellAcuQty',
       header: '접수수량',
-      width: '80',
+      width: '90',
       styleName: 'text-right',
       numberFormat: '#,###,##0',
       editable: false,
@@ -382,15 +396,9 @@ function initGrid(data, view) {
         return '수량확인';
       },
     }, // 접수수량 - 버튼
-    { fieldName: 'msgOjDvCd',
-      header: '메시지대상구분코드',
-      width: '156',
-      options: [{ codeId: '', codeName: '' }]
-        .concat(codes.MSG_OJ_DV_CD.map((v) => ({ codeId: v.codeId, codeName: `${v.codeId}-${v.codeName}` }))),
-      editor: { type: 'list' },
-    }, // 메시지대상구분코드
     { fieldName: 'msgOjUsrId', header: 'K-works 발송대상', width: '196' }, /* 케이톡 발송대상 */
     { fieldName: 'fwDtm', header: 'K-works 발송일시', datetimeFormat: 'datetime', width: '186', styleName: 'text-center', editor: { type: 'btdate' } }, // 케이톡 발송일시
+    { fieldName: 'sellLmRsonCn', header: t('MSG_TXT_NOTE'), width: '220', styleName: 'text-left' }, // 비고
     { fieldName: 'fstRgstDtm', header: t('MSG_TXT_RGST_DTM'), datetimeFormat: 'datetime', width: '176', styleName: 'text-center', editable: false }, // 동록일자
     { fieldName: 'fstRgstUsrId', visible: false }, // 등록자
     { fieldName: 'fstRgstUsrNm', header: t('MSG_TXT_FST_RGST_USR'), width: '111', styleName: 'text-center', editable: false }, // 등록자
@@ -401,15 +409,26 @@ function initGrid(data, view) {
 
   const layout = [
     'sellLmPdBaseId',
-    'pdCd',
     'pdTpCd',
+    'pdCd',
     'pdNm',
     'ogTpCd',
     'sellTpCd',
     'ogCd',
     'vlStrtDtm',
     'vlEndDtm',
-    'sellBaseQty',
+    {
+      name: 'sellBaseQtyGroup',
+      direction: 'horizontal',
+      header: { visible: false },
+      items: [
+        {
+          column: 'msgOjDvCd',
+          headerSpan: 2,
+        },
+        'sellBaseQty',
+      ],
+    },
     {
       name: 'sellAcuQtyGroup',
       direction: 'horizontal',
@@ -422,9 +441,9 @@ function initGrid(data, view) {
         'sellAcuQtyBtn',
       ],
     },
-    'msgOjDvCd',
     'msgOjUsrId',
     'fwDtm',
+    'sellLmRsonCn',
     'fstRgstDtm',
     'fstRgstUsrId',
     'fstRgstUsrNm',
@@ -443,6 +462,16 @@ function initGrid(data, view) {
     insertable: true,
     appendable: true,
   });
+
+  view.onCellItemClicked = async (g, { column, dataRow }) => {
+    if (column === 'sellAcuQtyBtn') {
+      const sellLmPdBaseId = g.getValue(dataRow, 'sellLmPdBaseId');
+      const res = await dataService.get('sms/wells/contract/sellqty/rcpqty', { params: { sellLmPdBaseId } });
+      console.log(JSON.stringify(res.data, null, '\t'));
+      data.setValue(dataRow, 'sellAcuQty', res.data);
+      // data.setValue(dataRow, 'sellAcuQty', sellLmPdBaseId.substr(-5)); // res.data);
+    }
+  };
 
   view.onCellButtonClicked = async (g, { itemIndex }) => {
     const updateRow = view.getCurrent().dataRow;
@@ -466,6 +495,7 @@ function initGrid(data, view) {
       data.setValue(itemIndex, 'pdNm', '');
     }
   };
+
   view.onCellEdited = async (grid, itemIndex, dataRow, fieldIndex) => {
     const columnName = grid.getColumn(fieldIndex).fieldName;
     if (columnName === 'vlStrtDtm') {
