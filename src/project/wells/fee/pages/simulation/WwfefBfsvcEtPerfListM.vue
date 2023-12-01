@@ -201,6 +201,7 @@ const initGridMain = defineGrid((data, view) => {
     { fieldName: 'otscMgtCnt', header: t('MSG_TXT_ETC_ITEMS_1'), width: '100', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' },
     { fieldName: 'bdtMgtCnt', header: t('MSG_TXT_ETC_ITEMS_2'), width: '100', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' },
     { fieldName: 'etcMgtCnt', header: t('MSG_TXT_ETC'), width: '100', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' },
+    { fieldName: 'sumFxamMgtCnt', header: t('MSG_TXT_FXAM'), width: '100', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' },
     { fieldName: 'sumMgtCnt', header: t('MSG_TXT_AGG'), width: '100', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' },
     { fieldName: 'wrfr1FhsCnt', header: t('MSG_TXT_WRFR_1'), width: '100', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' },
     { fieldName: 'wrfr2FhsCnt', header: t('MSG_TXT_WRFR_2'), width: '100', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' },
@@ -212,6 +213,7 @@ const initGridMain = defineGrid((data, view) => {
     { fieldName: 'otscFhsCnt', header: t('MSG_TXT_ETC_ITEMS_1'), width: '100', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' },
     { fieldName: 'bdtFhsCnt', header: t('MSG_TXT_ETC_ITEMS_2'), width: '100', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' },
     { fieldName: 'etcFhsCnt', header: t('MSG_TXT_ETC'), width: '100', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' },
+    { fieldName: 'sumFxamFhsCnt', header: t('MSG_TXT_FXAM'), width: '100', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' },
     { fieldName: 'sumFhsCnt', header: t('MSG_TXT_AGG'), width: '100', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' },
     { fieldName: 'procsRt', header: t('MSG_TXT_PROCS_RT'), width: '100', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0.##' },
     // 추후 관리수수료 추가 예정
@@ -241,12 +243,12 @@ const initGridMain = defineGrid((data, view) => {
     {
       header: t('MSG_TXT_ASGN') + t('MSG_TXT_ACC'), // colspan title
       direction: 'horizontal', // merge type
-      items: ['wrfr1MgtCnt', 'wrfr2MgtCnt', 'wrfr3MgtCnt', 'wrfr4MgtCnt', 'unWrfrMgtCnt', 'puf1MgtCnt', 'puf2MgtCnt', 'otscMgtCnt', 'bdtMgtCnt', 'etcMgtCnt', 'sumMgtCnt'],
+      items: ['wrfr1MgtCnt', 'wrfr2MgtCnt', 'wrfr3MgtCnt', 'wrfr4MgtCnt', 'unWrfrMgtCnt', 'puf1MgtCnt', 'puf2MgtCnt', 'otscMgtCnt', 'bdtMgtCnt', 'etcMgtCnt', 'sumFxamMgtCnt', 'sumMgtCnt'],
     },
     {
       header: t('MSG_TXT_COMPLETE') + t('MSG_TXT_ACC'), // colspan title
       direction: 'horizontal', // merge type
-      items: ['wrfr1FhsCnt', 'wrfr2FhsCnt', 'wrfr3FhsCnt', 'wrfr4FhsCnt', 'unWrfrFhsCnt', 'puf1FhsCnt', 'puf2FhsCnt', 'otscFhsCnt', 'bdtFhsCnt', 'etcFhsCnt', 'sumFhsCnt'],
+      items: ['wrfr1FhsCnt', 'wrfr2FhsCnt', 'wrfr3FhsCnt', 'wrfr4FhsCnt', 'unWrfrFhsCnt', 'puf1FhsCnt', 'puf2FhsCnt', 'otscFhsCnt', 'bdtFhsCnt', 'etcFhsCnt', 'sumFxamFhsCnt', 'sumFhsCnt'],
     },
     'procsRt',
     // 'bsFee',
