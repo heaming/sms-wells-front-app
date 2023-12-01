@@ -159,13 +159,13 @@
           inset
           spaced
         />
-        <!-- 담당자이관 버튼 -->
+        <!-- 저장 버튼 -->
         <kw-btn
           v-permission:update
           primary
           dense
-          :label="$t('MSG_BTN_PSIC_TF')"
-          @click="onClickPsicTransfer"
+          :label="$t('MSG_BTN_SAVE')"
+          @click="onClickSave"
         />
       </kw-action-top>
       <kw-grid
@@ -409,7 +409,7 @@ async function onClickSearch() {
   await fetchData();
 }
 // 담당자이관버튼 클릭
-async function onClickPsicTransfer() {
+async function onClickSave() {
   const gridView = grdMainRef.value.getView();
   const chkRows = gridUtil.getCheckedRowValues(gridView);
 
@@ -417,8 +417,10 @@ async function onClickPsicTransfer() {
     notify(t('MSG_ALT_NOT_SEL_ITEM')); // 데이터를 선택해주세요.
     return;
   }
-  if (chkRows.some(({ rowState }) => rowState !== RowState.UPDATED)
-  || chkRows.some(({ afchBlgCd, afchFnm }) => !afchBlgCd || !afchFnm)) {
+
+  const updateRows = chkRows.filter((v) => v.rowState === RowState.UPDATED);
+
+  if (updateRows.some(({ afchBlgCd, afchFnm }) => afchBlgCd && !afchFnm)) {
     notify(t('MSG_ALT_NOT_EXST_TF_REQ_PSIC')); // 이관요청담당자가 없는 행이 존재합니다.
     return;
   }
@@ -451,7 +453,7 @@ async function onClickIconPrtnrNoSearchPopup() {
   const { result, payload } = await modal({
     component: 'WwsndHumanResourcesListP',
     componentProps: {
-      mngrDvCd: '',
+      mngrDvCd: '2',
       searchText: '',
       authYn: 'N',
     },
@@ -753,7 +755,6 @@ const initGrdMain = defineGrid((data, view) => {
       labels: lookupTreeMainCodes.values,
       editor: { type: 'dropdown' },
       editable: true,
-      rules: 'required',
     },
     {
       fieldName: 'afchEmpno',
@@ -770,7 +771,6 @@ const initGrdMain = defineGrid((data, view) => {
       lookupKeyFields: ['afchBlgCd', 'afchFnm'],
       editor: { type: 'dropdown' },
       editable: true,
-      rules: 'required',
       // styleCallback: (grid, dataCell) => {
       //   const afchBlgCd = gridUtil.getCellValue(grid, dataCell.index.itemIndex, 'afchBlgCd');
       //   const { ogId } = svcCode.filter((v) => v.ogNm === afchBlgCd)[0];
