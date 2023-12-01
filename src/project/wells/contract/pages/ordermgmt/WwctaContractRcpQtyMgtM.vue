@@ -185,20 +185,25 @@ let cachedParams;
 
 // 조회 이벤트
 async function fetchData() {
-  // console.log(JSON.stringify(cachedParams, null, '\t'));
-  const res = await dataService.get('sms/wells/contract/sellqty/paging', { params: cachedParams });
-  console.log(JSON.stringify(res.data.list, null, '\t'));
+  const res = await dataService.get('sms/wells/contract/sellqty/paging', { params: { ...cachedParams, ...pageInfo.value } });
+  const { list, pageInfo: pagingResult } = res.data;
+  // console.log(JSON.stringify(res.data, null, '\t'));
+
+  pageInfo.value = pagingResult;
+
   const view = gridMainRef.value.getView();
-  const dataSource = view.getDataSource();
-  dataSource.setRows(res.data.list);
-  pageInfo.value.totalCount = view.getItemCount();
+  view.getDataSource().setRows(list);
+  view.resetCurrent();
 
   view.rowIndicator.indexOffset = gridUtil.getPageIndexOffset(pageInfo);
 }
 
 // 조회 버튼 클릭
 async function onClickSearch() {
+  pageInfo.value.pageIndex = 1;
   cachedParams = cloneDeep(searchParams.value);
+  gridMainRef.value.getData().clearRows();
+
   await fetchData();
 }
 
@@ -253,6 +258,7 @@ async function onClickSave() {
 
   const changedRows = gridUtil.getChangedRowValues(view);
   await dataService.post('sms/wells/contract/sellqty/save', changedRows);
+  // console.log(JSON.stringify(changedRows, null, '\t'));
 
   notify(t('MSG_ALT_SAVE_DATA'));
   await onClickSearch();
@@ -371,9 +377,6 @@ function initGrid(data, view) {
       width: '100',
       options: codes.MSG_OJ_DV_CD.map((v) => ({ codeId: v.codeId, codeName: `${v.codeId}-${v.codeName}` })),
       editor: { type: 'list' },
-      displayCallback(grid, index, value) {
-        return isEmpty(value) ? 'A-전체' : value;
-      },
     }, // 메시지대상구분코드
     { fieldName: 'sellBaseQty',
       header: t('MSG_TXT_LM_QTY'),
@@ -467,9 +470,7 @@ function initGrid(data, view) {
     if (column === 'sellAcuQtyBtn') {
       const sellLmPdBaseId = g.getValue(dataRow, 'sellLmPdBaseId');
       const res = await dataService.get('sms/wells/contract/sellqty/rcpqty', { params: { sellLmPdBaseId } });
-      console.log(JSON.stringify(res.data, null, '\t'));
       data.setValue(dataRow, 'sellAcuQty', res.data);
-      // data.setValue(dataRow, 'sellAcuQty', sellLmPdBaseId.substr(-5)); // res.data);
     }
   };
 
