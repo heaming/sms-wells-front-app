@@ -642,7 +642,7 @@ async function onClickPblPrnt() {
 
         // OZ 리포트 호출 Api 설정
         // eslint-disable-next-line no-case-declarations
-        const args1 = { searchApiUrl: '/api/v1/sms/wells/contract/contracts/order-details/specification/deposit-itemizations/oz', ...cachedParams, cntrDtlNoList };
+        const args1 = { searchApiUrl: '/api/v1/sms/wells/contract/contracts/order-details/specification/deposit-itemizations/anonymous/oz', ...cachedParams, cntrDtlNoList };
         // console.log(args1);
 
         // OZ 레포트 팝업호출
@@ -663,7 +663,7 @@ async function onClickPblPrnt() {
 
         // OZ 리포트 호출 Api 설정
         // eslint-disable-next-line no-case-declarations
-        const args2 = { searchApiUrl: '/api/v1/sms/wells/contract/contracts/order-details/specification/trade-specification/oz', ...cachedParams, cntrDtlNoList };
+        const args2 = { searchApiUrl: '/api/v1/sms/wells/contract/contracts/order-details/specification/trade-specification/anonymous/oz', ...cachedParams, cntrDtlNoList };
         // console.log(args2);
 
         // OZ 레포트 팝업호출
@@ -679,7 +679,7 @@ async function onClickPblPrnt() {
 
         // OZ 리포트 호출 Api 설정
         // eslint-disable-next-line no-case-declarations
-        const args3 = { searchApiUrl: '/api/v1/sms/wells/contract/contracts/order-details/specification/card-sales-slips/oz', ...cachedParams, cntrDtlNoList };
+        const args3 = { searchApiUrl: '/api/v1/sms/wells/contract/contracts/order-details/specification/card-sales-slips/anonymous/oz', ...cachedParams, cntrDtlNoList };
         // console.log(args3);
 
         // OZ 레포트 팝업호출
@@ -695,7 +695,7 @@ async function onClickPblPrnt() {
 
         // OZ 리포트 호출 Api 설정
         // eslint-disable-next-line no-case-declarations
-        const args4 = { searchApiUrl: '/api/v1/sms/wells/contract/contracts/order-details/specification/contract-articles/oz', ...cachedParams, cntrDtlNoList };
+        const args4 = { searchApiUrl: '/api/v1/sms/wells/contract/contracts/order-details/specification/contract-articles/anonymous/oz', ...cachedParams, cntrDtlNoList };
         // console.log(args4);
 
         // OZ 레포트 팝업호출
@@ -890,7 +890,7 @@ const initGrdTradeSpecificationSheet = defineGrid((data, view) => {
 const initGrdCardSalesSlip = defineGrid((data, view) => {
   const fields = [
     { fieldName: 'cntrDtlNo' }, // 계약상세번호
-    { fieldName: 'istmMcn' }, // 할부개월
+    { fieldName: 'dpismn' }, // 할부개월
     { fieldName: 'pdNm' }, // 상품명
     { fieldName: 'dpstdt' }, // 거래일
     { fieldName: 'dpcndt' }, // 취소일
@@ -902,7 +902,7 @@ const initGrdCardSalesSlip = defineGrid((data, view) => {
 
   const columns = [
     { fieldName: 'cntrDtlNo', header: t('MSG_TXT_CNTR_DTL_NO'), width: '135', styleName: 'text-center' }, // 계약상세번호
-    { fieldName: 'istmMcn', header: t('MSG_TXT_ISTM_MCNT'), width: '110', styleName: 'text-right' }, // 할부개월
+    { fieldName: 'dpismn', header: t('MSG_TXT_ISTM_MCNT'), width: '110', styleName: 'text-right' }, // 할부개월
     { fieldName: 'pdNm', header: t('MSG_TXT_PRDT_NM'), width: '292', styleName: 'text-left' }, // 상품명
     { fieldName: 'dpstdt', header: t('MSG_TXT_TRD_DT'), width: '131', styleName: 'text-center', datetimeFormat: 'date' }, // 거래일
     { fieldName: 'dpcndt', header: t('MSG_TXT_CAN_D'), width: '131', styleName: 'text-center', datetimeFormat: 'date' }, // 취소일
