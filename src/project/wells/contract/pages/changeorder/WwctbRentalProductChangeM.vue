@@ -722,10 +722,6 @@ async function fetchData() {
     wellsDtl: {
       sellEvCd: isEmpty(fieldData.value.sellEvCd) ? '' : fieldData.value.sellEvCd,
     },
-    priceOptionFilter: {
-      rentalDscDvCd: fieldData.value.sellDscDvCd || '',
-      rentalDscTpCd: fieldData.value.sellDscTpCd || '',
-    },
   };
 
   // 적용되있는 기기변경 세팅
