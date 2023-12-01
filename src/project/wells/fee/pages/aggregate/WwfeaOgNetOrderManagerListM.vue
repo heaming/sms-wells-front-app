@@ -907,7 +907,7 @@ const initGrdDtl = defineGrid((data, view) => {
     { fieldName: 'hcrMshY3', header: t('MSG_TXT_HCR_MSH_Y3'), width: '120', styleName: 'text-right' }, // 홈케어멤버십3년
     { fieldName: 'feeFxamYn', header: t('MSG_TXT_FXAM_YN'), width: '120', styleName: 'text-right' }, // 정액여부
     { fieldName: 'fnnLease', header: t('MSG_TXT_FNN_LEASE'), width: '120', styleName: 'text-right' }, // 금융리스
-    { fieldName: 'feeAckmtCt', header: t('MSG_TXT_ELHM_ACKMT_CT'), width: '120', styleName: 'text-right' }, // 가전인정건수
+    { fieldName: 'feeAckmtCt', header: t('MSG_TXT_PD_ACC_CNT'), width: '120', styleName: 'text-right' }, // 인정건수
     { fieldName: 'nwSellCt', header: t('MSG_TXT_NW_SELL_CT'), width: '120', styleName: 'text-right' }, // 신규판매건수
     { fieldName: 'bfsvcOjYn', header: t('MSG_TXT_OBJ'), width: '120', styleName: 'text-right' }, // BS대상
     { fieldName: 'rstlYn', header: t('MSG_TXT_RECOMMITMENT'), width: '120', styleName: 'text-right' }, // 재약정여부
