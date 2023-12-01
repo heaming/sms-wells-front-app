@@ -64,7 +64,6 @@
           use-og-level="2"
           use-partner
           dgr1-levl-og-first-option="all"
-          dgr2-levl-og-first-option="all"
           partner-first-option="all"
           dgr1-levl-og-label="ogCdNm"
           dgr2-levl-og-label="ogCdNm"
@@ -161,7 +160,7 @@ const searchParams = ref({
   rcgvpDiv: '', /* 고객구분 */
   mngerRglvlDvCd: '', /* 관리급지 */
   executiveGroup: '', /* 총괄단 */
-  localGroup: '', /* 지역단 */
+  localGroup: 'OG00053616', /* 마포 지역단 */
   partnerNo: '', /* 매니저 */
 });
 let cachedParams;
