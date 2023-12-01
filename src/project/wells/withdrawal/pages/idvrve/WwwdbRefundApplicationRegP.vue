@@ -1461,6 +1461,9 @@ const initGrid2 = defineGrid((data, view) => {
         if (rowValue.dpMesCd === '01' || rowValue.dpTpCd === '0203') {
           editable = false;
         }
+        if (rowValue.dpDvCd === '2' || rowValue.dpDvCd === '4' || rowValue.dpDvCd === '3') {
+          editable = false;
+        }
         return { editable };
       },
     },
