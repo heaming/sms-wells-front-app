@@ -910,6 +910,20 @@ async function onClickSave() {
   ok();
 }
 
+// Mounting
+onBeforeMount(async () => {
+  // 승인담당자의 경우 수정이 가능해야한다
+  // adminChk.value = true;
+
+  const userRole = userInfo.roles.map((e) => e.roleId);
+
+  // 채권관리부문 수정가능
+  userRole.forEach((e) => {
+    if (e === 'ROL_G2010') {
+      adminChk.value = true;
+    }
+  });
+});
 onMounted(async () => {
   const data = [{
     totRfndCshAkAmt: 0,
@@ -935,20 +949,9 @@ onMounted(async () => {
   };
 
   saveParams.value.rfndAkNo = props.rfndAkNo;
+  console.log('onMounted', adminChk.value);
   await fetchData();
   onClickArfndYn();
-
-  // 승인담당자의 경우 수정이 가능해야한다
-  // adminChk.value = true;
-
-  const userRole = userInfo.roles.map((e) => e.roleId);
-
-  // 채권관리부문 수정가능
-  userRole.forEach((e) => {
-    if (e === 'ROL_G2010') {
-      adminChk.value = true;
-    }
-  });
 
   // userRole === 'UGR_G2010' ? true : false
 
@@ -1434,6 +1437,9 @@ const initGrid2 = defineGrid((data, view) => {
         if (rowValue.dpMesCd === '01' || rowValue.dpTpCd === '0203') {
           editable = false;
         }
+        if (rowValue.dpDvCd === '2' || rowValue.dpDvCd === '4' || rowValue.dpDvCd === '3') {
+          editable = false;
+        }
         return { editable };
       },
     },
@@ -1687,7 +1693,7 @@ const initGrid3 = defineGrid((data, view) => {
         attachDocumentId: 'rfndEvidMtrFileId', // 필드명
         attachGroupId: 'ATG_WDB_RFND_FILE', // 또는 고정값
         downloadable: true,
-        editable: true,
+        editable: adminChk.value,
       },
       // styleName: 'rg-button-excelup',
       renderer: { type: 'button' },
