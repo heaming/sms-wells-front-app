@@ -22,7 +22,7 @@ function getFnlAmt(fnlVal, appliedPromotions = [], sellDscCtrAmt = 0) {
 export function getSpayAmt(pdBas, finalPrice, appliedPromotions = [], sellDscCtrAmt = 0) {
   if (!finalPrice || !pdBas) { return; }
   const { rglrSppPrmMcn } = pdBas;
-  const { fnlVal, cntrAmt, svVstPrdCd, pcsvPrdCd, sellTpCd, cntrAmtDscYn } = finalPrice;
+  const { fnlVal, cntrAmt, svVstPrdCd, pcsvPrdCd, bsCycPrdCd, sellTpCd, cntrAmtDscYn } = finalPrice;
   const fnlAmt = getFnlAmt(fnlVal, appliedPromotions, sellDscCtrAmt);
 
   if (sellTpCd === '1') {
@@ -40,7 +40,12 @@ export function getSpayAmt(pdBas, finalPrice, appliedPromotions = [], sellDscCtr
     }
     if (rglrSppPrmMcn > 0) {
       let spayAmt = fnlAmt * rglrSppPrmMcn;
-      const svPrd = Math.max(Number(svVstPrdCd) || 0, Number(pcsvPrdCd) || 0);
+      let svPrd;
+      if (bsCycPrdCd) {
+        svPrd = Math.max(bsCycPrdCd, 1);
+      } else {
+        svPrd = Math.max(Number(svVstPrdCd) || 1, Number(pcsvPrdCd) || 1);
+      }
       if (svPrd) {
         spayAmt /= svPrd;
       }
@@ -68,7 +73,7 @@ export function getSpayAmtByCntrDtl(cntrDtl) {
 
 export function getAftnAmt(finalPrice, appliedPromotions = [], sellDscCtrAmt = 0) {
   if (!finalPrice) { return; }
-  const { fnlVal, svVstPrdCd, pcsvPrdCd, sellTpCd } = finalPrice;
+  const { fnlVal, svVstPrdCd, pcsvPrdCd, bsCycPrdCd, sellTpCd } = finalPrice;
   const fnlAmt = getFnlAmt(fnlVal, appliedPromotions, sellDscCtrAmt);
   if (sellTpCd === '1') {
     return 0;
@@ -81,7 +86,12 @@ export function getAftnAmt(finalPrice, appliedPromotions = [], sellDscCtrAmt = 0
   }
   if (sellTpCd === '6') {
     let aftnAmt = fnlAmt;
-    const svPrd = Math.max(Number(svVstPrdCd) || 0, Number(pcsvPrdCd) || 0);
+    let svPrd;
+    if (bsCycPrdCd) {
+      svPrd = Math.max(bsCycPrdCd, 1);
+    } else {
+      svPrd = Math.max(Number(svVstPrdCd) || 1, Number(pcsvPrdCd) || 1);
+    }
     if (svPrd) {
       aftnAmt /= svPrd;
     }
@@ -102,6 +112,10 @@ export function getAftnAmtByCntrDtl(cntrDtl) {
     return fnlAmt;
   }
   if (sellTpCd === '6') {
+    if (!svPrd) {
+      warn('정기배송 상품의 BS주기가 없을 수 없습니다.');
+      return fnlAmt;
+    }
     return fnlAmt / svPrd;
   }
 }
@@ -110,7 +124,7 @@ export function getDisplayedPrice(finalPrice, sellDscCtrAmt = 0) {
   if (!finalPrice) {
     return '미확정';
   }
-  const { fnlVal, svVstPrdCd, pcsvPrdCd, stplPrdCd, sellTpCd } = finalPrice;
+  const { fnlVal, svVstPrdCd, pcsvPrdCd, bsCycPrdCd, stplPrdCd, sellTpCd } = finalPrice;
   if (fnlVal !== 0 && !fnlVal) {
     return '미확정';
   }
@@ -125,7 +139,12 @@ export function getDisplayedPrice(finalPrice, sellDscCtrAmt = 0) {
     return `월${getNumberWithComma(fnlAmt)}원`;
   }
   if (sellTpCd === '6') {
-    const svPrd = Math.max(Number(svVstPrdCd) || 0, Number(pcsvPrdCd) || 0);
+    let svPrd;
+    if (bsCycPrdCd) {
+      svPrd = Math.max(bsCycPrdCd, 1);
+    } else {
+      svPrd = Math.max(Number(svVstPrdCd) || 1, Number(pcsvPrdCd) || 1);
+    }
     if (svPrd) {
       return `${getNumberWithComma(fnlAmt)}원 (월 ${getNumberWithComma(fnlAmt / svPrd)}원)`;
     }
