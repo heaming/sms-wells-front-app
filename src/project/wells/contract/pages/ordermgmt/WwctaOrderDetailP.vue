@@ -303,6 +303,8 @@
 // -------------------------------------------------------------------------------------------------
 import { useDataService, useGlobal, stringUtil } from 'kw-lib';
 import { cloneDeep, isEmpty } from 'lodash-es';
+import dayjs from 'dayjs';
+import { openReportPopup } from '~common/utils/cmPopupUtil';
 import WwctaOrderDetailManagementInfDtlP from './WwctaOrderDetailManagementInfDtlP.vue';
 import WwctaOrderDetailDepositIzDtlP from './WwctaOrderDetailDepositIzDtlP.vue';
 import WwctaOrderDetailCashSalesReceiptMgtP from './WwctaOrderDetailCashSalesReceiptMgtP.vue';
@@ -311,6 +313,7 @@ import WwctaOrderDetailCollectingAmountContactListP from './WwctaOrderDetailColl
 
 const dataService = useDataService();
 const { alert, modal } = useGlobal();
+const { t } = useI18n();
 const optionList = ref([]);
 const props = defineProps({
   cntrNo: { type: String, required: true, default: '' },
@@ -319,6 +322,7 @@ const props = defineProps({
   cntrCstNo: { type: String, required: false, default: '' },
   copnDvCd: { type: String, required: false, default: '' },
 });
+const now = dayjs();
 
 const isAftnInfo = ref(false);
 const isVacInfo = ref(false);
@@ -586,7 +590,34 @@ async function onSelectCntrctPdList() {
 
 // 가상계좌확인서
 async function onClickVtAcCfdc() {
-  await alert('가상계좌확인서 팝업은 작업예정입니다.');
+  const paramCntrNo = frmMainData.value.cntrNo;
+  const paramCntrSn = frmMainData.value.cntrSn;
+
+  const res = await dataService.get(`/sms/wells/contract/changeorder/cancel/vacc-info/${paramCntrNo}/${paramCntrSn}`);
+
+  console.log(res.data);
+  if (isEmpty(res.data)) {
+    alert(t('MSG_ALT_NO_SRCH_DATA'));
+    return;
+  }
+
+  cachedParams.jsonData = [{
+    BANKNM: res.data.vacBnkNm, // 가상계좌은행명
+    ACNO: res.data.vacNo, // 가상계좌번호
+    CUSTNM: res.data.vacAcownNm, // 가상계좌고객명
+    /* 현재날짜 */
+    CURRENTYY: now.format('YYYY'),
+    CURRENTMM: now.format('MM'),
+    CURRENTDD: now.format('DD'),
+    ISNCPATH: res.data.isncPath, // 가상계좌VAN사구분코드
+  }];
+
+  // OZ 레포트 팝업호출
+  openReportPopup(
+    '/kstation-w/sldp/vrtlAcntCnft.ozr',
+    '',
+    JSON.stringify(cachedParams),
+  );
 }
 
 // 문자발송
