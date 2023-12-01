@@ -500,46 +500,93 @@ const initGrdTotal = defineGrid((data, view) => {
 // 10.전체
 const initGrdMain = defineGrid((data, view) => {
   console.log('111111= ');
-  const fields = [
-    { fieldName: 'bzopNo' }, // 파트너 사번
-    { fieldName: 'bzopNm' }, // 파트너명
-    { fieldName: 'orgzCd' }, // 소속코드
-    { fieldName: 'brncCnt' }, // 지점수
-    { fieldName: 'envrDayCnt' }, //  일계
-    { fieldName: 'envrDayAvgCnt' }, //  일계평균
-    { fieldName: 'envrTotCnt' }, //  누계
-    { fieldName: 'envrAvgCnt' }, //  누계평균
-    { fieldName: 'envrRntlEndSumCnt' }, //  접수 총 건수
-    { fieldName: 'envrRntlEndHrznCnt' }, //  접수총건수(지평)
-    { fieldName: 'notAsgnCnt' }, //  미배정 건수
-    { fieldName: 'akcntRntAgtlAutoCnt' }, //  미배정 삭제(5일경과)
-    { fieldName: 'akcntRntAgtlReqCnt' }, //  요청삭제
-    { fieldName: 'envrRntlEndDalyCnt' }, //  접수취소(일계)
-    { fieldName: 'acptCancAgtlCnt' }, //  접수취소(누계)
-    { fieldName: 'cancHrznCnt' }, //  취소 지평
-    { fieldName: 'cancAckdWaitCnt' }, //  취소승인대기건
-  ];
+
+  // const fields = [
+  //   { fieldName: 'bzopNo' }, // 파트너 사번
+  //   { fieldName: 'bzopNm' }, // 파트너명
+  //   { fieldName: 'orgzCd' }, // 소속코드
+  //   { fieldName: 'brncCnt' }, // 지점수
+  //   { fieldName: 'envrDayCnt' }, //  일계
+  //   { fieldName: 'envrDayAvgCnt' }, //  일계평균
+  //   { fieldName: 'envrTotCnt' }, //  누계
+  //   { fieldName: 'envrAvgCnt' }, //  누계평균
+  //   { fieldName: 'envrRntlEndSumCnt' }, //  접수 총 건수
+  //   { fieldName: 'envrRntlEndHrznCnt' }, //  접수총건수(지평)
+  //   { fieldName: 'notAsgnCnt' }, //  미배정 건수
+  //   { fieldName: 'akcntRntAgtlAutoCnt' }, //  미배정 삭제(5일경과)
+  //   { fieldName: 'akcntRntAgtlReqCnt' }, //  요청삭제
+  //   { fieldName: 'envrRntlEndDalyCnt' }, //  접수취소(일계)
+  //   { fieldName: 'acptCancAgtlCnt' }, //  접수취소(누계)
+  //   { fieldName: 'cancHrznCnt' }, //  취소 지평
+  //   { fieldName: 'cancAckdWaitCnt' }, //  취소승인대기건
+  // ];
 
   const columns = [
     { fieldName: 'bzopNo', header: t('MSG_TXT_PRTNR_EMP_NO'), width: '80', styleName: 'text-center' }, // 파트너 사번
     { fieldName: 'bzopNm', header: t('MSG_TXT_PTNR_NAME'), width: '100', styleName: 'text-center' }, // 파트너명
-    { fieldName: 'orgzCd', header: t('MSG_TXT_BLG_CD'), width: '120', styleName: 'text-center' }, // 소속코드
-    { fieldName: 'brncCnt', header: t('MSG_TXT_BRCH_N'), width: '120', styleName: 'text-center' }, // 지점수
-    { fieldName: 'envrDayCnt', header: t('MSG_TXT_SUM_DAY'), width: '100', styleName: 'text-right' }, //  일계
-    { fieldName: 'envrDayAvgCnt', header: t('MSG_TXT_D_AV'), width: '100', styleName: 'text-right' }, //  일계평균
-    { fieldName: 'envrTotCnt', header: t('MSG_TXT_AGGS'), width: '100', styleName: 'text-right' }, //  누계
-    { fieldName: 'envrAvgCnt', header: t('MSG_TXT_AGGS_AV'), width: '100', styleName: 'text-right' }, //  누계평균
-    { fieldName: 'envrRntlEndSumCnt', header: `${t('MSG_TXT_RCP')} ${t('MSG_TXT_TOT_CT')}`, width: '100', styleName: 'text-right' }, //  접수 총 건수
-    { fieldName: 'envrRntlEndHrznCnt', header: `${t('MSG_TXT_RCP')} ${t('MSG_TXT_TOT_CT')}   \n    ( ${t('MSG_TXT_BRNCH_OFFC_AVG')} )`, width: '150', styleName: 'text-right' }, // 접수총건수(지평)
-    { fieldName: 'notAsgnCnt', header: `${t('MSG_TXT_NOT_ASN')} ${t('MSG_TXT_COUNT')} `, width: '150', styleName: 'text-right' }, // 미배정 건수
-    { fieldName: 'akcntRntAgtlAutoCnt', header: `${t('MSG_TXT_NOT_ASN')} ${t('MSG_TXT_DEL')} \n ( ${t('MSG_TXT_5_DT_PASG')} )`, width: '150', styleName: 'text-right' }, // 미배정 삭제(5일경과)
-    { fieldName: 'akcntRntAgtlReqCnt', header: `${t('MSG_TXT_AK')} ${t('MSG_TXT_DEL')}`, width: '150', styleName: 'text-right' }, // 요청삭제
-    { fieldName: 'envrRntlEndDalyCnt', header: `${t('MSG_TXT_RCP')} ${t('MSG_TXT_CANCEL')} \n ( ${t('MSG_TXT_SUM_DAY')} )`, width: '150', styleName: 'text-right' }, // 접수취소(일계)
-    { fieldName: 'acptCancAgtlCnt', header: `${t('MSG_TXT_RCP')} ${t('MSG_TXT_CANCEL')}  \n ( ${t('MSG_TXT_AGGS')} )`, width: '150', styleName: 'text-right' }, // 접수취소(누계)
-    { fieldName: 'cancHrznCnt', header: `${t('MSG_TXT_CANCEL')} ${t('MSG_TXT_BRNCH_OFFC_AVG')}`, width: '150', styleName: 'text-right' }, // 취소 지평
-    { fieldName: 'cancAckdWaitCnt', header: `${t('MSG_TXT_CANCEL')} ${t('MSG_TXT_APPR')}  ${t('MSG_TXT_PENDING')}  ${t('MSG_TXT_CNT')}`, width: '150', styleName: 'text-right' }, // 취소승인대기건
+    { fieldName: 'orgzCd', header: t('MSG_TXT_BLG_CD'), width: '120', styleName: 'text-center', headerSummary: { text: '합계' } }, // 소속코드
+    { fieldName: 'brncCnt', header: t('MSG_TXT_BRCH_N'), width: '120', styleName: 'text-right', dataType: 'number', headerSummary: { expression: 'sum', numberFormat: '#,##0' } }, // 지점수
+    { fieldName: 'envrDayCnt', header: t('MSG_TXT_SUM_DAY'), width: '100', styleName: 'text-right', dataType: 'number', headerSummary: { expression: 'sum', numberFormat: '#,##0' } }, //  일계
+
+    //  일계평균
+    { fieldName: 'envrDayAvgCnt',
+      header: t('MSG_TXT_D_AV'),
+      width: '90',
+      styleName: 'text-right',
+      dataType: 'number',
+      numberFormat: '#,##0.0;;;c',
+      headerSummary: {
+        numberFormat: '#,##0.0;;;c',
+        valueCallback: (grid) => Math.floor((grid.getSummary('envrDayCnt', 'sum') / grid.getSummary('brncCnt', 'sum')) * 10) / 10,
+      } },
+    { fieldName: 'envrTotCnt', header: t('MSG_TXT_AGGS'), width: '100', styleName: 'text-right', dataType: 'number', headerSummary: { expression: 'sum', numberFormat: '#,##0' } }, //  누계
+    //  누계평균
+    { fieldName: 'envrAvgCnt',
+      header: t('MSG_TXT_AGGS_AV'),
+      width: '150',
+      styleName: 'text-right',
+      dataType: 'number',
+      numberFormat: '#,##0.0;;;c',
+      headerSummary: {
+        numberFormat: '#,##0.0;;;c',
+        valueCallback: (grid) => Math.floor((grid.getSummary('envrTotCnt', 'sum') / grid.getSummary('brncCnt', 'sum')) * 10) / 10,
+      } },
+    { fieldName: 'envrRntlEndSumCnt', header: `${t('MSG_TXT_RCP')} ${t('MSG_TXT_TOT_CT')}`, width: '100', styleName: 'text-right', dataType: 'number', headerSummary: { expression: 'sum', numberFormat: '#,##0' } }, //  접수 총 건수
+    // 접수총건수(지평)
+    { fieldName: 'envrRntlEndHrznCnt',
+      header: `${t('MSG_TXT_RCP')} ${t('MSG_TXT_TOT_CT')}   \n    ( ${t('MSG_TXT_BRNCH_OFFC_AVG')} )`,
+      width: '150',
+      styleName: 'text-right',
+      dataType: 'number',
+      numberFormat: '#,##0.0;;;c',
+      headerSummary: {
+        numberFormat: '#,##0.0;;;c',
+        valueCallback: (grid) => Math.floor((grid.getSummary('envrRntlEndSumCnt', 'sum') / grid.getSummary('brncCnt', 'sum')) * 10) / 10,
+      } },
+
+    { fieldName: 'notAsgnCnt', header: `${t('MSG_TXT_NOT_ASN')} ${t('MSG_TXT_COUNT')} `, width: '150', styleName: 'text-right', dataType: 'number', headerSummary: { expression: 'sum', numberFormat: '#,##0' } }, // 미배정 건수
+    { fieldName: 'akcntRntAgtlAutoCnt', header: `${t('MSG_TXT_NOT_ASN')} ${t('MSG_TXT_DEL')} \n ( ${t('MSG_TXT_5_DT_PASG')} )`, width: '150', styleName: 'text-right', dataType: 'number', headerSummary: { expression: 'sum', numberFormat: '#,##0' } }, // 미배정 삭제(5일경과)
+    { fieldName: 'akcntRntAgtlReqCnt', header: `${t('MSG_TXT_AK')} ${t('MSG_TXT_DEL')}`, width: '150', styleName: 'text-right', dataType: 'number', headerSummary: { expression: 'sum', numberFormat: '#,##0' } }, // 요청삭제
+    { fieldName: 'envrRntlEndDalyCnt', header: `${t('MSG_TXT_RCP')} ${t('MSG_TXT_CANCEL')} \n ( ${t('MSG_TXT_SUM_DAY')} )`, width: '150', styleName: 'text-right', dataType: 'number', headerSummary: { expression: 'sum', numberFormat: '#,##0' } }, // 접수취소(일계)
+    { fieldName: 'acptCancAgtlCnt', header: `${t('MSG_TXT_RCP')} ${t('MSG_TXT_CANCEL')}  \n ( ${t('MSG_TXT_AGGS')} )`, width: '150', styleName: 'text-right', dataType: 'number', headerSummary: { expression: 'sum', numberFormat: '#,##0' } }, // 접수취소(누계)
+
+    // 취소 지평
+    { fieldName: 'cancHrznCnt',
+      header: `${t('MSG_TXT_CANCEL')} ${t('MSG_TXT_BRNCH_OFFC_AVG')}`,
+      width: '150',
+      styleName: 'text-right',
+      dataType: 'number',
+      numberFormat: '#,##0.0;;;c',
+      headerSummary: {
+        numberFormat: '#,##0.0;;;c',
+        valueCallback: (grid) => Math.floor((grid.getSummary('acptCancAgtlCnt', 'sum') / grid.getSummary('brncCnt', 'sum')) * 10) / 10,
+      } },
+
+    { fieldName: 'cancAckdWaitCnt', header: `${t('MSG_TXT_CANCEL')} ${t('MSG_TXT_APPR')}  ${t('MSG_TXT_PENDING')}  ${t('MSG_TXT_CNT')}`, width: '150', styleName: 'text-right', dataType: 'number', headerSummary: { expression: 'sum', numberFormat: '#,##0' } }, // 취소승인대기건
 
   ];
+
+  const fields = columns.map(({ fieldName, dataType }) => (dataType ? { fieldName, dataType } : { fieldName }));
 
   data.setFields(fields);
   view.setColumns(columns);
@@ -572,6 +619,9 @@ const initGrdMain = defineGrid((data, view) => {
   ]);
 
   console.log('111113= ');
+
+  // Header Summary
+  view.setHeaderSummaries({ visible: true, items: [{ height: 42 }] });
 
   view.setFixedOptions({ colCount: 3 });
 });
