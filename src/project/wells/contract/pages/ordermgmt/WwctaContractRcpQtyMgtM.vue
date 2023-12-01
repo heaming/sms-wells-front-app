@@ -339,7 +339,7 @@ function initGrid(data, view) {
       options: [{ codeId: '', codeName: 'ALL' }].concat(codes.OG_TP_CD),
       editor: { type: 'list' },
       displayCallback(grid, index, value) {
-        return isEmpty(value) ? 'ALL' : value;
+        return codes.OG_TP_CD.find((v) => v.codeId === value)?.codeName || 'ALL';
       },
     }, // 판매구분
     { fieldName: 'sellTpCd',
