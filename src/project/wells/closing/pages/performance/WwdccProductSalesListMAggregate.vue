@@ -28,7 +28,7 @@
           v-model:to="searchParams.baseDtTo"
           type="date"
           :label="$t('MSG_TXT_SL_DT')"
-          rules="date_range_required"
+          rules="date_range_required|date_range_months:1"
         />
       </kw-search-item>
       <kw-search-item
@@ -158,7 +158,7 @@ const gridControl = ref({
 });
 
 const searchParams = ref({
-  baseDtFrom: now.format('YYYYMMDD'),
+  baseDtFrom: now.subtract(1, 'month').add(1, 'day').format('YYYYMMDD'),
   baseDtTo: now.format('YYYYMMDD'),
   sellTpCd: '1', // 판매유형
   sellTpDtlCd: 'ALL', // 판매유형상세
@@ -176,6 +176,14 @@ async function getCodes() {
   return res.data;
 }
 
+function checkClickable(view, sellTpCd, val, idx, cellCnt, cellCnt2) {
+  let result = val !== 'totQty' && val !== 'totSplAmt' && val !== 'totVat' && val !== 'totPvdaAmt';
+  if (sellTpCd !== '1') {
+    result = result && val !== 'totAmt';
+  }
+  return view.getSummary(val, 'sum') > 0 && idx > cellCnt + cellCnt2 && result;
+}
+
 // 조회구분 선택
 async function onSelectInqrDv() {
   const { sellTpCd, inqrDv } = searchParams.value;
@@ -189,36 +197,6 @@ async function onSelectInqrDv() {
   view.layoutByColumn('slRcogDt').summaryUserSpans = [
     { colspan: inqrDv === '1' ? 4 : 6 },
   ];
-}
-
-// 합계 조회
-async function fetchSummaryData(apiParam) {
-  const res = await dataService.get(`/sms/wells/closing/product-sales/${apiParam}/summary`, { params: cachedParams });
-  const view = grdMainRef.value.getView();
-
-  view.setHeaderSummaries({
-    visible: true,
-    items: [
-      { height: 40 },
-    ],
-  });
-
-  const { inqrDv } = searchParams.value;
-
-  const cellCnt = inqrDv === '1' ? 4 : 6;
-  const cellCnt2 = inqrDv === '1' ? 7 : 6;
-
-  if (apiParam === 'basic') {
-    view.getColumnNames().forEach((val, idx) => (
-      idx < cellCnt || val === 'normalGroup' ? null : view.columnByName(val).setHeaderSummaries({ text: res.data[val],
-        styleCallback() { return res.data[val] !== '0' && idx > cellCnt + cellCnt2 ? { styleName: 'text-right text-underline cursor-pointer' } : { styleName: 'text-right' }; } })
-    ));
-  } else {
-    view.getColumnNames().forEach((val, idx) => (
-      idx < cellCnt || val === 'normalGroup' ? null : view.columnByName(val).setHeaderSummaries({ text: res.data[val], styleName: 'text-right' })));
-  }
-
-  view.columnByName('slRcogDt').setHeaderSummaries({ text: t('MSG_TXT_SUM'), styleName: 'text-center' });
 }
 
 async function fetchData() {
@@ -237,7 +215,6 @@ async function fetchData() {
     gridControl.value.gubun = '1';
   }
 
-  fetchSummaryData(apiParam);
   const res = await dataService.get(`/sms/wells/closing/product-sales/${apiParam}/lists`, { params: cachedParams });
 
   const mainList = res.data;
@@ -246,6 +223,34 @@ async function fetchData() {
   const view = grdMainRef.value.getView();
 
   view.getDataSource().setRows(mainList);
+
+  view.setHeaderSummaries({
+    visible: true,
+    items: [
+      { height: 42 },
+    ],
+  });
+
+  const cellCnt = cachedParams.inqrDv === '1' ? 4 : 6;
+  const cellCnt2 = cachedParams.inqrDv === '1' ? 7 : 6;
+
+  if (apiParam === 'basic') {
+    view.getColumnNames().forEach((val, idx) => (
+      idx < cellCnt || val === 'normalGroup' ? null : view.columnByName(val).setHeaderSummaries({ numberFormat: '#,##0',
+        expression: 'sum',
+        styleCallback() {
+          return checkClickable(view, sellTpCd, val, idx, cellCnt, cellCnt2) ? { styleName: 'text-right text-underline cursor-pointer' } : { styleName: 'text-right' };
+        } })
+
+    ));
+  } else {
+    view.getColumnNames().forEach((val, idx) => (
+      idx < cellCnt || val === 'normalGroup' ? null : view.columnByName(val).setHeaderSummaries({ numberFormat: '#,##0',
+        expression: 'sum',
+        styleName: 'text-right' })));
+  }
+
+  view.columnByName('slRcogDt').setHeaderSummaries({ text: t('MSG_TXT_SUM'), styleName: 'text-center' });
 }
 
 async function onClickSearch() {
@@ -322,16 +327,27 @@ const initGrdBasic = defineGrid((data, view) => {
 
   view.onCellClicked = async (g, clickData) => {
     const { column, cellType } = clickData;
-    if (cellType === 'summary') {
+    if (cellType === 'summary' && view.getSummary(column, 'sum') > 0) {
       if (column === 'chQty' || column === 'slChAmt' || column === 'chSplAmt' || column === 'chVat' || column === 'chPvdaAmt'
-       || column === 'canQty' || column === 'slCanAmt' || column === 'canSplAmt' || column === 'canVat' || column === 'canPvdaAmt'
-       || column === 'totQty' || column === 'totAmt' || column === 'totSplAmt' || column === 'totVat' || column === 'totPvdaAmt') {
+       || column === 'canQty' || column === 'slCanAmt' || column === 'canSplAmt' || column === 'canVat' || column === 'canPvdaAmt') {
         await modal({
           component: 'ZwdccProductSalesChangeCancelP',
           componentProps: {
             sellTpCd: searchParams.value.sellTpCd,
             baseDtFrom: searchParams.value.baseDtFrom,
             baseDtTo: searchParams.value.baseDtTo,
+          },
+        });
+      } else if (column === 'totAmt' && searchParams.value.sellTpCd === '1') {
+        // TODO : modal 변경
+        await modal({
+          component: 'WwdccProductSalesSapMaterialsP',
+          componentProps: {
+            baseDtFrom: searchParams.value.baseDtFrom,
+            baseDtTo: searchParams.value.baseDtTo,
+            sellTpDtlCd: searchParams.value.sellTpDtlCd,
+            sellChnlDtl: searchParams.value.sellChnlDtl,
+            sapPdDvCd: searchParams.value.sapPdDvCd,
           },
         });
       }
