@@ -14,7 +14,10 @@
 --->
 <template>
   <kw-page>
-    <kw-search @search="onClickSearch">
+    <kw-search
+      :modified-targets="['grdMain']"
+      @search="onClickSearch"
+    >
       <kw-search-row>
         <kw-search-item :label="$t('MSG_TXT_MGT_YNM')">
           <kw-date-picker
@@ -27,6 +30,8 @@
             v-model="searchParams.bldCds"
             :multiple="true"
             :options="bldCode"
+            option-value="bldCd"
+            option-label="bldNm"
           />
         </kw-search-item>
       </kw-search-row>
@@ -76,7 +81,6 @@
         <template #left>
           <kw-paging-info
             :total-count="pageInfo.totalCount"
-            :page-size-options="pageInfo.totalCount"
           />
         </template>
         <kw-btn
@@ -123,12 +127,6 @@
         :total-count="pageInfo.totalCount"
         @init="initGrdMain"
       />
-      <!-- <kw-pagination
-        v-model:page-index="pageInfo.pageIndex"
-        v-model:page-size="pageInfo.pageSize"
-        :total-count="pageInfo.totalCount"
-        @change="fetchData"
-      /> -->
     </div>
   </kw-page>
 </template>
@@ -217,9 +215,8 @@ async function getItems() {
 
 async function getBldCode() {
   const res = await dataService.get('/sms/wells/service/manager-bsconsumables/building-code');
-  const codeData = res.data;
 
-  bldCode.value = codeData.map((v) => ({ codeId: v.bldCd, codeName: v.bldNm }));
+  bldCode.value = res.data;
 }
 
 let cachedParams;
