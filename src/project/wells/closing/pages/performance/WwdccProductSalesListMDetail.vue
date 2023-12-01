@@ -311,15 +311,15 @@ function getGrdRentalColumns() {
     { value: 'cntrDtlNo', text: t('MSG_TXT_CNTR_DTL_NO'), width: 150, align: 'center' }, // 계약번호
     { value: 'cstKnm', text: t('MSG_TXT_CST_NM'), width: 100, align: 'center' }, // 고객명
     { value: 'sapPdDvCd', text: t('MSG_TXT_SAP_PD_DV_CD_NM'), width: 180, align: 'center' }, // SAP상품구분코드명
-    { value: 'rentalRgstCost', text: t('MSG_TXT_SL_AMT'), width: 100, align: 'right' }, // 매출금액-등록비
-    { value: 'rentalRgstCostSpl', text: t('MSG_TXT_SUPPLY_AMOUNT'), width: 100, align: 'right' }, // 공급가액-등록비
-    { value: 'rentalRgstCostVat', text: t('MSG_TXT_VAT'), width: 100, align: 'right' }, // 부가세-등록비
-    { value: 'nomSlAmt', text: t('MSG_TXT_SL_AMT'), width: 100, align: 'right' }, // 매출금액-렌탈료
-    { value: 'splAmt', text: t('MSG_TXT_SUPPLY_AMOUNT'), width: 100, align: 'right' }, // 공급가액-렌탈료
-    { value: 'vat', text: t('MSG_TXT_VAT'), width: 100, align: 'right' }, // 부가세-렌탈료
-    { value: 'totSlAmt', text: t('MSG_TXT_SL_AMT'), width: 100, align: 'right' }, // 매출금액-매출합계
-    { value: 'totSplAmt', text: t('MSG_TXT_SUPPLY_AMOUNT'), width: 100, align: 'right' }, // 공급가액-매출합계
-    { value: 'totVat', text: t('MSG_TXT_VAT'), width: 100, align: 'right' }, // 부가세-매출합계
+    { value: 'rentalRgstCost', text: t('MSG_TXT_SL_AMT'), width: 100, align: 'right', valueType: 'number' }, // 매출금액-등록비
+    { value: 'rentalRgstCostSpl', text: t('MSG_TXT_SUPPLY_AMOUNT'), width: 100, align: 'right', valueType: 'number' }, // 공급가액-등록비
+    { value: 'rentalRgstCostVat', text: t('MSG_TXT_VAT'), width: 100, align: 'right', valueType: 'number' }, // 부가세-등록비
+    { value: 'nomSlAmt', text: t('MSG_TXT_SL_AMT'), width: 100, align: 'right', valueType: 'number' }, // 매출금액-렌탈료
+    { value: 'splAmt', text: t('MSG_TXT_SUPPLY_AMOUNT'), width: 100, align: 'right', valueType: 'number' }, // 공급가액-렌탈료
+    { value: 'vat', text: t('MSG_TXT_VAT'), width: 100, align: 'right', valueType: 'number' }, // 부가세-렌탈료
+    { value: 'totSlAmt', text: t('MSG_TXT_SL_AMT'), width: 100, align: 'right', valueType: 'number' }, // 매출금액-매출합계
+    { value: 'totSplAmt', text: t('MSG_TXT_SUPPLY_AMOUNT'), width: 100, align: 'right', valueType: 'number' }, // 공급가액-매출합계
+    { value: 'totVat', text: t('MSG_TXT_VAT'), width: 100, align: 'right', valueType: 'number' }, // 부가세-매출합계
     { value: 'cntrNo', text: t('MSG_TXT_CNTR_NO'), width: 100, align: 'center' }, // 계약번호
     { value: 'cntrSn', text: t('MSG_TXT_CNTR_SN'), width: 100, align: 'center' }, // 계약일련번호
   ];
