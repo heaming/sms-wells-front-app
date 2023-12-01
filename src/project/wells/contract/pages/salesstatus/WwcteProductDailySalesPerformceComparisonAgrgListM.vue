@@ -171,9 +171,9 @@ async function fetchData() {
   const { prntTp } = searchParams.value;
   let res;
   if (prntTp === 'PL') {
-    res = await dataService.get('/sms/wells/contract/contracts/product-daily-sales-performce-comparison-agrg/lstmm', { params: { ...cachedParams, ...pageInfo.value } });
+    res = await dataService.get('/sms/wells/contract/contracts/product-daily-sales-performce-comparison-agrg/lstmm', { params: { ...cachedParams } });
   } else if (prntTp === 'PM') {
-    res = await dataService.get('/sms/wells/contract/contracts/product-daily-sales-performce-comparison-agrg/msh', { params: { ...cachedParams, ...pageInfo.value } });
+    res = await dataService.get('/sms/wells/contract/contracts/product-daily-sales-performce-comparison-agrg/msh', { params: { ...cachedParams } });
   }
   console.log(res.data);
   // const productAccountList = res.data.list;
@@ -268,6 +268,17 @@ const initGridLstmm = defineGrid((data, view) => {
   view.columnByName('expirationCt').setHeaderSummaries({ numberFormat: '#,##0', expression: 'sum' });
   view.columnByName('nincCt').setHeaderSummaries({ numberFormat: '#,##0', expression: 'sum' });
   view.columnByName('sumCt').setHeaderSummaries({ numberFormat: '#,##0', expression: 'sum' });
+  view.columnByName('lstmmCprNincCt').setHeaderSummaries({ numberFormat: '#,##0', expression: 'sum' });
+  view.columnByName('receiptCt').setHeaderSummaries({ numberFormat: '#,##0', expression: 'sum' });
+  view.columnByName('chdvcCt').setHeaderSummaries({ numberFormat: '#,##0', expression: 'sum' });
+
+  view.columnByName('lstmmCrdovrCt').setHeaderSummaries({ numberFormat: '#,##0', expression: 'sum' });
+  view.columnByName('lstmmInflowCt').setHeaderSummaries({ numberFormat: '#,##0', expression: 'sum' });
+  view.columnByName('lstmmResignCt').setHeaderSummaries({ numberFormat: '#,##0', expression: 'sum' });
+  view.columnByName('lstmmExpirationCt').setHeaderSummaries({ numberFormat: '#,##0', expression: 'sum' });
+  view.columnByName('lstmmNincCt').setHeaderSummaries({ numberFormat: '#,##0', expression: 'sum' });
+  view.columnByName('lstmmSumCt').setHeaderSummaries({ numberFormat: '#,##0', expression: 'sum' });
+  view.columnByName('lstmmChdvcCt').setHeaderSummaries({ numberFormat: '#,##0', expression: 'sum' });
 
   // view.rowIndicator.visible = true;
   // view.checkBar.visible = false;
@@ -334,6 +345,11 @@ const initGridMsh = defineGrid((data, view) => {
   view.columnByName('expirationCt').setHeaderSummaries({ numberFormat: '#,##0', expression: 'sum' });
   view.columnByName('nincCt').setHeaderSummaries({ numberFormat: '#,##0', expression: 'sum' });
   view.columnByName('sumCt').setHeaderSummaries({ numberFormat: '#,##0', expression: 'sum' });
+  view.columnByName('lstmmCprNincCt').setHeaderSummaries({ numberFormat: '#,##0', expression: 'sum' });
+  view.columnByName('receiptCt').setHeaderSummaries({ numberFormat: '#,##0', expression: 'sum' });
+  view.columnByName('chdvcCt').setHeaderSummaries({ numberFormat: '#,##0', expression: 'sum' });
+  view.columnByName('spayCt').setHeaderSummaries({ numberFormat: '#,##0', expression: 'sum' });
+  view.columnByName('sellCt').setHeaderSummaries({ numberFormat: '#,##0', expression: 'sum' });
 
   view.rowIndicator.visible = true;
   view.checkBar.visible = false;
