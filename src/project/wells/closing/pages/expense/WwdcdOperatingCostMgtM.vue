@@ -265,6 +265,7 @@ const initGrdSub = defineGrid((data, view) => {
     { fieldName: 'opcsCardId', visible: false },
     { fieldName: 'opcsAdjCnt', header: t('MSG_TXT_OPCS_TOT_USE_CT'), width: '477', styleName: 'text-center', dataType: 'number' }, // 운영비 총 사용 건수
     { fieldName: 'opcsSmryNCnt', header: t('MSG_TXT_AES'), width: '450', styleName: 'text-center', dataType: 'number' }, // 미적요
+    { fieldName: 'notAdjCnt', header: t('미정산'), width: '450', styleName: 'text-center', dataType: 'number' }, // 미정산 건수(유가증권 + 유가증권 제외) TODO 메세지처리
     { fieldName: 'atthDocId',
       header: t('MSG_TXT_MSCR_WHTX_CFDC_APN_FILE'),
       width: '300',
