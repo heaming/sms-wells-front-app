@@ -92,7 +92,7 @@
           <!-- 로그인한 사용자의 채널이 5010(온라인총판) 이면 기기변경 버튼 발생하지 않음 -->
           <kw-btn
             v-if="showMachineChangeBtn"
-            :disable="notNullRentalDscTpCdSelected"
+            :disable="disableMachineChange"
             label="기기변경"
             dense
             @click="onClickDeviceChange"
@@ -582,8 +582,11 @@ function connectReactivities() {
   wellsDtl.value ??= {};
 }
 
+const machineChanged = computed(() => !!dtl.value.mchnCh?.ojCntrNo);
+
 const multiplePossible = computed(() => (!cntrRels.value?.length
     && !ojCntrRels.value?.length
+    && !machineChanged.value
     && !props.modify));
 
 connectReactivities();
@@ -933,35 +936,38 @@ const userSelectableRentalDscTpCd = computed(() => (priceDefineVariableOptions.v
 
 const showMachineChangeBtn = computed(() => props.bas.sellInflwChnlDtlCd !== '5010');
 
+const disableMachineChange = computed(() => (notNullRentalDscTpCdSelected.value
+  || pdQty.value > 1));
+
 const showOnePlusOnePrice = computed(() => !!finalPriceOptions.value
   .find((price) => price.rentalDscTpCd === RENTAL_DSC_TP_CD.ONE_PLUS_ONE));
 
 const disableOnePlusOne = computed(() => {
-  const machineChanged = !!mchnCh.value?.ojCntrNo;
   const priceIsNotSelectable = !(priceDefineVariableOptions.value.rentalDscTpCd || [])
     .map((code) => code.codeId)
     .includes(RENTAL_DSC_TP_CD.ONE_PLUS_ONE);
-  return machineChanged || priceIsNotSelectable || notNullRentalDscTpCdSelected.value;
+  return machineChanged.value
+    || priceIsNotSelectable
+    || notNullRentalDscTpCdSelected.value
+    || pdQty.value > 1;
 });
 
 const showPackageBtn = computed(() => !!finalPriceOptions.value
   .find((price) => RENTAL_DSC_TP_CD_PACKAGE_CODES.includes(price.rentalDscTpCd)));
 
 const disablePackage = computed(() => {
-  const machineChanged = !!mchnCh.value?.ojCntrNo;
   const priceIsNotSelectable = !(priceDefineVariableOptions.value.rentalDscTpCd || [])
     .map((code) => code.codeId)
     .some((codeId) => RENTAL_DSC_TP_CD_PACKAGE_CODES.includes(codeId));
-  return machineChanged
-      || priceIsNotSelectable
-      || (priceDefineVariables.value.rentalDscTpCd !== EMPTY_ID
+  return machineChanged.value
+    || priceIsNotSelectable
+    || (priceDefineVariables.value.rentalDscTpCd !== EMPTY_ID
           && !!priceDefineVariables.value.rentalDscTpCd)
-      // eslint-disable-next-line no-use-before-define
-      // || !selectedFinalPrice.value
-      || cntrRels.value?.some((cntrRel) => [
-        CNTR_REL_DTL_CD.LK_ONE_PLUS_ONE,
-        CNTR_REL_DTL_CD.LK_MLTCS_PRCHS,
-      ].includes(cntrRel.cntrRelDtlCd));
+    || cntrRels.value?.some((cntrRel) => [
+      CNTR_REL_DTL_CD.LK_ONE_PLUS_ONE,
+      CNTR_REL_DTL_CD.LK_MLTCS_PRCHS,
+    ].includes(cntrRel.cntrRelDtlCd))
+    || pdQty.value > 1;
 });
 
 const lkSdingCntrRel = computed(() => (
