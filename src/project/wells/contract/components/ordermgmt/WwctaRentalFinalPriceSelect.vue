@@ -440,6 +440,7 @@
       <promotion-select
         :key="`promotion-select-${modelValue?.pdCd ?? ''}`"
         v-model="appliedPromotions"
+        :readonly="readonly"
         :promotions="promotions"
       />
     </template>
