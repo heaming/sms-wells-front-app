@@ -27,7 +27,7 @@
           v-model:to="searchParams.baseDtmnTo"
           type="date"
           :label="$t('MSG_TXT_SL_DT')"
-          rules="date_range_required"
+          rules="date_range_required|date_range_months:1"
         />
       </kw-search-item>
       <kw-search-item
@@ -83,13 +83,16 @@
       >
         <kw-select
           v-model="searchParams.sellChnlDtl"
-          :options="codes.SELL_CHNL_DV_CD"
+          :options="codes.SELL_CHNL_DTL_CD"
           first-option="all"
           first-option-value="ALL"
           :label="$t('MSG_TXT_SEL_CHNL')"
         />
       </kw-search-item><!-- 판매 채널 -->
-      <kw-search-item :label="$t('MSG_TXT_CNTR_DTL_NO')">
+      <kw-search-item
+        :label="$t('MSG_TXT_CNTR_DTL_NO')"
+        :required="searchParams.sellTpCd === '2'"
+      >
         <zctz-contract-detail-number
           v-model:cntr-no="searchParams.cntrNo"
           v-model:cntr-sn="searchParams.cntrSn"
@@ -137,6 +140,15 @@
         :label="$t('MSG_BTN_EXCEL_DOWN')"
         @click="onClickExportView"
       />
+      <kw-btn
+        v-permission:download
+        icon="download_on"
+        :disable="searchParams.sellTpCd !== '2'"
+        dense
+        secondary
+        :label="$t('MSG_BTN_WO_DLD')"
+        @click="onClickBulkExcelDownload"
+      />
     </kw-action-top>
     <kw-grid
       v-if="isShow1"
@@ -173,7 +185,7 @@ import { getSellTpCd, getSellTpDtlCd } from '~/modules/sms-common/closing/utils/
 
 const now = dayjs();
 const { t } = useI18n();
-const { modal } = useGlobal();
+const { modal, notify } = useGlobal();
 const dataService = useDataService();
 
 // -------------------------------------------------------------------------------------------------
@@ -196,10 +208,10 @@ const selectSellTpDtlCd = await getSellTpDtlCd();
 const codes = await codeUtil.getMultiCodes(
   'SELL_TP_CD',
   'SELL_TP_DTL_CD',
-  'SELL_CHNL_DV_CD', // 판매채널
+  'SELL_CHNL_DTL_CD', // 판매채널
 );
 const searchParams = ref({
-  baseDtmnFrom: now.subtract(30, 'day').format('YYYYMMDD'),
+  baseDtmnFrom: now.subtract(1, 'month').add(1, 'day').format('YYYYMMDD'),
   baseDtmnTo: now.format('YYYYMMDD'),
   sellTpCd: '1', // 판매유형
   sellTpDtlCd: 'ALL', // 판매유형상세
@@ -250,6 +262,11 @@ async function fetchData() {
 
 // 조회 버튼 클릭
 async function onClickSearch() {
+  if (searchParams.value.sellTpCd === '2' && !searchParams.value.cntrNo) {
+    notify(t('MSG_ALT_NCSR_CD', [t('MSG_TXT_CNTR_DTL_NO')]));
+    return;
+  }
+
   await fetchData();
 }
 
@@ -283,6 +300,55 @@ async function onClickExportView() {
   }
 }
 
+function getGrdRentalColumns() {
+  return [
+    { value: 'sellTpCd', text: t('MSG_TXT_SEL_TYPE'), width: 100, align: 'center' }, // 판매유형
+    { value: 'sellTpDtlCd', text: t('MSG_TXT_SEL_TYPE'), width: 100, align: 'center' }, // 판매유형상세코드
+    { value: 'pdCd', text: t('MSG_TXT_PRDT_CODE'), width: 130, align: 'center' }, // 상품코드
+    { value: 'pdNm', text: t('MSG_TXT_PRDT'), width: 200, align: 'left' }, // 상품명
+    { value: 'sellInflwChnlDtlCd', text: t('MSG_TXT_SEL_CHNL'), width: 100, align: 'center' }, // 판매유입채널상세
+    { value: 'slRcogDt', text: t('MSG_TXT_SL_DT'), width: 100, align: 'center' }, // 매출인식일자
+    { value: 'cntrDtlNo', text: t('MSG_TXT_CNTR_DTL_NO'), width: 150, align: 'center' }, // 계약번호
+    { value: 'cstKnm', text: t('MSG_TXT_CST_NM'), width: 100, align: 'center' }, // 고객명
+    { value: 'sapPdDvCd', text: t('MSG_TXT_SAP_PD_DV_CD_NM'), width: 180, align: 'center' }, // SAP상품구분코드명
+    { value: 'rentalRgstCost', text: t('MSG_TXT_SL_AMT'), width: 100, align: 'right' }, // 매출금액-등록비
+    { value: 'rentalRgstCostSpl', text: t('MSG_TXT_SUPPLY_AMOUNT'), width: 100, align: 'right' }, // 공급가액-등록비
+    { value: 'rentalRgstCostVat', text: t('MSG_TXT_VAT'), width: 100, align: 'right' }, // 부가세-등록비
+    { value: 'nomSlAmt', text: t('MSG_TXT_SL_AMT'), width: 100, align: 'right' }, // 매출금액-렌탈료
+    { value: 'splAmt', text: t('MSG_TXT_SUPPLY_AMOUNT'), width: 100, align: 'right' }, // 공급가액-렌탈료
+    { value: 'vat', text: t('MSG_TXT_VAT'), width: 100, align: 'right' }, // 부가세-렌탈료
+    { value: 'totSlAmt', text: t('MSG_TXT_SL_AMT'), width: 100, align: 'right' }, // 매출금액-매출합계
+    { value: 'totSplAmt', text: t('MSG_TXT_SUPPLY_AMOUNT'), width: 100, align: 'right' }, // 공급가액-매출합계
+    { value: 'totVat', text: t('MSG_TXT_VAT'), width: 100, align: 'right' }, // 부가세-매출합계
+    { value: 'cntrNo', text: t('MSG_TXT_CNTR_NO'), width: 100, align: 'center' }, // 계약번호
+    { value: 'cntrSn', text: t('MSG_TXT_CNTR_SN'), width: 100, align: 'center' }, // 계약일련번호
+  ];
+}
+
+async function onClickBulkExcelDownload() {
+  const bulkExcelCachedParams = cloneDeep(searchParams.value);
+  bulkExcelCachedParams.sellTpDtlCd = 'ALL';
+  bulkExcelCachedParams.sellChnlDtl = 'ALL';
+  bulkExcelCachedParams.cntrNo = '';
+  bulkExcelCachedParams.cntrSn = '';
+  bulkExcelCachedParams.cstNo = '';
+  bulkExcelCachedParams.sapPdDvCd = '';
+
+  const searchConditionText = `[검색조건]\n${t('MSG_TXT_SL_DT')} : ${searchParams.value.baseDtmnFrom} | ${searchParams.value.baseDtmnTo}\n${t('MSG_TXT_SEL_TYPE')} : ${t('MSG_TXT_RENTAL')}`;
+  console.log(searchConditionText);
+
+  const view = grdDetailSingleRef.value.getView();
+
+  gridUtil.exportBulkView(view, {
+    url: '/sms/wells/closing/product-sales-detail/rental/bulk-excel-download',
+    parameter: {
+      ...bulkExcelCachedParams,
+    },
+    columns: getGrdRentalColumns(),
+    searchCondition: searchConditionText,
+  });
+}
+
 // 고객 조회
 const onClickCustomer = async () => {
   const { result, payload } = await modal({
@@ -300,6 +366,7 @@ const onClickCustomer = async () => {
 async function onChangeSellTpCd() {
   searchParams.value.sellTpDtlCd = 'ALL';
 }
+
 // -------------------------------------------------------------------------------------------------
 // Initialize Grid
 // -------------------------------------------------------------------------------------------------
