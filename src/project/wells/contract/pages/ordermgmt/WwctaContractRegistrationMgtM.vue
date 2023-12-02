@@ -252,10 +252,6 @@ const updateSummary = () => {
     ...step3?.prtnr,
     ...step4?.prtnr,
   };
-  smr.branchManager = {
-    ...step1?.prtnr7,
-    ...step4?.prtnr7,
-  };
   smr.cntrtAdrpc = step3?.basAdrpc;
   smr.stlmDtls = step4?.stlmDtls;
   summary.value = smr;

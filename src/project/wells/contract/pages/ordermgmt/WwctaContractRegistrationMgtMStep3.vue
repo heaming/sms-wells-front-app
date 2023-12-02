@@ -282,7 +282,7 @@
         <h3>결제정보</h3>
 
         <kw-form
-          :cols="4"
+          :cols="0"
           class="mt20"
         >
           <!-- 총판계약유형 -->
@@ -328,7 +328,6 @@
               <kw-form-row>
                 <kw-form-item
                   no-label
-                  :colspan="2"
                 >
                   <h3 class="my0">
                     결제금액 : {{ getNumberWithComma(item.fnlAmt || 0) }}원
@@ -389,7 +388,9 @@
             <template
               v-else
             >
-              <kw-form-row>
+              <kw-form-row
+                :cols="4"
+              >
                 <kw-form-item
                   label="자동이체"
                   :colspan="2"
@@ -424,7 +425,9 @@
                   </p>
                 </kw-form-item>
               </kw-form-row>
-              <kw-form-row>
+              <kw-form-row
+                :cols="4"
+              >
                 <kw-form-item
                   label="등록비결제유형"
                   :colspan="3"
@@ -651,7 +654,9 @@ async function onClickAddRectRgstAdr(dtl) {
   }
   const { adrpc } = dtl;
   const newAdr = { ...adrpc };
-  if (!await obsAdrRef.value[0].validate()) { return; }
+  if (!await obsAdrRef.value[0].validate()) {
+    return;
+  }
   if (!newAdr.adrId) {
     await alert('올바른 주소를 입력해주세요.');
     return;
