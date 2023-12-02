@@ -412,62 +412,22 @@
         </template>
 
         <template
-          v-if="(cntrTpIs.indv && '7' === currentPartner.pstnDvCd) || cntrTpIs.ensm"
+          v-if="cntrTpIs.ensm"
         >
           <kw-separator />
           <h3>{{ $t('MSG_TXT_PRTNR_INF') }}</h3>
-
-          <template
-            v-if="cntrTpIs.indv"
-          >
-            <kw-form-row>
-              <kw-form-item
-                :label="$t('MSG_TXT_PTNR_NAME')"
-              >
-                <p>{{ step1.prtnr?.prtnrKnm }}</p>
-              </kw-form-item>
-              <kw-form-item
-                :label="$t('MSG_TXT_PRTNR_NUM')"
-              >
-                <p>{{ step1.prtnr?.prtnrNo }}</p>
-              </kw-form-item>
-            </kw-form-row>
-            <kw-form-row>
-              <kw-form-item
-                :label="$t('MSG_TXT_MANAGEMENT_DEPARTMENT')"
-              >
-                <p>{{ step1.prtnr?.dgr1LevlOgNm }}</p>
-              </kw-form-item>
-              <kw-form-item
-                :label="$t('MSG_TXT_RGNL_GRP')"
-              >
-                <p>{{ step1.prtnr?.dgr2LevlOgNm }}</p>
-              </kw-form-item>
-            </kw-form-row>
-            <kw-form-row>
-              <kw-form-item
-                :label="$t('MSG_TXT_BRANCH')"
-              >
-                <p>{{ step1.prtnr?.dgr3LevlOgNm }}</p>
-              </kw-form-item>
-            </kw-form-row>
-          </template>
-          <template
-            v-else-if="cntrTpIs.ensm"
-          >
-            <kw-form-row>
-              <kw-form-item
-                :label="$t('MSG_TXT_PTNR_NAME')"
-              >
-                <p>{{ step1.prtnr?.prtnrKnm }}</p>
-              </kw-form-item>
-              <kw-form-item
-                :label="$t('MSG_TXT_PRTNR_NUM')"
-              >
-                <p>{{ step1.prtnr?.prtnrNo }}</p>
-              </kw-form-item>
-            </kw-form-row>
-          </template>
+          <kw-form-row>
+            <kw-form-item
+              :label="$t('MSG_TXT_PTNR_NAME')"
+            >
+              <p>{{ step1.prtnr?.prtnrKnm }}</p>
+            </kw-form-item>
+            <kw-form-item
+              :label="$t('MSG_TXT_PRTNR_NUM')"
+            >
+              <p>{{ step1.prtnr?.prtnrNo }}</p>
+            </kw-form-item>
+          </kw-form-row>
         </template>
       </kw-form>
     </template>
@@ -502,7 +462,7 @@ const currentPartner = {
   prtnrNo: userInfo.employeeIDNumber,
   ogTpCd: userInfo.ogTpCd,
   baseRleCd: userInfo.baseRleCd,
-  pstnDvCd: userInfo.careerLevelCode,
+  // pstnDvCd: userInfo.careerLevelCode,
   prtnrKnm: userInfo.userName,
 };
 const alncPartner = ref({
@@ -566,17 +526,10 @@ async function setupAvailableCntrTpCd() {
   await addCode('CNTR_TP_CD', (code) => {
     const isCustomerCenterService = currentPartner.baseRleCd === 'W8010';
     const isBusinessDepartment = currentPartner.ogTpCd === 'HR1';
-    const isBranchManager = currentPartner.pstnDvCd === '7';
     const isPspcCstCntr = !!step1.value.pspcCstBas;
 
     if (isBusinessDepartment && !isCustomerCenterService) {
       return code.codeId === CNTR_TP_CD.EMPLOYEE && code;
-    }
-    if (isBranchManager) {
-      return [
-        CNTR_TP_CD.INDIVIDUAL,
-        CNTR_TP_CD.COOPERATION,
-      ].includes(code.codeId) && code;
     }
     if (isPspcCstCntr) {
       return [
@@ -668,10 +621,6 @@ async function getCntrInfo() {
     bas,
     cntrt,
     prtnr,
-    // prtnr7,
-    // cntrt,
-    // mshCntrNo,
-    // mshCntrSn
   } = step1.value;
 
   /* 계약유형코드 변경 콜백 동작 방지.
@@ -803,16 +752,12 @@ async function openCustomerSelectPopup() {
 }
 
 async function fetchCntrtByCstNo(cstNo) {
-  try {
-    const { data } = await dataService.get('sms/wells/contract/contracts/cntrt', {
-      params: {
-        cstNo,
-      },
-    });
-    step1.value.cntrt = data;
-  } catch (e) {
-    setupSearchParams();
-  }
+  const { data } = await dataService.get('sms/wells/contract/contracts/cntrt', {
+    params: {
+      cstNo,
+    },
+  }).catch(setupSearchParams);
+  step1.value.cntrt = data;
 }
 
 async function selectContractor() {
@@ -830,21 +775,6 @@ async function selectContractor() {
   }
 
   await fetchCntrtByCstNo(payload.cstNo);
-}
-
-async function chooseBelongPartner() {
-  // 지국장인 경우 소속파트너 선택
-  const { result, payload } = await modal({
-    component: 'WwctaBelongPartnerChoiceListP',
-    componentProps: {
-      dsmnPrtnrNo: currentPartner.prtnrNo,
-      ogTpCd: currentPartner.ogTpCd,
-    },
-  });
-  if (!result) {
-    return;
-  }
-  step1.value.prtnr = payload;
 }
 
 async function setAlncPrtnr() {
@@ -867,12 +797,6 @@ async function selectPartner() {
   }
 
   step1.value.prtnr = step1.value.prtnr?.prtnrNo ? step1.value.prtnr : currentPartner;
-
-  if (currentPartner.pstnDvCd === '7') {
-    // 지국장 정보 설정 후, 소속 파트너 선택
-    step1.value.prtnr7 = currentPartner;
-    await chooseBelongPartner();
-  }
 }
 
 async function onClickMembership() {
