@@ -18,7 +18,6 @@
     <div class="normal-area normal-area--button-set-bottom px0">
       <kw-search
         cols="3"
-        one-row
         @search="onClickSearch"
       >
         <kw-search-row>
