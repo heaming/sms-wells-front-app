@@ -31,6 +31,10 @@
           ref="productCarouselRef"
           :contract="contract"
         />
+        <TaxInvoice
+          v-model="txinvRcpBaseIz"
+          @checked="onReportChecked"
+        />
         <partner-info
           :prtnr="contract.prtnr"
         />
@@ -83,6 +87,7 @@ import Agrees from './WwctaContractSettlementAgreeAprMgtMAgrees.vue';
 import PartnerInfo from './WwctaContractSettlementAgreeAprMgtMPartnerInfo.vue';
 import ProductCarouselItem from './WwctaContractSettlementAgreeAprMgtMProductCarouselItem.vue';
 import Report from './WwctaContractSettlementAgreeAprMgtMReport.vue';
+import TaxInvoice from './WwctaContractSettlementAgreeAprMgtMTaxInvoice.vue';
 
 const dataService = useDataService();
 
@@ -115,6 +120,15 @@ const signs = reactive({
   autoTransferChecked: undefined,
   settlementConfirmed: undefined,
 });
+const txinvRcpBaseIz = ref({
+  dlpnrPsicNm: '',
+  locaraTno: '',
+  exnoEncr: '',
+  idvTno: '',
+  emadr: '',
+  txinvPblD: undefined,
+  bzrno: undefined,
+});
 const isSigned = computed(() => {
   if (includeAccountAutoTransfer.value) {
     if (!signs.autoTransferChecked) {
@@ -126,15 +140,16 @@ const isSigned = computed(() => {
 const reportChecked = ref(false);
 
 async function fetchContract() {
-  const response = await dataService.post('/sms/wells/contract/contracts/settlements/contract', {
+  const { data } = await dataService.post('/sms/wells/contract/contracts/settlements/contract', {
     cntrNo: params.cntrNo,
   }).catch(async () => {
     await alert('계약 조회에 실패했습니다.');
     postMessage('forceClosed', false);
     window.close();
   });
-  contract.value = response.data;
+  contract.value = data;
   includeAccountAutoTransfer.value = contract.value.stlms.some((s) => s.dpTpCd === DP_TP_CD.AC_AFTN);
+  txinvRcpBaseIz.value = data.txinvRcpBaseIz;
 }
 
 function onConfirmAgrees(agreedInfos) {
@@ -182,6 +197,7 @@ async function onSettlementConfirmed() {
   stlmsUpdateRequestBody.adrpcs = reqData.adrpcs;
   stlmsUpdateRequestBody.cssrIss = reqData.cssrIss;
   stlmsUpdateRequestBody.signs = signs;
+  stlmsUpdateRequestBody.txinvRcpBaseIz = txinvRcpBaseIz.value;
 
   const res = await dataService.post('/sms/wells/contract/contracts/settlements/confirm', stlmsUpdateRequestBody);
 
