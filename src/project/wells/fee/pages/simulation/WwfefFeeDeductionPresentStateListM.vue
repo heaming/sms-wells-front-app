@@ -135,8 +135,6 @@ const { getUserInfo } = useMeta();
 
 // eslint-disable-next-line no-unused-vars
 const userInfo = getUserInfo();
-// eslint-disable-next-line no-unused-vars
-const store = useStore();
 
 // -------------------------------------------------------------------------------------------------
 // Function & Event
