@@ -129,6 +129,29 @@
       </kw-search-item>
     </kw-search-row>
     <kw-search-row>
+      <!-- 조직코드 -->
+      <kw-search-item
+        :label="$t('MSG_TXT_OG_CD')/* 조직코드 */"
+        :colspan="2"
+      >
+        <kw-input
+          v-model="searchParams.strtOgCd"
+          maxlength="10"
+          upper-case
+          :rules="{'required': !!searchParams.endOgCd}"
+          :custom-messages="{'required': $t('MSG_ALT_CHK_NCSR', [$t('MSG_TXT_OG_CD')])}"
+          :label="$t('MSG_TXT_OG_CD')/* 조직코드 */"
+        />
+        <span>~</span>
+        <kw-input
+          v-model="searchParams.endOgCd"
+          maxlength="10"
+          upper-case
+          :rules="{'required': !!searchParams.strtOgCd}"
+          :custom-messages="{'required': $t('MSG_ALT_CHK_NCSR', [$t('MSG_TXT_OG_CD')])}"
+          :label="$t('MSG_TXT_OG_CD')/* 조직코드 */"
+        />
+      </kw-search-item>
       <!-- 제휴코드 -->
       <kw-search-item
         :label="$t('MSG_TXT_ALNC_CD')"
@@ -151,6 +174,8 @@
           first-option-value=""
         />
       </kw-search-item>
+    </kw-search-row>
+    <kw-search-row>
       <!-- 기타 -->
       <kw-search-item
         :label="$t('MSG_TXT_ETC')"
@@ -178,8 +203,6 @@
           @click-icon="onClickSearchPrtnrNoPopup()"
         />
       </kw-search-item>
-    </kw-search-row>
-    <kw-search-row>
       <!-- 조직코드 -->
       <kw-search-item
         :label="$t('MSG_TXT_OG_CD')"
@@ -218,6 +241,8 @@
           multiple
         />
       </kw-search-item>
+    </kw-search-row>
+    <kw-search-row>
       <!-- 조직유형 -->
       <kw-search-item
         :label="$t('MSG_TXT_OG_TP')"
@@ -310,6 +335,8 @@ const searchParams = ref({
   endDt: now.format('YYYYMMDD'), // 종료일자
   pdCd: '', // 상품코드
   pdNm: '', // 상품명
+  strtOgCd: '', // 시작조직코드
+  endOgCd: '', // 끝조직코드
   alncmpCd: '', // 제휴코드
   sellEvCd: '', // 행사코드
   sellPrtnrNo: '', // 파트너코드
@@ -786,7 +813,7 @@ const initGridSnglPmntContractList = defineGrid((data, view) => {
         componentProps: { cntrNo: paramCntrNo, cntrSn: paramCntrSn, sellTpCd, cntrCstNo, copnDvCd },
         draggable: true,
         window: true,
-        windowFeatures: { width: 1300, height: 1080 },
+        windowFeatures: { width: 1320, height: 1080 },
       });
     } else if (['ordrInfoView'].includes(column)) { // 일시불 주문정보 상세
       await modal({ component: 'WwctaSinglePaymentOrderDetailListP', componentProps: { cntrNo: paramCntrNo, cntrSn: paramCntrSn, sellTpCd } });

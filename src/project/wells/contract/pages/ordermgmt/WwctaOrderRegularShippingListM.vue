@@ -85,6 +85,31 @@
       </kw-search-item>
       <!-- 조직코드 -->
       <kw-search-item
+        :label="$t('MSG_TXT_OG_CD')/* 조직코드 */"
+        :colspan="2"
+      >
+        <kw-input
+          v-model="searchParams.strtOgCd"
+          maxlength="10"
+          upper-case
+          :rules="{'required': !!searchParams.endOgCd}"
+          :custom-messages="{'required': $t('MSG_ALT_CHK_NCSR', [$t('MSG_TXT_OG_CD')])}"
+          :label="$t('MSG_TXT_OG_CD')/* 조직코드 */"
+        />
+        <span>~</span>
+        <kw-input
+          v-model="searchParams.endOgCd"
+          maxlength="10"
+          upper-case
+          :rules="{'required': !!searchParams.strtOgCd}"
+          :custom-messages="{'required': $t('MSG_ALT_CHK_NCSR', [$t('MSG_TXT_OG_CD')])}"
+          :label="$t('MSG_TXT_OG_CD')/* 조직코드 */"
+        />
+      </kw-search-item>
+    </kw-search-row>
+    <kw-search-row>
+      <!-- 조직코드 -->
+      <kw-search-item
         :label="$t('MSG_TXT_OG_CD')"
         :colspan="2"
       >
@@ -121,9 +146,6 @@
           multiple
         />
       </kw-search-item>
-    </kw-search-row>
-
-    <kw-search-row>
       <!-- 기기종류 -->
       <kw-search-item
         :label="$t('MSG_TXT_MCHN_KND')"
@@ -223,6 +245,8 @@ const searchParams = ref({
   canYn: '', // 자료구분-취소제외
   slYn: '', // 자료구분-매출생성
   sellOgTpCd: [], // 조직구분
+  strtOgCd: '', // 시작조직코드
+  endOgCd: '', // 끝조직코드
   dgr1LevlOgId: [], // 조직코드-총괄단
   dgr2LevlOgId: [], // 조직코드-지역단
   dgr3LevlOgId: [], // 조직코드-지점
@@ -739,7 +763,7 @@ const initGridRglrDlvrContractList = defineGrid((data, view) => {
         componentProps: { cntrNo: paramCntrNo, cntrSn: paramCntrSn, sellTpCd, cntrCstNo, copnDvCd },
         draggable: true,
         window: true,
-        windowFeatures: { width: 1300, height: 1080 },
+        windowFeatures: { width: 1320, height: 1080 },
       });
     } else if (['ordrInfoView'].includes(column)) { // 정기배송 주문정보 상세
       await modal({ component: 'WwctaOrderRegularShippingDtlP', componentProps: { cntrNo: paramCntrNo, cntrSn: paramCntrSn, sellTpCd } });
