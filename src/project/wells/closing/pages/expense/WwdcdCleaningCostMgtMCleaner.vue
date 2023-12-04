@@ -17,10 +17,6 @@
     @search="onClickSearch()"
   >
     <kw-search-row>
-      <kw-search-item
-        :label="$t('MSG_TXT_APLC_Y')"
-        required
-      />
       <kw-search-item :label="$t('MSG_TXT_CLINR')">
         <kw-input
           v-model="searchParams.clinrNm"
