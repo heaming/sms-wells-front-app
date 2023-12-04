@@ -203,6 +203,8 @@ const initGridMain = defineGrid((data, view) => {
     { fieldName: 'etcMgtCnt', header: t('MSG_TXT_ETC'), width: '100', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' },
     { fieldName: 'sumFxamMgtCnt', header: t('MSG_TXT_FXAM'), width: '100', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' },
     { fieldName: 'sumMgtCnt', header: t('MSG_TXT_AGG'), width: '100', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' },
+    { fieldName: 'canCnt', header: t('MSG_TXT_CANCEL') + t('MSG_TXT_COUNT'), width: '100', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' },
+    { fieldName: 'sumFhsMgtCnt', header: `${t('MSG_TXT_FNL')} ${t('MSG_TXT_AGG')}`, width: '100', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' },
     { fieldName: 'wrfr1FhsCnt', header: t('MSG_TXT_WRFR_1'), width: '100', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' },
     { fieldName: 'wrfr2FhsCnt', header: t('MSG_TXT_WRFR_2'), width: '100', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' },
     { fieldName: 'wrfr3FhsCnt', header: t('MSG_TXT_WRFR_3'), width: '100', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' },
@@ -243,7 +245,7 @@ const initGridMain = defineGrid((data, view) => {
     {
       header: t('MSG_TXT_ASGN') + t('MSG_TXT_ACC'), // colspan title
       direction: 'horizontal', // merge type
-      items: ['wrfr1MgtCnt', 'wrfr2MgtCnt', 'wrfr3MgtCnt', 'wrfr4MgtCnt', 'unWrfrMgtCnt', 'puf1MgtCnt', 'puf2MgtCnt', 'otscMgtCnt', 'bdtMgtCnt', 'etcMgtCnt', 'sumFxamMgtCnt', 'sumMgtCnt'],
+      items: ['wrfr1MgtCnt', 'wrfr2MgtCnt', 'wrfr3MgtCnt', 'wrfr4MgtCnt', 'unWrfrMgtCnt', 'puf1MgtCnt', 'puf2MgtCnt', 'otscMgtCnt', 'bdtMgtCnt', 'etcMgtCnt', 'sumFxamMgtCnt', 'sumMgtCnt', 'canCnt', 'sumFhsMgtCnt'],
     },
     {
       header: t('MSG_TXT_COMPLETE') + t('MSG_TXT_ACC'), // colspan title
