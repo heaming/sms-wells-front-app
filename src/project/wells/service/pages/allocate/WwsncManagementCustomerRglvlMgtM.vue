@@ -729,12 +729,14 @@ function initGrdMain(data, view) {
     { fieldName: 'mngtPrtnrOgTpCd' }, // [관리기준] 조직유형코드
     { fieldName: 'mngtPrtnrNo' }, // [관리기준] 파트너번호
     // { fieldName: 'mngStdMngerRglvlDvCd' }, // [관리기준] 급지구분코드
+    { fieldName: 'mngStdFnlCltnDt' }, // [관리기준] 최종해약일자
 
     { fieldName: 'asnPsicPrtnrOgTpCd' }, // [당월배정] 조직유형코드
     { fieldName: 'asnPsicPrtnrNo' }, // [당월배정] 파트너번호
     { fieldName: 'cnfmPsicPrtnrOgTpCd' }, // [당월배정] 조직유형코드
     { fieldName: 'cnfmPsicPrtnrNo' }, // [당월배정] 파트너번호
     // { fieldName: 'curMnthAlctnMngerRglvlDvCd' }, // [당월배정] 급지구분코드
+    { fieldName: 'curFnlCltnDt' }, // [당월배정] 최종해약일자
 
     { fieldName: 'afchIchrBrchOgId' }, // 당월배정
     { fieldName: 'afchIchrPrtnrOgTpCd' }, // 당월배정
@@ -765,6 +767,7 @@ function initGrdMain(data, view) {
     // , width: '100', styleName: 'text-center' }, // 관리기준(관리계정):지역단
     { fieldName: 'mngStdDgr3LevlOgCd', header: t('MSG_TXT_BRANCH'), width: '100', styleName: 'text-center' }, // 관리기준(관리계정): 지점
     { fieldName: 'mngStdPrtnrKnm', header: t('MSG_TXT_MANAGER'), width: '100', styleName: 'text-center' }, // 관리기준(관리계정): 매니저
+    { fieldName: 'mngStdFnlCltnDt', header: t('해약일자'), width: '100', datetimeFormat: 'yyyy-MM-dd', styleName: 'text-center' }, // 관리기준(관리계정): 최종해약일자
     { fieldName: 'mngStdMngerRglvlDvCd',
       header: t('MSG_TXT_MNGER_RGLVL_DV'),
       width: '100',
@@ -777,6 +780,7 @@ function initGrdMain(data, view) {
     // , width: '100', styleName: 'text-center' }, // 당월배정: 지역단
     { fieldName: 'curMnthAlctnDgr3LevlOgCd', header: t('MSG_TXT_BRANCH'), width: '100', styleName: 'text-center' }, // 당월배정: 지점
     { fieldName: 'curMnthAlctnPrtnrKnm', header: t('MSG_TXT_MANAGER'), width: '100', styleName: 'text-center' }, // 당월배정: 매니저
+    { fieldName: 'curFnlCltnDt', header: t('해약일자'), width: '100', datetimeFormat: 'yyyy-MM-dd', styleName: 'text-center' }, // 당월배정: 최종해약일자
     { fieldName: 'curMnthAlctnMngerRglvlDvCd',
       header: t('MSG_TXT_MNGER_RGLVL_DV'),
       width: '100',
@@ -810,12 +814,12 @@ function initGrdMain(data, view) {
     {
       header: t('MSG_TXT_MNGER_RGLVL'), // 관리기준(관리계정)
       direction: 'horizontal', // merge type
-      items: ['mngStdDgr3LevlOgCd', 'mngStdPrtnrKnm', 'mngStdMngerRglvlDvCd'], // 지역단 제외 'mngStdDgr2LevlOgCd',
+      items: ['mngStdDgr3LevlOgCd', 'mngStdPrtnrKnm', 'mngStdFnlCltnDt', 'mngStdMngerRglvlDvCd'], // 지역단 제외 'mngStdDgr2LevlOgCd',
     }, // 이관전담당자
     {
       header: t('MSG_TXT_CRT_TRGT'), // 당월배정
       direction: 'horizontal',
-      items: ['curMnthAlctnDgr3LevlOgCd', 'curMnthAlctnPrtnrKnm', 'curMnthAlctnMngerRglvlDvCd'], // 지역단 제외 'curMnthAlctnDgr2LevlOgCd',
+      items: ['curMnthAlctnDgr3LevlOgCd', 'curMnthAlctnPrtnrKnm', 'curFnlCltnDt', 'curMnthAlctnMngerRglvlDvCd'], // 지역단 제외 'curMnthAlctnDgr2LevlOgCd',
     }, // 이관후담당자
   ]);
 
