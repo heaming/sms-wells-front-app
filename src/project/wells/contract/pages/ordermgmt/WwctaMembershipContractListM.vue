@@ -727,7 +727,7 @@ const initGridMembershipContractList = defineGrid((data, view) => {
         componentProps: { cntrNo: paramCntrNo, cntrSn: paramCntrSn, sellTpCd, cntrCstNo, copnDvCd },
         draggable: true,
         window: true,
-        windowFeatures: { width: 1300, height: 1080 },
+        windowFeatures: { width: 1320, height: 1080 },
       });
     } else if (['ordrInfoView'].includes(column)) { // 멤버쉽 주문정보 상세
       await modal({ component: 'WwctaOrderMembershipDtlP', componentProps: { cntrNo: paramCntrNo, cntrSn: paramCntrSn } });
