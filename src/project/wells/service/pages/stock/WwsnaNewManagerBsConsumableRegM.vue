@@ -19,14 +19,19 @@
       @search="onClickSearch"
     >
       <kw-search-row>
+        <!-- 관리년월 -->
         <kw-search-item
           :label="$t('MSG_TXT_MGT_YNM')"
         >
           <kw-date-picker
             v-model="searchParams.mngtYm"
             type="month"
+            :label="$t('MSG_TXT_MGT_YNM')"
+            rules="required"
+            @change="onChangeMngtYm"
           />
         </kw-search-item>
+        <!-- 빌딩명 -->
         <kw-search-item
           :label="$t('MSG_TXT_BLD_NM')"
         >
@@ -44,7 +49,6 @@
       <ul class="filter-box my12">
         <li class="filter-box__item">
           <p class="filter-box__item-label">
-            <!-- TODO: 권한 체크 후 신청기간영역 컨트롤해야함(빌딩 업무담당일 경우 날싸 및 시간 없음 :: 신청 불가) -->
             {{ $t('MSG_TXT_REG_PERIOD') }}
           </p>
           <kw-date-picker
@@ -158,7 +162,6 @@ const { currentRoute } = useRouter();
 const grdMainRef = ref(getComponentType('KwGrid'));
 const pageInfo = ref({
   totalCount: 0,
-  pageIndex: 1,
   pageSize: Number(getConfig('CFG_CMZ_DEFAULT_PAGE_SIZE')),
 });
 
@@ -219,10 +222,19 @@ async function getItems() {
   return res.data;
 }
 
+// 빌딩조회
 async function getBldCode() {
-  const res = await dataService.get('/sms/wells/service/newmanager-bsconsumables/building-code');
+  bldCode.value = [];
+  const { mngtYm } = searchParams.value;
+  if (!isEmpty(mngtYm)) {
+    const res = await dataService.get(`/sms/wells/service/newmanager-bsconsumables/building-code/${mngtYm}`);
+    bldCode.value = res.data;
+  }
+}
 
-  bldCode.value = res.data;
+// 관리년월 변경 시
+async function onChangeMngtYm() {
+  await getBldCode();
 }
 
 let cachedParams;
