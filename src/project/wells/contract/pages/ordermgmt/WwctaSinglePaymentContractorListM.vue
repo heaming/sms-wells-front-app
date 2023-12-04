@@ -485,7 +485,7 @@ const initGridSnglPmntContractorList = defineGrid((data, view) => {
         componentProps: { cntrNo, cntrSn, sellTpCd, cntrCstNo, copnDvCd },
         draggable: true,
         window: true,
-        windowFeatures: { width: 1300, height: 1080 },
+        windowFeatures: { width: 1320, height: 1080 },
       });
     } else if (column === 'orderInfView') {
       await modal({

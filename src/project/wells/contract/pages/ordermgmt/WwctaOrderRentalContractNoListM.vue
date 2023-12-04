@@ -359,14 +359,14 @@ const initGridRentalContractorNoList = defineGrid((data, view) => {
     }, // 파트너정보-휴대전화번호
     { fieldName: 'cntrDt', header: t('MSG_TXT_TASK_OPNG_DT'), width: '138', styleName: 'text-center', datetimeFormat: 'date' }, // 파트너정보-업무개시일
     { fieldName: 'cltnDt', header: t('MSG_TXT_BIZ_CLTN_D'), width: '166', styleName: 'text-center', datetimeFormat: 'date' }, // 파트너정보-업무해약일
-    { fieldName: 'cstKnmEncr', header: t('MSG_TXT_CNTOR_NM'), width: '138', styleName: 'text-center' }, // 계약자 정보-계약자명
+    { fieldName: 'cstKnm', header: t('MSG_TXT_CNTOR_NM'), width: '138', styleName: 'text-center' }, // 계약자 정보-계약자명
     { fieldName: 'bryy', header: t('MSG_TXT_BRYY'), width: '138', styleName: 'text-center' }, // 계약자 정보-생년(YY)
     { fieldName: 'bzrNo', header: t('MSG_TXT_ENTRP_NO'), width: '138', styleName: 'text-center' }, // 계약자 정보-사업자번호
     { fieldName: 'sexDvNm', header: t('MSG_TXT_GENDER'), width: '138', styleName: 'text-center' }, // 계약자 정보-성별
     { fieldName: 'cntrCstNo', header: t('MSG_TXT_CST_NO'), width: '138', styleName: 'text-center' }, // 계약자 정보-고객번호
     { fieldName: 'adrZip', header: t('MSG_TXT_ZIP'), width: '138', styleName: 'text-center' }, // 계약자 정보-우편번호
     { fieldName: 'cntrCstRnadr', header: t('MSG_TXT_STD_ADDR'), width: '270', styleName: 'text-left' }, // 계약자 정보-기준주소
-    { fieldName: 'cntrCstRdadrEncr', header: t('MSG_TXT_DETAIL_ADDR'), width: '230', styleName: 'text-left' }, // 계약자 정보-상세주소
+    { fieldName: 'cntrCstRdadr', header: t('MSG_TXT_DETAIL_ADDR'), width: '230', styleName: 'text-left' }, // 계약자 정보-상세주소
     { fieldName: 'rcgvpKnmEncr', header: t('MSG_TXT_IST_NM'), width: '138', styleName: 'text-center' }, // 설치정보-설치자명
     {
       fieldName: 'istCralTno',
@@ -529,7 +529,7 @@ const initGridRentalContractorNoList = defineGrid((data, view) => {
     {
       header: `${t('MSG_TXT_CNTRT')} ${t('MSG_TXT_INF')}`, // 계약자 정보
       direction: 'horizontal', // merge type
-      items: ['cstKnmEncr', 'bryy', 'bzrNo', 'sexDvNm', 'cntrCstNo', 'adrZip', 'cntrCstRnadr', 'cntrCstRdadrEncr'],
+      items: ['cstKnm', 'bryy', 'bzrNo', 'sexDvNm', 'cntrCstNo', 'adrZip', 'cntrCstRnadr', 'cntrCstRdadr'],
     },
     {
       header: `${t('MSG_TXT_INSTALLATION')} ${t('MSG_TXT_INF')}`, // 설치 정보
@@ -591,7 +591,7 @@ const initGridRentalContractorNoList = defineGrid((data, view) => {
         componentProps: { cntrNo: paramCntrNo, cntrSn: paramCntrSn, sellTpCd, cntrCstNo, copnDvCd },
         draggable: true,
         window: true,
-        windowFeatures: { width: 1300, height: 1080 },
+        windowFeatures: { width: 1320, height: 1080 },
       });
     } else if (['ordrInfoView'].includes(column)) { // 렌탈 주문정보 상세
       await modal({ component: 'WwctaOrderRentalDtlP', componentProps: { cntrNo: paramCntrNo, cntrSn: paramCntrSn } });
