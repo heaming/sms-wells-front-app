@@ -518,7 +518,7 @@ import { cloneDeep, isEmpty } from 'lodash-es';
 
 const dataService = useDataService();
 const { t } = useI18n();
-const { modal, notify, alert } = useGlobal();
+const { modal, notify } = useGlobal();
 const router = useRouter();
 
 // -------------------------------------------------------------------------------------------------
@@ -746,7 +746,11 @@ function onClickPaymentStatus() {
 }
 
 async function onClickServiceHistory() {
-  await alert('개인별 서비스현황 화면 개발중');
+  router.push(
+    {
+      path: '/service/wwsnb-individual-service-list',
+    },
+  );
 }
 
 function isTelFormat(tel) {
