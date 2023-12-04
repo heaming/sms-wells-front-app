@@ -775,7 +775,8 @@ const initGrdMain = defineGrid(async (data, view) => {
   view.setCheckableCallback((dataSource, item) => {
     const { bfsvcCsmbDdlvStatCd } = gridUtil.getRowValue(view, item.dataRow);
 
-    if (bfsvcCsmbDdlvStatCd === '30' || (!isBusinessSupportTeam.value && ['20', '30'].includes(bfsvcCsmbDdlvStatCd))) {
+    // 출고요청완료 이거나 업무담당이면서 신청확인인 경우
+    if (bfsvcCsmbDdlvStatCd === '30' || (!isBusinessSupportTeam.value && bfsvcCsmbDdlvStatCd === '20')) {
       return false;
     }
     return true;
