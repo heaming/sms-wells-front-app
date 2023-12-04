@@ -52,7 +52,7 @@
 import { useGlobal, useDataService, useModal } from 'kw-lib';
 import { isEmpty } from 'lodash-es';
 import ZwcmEmailAddress from '~common/components/ZwcmEmailAddress.vue';
-import { buildUrlForNoSession } from '~sms-common/contract/util';
+import { buildUrlForNoSession, getSystemOrigin } from '~sms-common/contract/util';
 
 const { notify, confirm, alert } = useGlobal();
 const { t } = useI18n();
@@ -84,11 +84,14 @@ async function onClickSend() {
     rcvrInfoCntrNm = params.value.rcvrInfo[0].cntrNm;
   }
 
+  const paramOrigin = getSystemOrigin(import.meta.env.MODE === 'prd' || import.meta.env.MODE === 'production'
+    ? 'cswl' : import.meta.env.MODE); // 대외링크오리진(운영) = cswl, 그외에는 해당시스템에 맞는 오리진을 생성(개발, 검증)
+  console.log(paramOrigin);
   if (rstlYn === 'N') { // 신규/변경 메일 URL 생성
   // 체크된 계약별 URL 생성 및 param 추가
     const promises = props.rcvrInfo.map((index) => (
       buildUrlForNoSession(
-        undefined,
+        paramOrigin,
         'WwctaContractDocumentM',
         { cntrNo: index.cntrNo },
         true,
@@ -102,7 +105,7 @@ async function onClickSend() {
   if (rstlYn === 'Y') { // 재약정 메일 URL 생성
     const promises = props.rcvrInfo.map((index) => (
       buildUrlForNoSession(
-        undefined,
+        paramOrigin,
         'WwctaForwardingContractM',
         {
           cntrNo: index.cntrNo,
