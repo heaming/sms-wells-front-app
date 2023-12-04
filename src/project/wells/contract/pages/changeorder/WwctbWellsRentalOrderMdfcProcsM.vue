@@ -224,6 +224,11 @@
               v-show="false"
               v-model="orderProduct"
             />
+            <!-- productExtra가 바뀐걸 옵저버가 인지하지 못해서 컴포넌트 추가함. -->
+            <kw-field
+              v-show="false"
+              v-model="productExtra"
+            />
 
             <template #header>
               <kw-item-section>
@@ -1477,6 +1482,11 @@ async function onClickProductChangeSave() {
 
   if (!isCnfmPd.value) {
     await alert('먼저 상품확정을 해주세요.');
+    return;
+  }
+
+  if (isEmpty(productExtra.value.cntrChAkCn)) {
+    await alert('변경사유는 필수입니다.');
     return;
   }
 
