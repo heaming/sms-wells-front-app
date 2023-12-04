@@ -364,7 +364,7 @@ import { cloneDeep, isEmpty } from 'lodash-es';
 import dayjs from 'dayjs';
 import ZctzContractDetailNumber from '~sms-common/contract/components/ZctzContractDetailNumber.vue';
 import { openOzReport } from '~sms-common/contract/util/CtPopupUtil';
-import { buildUrlForNoSession } from '~sms-common/contract/util';
+import { buildUrlForNoSession, getSystemOrigin } from '~sms-common/contract/util';
 
 const dataService = useDataService();
 const { t } = useI18n();
@@ -971,12 +971,14 @@ async function onClickNotakfW() {
         return;
       }
       let paramUrl = '';
-
+      const paramOrigin = getSystemOrigin(import.meta.env.MODE === 'prd' || import.meta.env.MODE === 'production'
+        ? 'cswl' : import.meta.env.MODE); // 대외링크오리진(운영) = cswl, 그외에는 해당시스템에 맞는 오리진을 생성(개발, 검증)
+      console.log(paramOrigin);
       // 신규/변경일 경우
       if (['A', 'N', 'U'].includes(searchParams.value.cntrDv)) {
         // eslint-disable-next-line no-await-in-loop
         const promises = await buildUrlForNoSession( // 신규/변경 계약서 리포트 URL 생성
-          undefined,
+          paramOrigin,
           'WwctaContractDocumentM',
           { cntrNo: String(cntrs[i].cntrDtlNo).split('-')[0] },
           true,
@@ -993,7 +995,7 @@ async function onClickNotakfW() {
       } else if (searchParams.value.cntrDv === 'R') { // 재약정
         // eslint-disable-next-line no-await-in-loop
         const promises = await buildUrlForNoSession( // 재약정 계약서 리포트 URL 생성
-          undefined,
+          paramOrigin,
           'WwctaForwardingContractM',
           {
             cntrNo: String(cntrs[i].cntrNo),
