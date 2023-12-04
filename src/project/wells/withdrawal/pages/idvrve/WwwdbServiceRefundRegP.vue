@@ -139,14 +139,13 @@
           <!-- 카드번호 -->
           <kw-form-item
             :label="$t('MSG_TXT_CARD_NO')"
-            required
           >
             <kw-field-wrap>
               <kw-input
                 v-model="infomation.cardRfndCrcdnoEncr1"
                 mask="####"
                 maxlength="4"
-                rules="required|digits:4"
+                :disable="true"
                 :label="$t('MSG_TXT_CARD_NO')"
                 @update:model-value="onChangeNextInput1"
               />
@@ -154,9 +153,10 @@
               <kw-input
                 ref="cardNo2Ref"
                 v-model="infomation.cardRfndCrcdnoEncr2"
+                :disable="true"
                 mask="####"
                 maxlength="4"
-                rules="required|digits:4"
+
                 :label="$t('MSG_TXT_CARD_NO')"
                 @update:model-value="onChangeNextInput2"
               />
@@ -164,9 +164,10 @@
               <kw-input
                 ref="cardNo3Ref"
                 v-model="infomation.cardRfndCrcdnoEncr3"
+                :disable="true"
                 mask="####"
                 maxlength="4"
-                rules="required|digits:4"
+
                 :label="$t('MSG_TXT_CARD_NO')"
                 @update:model-value="onChangeNextInput3"
               />
@@ -174,9 +175,10 @@
               <kw-input
                 ref="cardNo4Ref"
                 v-model="infomation.cardRfndCrcdnoEncr4"
+                :disable="true"
                 mask="####"
                 maxlength="4"
-                rules="required|min:3|max:4"
+
                 :label="$t('MSG_TXT_CARD_NO')"
               />
             </kw-field-wrap>
@@ -527,15 +529,14 @@
           <!-- 카드번호 -->
           <kw-form-item
             :label="$t('MSG_TXT_CARD_NO')"
-            required
           >
             <kw-field-wrap>
               <kw-input
                 v-model="infomation.cardRfndCrcdnoEncr1"
                 mask="####"
                 maxlength="4"
-                rules="required|digits:4"
                 :label="$t('MSG_TXT_CARD_NO')"
+                :disable="true"
                 @update:model-value="onChangeNextInput1"
               />
               <span>-</span>
@@ -544,8 +545,8 @@
                 v-model="infomation.cardRfndCrcdnoEncr2"
                 mask="####"
                 maxlength="4"
-                rules="required|digits:4"
                 :label="$t('MSG_TXT_CARD_NO')"
+                :disable="true"
                 @update:model-value="onChangeNextInput2"
               />
               <span>-</span>
@@ -554,8 +555,8 @@
                 v-model="infomation.cardRfndCrcdnoEncr3"
                 mask="####"
                 maxlength="4"
-                rules="required|digits:4"
                 :label="$t('MSG_TXT_CARD_NO')"
+                :disable="true"
                 @update:model-value="onChangeNextInput3"
               />
               <span>-</span>
@@ -564,7 +565,7 @@
                 v-model="infomation.cardRfndCrcdnoEncr4"
                 mask="####"
                 maxlength="4"
-                rules="required|min:3|max:4"
+                :disable="true"
                 :label="$t('MSG_TXT_CARD_NO')"
               />
             </kw-field-wrap>
