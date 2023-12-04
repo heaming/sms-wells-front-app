@@ -938,6 +938,18 @@ async function onClickEditPlnnr() {
     return;
   }
 
+  let checkCurrMm = false;
+  checkedList.forEach((i) => {
+    if (i.cntrCnfmDtm.substring(0, 8) !== now.format('YYYYMMDD')) {
+      checkCurrMm = true;
+    }
+  });
+  if (checkCurrMm) {
+    if (!confirm('당월 접수분이 아닌 건이 포함되어 있습니다. 수정 담당자와 협의 하셨습니까?')) {
+      return;
+    }
+  }
+
   checkedList.forEach((e) => {
     if (fieldParams.value.ogTpCd === 'HR1' && e.sellTpCd === '2') {
       checkPlnner = 'N';
