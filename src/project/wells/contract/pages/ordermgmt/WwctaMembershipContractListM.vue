@@ -618,7 +618,7 @@ const initGridMembershipContractList = defineGrid((data, view) => {
     { fieldName: 'cntrDtlNo', header: t('MSG_TXT_CNTR_DTL_NO'), width: '180', styleName: 'rg-button-link text-center', renderer: { type: 'button' }, preventCellItemFocus: true }, // 계약상세번호
     { fieldName: 'ordrInfoView', header: t('MSG_TXT_ODER_INF_VIEW'), width: '130', styleName: 'text-center', renderer: { type: 'button', hideWhenEmpty: false }, displayCallback: () => t('MSG_TXT_ODER_INF_VIEW') }, // 주문정보 보기
     { fieldName: 'cntrSn', header: t('MSG_TXT_SN'), width: '130', styleName: 'text-center' }, // 순번
-    { fieldName: 'cstKnmEncr', header: t('MSG_TXT_CNTOR_NM'), width: '138', styleName: 'text-left' }, // 계약자명
+    { fieldName: 'cstKnm', header: t('MSG_TXT_CNTOR_NM'), width: '138', styleName: 'text-left' }, // 계약자명
     { fieldName: 'rcgvpKnmEncr', header: t('MSG_TXT_IST_NM'), width: '138', styleName: 'text-left' }, // 설치자명
     { fieldName: 'sellTpDtlNm', header: t('MSG_TXT_CNTR_DV'), width: '138' }, // 계약구분
     { fieldName: 'mshDvNm', header: t('MSG_TXT_MSH_DV'), width: '138' }, // 멤버십구분
@@ -681,7 +681,7 @@ const initGridMembershipContractList = defineGrid((data, view) => {
     }, // 계약자 휴대전화번호
     { fieldName: 'adrZip', header: `${t('MSG_TXT_CNTRT')}${t('MSG_TXT_ZIP')}`, width: '136', styleName: 'text-center' }, // 계약자우편번호
     { fieldName: 'cntrCstRnadr', header: t('MSG_TXT_STD_ADDR'), width: '270', styleName: 'text-left' }, // 계약자기준주소
-    { fieldName: 'cntrCstRdadrEncr', header: t('MSG_TXT_DETAIL_ADDR'), width: '230', styleName: 'text-left' }, // 계약자상세주소
+    { fieldName: 'cntrCstRdadr', header: t('MSG_TXT_DETAIL_ADDR'), width: '230', styleName: 'text-left' }, // 계약자상세주소
     {
       fieldName: 'istCralTno',
       header: t('MSG_TXT_INSTR_PH_NO'),

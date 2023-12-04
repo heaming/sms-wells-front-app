@@ -569,7 +569,7 @@ const initGridRglrDlvrContractList = defineGrid((data, view) => {
       width: '138',
       styleName: 'text-center',
     }, // 파트너정보-휴대전화번호
-    { fieldName: 'cstKnmEncr', header: t('MSG_TXT_CNTOR_NM'), width: '138', styleName: 'text-center' }, // 계약자 정보-계약자명
+    { fieldName: 'cstKnm', header: t('MSG_TXT_CNTOR_NM'), width: '138', styleName: 'text-center' }, // 계약자 정보-계약자명
     { fieldName: 'cstNo',
       header: t('MSG_TXT_BZ_RRNO'),
       width: '160',
@@ -586,7 +586,7 @@ const initGridRglrDlvrContractList = defineGrid((data, view) => {
     }, // 계약자 정보-사업/주민번호
     { fieldName: 'adrZip', header: t('MSG_TXT_ZIP'), width: '138', styleName: 'text-center' }, // 계약자 정보-우편번호
     { fieldName: 'cntrCstRnadr', header: t('MSG_TXT_STD_ADDR'), width: '270', styleName: 'text-left' }, // 계약자 정보-기준주소
-    { fieldName: 'cntrCstRdadrEncr', header: t('MSG_TXT_DETAIL_ADDR'), width: '230', styleName: 'text-left' }, // 계약자 정보-상세주소
+    { fieldName: 'cntrCstRdadr', header: t('MSG_TXT_DETAIL_ADDR'), width: '230', styleName: 'text-left' }, // 계약자 정보-상세주소
     { fieldName: 'rcgvpKnmEncr', header: t('MSG_TXT_IST_NM'), width: '138', styleName: 'text-center' }, // 설치정보-설치자명
     {
       fieldName: 'shpadrCralTno',
@@ -691,7 +691,7 @@ const initGridRglrDlvrContractList = defineGrid((data, view) => {
     {
       header: `${t('MSG_TXT_CNTRT')} ${t('MSG_TXT_INF')}`, // 계약자 정보
       direction: 'horizontal', // merge type
-      items: ['cstKnmEncr', 'cstNo', 'adrZip', 'cntrCstRnadr', 'cntrCstRdadrEncr'],
+      items: ['cstKnm', 'cstNo', 'adrZip', 'cntrCstRnadr', 'cntrCstRdadr'],
     },
     {
       header: t('MSG_TXT_INSTR_INFO'), // 설치자 정보
