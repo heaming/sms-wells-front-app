@@ -186,6 +186,7 @@ import { getSellTpCd, getSellTpDtlCd } from '~/modules/sms-common/closing/utils/
 const now = dayjs();
 const { t } = useI18n();
 const { modal, notify } = useGlobal();
+const { currentRoute } = useRouter();
 const dataService = useDataService();
 
 // -------------------------------------------------------------------------------------------------
@@ -427,14 +428,32 @@ async function onClickBulkExcelDownload() {
 
   const view = {
     getColumns() {
-      return rentalColumns.map((x) => (
-        {
+      const excelColumns = cloneDeep(rentalColumns);
+      excelColumns.splice(excelColumns.length - 2); // invisible 필드 삭제
+
+      const prefixRgstItems = ['rentalRgstCost', 'rentalRgstCostSpl', 'rentalRgstCostVat'];
+      const prefixRtlItems = ['nomSlAmt', 'splAmt', 'vat'];
+      const prefixTotItems = ['totSlAmt', 'totSplAmt', 'totVat'];
+
+      return excelColumns.map((x) => {
+        let prefix = '';
+
+        if (prefixRgstItems.includes(x.fieldName)) {
+          prefix = t('MSG_TXT_RGST_FEE').concat('-');
+        } else if (prefixRtlItems.includes(x.fieldName)) {
+          prefix = t('MSG_TXT_RTLFE').concat('-');
+        } else if (prefixTotItems.includes(x.fieldName)) {
+          prefix = t('MSG_TXT_SL_SUM').concat('-');
+        }
+
+        return {
           name: x.fieldName,
-          displayText: x.header,
+          displayText: prefix.concat(x.header),
           displayWidth: Number(x.width ? x.width : '100'),
           styleName: x.styleName,
           valueType: x.valueType ?? 'text', // number 인 경우만 따로 처리됨.
-        }));
+        };
+      });
     },
     __searchConditionText__: `[검색조건]\n${t('MSG_TXT_SL_DT')} : ${searchParams.value.baseDtmnFrom} | ${searchParams.value.baseDtmnTo}\n${t('MSG_TXT_SEL_TYPE')} : ${t('MSG_TXT_RENTAL')}`,
   };
@@ -444,6 +463,7 @@ async function onClickBulkExcelDownload() {
     parameter: {
       ...bulkExcelCachedParams,
     },
+    fileName: `${currentRoute.value.meta.menuName}_${dayjs().format('YYYYMMDDHHmmss')}_Bulk`,
   });
 }
 
