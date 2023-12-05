@@ -125,7 +125,8 @@
           v-model="searchParams.strtOgCd"
           maxlength="10"
           upper-case
-          :rules="{'required': !!searchParams.endOgCd}"
+          regex="alpha_num"
+          rules="|max:10"
           :custom-messages="{'required': $t('MSG_ALT_CHK_NCSR', [$t('MSG_TXT_OG_CD')])}"
           :label="$t('MSG_TXT_OG_CD')/* 조직코드 */"
         />
@@ -134,7 +135,8 @@
           v-model="searchParams.endOgCd"
           maxlength="10"
           upper-case
-          :rules="{'required': !!searchParams.strtOgCd}"
+          regex="alpha_num"
+          rules="|max:10"
           :custom-messages="{'required': $t('MSG_ALT_CHK_NCSR', [$t('MSG_TXT_OG_CD')])}"
           :label="$t('MSG_TXT_OG_CD')/* 조직코드 */"
         />
@@ -320,7 +322,7 @@
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
 import { codeUtil, defineGrid, getComponentType, useDataService, gridUtil, useGlobal } from 'kw-lib';
-import { cloneDeep, uniqBy } from 'lodash-es';
+import { cloneDeep, isEmpty, uniqBy } from 'lodash-es';
 import pdConst from '~sms-common/product/constants/pdConst';
 import dayjs from 'dayjs';
 
@@ -422,6 +424,13 @@ async function fetchData() {
   let res = '';
   cachedParams = cloneDeep(searchParams.value);
   console.log(cachedParams);
+  const { strtOgCd, endOgCd } = cachedParams;
+  /* 조직코드 입력 시 시작조직코드, 끝조직코드 중 하나라도 비어있으면 return */
+  if ((!isEmpty(strtOgCd) || !isEmpty(endOgCd)) && (isEmpty(strtOgCd) || isEmpty(endOgCd))) {
+    alert(t('MSG_ALT_STRT_OG_CD_AND_END_OG_CD_REQUIRED'));
+    return;
+  }
+
   res = await dataService.post('/sms/wells/contract/contracts/order-detail-mngt/rentals/paging', { ...cachedParams, ...pageInfo.value });
 
   const { list: pages, pageInfo: pagingResult } = res.data;
