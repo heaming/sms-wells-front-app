@@ -255,11 +255,7 @@ async function getItems() {
 
 // 업무마감 일정 조회
 async function getBldCsmbAplcClose() {
-  const { mngtYm } = isEmpty(cachedParams) ? searchParams.value : cachedParams;
-  if (isEmpty(mngtYm)) {
-    aplcCloseData.value = {};
-  }
-
+  const { mngtYm } = cachedParams;
   const res = await dataService.get(`/sms/wells/service/building-bsconsumables/time-limit/${mngtYm}`);
   aplcCloseData.value = res.data;
 }
@@ -307,7 +303,7 @@ async function reAryGrid() {
     columns.push({
       fieldName: `qty${fxnSapMatCd}`,
       header: fxnSapMatCd,
-      width: '100',
+      width: '120',
       styleName: 'text-center',
       dataType: 'number',
       rules: 'min_value:0|max_value:999999',
@@ -318,7 +314,7 @@ async function reAryGrid() {
     items1.push(
       {
         header: `${fxnPdNm}`,
-        width: '100',
+        width: '120',
         direction: 'horizontal',
         items: [
           {
@@ -338,7 +334,7 @@ async function reAryGrid() {
     columns.push({
       fieldName: `aplcQty${aplcSapMatCd}`,
       header: aplcSapMatCd,
-      width: '100',
+      width: '120',
       styleName: 'text-center',
       dataType: 'number',
       rules: 'min_value:0|max_value:999999',
@@ -349,7 +345,7 @@ async function reAryGrid() {
     items2.push(
       {
         header: `${aplcPdNm}`,
-        width: '100',
+        width: '120',
         direction: 'horizontal',
         items: [
           {
@@ -470,6 +466,8 @@ async function onClickSearch() {
 
 // 저장
 async function onClickSave() {
+  saveData = [];
+
   const view = grdMainRef.value.getView();
   const checkedRows = gridUtil.getCheckedRowValues(view);
 
@@ -517,7 +515,6 @@ async function onClickSave() {
   if (processCount > 0) {
     notify(t('MSG_ALT_SAVE_DATA'));
     await fetchData();
-    saveData = [];
   }
 }
 
@@ -535,6 +532,8 @@ async function onClickExcelDownload() {
 
 // 출고요청 클릭 시
 async function onClickOstrAk() {
+  requestData = [];
+
   const view = grdMainRef.value.getView();
   const checkedRows = gridUtil.getCheckedRowValues(view);
 
@@ -592,8 +591,6 @@ async function onClickOstrAk() {
       await fetchData();
     }
   }
-
-  requestData = [];
 }
 
 onMounted(async () => {
@@ -636,7 +633,7 @@ const initGrdMain = defineGrid(async (data, view) => {
     columns.push({
       fieldName: `qty${fxnSapMatCd}`,
       header: fxnSapMatCd,
-      width: '100',
+      width: '120',
       styleName: 'text-center',
       editable: isBusinessSupportTeam.value,
     });
@@ -645,7 +642,7 @@ const initGrdMain = defineGrid(async (data, view) => {
     items1.push(
       {
         header: `${fxnPdNm}`,
-        width: '100',
+        width: '120',
         direction: 'horizontal',
         items: [
           {
@@ -665,7 +662,7 @@ const initGrdMain = defineGrid(async (data, view) => {
     columns.push({
       fieldName: `aplcQty${aplcSapMatCd}`,
       header: aplcSapMatCd,
-      width: '100',
+      width: '120',
       styleName: 'text-center',
       editable: true,
     });
@@ -674,7 +671,7 @@ const initGrdMain = defineGrid(async (data, view) => {
     items2.push(
       {
         header: `${aplcPdNm}`,
-        width: '100',
+        width: '120',
         direction: 'horizontal',
         items: [
           {
@@ -748,7 +745,7 @@ const initGrdMain = defineGrid(async (data, view) => {
     const { bfsvcCsmbDdlvStatCd } = grid.getValues(itemIndex.itemIndex);
 
     if ((!isBusinessSupportTeam.value && !(nowDateTime >= Number(strtDtHh) && nowDateTime <= Number(endDtHh)))
-    || (!isBusinessSupportTeam.value && ['20', '30'].includes(bfsvcCsmbDdlvStatCd))
+    || (!isBusinessSupportTeam.value && bfsvcCsmbDdlvStatCd === '20')
     || bfsvcCsmbDdlvStatCd === '30') {
       return false;
     }
@@ -784,5 +781,3 @@ const initGrdMain = defineGrid(async (data, view) => {
 });
 
 </script>
-<style scoped>
-</style>
