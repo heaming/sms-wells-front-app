@@ -153,7 +153,7 @@
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
-import { useMeta, defineGrid, useDataService, getComponentType, gridUtil, notify, alert } from 'kw-lib';
+import { useMeta, defineGrid, useDataService, getComponentType, gridUtil, notify, alert, confirm } from 'kw-lib';
 import { cloneDeep, isEmpty } from 'lodash-es';
 import dayjs from 'dayjs';
 
@@ -280,7 +280,7 @@ async function reAryGrid() {
     { fieldName: 'bldCd' }, // 빌딩코드
     { fieldName: 'bldNm' }, // 빌딩명
     { fieldName: 'rsppPrtnrNo' }, // 수취인
-    { fieldName: 'vstCstN' }, // 방문고객수
+    { fieldName: 'vstCstN', dataType: 'number' }, // 방문고객수
     { fieldName: 'blank' },
   ];
 
@@ -431,6 +431,13 @@ async function fetchData() {
   view.getDataSource().setRows(res.data);
 }
 
+// 조회버튼 클릭
+async function onClickSearch() {
+  cachedParams = cloneDeep(searchParams.value);
+
+  await fetchData();
+}
+
 // 등록기간 유효성체크
 function validateRegPeriod() {
   const { bizStrtdt: strtDt, bizStrtHh: strtHh, bizEnddt: endDt, bizEndHh: endHh } = aplcCloseData.value;
@@ -445,6 +452,13 @@ function validateRegPeriod() {
 
 // 등록기간 설정
 async function onClickRgstPtrmSe() {
+  const view = grdMainRef.value.getView();
+  const changedRows = gridUtil.getChangedRowValues(view);
+  // 그리드 변경상태가 있을 경우
+  if (!isEmpty(changedRows)) {
+    if (!await confirm(t('MSG_ALT_CHG_CNTN'))) return;
+  }
+
   if (!validateRegPeriod()) {
     // 등록 기간을 확인해주십시오.
     notify(t('MSG_ALT_RGST_PTRM_CHECK'));
@@ -452,6 +466,12 @@ async function onClickRgstPtrmSe() {
   }
 
   const { mngtYm } = isEmpty(cachedParams) ? searchParams.value : cachedParams;
+  if (isEmpty(mngtYm)) {
+    // {0}은(는) 필수 항목입니다.
+    await alert(`${t('MSG_TXT_MGT_YNM')} ${t('MSG_ALT_NCELL_REQUIRED_ITEM')}`);
+    return;
+  }
+
   aplcCloseData.value.mngtYm = mngtYm;
 
   // 등록기간 저장
@@ -459,15 +479,12 @@ async function onClickRgstPtrmSe() {
   const { processCount } = res.data;
   if (processCount > 0) {
     notify(t('MSG_ALT_SAVE_DATA'));
-    await fetchData();
+    if (isEmpty(cachedParams)) {
+      await onClickSearch();
+    } else {
+      await fetchData();
+    }
   }
-}
-
-// 조회버튼 클릭
-async function onClickSearch() {
-  cachedParams = cloneDeep(searchParams.value);
-
-  await fetchData();
 }
 
 // 저장
@@ -548,6 +565,8 @@ async function onClickOstrAk() {
     return;
   }
 
+  if (!await gridUtil.validate(view, { isCheckedOnly: true })) { return; }
+
   const { mngtYm } = cachedParams;
 
   let errorYn = false;
@@ -614,7 +633,7 @@ const initGrdMain = defineGrid(async (data, view) => {
     { fieldName: 'bldCd' }, // 빌딩코드
     { fieldName: 'bldNm' }, // 빌딩명
     { fieldName: 'rsppPrtnrNo' }, // 책임파트너번호
-    { fieldName: 'vstCstN' }, // 방문고객수
+    { fieldName: 'vstCstN', dataType: 'number' }, // 방문고객수
     { fieldName: 'blank' },
   ];
 
