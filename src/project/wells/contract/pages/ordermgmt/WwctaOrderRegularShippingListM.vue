@@ -92,7 +92,8 @@
           v-model="searchParams.strtOgCd"
           maxlength="10"
           upper-case
-          :rules="{'required': !!searchParams.endOgCd}"
+          regex="alpha_num"
+          rules="|max:10"
           :custom-messages="{'required': $t('MSG_ALT_CHK_NCSR', [$t('MSG_TXT_OG_CD')])}"
           :label="$t('MSG_TXT_OG_CD')/* 조직코드 */"
         />
@@ -101,7 +102,8 @@
           v-model="searchParams.endOgCd"
           maxlength="10"
           upper-case
-          :rules="{'required': !!searchParams.strtOgCd}"
+          regex="alpha_num"
+          rules="|max:10"
           :custom-messages="{'required': $t('MSG_ALT_CHK_NCSR', [$t('MSG_TXT_OG_CD')])}"
           :label="$t('MSG_TXT_OG_CD')/* 조직코드 */"
         />
@@ -294,6 +296,7 @@ async function fetchData() {
   let res = '';
   cachedParams = cloneDeep(searchParams.value);
   console.log(cachedParams);
+
   res = await dataService.post('/sms/wells/contract/contracts/order-detail-mngt/regular-shippings/paging', { ...cachedParams, ...pageInfo.value });
 
   const { list: pages, pageInfo: pagingResult } = res.data;
