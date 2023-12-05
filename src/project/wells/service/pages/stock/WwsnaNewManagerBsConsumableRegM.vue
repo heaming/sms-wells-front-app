@@ -56,12 +56,14 @@
             v-model="aplcCloseData.bizStrtdt"
             :label="$t('MSG_TXT_START_DATE')"
             dense
+            :disable="!isBusinessSupportTeam"
           />
           <kw-time-picker
             v-model="aplcCloseData.bizStrtHh"
             :label="$t('MSG_TXT_START_TIME')"
             dense
             class="ml8"
+            :disable="!isBusinessSupportTeam"
           />
           <span class="mx8">~</span>
           <kw-date-picker
@@ -69,12 +71,14 @@
             :label="$t('MSG_TXT_END_DATE')"
             dense
             class="mr8"
+            :disable="!isBusinessSupportTeam"
           />
           <kw-time-picker
             v-model="aplcCloseData.bizEndHh"
             :label="$t('MSG_TXT_END_TIME')"
             dense
             class="mr8"
+            :disable="!isBusinessSupportTeam"
           />
           <!-- 등록기간 설정 -->
           <kw-btn
@@ -377,6 +381,7 @@ async function reAryGrid() {
       items: items2,
     },
   ]);
+  view.setFixedOptions({ colCount: 1 });
 }
 
 // 신청제한 수량 조회
