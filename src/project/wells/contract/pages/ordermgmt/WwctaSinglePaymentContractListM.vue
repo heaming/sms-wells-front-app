@@ -383,12 +383,6 @@ async function fetchData() {
   let res = '';
   cachedParams = cloneDeep(searchParams.value);
   console.log(cachedParams);
-  const { strtOgCd, endOgCd } = cachedParams;
-  /* 조직코드 입력 시 시작조직코드, 끝조직코드 중 하나라도 비어있으면 return */
-  if ((!isEmpty(strtOgCd) || !isEmpty(endOgCd)) && (isEmpty(strtOgCd) || isEmpty(endOgCd))) {
-    alert(t('MSG_ALT_STRT_OG_CD_AND_END_OG_CD_REQUIRED'));
-    return;
-  }
 
   res = await dataService.post('/sms/wells/contract/contracts/order-detail-mngt/singlepayments/paging', { ...cachedParams, ...pageInfo.value });
 
