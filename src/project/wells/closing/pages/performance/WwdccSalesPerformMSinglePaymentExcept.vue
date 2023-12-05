@@ -389,7 +389,7 @@
             <kw-form-item
               :label="$t('MSG_TXT_MM_SSPCS')"
             >
-              <p>{{ stringUtil.getNumberWithComma(toInteger(singlePaymentDetail.rentalRgstCost)) }}</p>
+              <p>{{ stringUtil.getNumberWithComma(toInteger(singlePaymentDetail.rentalAmt)) }}</p>
             </kw-form-item>
           </kw-form-row>
           <kw-form-row>
