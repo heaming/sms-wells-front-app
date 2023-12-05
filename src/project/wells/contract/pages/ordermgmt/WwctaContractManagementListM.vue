@@ -363,7 +363,7 @@ import { codeUtil, defineGrid, getComponentType, useDataService, gridUtil, fileU
 import { cloneDeep, isEmpty } from 'lodash-es';
 import dayjs from 'dayjs';
 import ZctzContractDetailNumber from '~sms-common/contract/components/ZctzContractDetailNumber.vue';
-import { openOzReport } from '~sms-common/contract/util/CtPopupUtil';
+import { openOzReport, openOzReportsWithOptions } from '~sms-common/contract/util/CtPopupUtil';
 import { buildUrlForNoSession, getSystemOrigin } from '~sms-common/contract/util';
 
 const dataService = useDataService();
@@ -1143,7 +1143,11 @@ async function onClickOzReport(cntrNo) { // oz리포트 신규/변경 계약
   // }
 
   const { data: reports } = await dataService.get('/sms/wells/contract/contracts/managements/search-api-url', { params: { cntrNo } });
-  return openOzReport(...reports);
+  console.log(reports);
+  const options = {
+    treeViewTitle: '청약서목록',
+  };
+  return openOzReportsWithOptions(reports, options);
 }
 
 // eslint-disable-next-line max-len
