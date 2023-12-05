@@ -358,7 +358,7 @@ async function fetchData() {
   //   await alert(`${t('MSG_ALT_NOT_FOUND_OG_INF')}111`); // 조직정보를 찾을 수 없습니다.
   //   return;
   // }
-  const res = await dataService.get('/sms/wells/service/manage-customer-rglvl', { params: cachedParams });
+  const res = await dataService.get('/sms/wells/service/manage-customer-rglvl', { params: cachedParams, timeout: 300000 });
   const list = res.data;
   pageInfo.value.totalCount = list.length;
 
@@ -647,7 +647,7 @@ async function onClickSave() {
 
 async function onClickExcelDownload() {
   const view = grdMainRef.value.getView();
-  const { data } = await dataService.get('/sms/wells/service/manage-customer-rglvl/excel-download', { params: cachedParams });
+  const { data } = await dataService.get('/sms/wells/service/manage-customer-rglvl/excel-download', { params: cachedParams, timeout: 300000 });
 
   await gridUtil.exportView(view, {
     fileName: currentRoute.value.meta.menuName,
