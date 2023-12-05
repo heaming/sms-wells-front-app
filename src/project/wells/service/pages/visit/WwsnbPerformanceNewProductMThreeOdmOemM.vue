@@ -81,6 +81,7 @@
           dense
           secondary
           :label="$t('MSG_BTN_PRTG')"
+          :disable="pageInfo.totalCount === 0"
           @click="onClickPrintEl"
         />
         <!-- 엑셀다운로드 -->
@@ -89,6 +90,7 @@
           dense
           secondary
           :label="$t('MSG_BTN_EXCEL_DOWN')"
+          :disable="pageInfo.totalCount === 0"
           @click="onClickExcelDownload"
         />
         <kw-separator
