@@ -55,12 +55,14 @@
             v-model="aplcCloseData.bizStrtdt"
             :label="$t('MSG_TXT_START_DATE')"
             dense
+            :disable="!isBusinessSupportTeam"
           />
           <kw-time-picker
             v-model="aplcCloseData.bizStrtHh"
             :label="$t('MSG_TXT_START_TIME')"
             dense
             class="ml8"
+            :disable="!isBusinessSupportTeam"
           />
           <span class="mx8">~</span>
           <kw-date-picker
@@ -68,12 +70,14 @@
             :label="$t('MSG_TXT_END_DATE')"
             dense
             class="mr8"
+            :disable="!isBusinessSupportTeam"
           />
           <kw-time-picker
             v-model="aplcCloseData.bizEndHh"
             :label="$t('MSG_TXT_END_TIME')"
             dense
             class="mr8"
+            :disable="!isBusinessSupportTeam"
           />
           <!-- 등록기간 설정 -->
           <kw-btn
@@ -149,7 +153,7 @@
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
-import { useMeta, defineGrid, useDataService, getComponentType, gridUtil, notify, alert } from 'kw-lib';
+import { useMeta, defineGrid, useDataService, getComponentType, gridUtil, notify, alert, confirm } from 'kw-lib';
 import { cloneDeep, isEmpty } from 'lodash-es';
 import dayjs from 'dayjs';
 
@@ -255,11 +259,7 @@ async function getItems() {
 
 // 업무마감 일정 조회
 async function getBldCsmbAplcClose() {
-  const { mngtYm } = isEmpty(cachedParams) ? searchParams.value : cachedParams;
-  if (isEmpty(mngtYm)) {
-    aplcCloseData.value = {};
-  }
-
+  const { mngtYm } = cachedParams;
   const res = await dataService.get(`/sms/wells/service/building-bsconsumables/time-limit/${mngtYm}`);
   aplcCloseData.value = res.data;
 }
@@ -280,7 +280,7 @@ async function reAryGrid() {
     { fieldName: 'bldCd' }, // 빌딩코드
     { fieldName: 'bldNm' }, // 빌딩명
     { fieldName: 'rsppPrtnrNo' }, // 수취인
-    { fieldName: 'vstCstN' }, // 방문고객수
+    { fieldName: 'vstCstN', dataType: 'number' }, // 방문고객수
     { fieldName: 'blank' },
   ];
 
@@ -307,7 +307,7 @@ async function reAryGrid() {
     columns.push({
       fieldName: `qty${fxnSapMatCd}`,
       header: fxnSapMatCd,
-      width: '100',
+      width: '120',
       styleName: 'text-center',
       dataType: 'number',
       rules: 'min_value:0|max_value:999999',
@@ -318,7 +318,7 @@ async function reAryGrid() {
     items1.push(
       {
         header: `${fxnPdNm}`,
-        width: '100',
+        width: '120',
         direction: 'horizontal',
         items: [
           {
@@ -338,7 +338,7 @@ async function reAryGrid() {
     columns.push({
       fieldName: `aplcQty${aplcSapMatCd}`,
       header: aplcSapMatCd,
-      width: '100',
+      width: '120',
       styleName: 'text-center',
       dataType: 'number',
       rules: 'min_value:0|max_value:999999',
@@ -349,7 +349,7 @@ async function reAryGrid() {
     items2.push(
       {
         header: `${aplcPdNm}`,
-        width: '100',
+        width: '120',
         direction: 'horizontal',
         items: [
           {
@@ -402,6 +402,8 @@ async function reAryGrid() {
       items: items2,
     },
   ]);
+
+  view.setFixedOptions({ colCount: 1 });
 }
 
 // 신청제한 수량 조회
@@ -429,6 +431,13 @@ async function fetchData() {
   view.getDataSource().setRows(res.data);
 }
 
+// 조회버튼 클릭
+async function onClickSearch() {
+  cachedParams = cloneDeep(searchParams.value);
+
+  await fetchData();
+}
+
 // 등록기간 유효성체크
 function validateRegPeriod() {
   const { bizStrtdt: strtDt, bizStrtHh: strtHh, bizEnddt: endDt, bizEndHh: endHh } = aplcCloseData.value;
@@ -443,6 +452,13 @@ function validateRegPeriod() {
 
 // 등록기간 설정
 async function onClickRgstPtrmSe() {
+  const view = grdMainRef.value.getView();
+  const changedRows = gridUtil.getChangedRowValues(view);
+  // 그리드 변경상태가 있을 경우
+  if (!isEmpty(changedRows)) {
+    if (!await confirm(t('MSG_ALT_CHG_CNTN'))) return;
+  }
+
   if (!validateRegPeriod()) {
     // 등록 기간을 확인해주십시오.
     notify(t('MSG_ALT_RGST_PTRM_CHECK'));
@@ -450,6 +466,12 @@ async function onClickRgstPtrmSe() {
   }
 
   const { mngtYm } = isEmpty(cachedParams) ? searchParams.value : cachedParams;
+  if (isEmpty(mngtYm)) {
+    // {0}은(는) 필수 항목입니다.
+    await alert(`${t('MSG_TXT_MGT_YNM')} ${t('MSG_ALT_NCELL_REQUIRED_ITEM')}`);
+    return;
+  }
+
   aplcCloseData.value.mngtYm = mngtYm;
 
   // 등록기간 저장
@@ -457,19 +479,18 @@ async function onClickRgstPtrmSe() {
   const { processCount } = res.data;
   if (processCount > 0) {
     notify(t('MSG_ALT_SAVE_DATA'));
-    await fetchData();
+    if (isEmpty(cachedParams)) {
+      await onClickSearch();
+    } else {
+      await fetchData();
+    }
   }
-}
-
-// 조회버튼 클릭
-async function onClickSearch() {
-  cachedParams = cloneDeep(searchParams.value);
-
-  await fetchData();
 }
 
 // 저장
 async function onClickSave() {
+  saveData = [];
+
   const view = grdMainRef.value.getView();
   const checkedRows = gridUtil.getCheckedRowValues(view);
 
@@ -517,7 +538,6 @@ async function onClickSave() {
   if (processCount > 0) {
     notify(t('MSG_ALT_SAVE_DATA'));
     await fetchData();
-    saveData = [];
   }
 }
 
@@ -535,6 +555,8 @@ async function onClickExcelDownload() {
 
 // 출고요청 클릭 시
 async function onClickOstrAk() {
+  requestData = [];
+
   const view = grdMainRef.value.getView();
   const checkedRows = gridUtil.getCheckedRowValues(view);
 
@@ -542,6 +564,8 @@ async function onClickOstrAk() {
     notify(t('MSG_ALT_NOT_SEL_ITEM'));
     return;
   }
+
+  if (!await gridUtil.validate(view, { isCheckedOnly: true })) { return; }
 
   const { mngtYm } = cachedParams;
 
@@ -592,8 +616,6 @@ async function onClickOstrAk() {
       await fetchData();
     }
   }
-
-  requestData = [];
 }
 
 onMounted(async () => {
@@ -611,7 +633,7 @@ const initGrdMain = defineGrid(async (data, view) => {
     { fieldName: 'bldCd' }, // 빌딩코드
     { fieldName: 'bldNm' }, // 빌딩명
     { fieldName: 'rsppPrtnrNo' }, // 책임파트너번호
-    { fieldName: 'vstCstN' }, // 방문고객수
+    { fieldName: 'vstCstN', dataType: 'number' }, // 방문고객수
     { fieldName: 'blank' },
   ];
 
@@ -636,7 +658,7 @@ const initGrdMain = defineGrid(async (data, view) => {
     columns.push({
       fieldName: `qty${fxnSapMatCd}`,
       header: fxnSapMatCd,
-      width: '100',
+      width: '120',
       styleName: 'text-center',
       editable: isBusinessSupportTeam.value,
     });
@@ -645,7 +667,7 @@ const initGrdMain = defineGrid(async (data, view) => {
     items1.push(
       {
         header: `${fxnPdNm}`,
-        width: '100',
+        width: '120',
         direction: 'horizontal',
         items: [
           {
@@ -665,7 +687,7 @@ const initGrdMain = defineGrid(async (data, view) => {
     columns.push({
       fieldName: `aplcQty${aplcSapMatCd}`,
       header: aplcSapMatCd,
-      width: '100',
+      width: '120',
       styleName: 'text-center',
       editable: true,
     });
@@ -674,7 +696,7 @@ const initGrdMain = defineGrid(async (data, view) => {
     items2.push(
       {
         header: `${aplcPdNm}`,
-        width: '100',
+        width: '120',
         direction: 'horizontal',
         items: [
           {
@@ -748,7 +770,7 @@ const initGrdMain = defineGrid(async (data, view) => {
     const { bfsvcCsmbDdlvStatCd } = grid.getValues(itemIndex.itemIndex);
 
     if ((!isBusinessSupportTeam.value && !(nowDateTime >= Number(strtDtHh) && nowDateTime <= Number(endDtHh)))
-    || (!isBusinessSupportTeam.value && ['20', '30'].includes(bfsvcCsmbDdlvStatCd))
+    || (!isBusinessSupportTeam.value && bfsvcCsmbDdlvStatCd === '20')
     || bfsvcCsmbDdlvStatCd === '30') {
       return false;
     }
@@ -784,5 +806,3 @@ const initGrdMain = defineGrid(async (data, view) => {
 });
 
 </script>
-<style scoped>
-</style>
