@@ -104,12 +104,14 @@
             :maxlength="6"
           />
           <span>-</span>
+          <!-- 주민번호 뒷자리 7자 -->
           <kw-input
             v-model="saveParams.rrnoEncr"
             :label="$t('MSG_TXT_RRNO')"
             rules="required"
             :regex="/^[0-9]*$/i"
             :maxlength="7"
+            mask="#######"
           />
         </kw-form-item>
       </kw-form-row>
