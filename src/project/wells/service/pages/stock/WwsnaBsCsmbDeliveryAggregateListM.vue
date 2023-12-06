@@ -3,7 +3,7 @@
  * 프로그램 개요
  ****************************************************************************************************
  1. 모듈 : SNA
- 2. 프로그램 ID : WwsnaBsCsmbDeliveryAggregatePsM(W-SV-U-0294M01) - BS소모품 배부집계 현황
+ 2. 프로그램 ID : WwsnaBsCsmbDeliveryAggregateListM(W-SV-U-0294M01) - BS소모품 배부집계 현황
  3. 작성자 : seungsoo.kim
  4. 작성일 : 2023.05.16
  ****************************************************************************************************
@@ -268,9 +268,9 @@ async function onChangeMngtYm() {
   ];
 
   const columns = [
-    { fieldName: 'bldCd', header: t('MSG_TXT_BLD_CD'), width: '100', styleName: 'text-center' },
+    { fieldName: 'bldCd', header: t('MSG_TXT_BLD_CD'), width: '80', styleName: 'text-center' },
     { fieldName: 'bldNm', header: t('MSG_TXT_BLD_NM'), width: '100', styleName: 'text-center' },
-    { fieldName: 'sapMatCd', header: t('MSG_TXT_SAP_CD'), width: '180', styleName: 'text-center' },
+    { fieldName: 'sapMatCd', header: t('MSG_TXT_SAP_CD'), width: '100', styleName: 'text-center' },
     { fieldName: 'csmbPdCd', header: t('TXT_MSG_AS_ITM_CD'), width: '120', styleName: 'text-center' },
     { fieldName: 'pdNm', header: t('MSG_TXT_ITM_NM'), width: '200', styleName: 'text-left' },
     { fieldName: 'nwcmr', header: t('MSG_TXT_NWCMR'), width: '80', styleName: 'text-center' },
@@ -391,9 +391,9 @@ const initGrdMain = defineGrid(async (data, view) => {
   ];
 
   const columns = [
-    { fieldName: 'bldCd', header: t('MSG_TXT_BLD_CD'), width: '100', styleName: 'text-center' },
+    { fieldName: 'bldCd', header: t('MSG_TXT_BLD_CD'), width: '80', styleName: 'text-center' },
     { fieldName: 'bldNm', header: t('MSG_TXT_BLD_NM'), width: '100', styleName: 'text-center' },
-    { fieldName: 'sapMatCd', header: t('MSG_TXT_SAP_CD'), width: '180', styleName: 'text-center' },
+    { fieldName: 'sapMatCd', header: t('MSG_TXT_SAP_CD'), width: '100', styleName: 'text-center' },
     { fieldName: 'csmbPdCd', header: t('TXT_MSG_AS_ITM_CD'), width: '120', styleName: 'text-center' },
     { fieldName: 'pdNm', header: t('MSG_TXT_ITM_NM'), width: '200', styleName: 'text-left' },
     { fieldName: 'nwcmr', header: t('MSG_TXT_NWCMR'), width: '80', styleName: 'text-center' },
