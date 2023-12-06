@@ -74,6 +74,7 @@
         v-permission:update
         :label="$t('MSG_TXT_SAVE')"
         grid-action
+        :disable="cachedParams?.baseYm !== now.format('YYYYMM')"
         @click="onClickSave"
       />
       <kw-separator
@@ -100,7 +101,7 @@
         v-model="sendParams.fwbooDate"
         dense
         class="w150"
-        :min-date="dayjs().add(4,'day').format('YYYY-MM-DD')"
+        :min-date="now.add(4,'day').format('YYYY-MM-DD')"
         :label="t('MSG_TXT_FW_DATE')"
       />
       <kw-time-picker
@@ -124,7 +125,7 @@
         :label="$t('MSG_BTN_BIZTALK_SEND')"
         primary
         dense
-        :disable="sendParams.baseYm !== dayjs().format('YYYYMM')"
+        :disable="(sendParams.baseYm !== now.format('YYYYMM') || cachedParams?.baseYm !== now.format('YYYYMM'))"
         @click="onClickSendMessage"
       />
     </kw-action-top>
@@ -179,14 +180,14 @@ const totalCount = ref(0);
 // Function & Event
 // -------------------------------------------------------------------------------------------------
 const baseUrl = '/sms/wells/bond/rental-cb-mgt/histories';
-
+const now = dayjs();
 const ynOpt = ref([
   { codeId: 'Y', codeName: 'Y' },
   { codeId: 'N', codeName: 'N' },
 ]);
 
 const searchParams = ref({
-  baseYm: dayjs().format('YYYYMM'),
+  baseYm: now.format('YYYYMM'),
   cstNo: '',
   cstKnm: '',
   cralLocaraTno: '',
@@ -195,7 +196,7 @@ const searchParams = ref({
 });
 
 const sendParams = ref({
-  fwbooDate: dayjs().add(4, 'day').format('YYYYMMDD'),
+  fwbooDate: now.add(4, 'day').format('YYYYMMDD'),
   fwbooTime: '1400',
   baseYm: '',
 });
@@ -309,7 +310,7 @@ const initGrid = defineGrid((data, view) => {
       editor: { type: 'list' },
       options: ynOpt.value,
       styleCallback: () => {
-        if (sendParams.value.baseYm !== dayjs().format('YYYYMM')) {
+        if (sendParams.value.baseYm !== now.format('YYYYMM')) {
           return {
             editable: false,
           };
