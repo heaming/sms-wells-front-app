@@ -275,7 +275,7 @@ async function onChangeMngtYm() {
 
   const columns = [
     { fieldName: 'bldCd', header: t('MSG_TXT_BLD_CD'), width: '80', styleName: 'text-center' },
-    { fieldName: 'bldNm', header: t('MSG_TXT_BLD_NM'), width: '100', styleName: 'text-center' },
+    { fieldName: 'bldNm', header: t('MSG_TXT_BLD_NM'), width: '120', styleName: 'text-center' },
     { fieldName: 'sapMatCd', header: t('MSG_TXT_SAP_CD'), width: '100', styleName: 'text-center' },
     { fieldName: 'csmbPdCd', header: t('TXT_MSG_AS_ITM_CD'), width: '120', styleName: 'text-center' },
     { fieldName: 'pdNm', header: t('MSG_TXT_ITM_NM'), width: '200', styleName: 'text-left' },
@@ -399,7 +399,7 @@ const initGrdMain = defineGrid(async (data, view) => {
 
   const columns = [
     { fieldName: 'bldCd', header: t('MSG_TXT_BLD_CD'), width: '80', styleName: 'text-center' },
-    { fieldName: 'bldNm', header: t('MSG_TXT_BLD_NM'), width: '100', styleName: 'text-center' },
+    { fieldName: 'bldNm', header: t('MSG_TXT_BLD_NM'), width: '120', styleName: 'text-center' },
     { fieldName: 'sapMatCd', header: t('MSG_TXT_SAP_CD'), width: '100', styleName: 'text-center' },
     { fieldName: 'csmbPdCd', header: t('TXT_MSG_AS_ITM_CD'), width: '120', styleName: 'text-center' },
     { fieldName: 'pdNm', header: t('MSG_TXT_ITM_NM'), width: '200', styleName: 'text-left' },
