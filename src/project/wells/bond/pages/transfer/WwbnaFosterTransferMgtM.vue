@@ -244,7 +244,6 @@ const { getConfig } = useMeta();
 
 const grdResultRef = ref(getComponentType('kw-grid'));
 const grdDetailRef = ref(getComponentType('kw-grid'));
-const isNotActivated = ref(false);
 const pageDetailInfo = ref({
   totalCount: 0,
   pageIndex: 1,
@@ -454,14 +453,6 @@ const onClickExcelUpload = async () => {
   }
 };
 
-// 현재년월 제외 수정 불가
-watch(() => cachedParams?.baseYm, async (baseYm) => {
-  if (baseYm !== now.format('YYYYMM')) {
-    isNotActivated.value = true;
-  } else {
-    isNotActivated.value = false;
-  }
-});
 // -------------------------------------------------------------------------------------------------
 // Initialize Grid
 // -------------------------------------------------------------------------------------------------
