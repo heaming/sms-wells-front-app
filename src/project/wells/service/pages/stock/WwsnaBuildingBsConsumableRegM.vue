@@ -609,7 +609,7 @@ async function onClickOstrAk() {
   });
 
   if (!errorYn) {
-    const res = await dataService.post('/sms/wells/service/building-bsconsumables/request', requestData);
+    const res = await dataService.post('/sms/wells/service/building-bsconsumables/request', requestData, { timeout: 300000 });
     const { processCount } = res.data;
     if (processCount > 0) {
       notify(t('MSG_ALT_AK_FSH'));
