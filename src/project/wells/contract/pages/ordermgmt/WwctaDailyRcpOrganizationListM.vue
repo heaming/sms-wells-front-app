@@ -500,9 +500,10 @@ const initGrdTotal = defineGrid((data, view) => {
 // 10.전체
 const initGrdMain = defineGrid((data, view) => {
   console.log('111111= ');
-
+  console.log('111111= ');
+  //
   // const fields = [
-  //   { fieldName: 'bzopNo' }, // 파트너 사번
+  //   { fieldName: 'bzopNo' }, //  파트너 사번
   //   { fieldName: 'bzopNm' }, // 파트너명
   //   { fieldName: 'orgzCd' }, // 소속코드
   //   { fieldName: 'brncCnt' }, // 지점수
@@ -528,7 +529,7 @@ const initGrdMain = defineGrid((data, view) => {
     { fieldName: 'brncCnt', header: t('MSG_TXT_BRCH_N'), width: '120', styleName: 'text-right', dataType: 'number', headerSummary: { expression: 'sum', numberFormat: '#,##0' } }, // 지점수
     { fieldName: 'envrDayCnt', header: t('MSG_TXT_SUM_DAY'), width: '100', styleName: 'text-right', dataType: 'number', headerSummary: { expression: 'sum', numberFormat: '#,##0' } }, //  일계
 
-    //  일계평균
+    //   일계평균
     { fieldName: 'envrDayAvgCnt',
       header: t('MSG_TXT_D_AV'),
       width: '90',
