@@ -444,7 +444,7 @@ async function fetchData() {
   // 신청제한 수량 조회
   await getApplicationLimitQty();
 
-  const res = await dataService.get('/sms/wells/service/manager-bsconsumables', { params: { ...cachedParams, timeout: 300000 } });
+  const res = await dataService.get('/sms/wells/service/manager-bsconsumables', { params: { ...cachedParams }, timeout: 300000 });
 
   pageInfo.value.totalCount = res.data.length;
   const view = grdMainRef.value.getView();
@@ -629,7 +629,7 @@ async function onClickOstrAk() {
   });
 
   if (!errorYn) {
-    const res = await dataService.post('/sms/wells/service/manager-bsconsumables/request', requestData);
+    const res = await dataService.post('/sms/wells/service/manager-bsconsumables/request', requestData, { timeout: 300000 });
     const { processCount } = res.data;
     if (processCount > 0) {
       notify(t('MSG_ALT_AK_FSH'));
