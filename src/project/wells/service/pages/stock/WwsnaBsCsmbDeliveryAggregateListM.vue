@@ -161,7 +161,13 @@ let colItems = [];
 
 // 품목코드 조회
 async function getItemCode() {
-  const res = await dataService.get('/sms/wells/service/delivery-bases/item-information');
+  const { mngtYmFrom, mngtYmTo } = searchParams.value;
+  if (isEmpty(mngtYmFrom) || isEmpty(mngtYmTo)) {
+    itmCodes.value = [];
+    return;
+  }
+
+  const res = await dataService.get('/sms/wells/service/delivery-aggregates/item-information', { params: { ...searchParams.value } });
   itmCodes.value = res.data;
 }
 
@@ -353,6 +359,7 @@ async function onChangeMngtYm() {
   ]);
 
   await getBldCode();
+  await getItemCode();
 }
 
 onMounted(async () => {
