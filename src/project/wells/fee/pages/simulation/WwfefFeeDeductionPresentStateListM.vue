@@ -110,7 +110,7 @@
       </kw-action-top>
       <kw-grid
         ref="grdMainRef"
-        :page-size="20"
+        :page-size="10"
         :total-count="pageInfo.totalCount"
         @init="initGrid"
       />
@@ -135,8 +135,6 @@ const { getUserInfo } = useMeta();
 
 // eslint-disable-next-line no-unused-vars
 const userInfo = getUserInfo();
-// eslint-disable-next-line no-unused-vars
-const store = useStore();
 
 // -------------------------------------------------------------------------------------------------
 // Function & Event
@@ -252,13 +250,15 @@ function initGrid(data, view) {
     { fieldName: 'rdsTax', dataType: 'number' },
 
     { fieldName: 'einsr', dataType: 'number' },
+    { fieldName: 'buDdtn', dataType: 'number' },
+    { fieldName: 'inddInsr', dataType: 'number' },
     { fieldName: 'telPc', dataType: 'number' },
     { fieldName: 'redf', dataType: 'number' },
     { fieldName: 'dlqRedf', dataType: 'number' },
-    { fieldName: 'pnpyam', dataType: 'number' },
-    { fieldName: 'buDdtn', dataType: 'number' },
+    { fieldName: 'etcRedf', dataType: 'number' },
     { fieldName: 'mutuRedf', dataType: 'number' },
-    { fieldName: 'inddInsr', dataType: 'number' },
+    { fieldName: 'hdqFrnhExcp', dataType: 'number' },
+    { fieldName: 'ucInddInsr', dataType: 'number' },
     { fieldName: 'rdsBlam', dataType: 'number' },
     { fieldName: 'pnpyamBlam', dataType: 'number' },
   ];
@@ -270,21 +270,23 @@ function initGrid(data, view) {
     { fieldName: 'prtnrNm', header: t('MSG_TXT_EMPL_NM'), width: '120', styleName: 'text-center' },
     { fieldName: 'prtnrNo', header: t('MSG_TXT_PRTNR_NO'), width: '100', styleName: 'text-center' },
     { fieldName: 'rsbDvNm', header: t('MSG_TXT_RSB'), width: '100', styleName: 'text-center' },
-    { fieldName: 'intbsAmt', header: t('MSG_TXT_DDTN_BF'), width: '120', styleName: 'text-right' },
-    { fieldName: 'dsbOjAmt', header: t('MSG_TXT_DDTN_AFT'), width: '120', styleName: 'text-right' },
-    { fieldName: 'ddctam', header: t('MSG_TXT_DDTN_SUM2'), width: '120', styleName: 'text-right' },
-    { fieldName: 'rdsTax', header: t('MSG_TXT_RDS_TAX'), width: '120', styleName: 'text-right' },
+    { fieldName: 'intbsAmt', header: t('MSG_TXT_DDTN_BF'), width: '120', styleName: 'text-right' }, // 공제전
+    { fieldName: 'dsbOjAmt', header: t('MSG_TXT_DDTN_AFT'), width: '120', styleName: 'text-right' }, // 공제후
+    { fieldName: 'ddctam', header: t('MSG_TXT_DDTN_SUM2'), width: '120', styleName: 'text-right' }, // 공제합계
+    { fieldName: 'rdsTax', header: t('MSG_TXT_RDS_TAX'), width: '120', styleName: 'text-right' }, // RDS/TAX
 
-    { fieldName: 'einsr', header: t('MSG_TXT_HIR_INSR'), width: '120', styleName: 'text-right' },
-    { fieldName: 'telPc', header: t('MSG_TXT_TEL_PC'), width: '120', styleName: 'text-right' },
-    { fieldName: 'redf', header: t('MSG_TXT_REDF'), width: '120', styleName: 'text-right' },
-    { fieldName: 'dlqRedf', header: t('MSG_TXT_DLQ_REDF'), width: '120', styleName: 'text-right' },
-    { fieldName: 'pnpyam', header: t('MSG_TXT_ETC_PNPYAM'), width: '120', styleName: 'text-right' },
-    { fieldName: 'buDdtn', header: t('MSG_TXT_BU_DDTN'), width: '120', styleName: 'text-right' },
-    { fieldName: 'mutuRedf', header: t('MSG_TXT_COEXT'), width: '120', styleName: 'text-right' },
-    { fieldName: 'inddInsr', header: t('MSG_TXT_INDD_INSR'), width: '120', styleName: 'text-right' },
-    { fieldName: 'rdsBlam', header: t('MSG_TXT_RDS_BLAM_THM'), width: '120', styleName: 'text-right' },
-    { fieldName: 'pnpyamBlam', header: t('MSG_TXT_PNPYAM_BLAM_LSTMM'), width: '120', styleName: 'text-right' },
+    { fieldName: 'einsr', header: t('MSG_TXT_HIR_INSR'), width: '120', styleName: 'text-right' }, // 고용보험
+    { fieldName: 'buDdtn', header: t('MSG_TXT_BU_DDTN'), width: '120', styleName: 'text-right' }, // 부담공제
+    { fieldName: 'inddInsr', header: t('MSG_TXT_INDD_INSR'), width: '120', styleName: 'text-right' }, // 산재보험
+    { fieldName: 'telPc', header: t('MSG_TXT_TEL_PC'), width: '120', styleName: 'text-right' }, // 전화료/PC
+    { fieldName: 'redf', header: t('MSG_TXT_REDF'), width: '120', styleName: 'text-right' }, // 되물림
+    { fieldName: 'dlqRedf', header: t('MSG_TXT_DLQ_REDF'), width: '120', styleName: 'text-right' }, // 연체 되물림
+    { fieldName: 'etcRedf', header: t('MSG_TXT_ETC_PNPYAM'), width: '120', styleName: 'text-right' }, // 기타가지급금
+    { fieldName: 'mutuRedf', header: t('MSG_TXT_COEXT'), width: '120', styleName: 'text-right' }, // 상조되물림
+    { fieldName: 'hdqFrnhExcp', header: t('MSG_TXT_HDQ_FRNH_EXCP'), width: '120', styleName: 'text-right' }, // 본부비치외
+    { fieldName: 'ucInddInsr', header: t('MSG_TXT_UC_INDD_INSR'), width: '120', styleName: 'text-right' }, // 미수산재보험
+    { fieldName: 'rdsBlam', header: t('MSG_TXT_RDS_BLAM_THM'), width: '120', styleName: 'text-right' }, // RDS잔액
+    { fieldName: 'pnpyamBlam', header: t('MSG_TXT_PNPYAM_BLAM_LSTMM'), width: '120', styleName: 'text-right' }, // 가지급금 잔액
   ];
   data.setFields(fields);
   view.setColumns(columns);
@@ -307,7 +309,7 @@ function initGrid(data, view) {
     {
       header: t('MSG_TXT_DDTN_DTLP_IZ'),
       direction: 'horizontal',
-      items: ['rdsTax', 'einsr', 'telPc', 'redf', 'dlqRedf', 'pnpyam', 'buDdtn', 'mutuRedf', 'inddInsr'],
+      items: ['rdsTax', 'einsr', 'buDdtn', 'inddInsr', 'telPc', 'redf', 'dlqRedf', 'etcRedf', 'mutuRedf', 'hdqFrnhExcp', 'ucInddInsr'],
     },
     'rdsBlam',
     'pnpyamBlam',

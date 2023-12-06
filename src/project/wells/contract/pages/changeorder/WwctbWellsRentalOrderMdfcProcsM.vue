@@ -224,6 +224,11 @@
               v-show="false"
               v-model="orderProduct"
             />
+            <!-- productExtra가 바뀐걸 옵저버가 인지하지 못해서 컴포넌트 추가함. -->
+            <kw-field
+              v-show="false"
+              v-model="productExtra"
+            />
 
             <template #header>
               <kw-item-section>
@@ -1111,6 +1116,8 @@ const isCnfmPd = ref(false); // 상품확정 유무
 
 // 프로모션정보 조회
 async function fetchPromotionData(cntrNo, pdPrcFnlDtlId, sellEvCd, mchnCh) {
+  if (isEmpty(pdPrcFnlDtlId)) return;
+
   // 적용가능한 프로모션 정보 조회
   const res = await dataService.post(
     '/sms/wells/contract/contracts/promotions',
@@ -1144,6 +1151,10 @@ async function fetchData() {
   );
   Object.assign(fieldData.value, res.data);
 
+  if (isEmpty(fieldData.value.pdPrcFnlDtlId)) {
+    alert('가격이 설정되지 않아, 가격을 조회하는데 실패했습니다.');
+  }
+
   // 선납 정보 조회
   await fetchPrepayments();
 
@@ -1170,6 +1181,7 @@ async function fetchData() {
   // console.log('orderProduct 세팅');
   const product = {
     pdPrcFnlDtlId: fieldData.value.pdPrcFnlDtlId,
+    verSn: fieldData.value.verSn,
     pdQty: fieldData.value.pdQty,
     promotions: promotions.value,
     appliedPromotions: fieldData.value.promts,
@@ -1180,10 +1192,6 @@ async function fetchData() {
     sellDscCtrAmt: fieldData.value.sellDscCtrAmt,
     wellsDtl: {
       sellEvCd: isEmpty(fieldData.value.sellEvCd) ? '' : fieldData.value.sellEvCd,
-    },
-    priceOptionFilter: {
-      rentalDscDvCd: fieldData.value.sellDscDvCd || '',
-      rentalDscTpCd: fieldData.value.sellDscTpCd || '',
     },
   };
 
@@ -1261,7 +1269,7 @@ function onPriceChanged(item, price) {
     isCnfmPd.value = true;
     obsRef.value.init();
   } else {
-    promotions.value = [];
+    promotions.value = isEmpty(fieldData.value.promts) ? [] : fieldData.value.promts;
     isCnfmPd.value = false;
   }
 }
@@ -1481,6 +1489,11 @@ async function onClickProductChangeSave() {
 
   if (!isCnfmPd.value) {
     await alert('먼저 상품확정을 해주세요.');
+    return;
+  }
+
+  if (isEmpty(productExtra.value.cntrChAkCn)) {
+    await alert('변경사유는 필수입니다.');
     return;
   }
 

@@ -384,7 +384,7 @@ async function onClickDpDtlInf() {
     component: 'WwctaTradeSpecificationSheetListP', // 거래명세서 목록 조회
     componentProps: searchPopupParams,
     window: true,
-    windowFeatures: { width: 1300, height: 700 },
+    windowFeatures: { width: 1320, height: 700 },
   });
 }
 

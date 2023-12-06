@@ -27,7 +27,7 @@
           v-model:to="searchParams.baseDtmnTo"
           type="date"
           :label="$t('MSG_TXT_SL_DT')"
-          rules="date_range_required"
+          rules="date_range_required|date_range_months:1"
         />
       </kw-search-item>
       <kw-search-item
@@ -83,13 +83,16 @@
       >
         <kw-select
           v-model="searchParams.sellChnlDtl"
-          :options="codes.SELL_CHNL_DV_CD"
+          :options="codes.SELL_CHNL_DTL_CD"
           first-option="all"
           first-option-value="ALL"
           :label="$t('MSG_TXT_SEL_CHNL')"
         />
       </kw-search-item><!-- 판매 채널 -->
-      <kw-search-item :label="$t('MSG_TXT_CNTR_DTL_NO')">
+      <kw-search-item
+        :label="$t('MSG_TXT_CNTR_DTL_NO')"
+        :required="searchParams.sellTpCd === '2'"
+      >
         <zctz-contract-detail-number
           v-model:cntr-no="searchParams.cntrNo"
           v-model:cntr-sn="searchParams.cntrSn"
@@ -137,6 +140,15 @@
         :label="$t('MSG_BTN_EXCEL_DOWN')"
         @click="onClickExportView"
       />
+      <kw-btn
+        v-permission:download
+        icon="download_on"
+        :disable="searchParams.sellTpCd !== '2'"
+        dense
+        secondary
+        :label="$t('MSG_BTN_WO_DLD')"
+        @click="onClickBulkExcelDownload"
+      />
     </kw-action-top>
     <kw-grid
       v-if="isShow1"
@@ -173,7 +185,8 @@ import { getSellTpCd, getSellTpDtlCd } from '~/modules/sms-common/closing/utils/
 
 const now = dayjs();
 const { t } = useI18n();
-const { modal } = useGlobal();
+const { modal, notify } = useGlobal();
+const { currentRoute } = useRouter();
 const dataService = useDataService();
 
 // -------------------------------------------------------------------------------------------------
@@ -196,10 +209,126 @@ const selectSellTpDtlCd = await getSellTpDtlCd();
 const codes = await codeUtil.getMultiCodes(
   'SELL_TP_CD',
   'SELL_TP_DTL_CD',
-  'SELL_CHNL_DV_CD', // 판매채널
+  'SELL_CHNL_DTL_CD', // 판매채널
 );
+
+const rentalColumns = [
+  { fieldName: 'sellTpCd',
+    header: t('MSG_TXT_SEL_TYPE'),
+    width: '100',
+    styleName: 'text-center',
+    headerSummary: {
+      text: t('MSG_TXT_SUM'),
+      styleName: 'text-center',
+    } }, // 판매유형
+  { fieldName: 'sellTpDtlCd', header: t('MSG_TXT_SEL_TYPE'), width: '100', styleName: 'text-center' }, // 판매유형상세코드
+  { fieldName: 'pdCd', header: t('MSG_TXT_PRDT_CODE'), width: '130', styleName: 'text-center' }, // 상품코드
+  { fieldName: 'pdNm', header: t('MSG_TXT_PRDT'), width: '200', styleName: 'text-left' }, // 상품명
+  { fieldName: 'sellInflwChnlDtlCd', header: t('MSG_TXT_SEL_CHNL'), width: '100', styleName: 'text-center' }, // 판매유입채널상세
+  { fieldName: 'slRcogDt', header: t('MSG_TXT_SL_DT'), width: '100', styleName: 'text-center', datetimeFormat: 'date' }, // 매출인식일자
+  { fieldName: 'cntrDtlNo',
+    header: t('MSG_TXT_CNTR_DTL_NO'),
+    width: '150',
+    styleName: 'text-center rg-button-link',
+    renderer: { type: 'button' } }, // 계약번호
+  { fieldName: 'cstKnm', header: t('MSG_TXT_CST_NM'), width: '100', styleName: 'text-center' }, // 고객명
+  { fieldName: 'sapPdDvCd', header: t('MSG_TXT_SAP_PD_DV_CD_NM'), width: '180', styleName: 'text-center' }, // SAP상품구분코드명
+  { fieldName: 'rentalRgstCost',
+    header: t('MSG_TXT_SL_AMT'),
+    width: '100',
+    styleName: 'text-right',
+    dataType: 'number',
+    headerSummary: {
+      numberFormat: '#,##0',
+      expression: 'sum',
+      styleName: 'text-right',
+    } }, // 매출금액-등록비
+  { fieldName: 'rentalRgstCostSpl',
+    header: t('MSG_TXT_SUPPLY_AMOUNT'),
+    width: '100',
+    styleName: 'text-right',
+    dataType: 'number',
+    headerSummary: {
+      numberFormat: '#,##0',
+      expression: 'sum',
+      styleName: 'text-right',
+    } }, // 공급가액-등록비
+  { fieldName: 'rentalRgstCostVat',
+    header: t('MSG_TXT_VAT'),
+    width: '100',
+    styleName: 'text-right',
+    dataType: 'number',
+    headerSummary: {
+      numberFormat: '#,##0',
+      expression: 'sum',
+      styleName: 'text-right',
+    } }, // 부가세-등록비
+  { fieldName: 'nomSlAmt',
+    header: t('MSG_TXT_SL_AMT'),
+    width: '100',
+    styleName: 'text-right',
+    dataType: 'number',
+    headerSummary: {
+      numberFormat: '#,##0',
+      expression: 'sum',
+      styleName: 'text-right',
+    } }, // 매출금액-렌탈료
+  { fieldName: 'splAmt',
+    header: t('MSG_TXT_SUPPLY_AMOUNT'),
+    width: '100',
+    styleName: 'text-right',
+    dataType: 'number',
+    headerSummary: {
+      numberFormat: '#,##0',
+      expression: 'sum',
+      styleName: 'text-right',
+    } }, // 공급가액-렌탈료
+  { fieldName: 'vat',
+    header: t('MSG_TXT_VAT'),
+    width: '100',
+    styleName: 'text-right',
+    dataType: 'number',
+    headerSummary: {
+      numberFormat: '#,##0',
+      expression: 'sum',
+      styleName: 'text-right',
+    } }, // 부가세-렌탈료
+  { fieldName: 'totSlAmt',
+    header: t('MSG_TXT_SL_AMT'),
+    width: '100',
+    styleName: 'text-right',
+    dataType: 'number',
+    headerSummary: {
+      numberFormat: '#,##0',
+      expression: 'sum',
+      styleName: 'text-right',
+    } }, // 매출금액-매출합계
+  { fieldName: 'totSplAmt',
+    header: t('MSG_TXT_SUPPLY_AMOUNT'),
+    width: '100',
+    styleName: 'text-right',
+    dataType: 'number',
+    headerSummary: {
+      numberFormat: '#,##0',
+      expression: 'sum',
+      styleName: 'text-right',
+    } }, // 공급가액-매출합계
+  { fieldName: 'totVat',
+    header: t('MSG_TXT_VAT'),
+    width: '100',
+    styleName: 'text-right',
+    dataType: 'number',
+    headerSummary: {
+      numberFormat: '#,##0',
+      expression: 'sum',
+      styleName: 'text-right',
+    } }, // 부가세-매출합계
+  { fieldName: 'cntrNo', visible: false }, // 계약번호
+  { fieldName: 'cntrSn', visible: false }, // 계약일련번호
+];
+
 const searchParams = ref({
-  baseDtmnFrom: now.subtract(30, 'day').format('YYYYMMDD'),
+  baseDtmnFrom: now.subtract(1, 'month').add(1, 'day').format('YYYYMMDD'),
   baseDtmnTo: now.format('YYYYMMDD'),
   sellTpCd: '1', // 판매유형
   sellTpDtlCd: 'ALL', // 판매유형상세
@@ -250,6 +379,11 @@ async function fetchData() {
 
 // 조회 버튼 클릭
 async function onClickSearch() {
+  if (searchParams.value.sellTpCd === '2' && !searchParams.value.cntrNo) {
+    notify(t('MSG_ALT_NCSR_CD', [t('MSG_TXT_CNTR_DTL_NO')]));
+    return;
+  }
+
   await fetchData();
 }
 
@@ -283,6 +417,56 @@ async function onClickExportView() {
   }
 }
 
+async function onClickBulkExcelDownload() {
+  const bulkExcelCachedParams = cloneDeep(searchParams.value);
+  bulkExcelCachedParams.sellTpDtlCd = 'ALL';
+  bulkExcelCachedParams.sellChnlDtl = 'ALL';
+  bulkExcelCachedParams.cntrNo = '';
+  bulkExcelCachedParams.cntrSn = '';
+  bulkExcelCachedParams.cstNo = '';
+  bulkExcelCachedParams.sapPdDvCd = '';
+
+  const view = {
+    getColumns() {
+      const excelColumns = cloneDeep(rentalColumns);
+      excelColumns.splice(excelColumns.length - 2); // invisible 필드 삭제
+
+      const prefixRgstItems = ['rentalRgstCost', 'rentalRgstCostSpl', 'rentalRgstCostVat'];
+      const prefixRtlItems = ['nomSlAmt', 'splAmt', 'vat'];
+      const prefixTotItems = ['totSlAmt', 'totSplAmt', 'totVat'];
+
+      return excelColumns.map((x) => {
+        let prefix = '';
+
+        if (prefixRgstItems.includes(x.fieldName)) {
+          prefix = t('MSG_TXT_RGST_FEE').concat('-');
+        } else if (prefixRtlItems.includes(x.fieldName)) {
+          prefix = t('MSG_TXT_RTLFE').concat('-');
+        } else if (prefixTotItems.includes(x.fieldName)) {
+          prefix = t('MSG_TXT_SL_SUM').concat('-');
+        }
+
+        return {
+          name: x.fieldName,
+          displayText: prefix.concat(x.header),
+          displayWidth: Number(x.width ? x.width : '100'),
+          styleName: x.styleName,
+          valueType: x.valueType ?? 'text', // number 인 경우만 따로 처리됨.
+        };
+      });
+    },
+    __searchConditionText__: `[검색조건]\n${t('MSG_TXT_SL_DT')} : ${searchParams.value.baseDtmnFrom} | ${searchParams.value.baseDtmnTo}\n${t('MSG_TXT_SEL_TYPE')} : ${t('MSG_TXT_RENTAL')}`,
+  };
+
+  gridUtil.exportBulkView(view, {
+    url: '/sms/wells/closing/product-sales-detail/rental/bulk-excel-download',
+    parameter: {
+      ...bulkExcelCachedParams,
+    },
+    fileName: `${currentRoute.value.meta.menuName}_${dayjs().format('YYYYMMDDHHmmss')}_Bulk`,
+  });
+}
+
 // 고객 조회
 const onClickCustomer = async () => {
   const { result, payload } = await modal({
@@ -300,6 +484,7 @@ const onClickCustomer = async () => {
 async function onChangeSellTpCd() {
   searchParams.value.sellTpDtlCd = 'ALL';
 }
+
 // -------------------------------------------------------------------------------------------------
 // Initialize Grid
 // -------------------------------------------------------------------------------------------------
@@ -625,120 +810,7 @@ const initGrdSinglePayment = defineGrid((data, view) => {
 });
 
 const initGrdRental = defineGrid((data, view) => {
-  const columns = [
-    { fieldName: 'sellTpCd',
-      header: t('MSG_TXT_SEL_TYPE'),
-      width: '100',
-      styleName: 'text-center',
-      headerSummary: {
-        text: t('MSG_TXT_SUM'),
-        styleName: 'text-center',
-      } }, // 판매유형
-    { fieldName: 'sellTpDtlCd', header: t('MSG_TXT_SEL_TYPE'), width: '100', styleName: 'text-center' }, // 판매유형상세코드
-    { fieldName: 'pdCd', header: t('MSG_TXT_PRDT_CODE'), width: '130', styleName: 'text-center' }, // 상품코드
-    { fieldName: 'pdNm', header: t('MSG_TXT_PRDT'), width: '200', styleName: 'text-left' }, // 상품명
-    { fieldName: 'sellInflwChnlDtlCd', header: t('MSG_TXT_SEL_CHNL'), width: '100', styleName: 'text-center' }, // 판매유입채널상세
-    { fieldName: 'slRcogDt', header: t('MSG_TXT_SL_DT'), width: '100', styleName: 'text-center', datetimeFormat: 'date' }, // 매출인식일자
-    { fieldName: 'cntrDtlNo',
-      header: t('MSG_TXT_CNTR_DTL_NO'),
-      width: '150',
-      styleName: 'text-center rg-button-link',
-      renderer: { type: 'button' } }, // 계약번호
-    { fieldName: 'cstKnm', header: t('MSG_TXT_CST_NM'), width: '100', styleName: 'text-center' }, // 고객명
-    { fieldName: 'sapPdDvCd', header: t('MSG_TXT_SAP_PD_DV_CD_NM'), width: '180', styleName: 'text-center' }, // SAP상품구분코드명
-    { fieldName: 'rentalRgstCost',
-      header: t('MSG_TXT_SL_AMT'),
-      width: '100',
-      styleName: 'text-right',
-      dataType: 'number',
-      headerSummary: {
-        numberFormat: '#,##0',
-        expression: 'sum',
-        styleName: 'text-right',
-      } }, // 매출금액-등록비
-    { fieldName: 'rentalRgstCostSpl',
-      header: t('MSG_TXT_SUPPLY_AMOUNT'),
-      width: '100',
-      styleName: 'text-right',
-      dataType: 'number',
-      headerSummary: {
-        numberFormat: '#,##0',
-        expression: 'sum',
-        styleName: 'text-right',
-      } }, // 공급가액-등록비
-    { fieldName: 'rentalRgstCostVat',
-      header: t('MSG_TXT_VAT'),
-      width: '100',
-      styleName: 'text-right',
-      dataType: 'number',
-      headerSummary: {
-        numberFormat: '#,##0',
-        expression: 'sum',
-        styleName: 'text-right',
-      } }, // 부가세-등록비
-    { fieldName: 'nomSlAmt',
-      header: t('MSG_TXT_SL_AMT'),
-      width: '100',
-      styleName: 'text-right',
-      dataType: 'number',
-      headerSummary: {
-        numberFormat: '#,##0',
-        expression: 'sum',
-        styleName: 'text-right',
-      } }, // 매출금액-렌탈료
-    { fieldName: 'splAmt',
-      header: t('MSG_TXT_SUPPLY_AMOUNT'),
-      width: '100',
-      styleName: 'text-right',
-      dataType: 'number',
-      headerSummary: {
-        numberFormat: '#,##0',
-        expression: 'sum',
-        styleName: 'text-right',
-      } }, // 공급가액-렌탈료
-    { fieldName: 'vat',
-      header: t('MSG_TXT_VAT'),
-      width: '100',
-      styleName: 'text-right',
-      dataType: 'number',
-      headerSummary: {
-        numberFormat: '#,##0',
-        expression: 'sum',
-        styleName: 'text-right',
-      } }, // 부가세-렌탈료
-    { fieldName: 'totSlAmt',
-      header: t('MSG_TXT_SL_AMT'),
-      width: '100',
-      styleName: 'text-right',
-      dataType: 'number',
-      headerSummary: {
-        numberFormat: '#,##0',
-        expression: 'sum',
-        styleName: 'text-right',
-      } }, // 매출금액-매출합계
-    { fieldName: 'totSplAmt',
-      header: t('MSG_TXT_SUPPLY_AMOUNT'),
-      width: '100',
-      styleName: 'text-right',
-      dataType: 'number',
-      headerSummary: {
-        numberFormat: '#,##0',
-        expression: 'sum',
-        styleName: 'text-right',
-      } }, // 공급가액-매출합계
-    { fieldName: 'totVat',
-      header: t('MSG_TXT_VAT'),
-      width: '100',
-      styleName: 'text-right',
-      dataType: 'number',
-      headerSummary: {
-        numberFormat: '#,##0',
-        expression: 'sum',
-        styleName: 'text-right',
-      } }, // 부가세-매출합계
-    { fieldName: 'cntrNo', visible: false }, // 계약번호
-    { fieldName: 'cntrSn', visible: false }, // 계약일련번호
-  ];
+  const columns = rentalColumns;
   const fields = columns.map(({ fieldName, dataType }) => (dataType ? { fieldName, dataType } : { fieldName }));
   data.setFields(fields);
   view.setColumns(columns);

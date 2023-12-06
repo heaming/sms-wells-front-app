@@ -669,7 +669,6 @@ step4.value = {
   bas: {},
   cntrt: {},
   prtnr: {},
-  prtnr7: {},
   cntrDtls: [{}],
   stlmDtls: [{}],
 };

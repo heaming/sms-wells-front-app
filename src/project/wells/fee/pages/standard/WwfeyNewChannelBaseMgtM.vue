@@ -300,6 +300,8 @@ async function onClickRowCopy() {
     return;
   }
   checkedRows.forEach((rowItem) => {
+    rowItem.apyStrtdt = searchParams.value.apyStrtdt;
+    rowItem.apyEnddt = '99991231';
     rowItem.fstRgstDtm = '';
     rowItem.fstRgstUsrId = '';
     rowItem.fnlMdfcDtm = '';

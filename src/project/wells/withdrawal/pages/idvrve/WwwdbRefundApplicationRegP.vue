@@ -824,7 +824,7 @@ async function onClickRefundAsk(stateCode) {
 
   if (!await cntrValidateView3()) {
     // 계약번호 - 전금계약번호가 동일하거나 , 전금계약상 데이터에 전금계약번호가 동일한경우.
-    notify(t('MSG_ALT_DUPLICATE_VALUE_EXISTS', [t('MSG_TXT_BLTF') + t('MSG_TXT_CNTR_NO')])); // 동일한 전금계약번호가 존재합니다.
+    alert(t('MSG_ALT_DUPLICATE_VALUE_EXISTS', [t('MSG_TXT_BLTF') + t('MSG_TXT_CNTR_NO')])); // 동일한 전금계약번호가 존재합니다.
     return false;
   }
   if (pageInfo1.value.totalCount < 1) {
@@ -1459,6 +1459,9 @@ const initGrid2 = defineGrid((data, view) => {
         // 입금유형코드가 청구이체의 카드자동이체인 경우 카드환불 불가
         // (오직 현금으로만 환불-why->청구이체의 경우 EDI를 통하지 않음. 카드취소만 해야함.)
         if (rowValue.dpMesCd === '01' || rowValue.dpTpCd === '0203') {
+          editable = false;
+        }
+        if (rowValue.dpDvCd === '2' || rowValue.dpDvCd === '4' || rowValue.dpDvCd === '3') {
           editable = false;
         }
         return { editable };

@@ -642,6 +642,8 @@ async function initIstEnvRequest() {
 
 // 프로모션정보 조회
 async function fetchPromotionData(cntrNo, pdPrcFnlDtlId, sellEvCd, mchnCh) {
+  if (isEmpty(pdPrcFnlDtlId)) return;
+
   // 적용가능한 프로모션 정보 조회
   const res = await dataService.post(
     '/sms/wells/contract/contracts/promotions',
@@ -688,6 +690,10 @@ async function fetchData() {
   );
   Object.assign(fieldData.value, res.data);
 
+  if (isEmpty(fieldData.value.pdPrcFnlDtlId)) {
+    alert('가격이 설정되지 않아, 가격을 조회하는데 실패했습니다.');
+  }
+
   // 주문상품 검색창에 상품명 세팅
   searchParams.value.pdNm = fieldData.value.pdNm;
 
@@ -711,6 +717,7 @@ async function fetchData() {
   // console.log('orderProduct 세팅');
   const product = {
     pdPrcFnlDtlId: fieldData.value.pdPrcFnlDtlId,
+    verSn: fieldData.value.verSn,
     pdQty: fieldData.value.pdQty,
     promotions: promotions.value,
     appliedPromotions: fieldData.value.promts,
@@ -721,10 +728,6 @@ async function fetchData() {
     sellDscCtrAmt: fieldData.value.sellDscCtrAmt,
     wellsDtl: {
       sellEvCd: isEmpty(fieldData.value.sellEvCd) ? '' : fieldData.value.sellEvCd,
-    },
-    priceOptionFilter: {
-      rentalDscDvCd: fieldData.value.sellDscDvCd || '',
-      rentalDscTpCd: fieldData.value.sellDscTpCd || '',
     },
   };
 
@@ -815,7 +818,7 @@ function onPriceChanged(item, price) {
     isCnfmPd.value = true;
     obsRef.value.init();
   } else {
-    promotions.value = [];
+    promotions.value = isEmpty(fieldData.value.promts) ? [] : fieldData.value.promts;
     isCnfmPd.value = false;
   }
 }

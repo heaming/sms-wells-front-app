@@ -567,8 +567,12 @@ async function onClickPblPrnt() {
     return;
   }
 
+  // console.log(checkedItems.length);
   if (searchParams.value.cntrDvCd === '2' && checkedItems.length === 0) {
     notify(t('MSG_ALT_BEFORE_SELECT_IT', [t('MSG_TXT_ITEM')])); // 항목 (을)를 선택해주세요
+  } else if (searchParams.value.cntrDvCd === '2' && checkedItems.length >= 81) {
+    await alert(t('MSG_ALT_SEL_MORE_THAN_CNTRS', [80])); // 최대 {0}개까지 선택할 수 있습니다.
+    return;
   } else {
     const cntrs = gridUtil.getCheckedRowValues(view);
     cntrs.forEach((row) => {
@@ -890,7 +894,7 @@ const initGrdTradeSpecificationSheet = defineGrid((data, view) => {
 const initGrdCardSalesSlip = defineGrid((data, view) => {
   const fields = [
     { fieldName: 'cntrDtlNo' }, // 계약상세번호
-    { fieldName: 'istmMcn' }, // 할부개월
+    { fieldName: 'dpismn' }, // 할부개월
     { fieldName: 'pdNm' }, // 상품명
     { fieldName: 'dpstdt' }, // 거래일
     { fieldName: 'dpcndt' }, // 취소일
@@ -902,7 +906,7 @@ const initGrdCardSalesSlip = defineGrid((data, view) => {
 
   const columns = [
     { fieldName: 'cntrDtlNo', header: t('MSG_TXT_CNTR_DTL_NO'), width: '135', styleName: 'text-center' }, // 계약상세번호
-    { fieldName: 'istmMcn', header: t('MSG_TXT_ISTM_MCNT'), width: '110', styleName: 'text-right' }, // 할부개월
+    { fieldName: 'dpismn', header: t('MSG_TXT_ISTM_MCNT'), width: '110', styleName: 'text-right' }, // 할부개월
     { fieldName: 'pdNm', header: t('MSG_TXT_PRDT_NM'), width: '292', styleName: 'text-left' }, // 상품명
     { fieldName: 'dpstdt', header: t('MSG_TXT_TRD_DT'), width: '131', styleName: 'text-center', datetimeFormat: 'date' }, // 거래일
     { fieldName: 'dpcndt', header: t('MSG_TXT_CAN_D'), width: '131', styleName: 'text-center', datetimeFormat: 'date' }, // 취소일

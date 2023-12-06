@@ -85,6 +85,33 @@
       </kw-search-item>
       <!-- 조직코드 -->
       <kw-search-item
+        :label="$t('MSG_TXT_OG_CD')/* 조직코드 */"
+        :colspan="2"
+      >
+        <kw-input
+          v-model="searchParams.strtOgCd"
+          maxlength="10"
+          upper-case
+          regex="alpha_num"
+          rules="|max:10"
+          :custom-messages="{'required': $t('MSG_ALT_CHK_NCSR', [$t('MSG_TXT_OG_CD')])}"
+          :label="$t('MSG_TXT_OG_CD')/* 조직코드 */"
+        />
+        <span>~</span>
+        <kw-input
+          v-model="searchParams.endOgCd"
+          maxlength="10"
+          upper-case
+          regex="alpha_num"
+          rules="|max:10"
+          :custom-messages="{'required': $t('MSG_ALT_CHK_NCSR', [$t('MSG_TXT_OG_CD')])}"
+          :label="$t('MSG_TXT_OG_CD')/* 조직코드 */"
+        />
+      </kw-search-item>
+    </kw-search-row>
+    <kw-search-row>
+      <!-- 조직코드 -->
+      <kw-search-item
         :label="$t('MSG_TXT_OG_CD')"
         :colspan="2"
       >
@@ -121,9 +148,6 @@
           multiple
         />
       </kw-search-item>
-    </kw-search-row>
-
-    <kw-search-row>
       <!-- 기기종류 -->
       <kw-search-item
         :label="$t('MSG_TXT_MCHN_KND')"
@@ -223,6 +247,8 @@ const searchParams = ref({
   canYn: '', // 자료구분-취소제외
   slYn: '', // 자료구분-매출생성
   sellOgTpCd: [], // 조직구분
+  strtOgCd: '', // 시작조직코드
+  endOgCd: '', // 끝조직코드
   dgr1LevlOgId: [], // 조직코드-총괄단
   dgr2LevlOgId: [], // 조직코드-지역단
   dgr3LevlOgId: [], // 조직코드-지점
@@ -270,6 +296,7 @@ async function fetchData() {
   let res = '';
   cachedParams = cloneDeep(searchParams.value);
   console.log(cachedParams);
+
   res = await dataService.post('/sms/wells/contract/contracts/order-detail-mngt/regular-shippings/paging', { ...cachedParams, ...pageInfo.value });
 
   const { list: pages, pageInfo: pagingResult } = res.data;
@@ -545,7 +572,7 @@ const initGridRglrDlvrContractList = defineGrid((data, view) => {
       width: '138',
       styleName: 'text-center',
     }, // 파트너정보-휴대전화번호
-    { fieldName: 'cstKnmEncr', header: t('MSG_TXT_CNTOR_NM'), width: '138', styleName: 'text-center' }, // 계약자 정보-계약자명
+    { fieldName: 'cstKnm', header: t('MSG_TXT_CNTOR_NM'), width: '138', styleName: 'text-center' }, // 계약자 정보-계약자명
     { fieldName: 'cstNo',
       header: t('MSG_TXT_BZ_RRNO'),
       width: '160',
@@ -562,7 +589,7 @@ const initGridRglrDlvrContractList = defineGrid((data, view) => {
     }, // 계약자 정보-사업/주민번호
     { fieldName: 'adrZip', header: t('MSG_TXT_ZIP'), width: '138', styleName: 'text-center' }, // 계약자 정보-우편번호
     { fieldName: 'cntrCstRnadr', header: t('MSG_TXT_STD_ADDR'), width: '270', styleName: 'text-left' }, // 계약자 정보-기준주소
-    { fieldName: 'cntrCstRdadrEncr', header: t('MSG_TXT_DETAIL_ADDR'), width: '230', styleName: 'text-left' }, // 계약자 정보-상세주소
+    { fieldName: 'cntrCstRdadr', header: t('MSG_TXT_DETAIL_ADDR'), width: '230', styleName: 'text-left' }, // 계약자 정보-상세주소
     { fieldName: 'rcgvpKnmEncr', header: t('MSG_TXT_IST_NM'), width: '138', styleName: 'text-center' }, // 설치정보-설치자명
     {
       fieldName: 'shpadrCralTno',
@@ -667,7 +694,7 @@ const initGridRglrDlvrContractList = defineGrid((data, view) => {
     {
       header: `${t('MSG_TXT_CNTRT')} ${t('MSG_TXT_INF')}`, // 계약자 정보
       direction: 'horizontal', // merge type
-      items: ['cstKnmEncr', 'cstNo', 'adrZip', 'cntrCstRnadr', 'cntrCstRdadrEncr'],
+      items: ['cstKnm', 'cstNo', 'adrZip', 'cntrCstRnadr', 'cntrCstRdadr'],
     },
     {
       header: t('MSG_TXT_INSTR_INFO'), // 설치자 정보
@@ -739,7 +766,7 @@ const initGridRglrDlvrContractList = defineGrid((data, view) => {
         componentProps: { cntrNo: paramCntrNo, cntrSn: paramCntrSn, sellTpCd, cntrCstNo, copnDvCd },
         draggable: true,
         window: true,
-        windowFeatures: { width: 1300, height: 1080 },
+        windowFeatures: { width: 1320, height: 1080 },
       });
     } else if (['ordrInfoView'].includes(column)) { // 정기배송 주문정보 상세
       await modal({ component: 'WwctaOrderRegularShippingDtlP', componentProps: { cntrNo: paramCntrNo, cntrSn: paramCntrSn, sellTpCd } });

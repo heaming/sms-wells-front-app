@@ -309,7 +309,6 @@ async function fetchProducts() {
   const { data } = await dataService.get('sms/wells/contract/contracts/products', {
     params: {
       cntrNo: cntrNo.value,
-      rglrSppMchnTpCd: cachedParams.value.rglrSppMchnTpCd,
     },
   });
   products.value = data;
