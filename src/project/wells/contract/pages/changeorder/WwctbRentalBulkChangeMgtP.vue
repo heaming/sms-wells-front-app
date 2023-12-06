@@ -289,7 +289,7 @@ async function onClickSave() {
     alert(t('MSG_ALT_NCELL_REQUIRED_ITEM', [t('MSG_TXT_PROCS_DV')]));
     return;
   }
-  if (saveParams.value.procsDv === '612' || saveParams.value.procsDv === '620' || saveParams.value.procsDv === '623') {
+  if (saveParams.value.procsDv === '612' || saveParams.value.procsDv === '620' /* || saveParams.value.procsDv === '623' */) {
     alert(t('서비스 확인 중 입니다.'));
     return;
   }
@@ -427,7 +427,10 @@ async function onClickSave() {
         return;
       }
     } else if (saveParams.value.procsDv === '623') { // 매출(BS) 중지 해제
-      // 코드
+      if (isEmpty(changedRows[i].cntrDtlNo)) { // 수수료인정건수 필수체크
+        alert(t('MSG_ALT_CHK_CONFIRM', [t('MSG_TXT_CNTR_DTL_NO')])); // 수수료인정건수을(를) 확인하세요.
+        return;
+      }
     } else if (saveParams.value.procsDv === '624') { // 포인트플러스 강제 맵핑
       if (isEmpty(changedRows[i].lifeCstCd)) { // 라이프고객코드 필수체크
         alert(t('MSG_TXT_BEFORE_SELECT_IT', [`${t('MSG_TXT_DPIX01_CODE_14')}${t('MSG_TXT_CST_CD')}`])); // 라이프고객코드(을)를 선택해주세요.
@@ -494,7 +497,7 @@ async function onProcsDvChange() {
     view.columnsByTag('bs').forEach((col) => { col.visible = true; }); // 업체구분
   }
 
-  if (saveParams.value.procsDv === '612' || saveParams.value.procsDv === '620' || saveParams.value.procsDv === '623') {
+  if (saveParams.value.procsDv === '612' || saveParams.value.procsDv === '620' /* || saveParams.value.procsDv === '623' */) {
     alert(t('서비스 확인 중 입니다.'));
   }
 }
@@ -854,7 +857,7 @@ onMounted(async () => {
     view.columnsByTag('bs').forEach((col) => { col.visible = true; }); // 업체구분
   }
 
-  if (saveParams.value.procsDv === '612' || saveParams.value.procsDv === '620' || saveParams.value.procsDv === '623') {
+  if (saveParams.value.procsDv === '612' || saveParams.value.procsDv === '620' /* || saveParams.value.procsDv === '623' */) {
     alert(t('서비스 확인 중 입니다.'));
   }
 });
