@@ -111,7 +111,7 @@
             rules="required"
             :regex="/^[0-9]*$/i"
             :maxlength="7"
-            mask="#######"
+            type="password"
           />
         </kw-form-item>
       </kw-form-row>
@@ -378,7 +378,7 @@ const saveParams = ref({
   wrkStrtdt: dayjs().format('YYYYMMDD'), // 근무시작일자
   wrkEnddt: `${dayjs().format('YYYY')}1230`, // 근무종료일자
   bryyMmdd: '', // 생년월일
-  rrnoEncr: '', // 주민번호 전체
+  rrnoEncr: '', // 주민번호 뒷자리
   locaraTno: '', // 지역번호
   exnoEncr: '', // 전화국별
   idvTno: '', // 개별전화번호
