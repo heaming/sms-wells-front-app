@@ -423,7 +423,7 @@ async function fetchData() {
   // 신청제한 수량 조회
   await getApplicationLimitQty();
 
-  const res = await dataService.get('/sms/wells/service/building-bsconsumables', { params: { ...cachedParams, timeout: 300000 } });
+  const res = await dataService.get('/sms/wells/service/building-bsconsumables', { params: { ...cachedParams }, timeout: 300000 });
 
   pageInfo.value.totalCount = res.data.length;
   const view = grdMainRef.value.getView();
