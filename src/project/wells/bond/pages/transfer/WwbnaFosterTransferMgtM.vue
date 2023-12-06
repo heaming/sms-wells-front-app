@@ -147,7 +147,7 @@
           :label="$t('MSG_BTN_CONF')"
           primary
           dense
-          :disable="isNotActivated
+          :disable="(cachedParams?.baseYm !== now.format('YYYYMM'))
             || totalCount === 0"
           @click="onClickConfirm"
         />
@@ -261,8 +261,6 @@ const codes = await codeUtil.getMultiCodes(
   'CLCTAM_DV_CD', // 집금구분코드
   'BND_NW_DV_CD', // 채권신규구분코드
   'COD_PAGE_SIZE_OPTIONS',
-  'LWM_TP_CD', // 법조치유형코드
-  'LWM_DTL_TP_CD', // 법조치상세유형코드
   'BND_BIZ_DV_CD', // 채권업무구분코드
 );
 const filteredCodes = ref({ BND_NW_DV_CD: codes.BND_NW_DV_CD.filter((obj) => (obj.codeId !== '01')) });
