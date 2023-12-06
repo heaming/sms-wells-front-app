@@ -25,13 +25,17 @@
             type="month"
           />
         </kw-search-item>
+        <!-- 서비스센터 -->
         <wwsn-engineer-og-search-item-group
           v-model:dgr1-levl-og-id="searchParams.ogId"
+          v-model:prtnr-no="searchParams.egerPrtnrNo"
           dgr1-levl-og-first-option="all"
           partner-first-option="all"
           use-og-level="1"
-          :use-partner="false"
+          use-partner
+          partner-label="prtnrNoNm"
         />
+        <!----
         <kw-search-item :label="$t('MSG_TXT_EPNO')">
           <kw-input
             v-model="searchParams.egerPrtnrNo"
@@ -44,6 +48,7 @@
             v-model="searchParams.prtnrKnm"
           />
         </kw-search-item>
+      --->
       </kw-search-row>
       <kw-search-row>
         <kw-search-item
@@ -370,7 +375,7 @@ const initGrdMain = defineGrid((data, view) => {
     // { fieldName: 'ogNm', header: t('MSG_TXT_BRANCH'), width: '150', styleName: 'text-center' },
     { fieldName: 'egerPrtnrNo', header: t('MSG_TXT_EPNO'), width: '100', styleName: 'text-center' },
     { fieldName: 'prtnrKnm', header: t('MSG_TXT_EMPL_NM'), width: '100', styleName: 'text-center' },
-    { fieldName: 'svpdSapCd', header: t('MSG_TXT_SAP_CD'), width: '150', styleName: 'text-center' },
+    { fieldName: 'svpdSapCd', header: t('MSG_TXT_SAP_CD'), width: '200', styleName: 'text-center' },
     { fieldName: 'toolPdCd', header: t('MSG_TXT_ITM_CD'), width: '150', styleName: 'text-center' },
     { fieldName: 'svpdNmAbbr1', header: t('MSG_TXT_ITM_NM'), width: '350' },
     { fieldName: 'toolQty', header: t('MSG_TXT_DSB_QTY'), width: '100', styleName: 'text-center' },
@@ -380,7 +385,7 @@ const initGrdMain = defineGrid((data, view) => {
   data.setFields(fields);
   view.setColumns(columns);
 
-  view.checkBar.visible = true;
+  view.checkBar.visible = false;
   view.rowIndicator.visible = true;
 });
 
