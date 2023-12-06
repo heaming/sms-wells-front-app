@@ -507,9 +507,27 @@ async function onClickRgstPtrmSe() {
   }
 }
 
+// 신청기간 유효성 체크
+function isValidAplyPeriod() {
+  const nowDateTime = Number(dayjs().format('YYYYMMDDHHmm'));
+  const { bizStrtdt, bizStrtHh, bizEnddt, bizEndHh } = aplcCloseData.value;
+
+  const strtDtHh = `${bizStrtdt}${bizStrtHh ?? ''}`;
+  const endDtHh = `${bizEnddt}${bizEndHh ?? ''}`;
+
+  // 영업지원팀이거나 현재시각이 등록기간에 포함된 경우
+  return isBusinessSupportTeam.value || (nowDateTime >= Number(strtDtHh) && nowDateTime <= Number(endDtHh));
+}
+
 // 저장
 async function onClickSave() {
   saveData = [];
+
+  if (!isValidAplyPeriod()) {
+    // 신청 기간이 아닙니다.
+    await alert(t('MSG_ALT_NOT_APLC_PTRM'));
+    return;
+  }
 
   const view = grdMainRef.value.getView();
   const checkedRows = gridUtil.getCheckedRowValues(view);
@@ -799,16 +817,11 @@ const initGrdMain = defineGrid(async (data, view) => {
   view.setColumnLayout(columnLayout);
 
   view.onCellEditable = (grid, itemIndex) => {
-    const nowDateTime = Number(dayjs().format('YYYYMMDDHHmm'));
-    const { bizStrtdt, bizStrtHh, bizEnddt, bizEndHh } = aplcCloseData.value;
-
-    const strtDtHh = `${bizStrtdt}${bizStrtHh ?? ''}`;
-    const endDtHh = `${bizEnddt}${bizEndHh ?? ''}`;
     const { bfsvcCsmbDdlvStatCd } = grid.getValues(itemIndex.itemIndex);
+    const isValidPeriod = isValidAplyPeriod();
 
-    if ((!isBusinessSupportTeam.value && !(nowDateTime >= Number(strtDtHh) && nowDateTime <= Number(endDtHh)))
-    || (!isBusinessSupportTeam.value && bfsvcCsmbDdlvStatCd === '20')
-    || bfsvcCsmbDdlvStatCd === '30') {
+    if (!isValidPeriod || bfsvcCsmbDdlvStatCd === '30'
+      || (!isBusinessSupportTeam.value && bfsvcCsmbDdlvStatCd === '20')) {
       return false;
     }
   };
