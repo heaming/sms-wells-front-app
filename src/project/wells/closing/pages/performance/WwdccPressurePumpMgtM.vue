@@ -319,7 +319,7 @@ async function onClickDelete() {
     return;
   }
   const rows = checkedRows.map((row) => (
-    { cntrNo: row.cntrNo, adnSvSn: row.adnSvSn }));
+    { cntrNo: row.cntrNo, cntrSn: row.cntrSn, adnSvSn: row.adnSvSn }));
 
   const isOk = await confirm(t('MSG_ALT_CNFM_STAT_CAN'));
 
@@ -358,6 +358,7 @@ async function onClickSave() {
       fnlVstFshDt: obj.fnlVstFshDt,
       svBizHclsfCd: obj.svBizHclsfCd,
       pdctPdCd: obj.pdctPdCd,
+      adnSvSn: obj.adnSvSn,
     });
   });
 
