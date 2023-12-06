@@ -27,6 +27,7 @@
                 :ref="(el) => step.ref.value = el"
                 :contract="contract"
                 :cntr-cst-no="cntrCstNo"
+                :pspc-cst-id="pspcCstId"
                 @activated="onChildActivated"
               />
               <wwcta-contract-registration-mgt-m-step2
@@ -159,7 +160,7 @@
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
-import { useDataService, useGlobal } from 'kw-lib';
+import { useGlobal } from 'kw-lib';
 import { warn } from 'vue';
 import { CNTR_TP_CD } from '~sms-wells/contract/constants/ctConst';
 import WwctaContractRegistrationMgtMStep1 from './WwctaContractRegistrationMgtMStep1.vue';
@@ -179,7 +180,6 @@ const props = defineProps({
 
 const { t } = useI18n();
 const { alert } = useGlobal();
-const dataService = useDataService();
 const router = useRouter();
 
 async function validateProps() {
@@ -220,7 +220,6 @@ const contract = ref({});
 const summary = ref({});
 
 const updateSummary = () => {
-  console.log('updateSummary');
   const { step1, step2, step3, step4 } = contract.value;
   const smr = {};
   smr.cntrBas = {
@@ -253,17 +252,13 @@ const updateSummary = () => {
     ...step3?.prtnr,
     ...step4?.prtnr,
   };
-  smr.branchManager = {
-    ...step1?.prtnr7,
-    ...step4?.prtnr7,
-  };
   smr.cntrtAdrpc = step3?.basAdrpc;
   smr.stlmDtls = step4?.stlmDtls;
   summary.value = smr;
-  console.log('updateSummary', smr);
+  // console.log('updateSummary', smr);
 };
-watch(currentStepName, updateSummary);
-watch(() => contract.value?.step2?.dtls?.length, updateSummary);
+
+watchEffect(updateSummary);
 
 function setupContract() {
   contract.value = {
@@ -298,22 +293,11 @@ function showStep(step) {
   currentStepName.value = `step${step}`;
 }
 
-async function fetchProspectContract() {
-  const { pspcCstId } = props;
-  const { data } = await dataService.get('sms/wells/contract/contracts/prospect-contract', { params: { pspcCstId } });
-  const { pspcCstBas, cntrt, prtnr } = data;
-  contract.value.step1.pspcCstBas = pspcCstBas;
-  contract.value.step1.bas.pspcCstId = pspcCstId;
-  if (cntrt) { contract.value.step1.cntrt = cntrt; }
-  contract.value.step1.prtnr = prtnr;
-  contract.value.step1.bas.sellInflwChnlDtlCd = prtnr?.sellInflwChnlDtlCd;
-}
-
 async function getExistedCntr() {
   const { cntrNo, cntrPrgsStatCd } = props;
   if (!cntrNo || !cntrPrgsStatCd) {
     await currentStepRef.value?.initStep?.();
-    updateSummary();
+    // updateSummary();
     return;
   }
   isCnfmCntr.value = props.cntrPrgsStatCd > 20;
@@ -328,7 +312,7 @@ async function getExistedCntr() {
   showStep(step);
   await currentStepRef.value?.initStep?.(true);
 
-  updateSummary();
+  // updateSummary();
   isCnfmPds.value = false;
 }
 
@@ -414,30 +398,23 @@ async function onClickNext() {
   currentStepName.value = nextStep.value.name;
 }
 
-async function onChildActivated(step) {
-  console.log('activated', step);
+async function onChildActivated() {
+  // updateSummary();
 }
 
 watch(() => props.cntrNo, (newValue, oldValue) => {
-  console.log('props.cntrNo watched', newValue, oldValue);
   if (newValue !== oldValue) {
     setupContract();
-    updateSummary();
     getExistedCntr();
   }
 });
 
 onMounted(() => {
-  const { cntrNo, cntrPrgsStatCd, pspcCstId } = props;
+  const { cntrNo, cntrPrgsStatCd } = props;
   if (cntrNo && cntrPrgsStatCd) {
     getExistedCntr();
   } else {
     currentStepRef.value?.initStep?.();
-    if (pspcCstId) {
-      fetchProspectContract().then(updateSummary);
-    } else {
-      updateSummary();
-    }
   }
 });
 </script>

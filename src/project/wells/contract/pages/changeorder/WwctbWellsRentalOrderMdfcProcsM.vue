@@ -224,6 +224,11 @@
               v-show="false"
               v-model="orderProduct"
             />
+            <!-- productExtra가 바뀐걸 옵저버가 인지하지 못해서 컴포넌트 추가함. -->
+            <kw-field
+              v-show="false"
+              v-model="productExtra"
+            />
 
             <template #header>
               <kw-item-section>
@@ -231,6 +236,13 @@
                   <!-- 주문상품 선택 -->
                   <span class="text-bold kw-font-pt18">
                     {{ $t('MSG_TXT_ODER') + $t('MSG_TXT_PRDT') + ' ' + $t('MSG_TXT_SELT') }}
+                  </span>
+
+                  <span
+                    v-if="fieldData.svcPdChYn==='Y'"
+                    style="float: right; color: red;"
+                  >
+                    {{ '※ 서비스제품변경 건으로 가격 수정이 불가합니다.' }}
                   </span>
                 </kw-item-label>
               </kw-item-section>
@@ -246,7 +258,11 @@
                   icon="search"
                   maxlength="100"
                   grow
-                  :disable="!isFetched || fieldData.slClYn==='Y'"
+                  :disable="!isFetched
+                    || fieldData.slClYn==='Y'
+                    || !isEmpty(fieldData.istDt)
+                    || !isEmpty(fieldData.vstSchDt)
+                    || fieldData.svcPdChYn==='Y'"
                   @click-icon="onClickSelectProduct"
                 />
               </kw-form-item>
@@ -259,6 +275,7 @@
                 :model-value="orderProduct"
                 :bas="fieldData"
                 modify
+                :readonly="!isEmpty(fieldData.istDt) || fieldData.svcPdChYn==='Y'"
                 @select:one-plus-one="onClickOnePlusOne"
                 @delete:one-plus-one="onDeleteOnePlusOne"
                 @select:device="onClickDeviceChange"
@@ -281,18 +298,6 @@
                       v-model="productExtra.alncmpCd"
                       :options="codes.ALNCMP_CD"
                       first-option="select"
-                      :disable="fieldData.slClYn==='Y'"
-                    />
-                  </kw-form-item>
-
-                  <kw-form-item
-                    label="법인추가할인"
-                  >
-                    <kw-input
-                      v-model="productExtra.sellDscCtrAmt"
-                      maxlength="10"
-                      type="number"
-                      :readonly="fieldData.copnDvCd !== '2'"
                       :disable="fieldData.slClYn==='Y'"
                     />
                   </kw-form-item>
@@ -1048,7 +1053,6 @@ const promotions = ref([]); // 적용가능한 프로모션
 // ADMIN용 추가 데이터
 const productExtra = ref({
   alncmpCd: '', // 제휴상품
-  sellDscCtrAmt: 0, // 법인추가할인
   cntrChAkCn: '', // 변경사유
   ackmtAmt: 0, // 인정실적
   ackmtRt: 0, // 인정실적율
@@ -1112,6 +1116,8 @@ const isCnfmPd = ref(false); // 상품확정 유무
 
 // 프로모션정보 조회
 async function fetchPromotionData(cntrNo, pdPrcFnlDtlId, sellEvCd, mchnCh) {
+  if (isEmpty(pdPrcFnlDtlId)) return;
+
   // 적용가능한 프로모션 정보 조회
   const res = await dataService.post(
     '/sms/wells/contract/contracts/promotions',
@@ -1145,6 +1151,10 @@ async function fetchData() {
   );
   Object.assign(fieldData.value, res.data);
 
+  if (isEmpty(fieldData.value.pdPrcFnlDtlId)) {
+    alert('가격이 설정되지 않아, 가격을 조회하는데 실패했습니다.');
+  }
+
   // 선납 정보 조회
   await fetchPrepayments();
 
@@ -1171,6 +1181,7 @@ async function fetchData() {
   // console.log('orderProduct 세팅');
   const product = {
     pdPrcFnlDtlId: fieldData.value.pdPrcFnlDtlId,
+    verSn: fieldData.value.verSn,
     pdQty: fieldData.value.pdQty,
     promotions: promotions.value,
     appliedPromotions: fieldData.value.promts,
@@ -1181,10 +1192,6 @@ async function fetchData() {
     sellDscCtrAmt: fieldData.value.sellDscCtrAmt,
     wellsDtl: {
       sellEvCd: isEmpty(fieldData.value.sellEvCd) ? '' : fieldData.value.sellEvCd,
-    },
-    priceOptionFilter: {
-      rentalDscDvCd: fieldData.value.sellDscDvCd || '',
-      rentalDscTpCd: fieldData.value.sellDscTpCd || '',
     },
   };
 
@@ -1223,12 +1230,14 @@ async function fetchData() {
   compKey.value += 1;
   orderProduct.value = product;
 
-  if (!isEmpty(fieldData.value.vstSchDt)) {
-    isFetched.value = false;
-    alert(t('MSG_ALT_ALRDY_HAVE_IST_EXP_DT')); // 이미 설치 예약된 계약건 입니다.
-  } else {
-    isFetched.value = true;
-  }
+  isFetched.value = true;
+
+  // if (!isEmpty(fieldData.value.vstSchDt)) {
+  //   isFetched.value = false;
+  //   alert(t('MSG_ALT_ALRDY_HAVE_IST_EXP_DT')); // 이미 설치 예약된 계약건 입니다.
+  // } else {
+  //   isFetched.value = true;
+  // }
   isCnfmPd.value = true;
   obsRef.value.init();
 }
@@ -1256,12 +1265,11 @@ function onPriceChanged(item, price) {
 
     // 적용되있는 제휴사코드, 판매할인조정금액(법인추가할인) 세팅
     productExtra.value.alncmpCd = fieldData.value.alncmpCd;
-    productExtra.value.sellDscCtrAmt = fieldData.value.sellDscCtrAmt;
 
     isCnfmPd.value = true;
     obsRef.value.init();
   } else {
-    promotions.value = [];
+    promotions.value = isEmpty(fieldData.value.promts) ? [] : fieldData.value.promts;
     isCnfmPd.value = false;
   }
 }
@@ -1484,6 +1492,11 @@ async function onClickProductChangeSave() {
     return;
   }
 
+  if (isEmpty(productExtra.value.cntrChAkCn)) {
+    await alert('변경사유는 필수입니다.');
+    return;
+  }
+
   if (!await confirm('상품 정보를 변경하시겠습니까?')) return;
 
   // 선택한 제휴사코드 세팅
@@ -1632,14 +1645,6 @@ watch(() => orderProduct.value.finalPrice?.ackmtRt, async () => {
 
 watch(() => orderProduct.value.finalPrice?.feeAckmtBaseAmt, async () => {
   productExtra.value.feeAckmtBaseAmt = orderProduct.value?.finalPrice?.feeAckmtBaseAmt;
-});
-
-watch(() => productExtra.value.sellDscCtrAmt, async () => {
-  if (toNumber(productExtra.value.sellDscCtrAmt || 0) > toNumber(orderProduct.value.fnlAmt || 0)) {
-    productExtra.value.sellDscCtrAmt = 0;
-    alert('할인금액이 렌탈금액보다 높을 수 없습니다.');
-  }
-  orderProduct.value.sellDscCtrAmt = productExtra.value.sellDscCtrAmt;
 });
 
 // -------------------------------------------------------------------------------------------------

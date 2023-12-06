@@ -23,6 +23,7 @@
         :label="t('MSG_TXT_FNT_DV')"
         required
       >
+        <!-- 이체구분 -->
         <kw-option-group
           v-model="searchParams.dpTpCd"
           :label="t('MSG_TXT_FNT_DV')"
@@ -54,6 +55,7 @@
         :label="t('MSG_BTN_EXCEL_DOWN')"
         @click="onClickExcelDownload"
       />
+      <!-- 엑셀 다운로드 -->
     </kw-action-top>
 
     <kw-grid
@@ -123,12 +125,14 @@ async function fetchData() {
   view.resetCurrent();
 }
 
+// 조회
 async function onClickSearch() {
   pageInfo.value.pageIndex = 1;
   cachedParams = { ...searchParams.value };
   await fetchData();
 }
 
+// 엑셀 다운로드
 async function onClickExcelDownload() {
   const view = grdMainRef.value.getView();
   const res = await dataService.get('/sms/wells/withdrawal/bilfnt/result-bundle-error/excel-download', { params: cachedParams, timeout: 300000 });
@@ -160,22 +164,48 @@ const initGrid = defineGrid((data, view) => {
   ];
 
   const columns = [
-    { fieldName: 'mstrSellTpCd', header: t('MSG_TXT_DG_ORD_SELL_TP'), width: '200', styleName: 'text-center', options: codes.SELL_TP_CD },
-    { fieldName: 'dgCntrNo', header: t('MSG_TXT_DG_CNTR_NO'), width: '200', styleName: 'text-center' },
-    { fieldName: 'mstrDpTpCd', header: t('MSG_TXT_DG_ORD_FNT_DV'), width: '200', styleName: 'text-center', options: codes.DP_TP_CD },
-    { fieldName: 'subSellTpCd', header: t('MSG_TXT_BNDL_ORD_SELL_TP'), width: '200', styleName: 'text-center', options: codes.SELL_TP_CD },
-    { fieldName: 'subodCntrNo', header: t('MSG_TXT_BNDL_CNTR_NO'), width: '200', styleName: 'text-center' },
-    { fieldName: 'subDpTpCd', header: t('MSG_TXT_BNDL_ORD_FNT_DV'), width: '159', styleName: 'text-center', options: codes.DP_TP_CD },
+    { fieldName: 'mstrSellTpCd',
+      header: t('MSG_TXT_DG_ORD_SELL_TP'), // 대표주문 판매유형
+      width: '200',
+      styleName: 'text-center',
+      options: codes.SELL_TP_CD,
+    },
+    { fieldName: 'dgCntrNo',
+      header: t('MSG_TXT_DG_CNTR_NO'), // 대표계약번호
+      width: '200',
+      styleName: 'text-center' },
+    { fieldName: 'mstrDpTpCd',
+      header: t('MSG_TXT_DG_ORD_FNT_DV'), // 대표주문 이체구분
+      width: '200',
+      tyleName: 'text-center',
+      options: codes.DP_TP_CD,
+    },
+    { fieldName: 'subSellTpCd',
+      header: t('MSG_TXT_BNDL_ORD_SELL_TP'), // 묶음주문 판매유형
+      width: '200',
+      styleName: 'text-center',
+      options: codes.SELL_TP_CD },
+    { fieldName: 'subodCntrNo',
+      header: t('MSG_TXT_BNDL_CNTR_NO'), // 묶음계약번호
+      width: '200',
+      styleName: 'text-center',
+    },
+    { fieldName: 'subDpTpCd',
+      header: t('MSG_TXT_BNDL_ORD_FNT_DV'), // 묶음주문 이체구분
+      width: '159',
+      styleName: 'text-center',
+      options: codes.DP_TP_CD,
+    },
     { fieldName: 'errTyp',
-      header: t('MSG_TXT_ERR_RGST_IZ'),
+      header: t('MSG_TXT_ERR_RGST_IZ'), // 오등록 내역
       width: '300',
       styleName: 'text-left',
       displayCallback(grid, item, value) {
         // eslint-disable-next-line max-len
         const { mAcnoEncr: encr, sAcnoEncr: subEcnr, mCrcdnoEncr: cardEncr, sCrcdnoEncr: subCardEncr } = gridUtil.getRowValue(grid, item.itemIndex);
         // eslint-disable-next-line no-nested-ternary
-        return value === '01' ? `${t('MSG_TXT_AC_NO_DFRN')} ${encr} /  ${subEcnr}`
-          : value === '02' ? `${t('MSG_TXT_CARD_NO_DFRN')} ${cardEncr} / ${subCardEncr}` : value;
+        return value === '01' ? `${t('MSG_TXT_AC_NO_DFRN')} ${encr} /  ${subEcnr}` // 2.계좌번호 상이
+          : value === '02' ? `${t('MSG_TXT_CARD_NO_DFRN')} ${cardEncr} / ${subCardEncr}` : value; // 2.카드번호 상이
       },
     },
   ];

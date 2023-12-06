@@ -412,62 +412,22 @@
         </template>
 
         <template
-          v-if="(cntrTpIs.indv && '7' === currentPartner.pstnDvCd) || cntrTpIs.ensm"
+          v-if="cntrTpIs.ensm"
         >
           <kw-separator />
           <h3>{{ $t('MSG_TXT_PRTNR_INF') }}</h3>
-
-          <template
-            v-if="cntrTpIs.indv"
-          >
-            <kw-form-row>
-              <kw-form-item
-                :label="$t('MSG_TXT_PTNR_NAME')"
-              >
-                <p>{{ step1.prtnr?.prtnrKnm }}</p>
-              </kw-form-item>
-              <kw-form-item
-                :label="$t('MSG_TXT_PRTNR_NUM')"
-              >
-                <p>{{ step1.prtnr?.prtnrNo }}</p>
-              </kw-form-item>
-            </kw-form-row>
-            <kw-form-row>
-              <kw-form-item
-                :label="$t('MSG_TXT_MANAGEMENT_DEPARTMENT')"
-              >
-                <p>{{ step1.prtnr?.dgr1LevlOgNm }}</p>
-              </kw-form-item>
-              <kw-form-item
-                :label="$t('MSG_TXT_RGNL_GRP')"
-              >
-                <p>{{ step1.prtnr?.dgr2LevlOgNm }}</p>
-              </kw-form-item>
-            </kw-form-row>
-            <kw-form-row>
-              <kw-form-item
-                :label="$t('MSG_TXT_BRANCH')"
-              >
-                <p>{{ step1.prtnr?.dgr3LevlOgNm }}</p>
-              </kw-form-item>
-            </kw-form-row>
-          </template>
-          <template
-            v-else-if="cntrTpIs.ensm"
-          >
-            <kw-form-row>
-              <kw-form-item
-                :label="$t('MSG_TXT_PTNR_NAME')"
-              >
-                <p>{{ step1.prtnr?.prtnrKnm }}</p>
-              </kw-form-item>
-              <kw-form-item
-                :label="$t('MSG_TXT_PRTNR_NUM')"
-              >
-                <p>{{ step1.prtnr?.prtnrNo }}</p>
-              </kw-form-item>
-            </kw-form-row>
-          </template>
+          <kw-form-row>
+            <kw-form-item
+              :label="$t('MSG_TXT_PTNR_NAME')"
+            >
+              <p>{{ step1.prtnr?.prtnrKnm }}</p>
+            </kw-form-item>
+            <kw-form-item
+              :label="$t('MSG_TXT_PRTNR_NUM')"
+            >
+              <p>{{ step1.prtnr?.prtnrNo }}</p>
+            </kw-form-item>
+          </kw-form-row>
         </template>
       </kw-form>
     </template>
@@ -486,6 +446,7 @@ import { CNTR_TP_CD, COPN_DV_CD } from '~sms-wells/contract/constants/ctConst';
 const props = defineProps({
   contract: { type: Object, default: undefined },
   cntrCstNo: { type: String, default: undefined },
+  pspcCstId: { type: String, default: undefined },
 });
 const emit = defineEmits([
   'activated',
@@ -501,7 +462,7 @@ const currentPartner = {
   prtnrNo: userInfo.employeeIDNumber,
   ogTpCd: userInfo.ogTpCd,
   baseRleCd: userInfo.baseRleCd,
-  pstnDvCd: userInfo.careerLevelCode,
+  // pstnDvCd: userInfo.careerLevelCode,
   prtnrKnm: userInfo.userName,
 };
 const alncPartner = ref({
@@ -565,17 +526,10 @@ async function setupAvailableCntrTpCd() {
   await addCode('CNTR_TP_CD', (code) => {
     const isCustomerCenterService = currentPartner.baseRleCd === 'W8010';
     const isBusinessDepartment = currentPartner.ogTpCd === 'HR1';
-    const isBranchManager = currentPartner.pstnDvCd === '7';
     const isPspcCstCntr = !!step1.value.pspcCstBas;
 
     if (isBusinessDepartment && !isCustomerCenterService) {
       return code.codeId === CNTR_TP_CD.EMPLOYEE && code;
-    }
-    if (isBranchManager) {
-      return [
-        CNTR_TP_CD.INDIVIDUAL,
-        CNTR_TP_CD.COOPERATION,
-      ].includes(code.codeId) && code;
     }
     if (isPspcCstCntr) {
       return [
@@ -650,7 +604,6 @@ function setupNewContract() {
 
 async function getCntrInfo() {
   if (!cntrNo.value) {
-    setupNewContract();
     return;
   }
 
@@ -668,13 +621,13 @@ async function getCntrInfo() {
     bas,
     cntrt,
     prtnr,
-    // prtnr7,
-    // cntrt,
-    // mshCntrNo,
-    // mshCntrSn
   } = step1.value;
 
-  initFlag = true; /* 계약유형코드 변경 콜백 동작 방지. */
+  /* 계약유형코드 변경 콜백 동작 방지.
+  컴포넌트에 수정을 넘기고, 변경사항에 대한 콜백 처리도 있는 필드에 값을 때려 박는 경우.
+  좋지 못한 패턴이니 좋은 생각이 나면 수정하도록 하자.
+  */
+  initFlag = true;
   searchParams.value.cntrTpCd = bas.cntrTpCd;
   searchParams.value.copnDvCd = bas.copnDvCd;
 
@@ -799,16 +752,12 @@ async function openCustomerSelectPopup() {
 }
 
 async function fetchCntrtByCstNo(cstNo) {
-  try {
-    const { data } = await dataService.get('sms/wells/contract/contracts/cntrt', {
-      params: {
-        cstNo,
-      },
-    });
-    step1.value.cntrt = data;
-  } catch (e) {
-    setupSearchParams();
-  }
+  const { data } = await dataService.get('sms/wells/contract/contracts/cntrt', {
+    params: {
+      cstNo,
+    },
+  }).catch(setupSearchParams);
+  step1.value.cntrt = data;
 }
 
 async function selectContractor() {
@@ -826,21 +775,6 @@ async function selectContractor() {
   }
 
   await fetchCntrtByCstNo(payload.cstNo);
-}
-
-async function chooseBelongPartner() {
-  // 지국장인 경우 소속파트너 선택
-  const { result, payload } = await modal({
-    component: 'WwctaBelongPartnerChoiceListP',
-    componentProps: {
-      dsmnPrtnrNo: currentPartner.prtnrNo,
-      ogTpCd: currentPartner.ogTpCd,
-    },
-  });
-  if (!result) {
-    return;
-  }
-  step1.value.prtnr = payload;
 }
 
 async function setAlncPrtnr() {
@@ -862,14 +796,7 @@ async function selectPartner() {
     }
   }
 
-  // step1.value.prtnr ??= currentPartner; // {} => Nullish coalescing assignment (??=) 처리안됨
-  step1.value.prtnr = isEmpty(step1.value.prtnr) ? currentPartner : step1.value.prtnr;
-
-  if (currentPartner.pstnDvCd === '7') {
-    // 지국장 정보 설정 후, 소속 파트너 선택
-    step1.value.prtnr7 = currentPartner;
-    await chooseBelongPartner();
-  }
+  step1.value.prtnr = step1.value.prtnr?.prtnrNo ? step1.value.prtnr : currentPartner;
 }
 
 async function onClickMembership() {
@@ -1088,11 +1015,11 @@ async function isValidStep() {
   if (copnDvCd === COPN_DV_CD.INDIVIDUAL) {
     if (!cikVal) {
       await alert('본인인증 미완료 상태입니다.\n완료 후 계약자를 재 조회해 주세요.');
-      return false;
+      // return false; // TODO: 다시 복원하기 : 20231127 전아영 매니저님 테스트를 위한 요청
     }
     if (!itgCstNo) {
       await alert('통합고객 약관동의 미완료 상태입니다.\n완료 후 계약자를 재 조회해 주세요.');
-      return false;
+      // return false; // TODO: 다시 복원하기 : 20231127 전아영 매니저님 테스트를 위한 요청
     }
   }
 
@@ -1151,45 +1078,61 @@ async function getCounts() {
 
 const loaded = ref(false);
 
+async function fetchProspectContract() {
+  const { pspcCstId } = props;
+  const { data } = await dataService.get('sms/wells/contract/contracts/prospect-contract', { params: { pspcCstId } });
+  const { pspcCstBas, cntrt, prtnr } = data;
+  step1.value.pspcCstBas = pspcCstBas;
+  step1.value.bas = {
+    pspcCstId,
+    cntrTpCd: CNTR_TP_CD.INDIVIDUAL,
+  };
+  if (cntrt) { step1.value.cntrt = cntrt; }
+  step1.value.prtnr = prtnr;
+  step1.value.bas.sellInflwChnlDtlCd = prtnr?.sellInflwChnlDtlCd;
+  const { pspcCstKnm, cralLocaraTno, mexnoEncr, cralIdvTno } = pspcCstBas;
+  setupSearchParams({
+    cstKnm: pspcCstKnm,
+    cntrtTno: `${cralLocaraTno}${mexnoEncr}${cralIdvTno}`,
+    cralLocaraTno,
+    mexnoEncr,
+    cralIdvTno,
+  });
+  await setupAvailableCntrTpCd();
+  await selectContractor();
+}
+
 async function initStep(forced = false) {
   if (!forced && loaded.value) {
     return;
   }
 
-  await getCntrInfo();
-  if (!cntrNo.value) {
+  if (cntrNo.value) {
+    await getCntrInfo();
+    loaded.value = true;
+    return;
+  }
+
+  setupNewContract();
+
+  const { pspcCstId, cntrCstNo } = props;
+
+  if (pspcCstId) {
+    await fetchProspectContract();
+  } else {
     getCounts();
   }
-  loaded.value = true;
+
+  if (cntrCstNo) {
+    await fetchCntrtByCstNo(cntrCstNo);
+    await selectPartner();
+  }
 }
 
-exposed.getCntrInfo = getCntrInfo;
 exposed.isChangedStep = isChangedStep;
 exposed.isValidStep = isValidStep;
 exposed.initStep = initStep;
 exposed.saveStep = saveStep;
-
-// 고객 센터용 빠른 수정 코드 FIXME: 제정신인 미래의 나
-const unwatch = watchEffect(() => {
-  if (step1.value.pspcCstBas) {
-    const { pspcCstKnm, cralLocaraTno, mexnoEncr, cralIdvTno } = step1.value.pspcCstBas;
-    setupSearchParams({
-      cstKnm: pspcCstKnm,
-      cntrtTno: `${cralLocaraTno}${mexnoEncr}${cralIdvTno}`,
-      cralLocaraTno,
-      mexnoEncr,
-      cralIdvTno,
-    });
-    setupAvailableCntrTpCd();
-    unwatch();
-  }
-});
-
-// 고객 센터용 빠른 수정 코드 FIXME: 제정신인 미래의 나
-if (props.cntrCstNo) {
-  await fetchCntrtByCstNo(props.cntrCstNo);
-  selectPartner();
-}
 
 onActivated(() => {
   initStep(true);

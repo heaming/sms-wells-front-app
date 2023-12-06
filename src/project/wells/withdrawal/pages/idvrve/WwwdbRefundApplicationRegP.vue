@@ -517,7 +517,7 @@ async function gridReset() {
 async function fetchData() {
   cachedParams = { ...cachedParams };
 
-  const res = await dataService.get('/sms/wells/withdrawal/idvrve/refund-applications/reg/paging', { params: cachedParams });
+  const res = await dataService.get('/sms/wells/withdrawal/idvrve/refund-applications/reg/paging', { params: cachedParams, timeout: 6000000 });
   pageInfo1.value.totalCount = res.data.length;
 
   const view = grdPopRef1.value.getView();
@@ -532,13 +532,13 @@ async function fetchData2() {
     rfndAkStatCd: props.rfndAkStatCd,
     cstNo: props.cstNo,
   };
-  const res3 = await dataService.get('/sms/wells/withdrawal/idvrve/refund-applications/reg/balance-transfer', { params: { ...propsData } });
+  const res3 = await dataService.get('/sms/wells/withdrawal/idvrve/refund-applications/reg/balance-transfer', { params: { ...propsData }, timeout: 6000000 });
 
-  const res2 = await dataService.get('/sms/wells/withdrawal/idvrve/refund-applications/reg/refund-detail', { params: { ...propsData } });
+  const res2 = await dataService.get('/sms/wells/withdrawal/idvrve/refund-applications/reg/refund-detail', { params: { ...propsData }, timeout: 6000000 });
 
-  const res1 = await dataService.get('/sms/wells/withdrawal/idvrve/refund-applications/reg/paging', { params: { ...propsData } });
+  const res1 = await dataService.get('/sms/wells/withdrawal/idvrve/refund-applications/reg/paging', { params: { ...propsData }, timeout: 6000000 });
 
-  const res = await dataService.get('/sms/wells/withdrawal/idvrve/refund-applications/reg/refund', { params: { ...propsData } });
+  const res = await dataService.get('/sms/wells/withdrawal/idvrve/refund-applications/reg/refund', { params: { ...propsData }, timeout: 6000000 });
   saveParams.value.arfndYn = res.data.arfndYn;
   saveParams.value.bankCode = res.data.cshRfndFnitCd;
   saveParams.value.acnoEncr = res.data.cshRfndAcnoEncr;
@@ -621,7 +621,7 @@ async function onClickExcel1() {
       timePostfix: true,
     });
   } else {
-    const res = await dataService.get('/sms/wells/withdrawal/idvrve/refund-applications/reg/excel-download', { params: cachedParams });
+    const res = await dataService.get('/sms/wells/withdrawal/idvrve/refund-applications/reg/excel-download', { params: cachedParams, timeout: 6000000 });
     await gridUtil.exportView(view, {
       fileName: currentRoute.value.meta.menuName,
       timePostfix: true,
@@ -824,7 +824,7 @@ async function onClickRefundAsk(stateCode) {
 
   if (!await cntrValidateView3()) {
     // 계약번호 - 전금계약번호가 동일하거나 , 전금계약상 데이터에 전금계약번호가 동일한경우.
-    notify(t('MSG_ALT_DUPLICATE_VALUE_EXISTS', [t('MSG_TXT_BLTF') + t('MSG_TXT_CNTR_NO')])); // 동일한 전금계약번호가 존재합니다.
+    alert(t('MSG_ALT_DUPLICATE_VALUE_EXISTS', [t('MSG_TXT_BLTF') + t('MSG_TXT_CNTR_NO')])); // 동일한 전금계약번호가 존재합니다.
     return false;
   }
   if (pageInfo1.value.totalCount < 1) {
@@ -841,7 +841,7 @@ async function onClickRefundAsk(stateCode) {
   let errorCount = 0;
 
   rows3.forEach((p1) => {
-    if (p1.attachFiles.length < 1 && p1.bltfRfndMbDvCd === '02') {
+    if (isEmpty(p1.attachFiles) && p1.bltfRfndMbDvCd === '02' && p1.rowState !== 'deleted') {
       errorCount += 1;
       return false;
     }
@@ -859,15 +859,23 @@ async function onClickRefundAsk(stateCode) {
     return false;
   }
 
-  let rfndAmt = 0;
+  const checkedRows1 = isEmpty(props.rfndAkNo) ? gridUtil.getCheckedRowValues(view1) : gridUtil.getAllRowValues(view1);
+  const refundInfos = gridUtil.getAllRowValues(view2);
+  let checkYn = 'N';
+  checkedRows1.forEach((el) => {
+    const refundAmt = refundInfos.filter((obj) => obj.cntrNo === el.cntrNo && obj.cntrSn === el.cntrSn)
+      // eslint-disable-next-line no-return-assign
+      .reduce((acc, cur) => acc += Number(cur.rfndCshAkAmt) + Number(cur.rfndCardAkAmt) + Number(cur.rfndBltfAkAmt), 0);
+    if (Number(el.rfndPsbAmt) < Number(refundAmt)) {
+      checkYn = 'Y';
+    }
 
-  const checkedRows1 = gridUtil.getCheckedRowValues(view1);
-  checkedRows1.forEach((element) => {
-    element.rfndAkNo = props.rfndAkNo;
-    rfndAmt += Number(element.rfndPsbAmt);
+    if (!isEmpty(props.rfndAkNo)) {
+      el.rfndAkNo = props.rfndAkNo;
+    }
   });
 
-  if (rfndAmt < changedRows4[0].totRfndEtAmt) {
+  if (checkYn === 'Y') {
     if (!await confirm(t('환불 요청금액이 가능 금액 보다 큰 초과 환불 요청 건입니다. 진행하시겠습니까?'))) { return; }
   }
 
@@ -922,7 +930,7 @@ async function insertMainData(cntrNo, cntrSn, cntrStartDay, cntrEndDay) {
   };
   dataParams = { ...dataParams };
 
-  const rfndRes = await dataService.get('/sms/wells/withdrawal/idvrve/refund-applications/reg/refund-detail', { params: dataParams });
+  const rfndRes = await dataService.get('/sms/wells/withdrawal/idvrve/refund-applications/reg/refund-detail', { params: dataParams, timeout: 6000000 });
 
   // pageInfo2.value.totalCount = rfndRes.data.length;
 
@@ -1031,7 +1039,7 @@ async function onCheckTotalData() {
   view4.setValue(0, 'totRfndCardAkAmt', temp2);
   view4.setValue(0, 'totRfndBltfAkAmt', temp3);
   view4.setValue(0, 'totCrdcdFeeAmt', temp4);
-  view4.setValue(0, 'totRfndEtAmt', Number(temp1) + Number(temp2) + Number(temp3));
+  view4.setValue(0, 'totRfndEtAmt', Number(temp1) + Number(temp2) + Number(temp3) - Number(temp4));
 
   grdPopRef4.value.getView().getDataSource().setRowState(0, 'none');
   totRfndAkAmt.value = temp5; // 환불상세 총액
@@ -1095,7 +1103,7 @@ async function onClickRfndAddRow(cntrNo, cntrSn, cntrDtlNo, dpDt, dpMesCd, dpAmt
 async function onClickRfndDelete() {
   const view = grdPopRef3.value.getView();
   const deleteRows = await gridUtil.confirmDeleteCheckedRows(view, true);
-  console.log(deleteRows);
+
   const bltfData = gridUtil.getAllRowValues(view);
   pageInfo3.value.totalCount = bltfData.length;
 
@@ -1453,6 +1461,9 @@ const initGrid2 = defineGrid((data, view) => {
         if (rowValue.dpMesCd === '01' || rowValue.dpTpCd === '0203') {
           editable = false;
         }
+        if (rowValue.dpDvCd === '2' || rowValue.dpDvCd === '4' || rowValue.dpDvCd === '3') {
+          editable = false;
+        }
         return { editable };
       },
     },
@@ -1579,7 +1590,7 @@ const initGrid2 = defineGrid((data, view) => {
   // eslint-disable-next-line no-unused-vars
   view.onValidate = (g, index, value) => {
     // eslint-disable-next-line max-len
-    const { rfndCshAkAmt, rfndCardAkAmt, rfndBltfAkAmt, rfndRsonCd, rfndRsonCn } = g.getValues(index.dataRow);
+    const { rfndCshAkAmt, rfndCardAkAmt, rfndBltfAkAmt, rfndRsonCd, rfndRsonCn } = g.getValues(index.itemIndex);
     // eslint-disable-next-line max-len
     // const { rfndPsbAmt, rfndCshAkAmt, rfndCardAkAmt, rfndBltfAkAmt, crdcdFeeAmt, rfndRsonCd, rfndRsonCn } = g.getValues(index.dataRow);
     // eslint-disable-next-line max-len
@@ -1802,7 +1813,7 @@ const initGrid3 = defineGrid((data, view) => {
 
   // eslint-disable-next-line no-unused-vars
   view.onValidate = (g, index, value) => {
-    const { cntrDtlNo, bltfOjCntrDtlNo, rfndBltfAkAmt } = g.getValues(index.dataRow);
+    const { cntrDtlNo, bltfOjCntrDtlNo, rfndBltfAkAmt } = g.getValues(index.itemIndex);
     if (cntrDtlNo === bltfOjCntrDtlNo) {
       // g.setValue(index.dataRow, 'bltfRfndMbDvCd', '01');
       // g.setValue(index.dataRow, 'bltfRfndMbDvCd', '02');

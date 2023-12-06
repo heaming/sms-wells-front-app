@@ -33,7 +33,9 @@
         <kw-search-item :label="$t('MSG_TXT_INQR_DV')">
           <kw-select
             v-model="searchParams.findGb"
-            :options="[{ codeId: '1', codeName: t('MSG_TXT_NO_RGS') }]"
+            :options="[{ codeId: '1', codeName: t('MSG_TXT_USE') }
+                       ,{ codeId: '2', codeName: t('MSG_TXT_NUSD') }
+                       ,{ codeId: '3', codeName: t('MSG_TXT_NO_RGS') }]"
             first-option="all"
           />
         </kw-search-item>

@@ -67,6 +67,7 @@
         <kw-btn
           v-permission:delete
           grid-action
+          :disable="isSearch"
           :label="$t('MSG_BTN_DEL')"
           @click="onClickDeleteRow"
         />
@@ -79,6 +80,7 @@
         <kw-btn
           v-permission:update
           grid-action
+          :disable="isSearch"
           :label="$t('MSG_BTN_SAVE')"
           @click="onClickSave"
         />
@@ -86,6 +88,7 @@
         <kw-btn
           v-permission:create
           grid-action
+          :disable="isSearch"
           :label="$t('MSG_BTN_ROW_ADD')"
           @click="onClickAddRow"
         />
@@ -100,6 +103,7 @@
           icon="upload_on"
           secondary
           dense
+          :disable="isSearch"
           :label="$t('MSG_TXT_EXCEL_UPLOAD')"
           @click="onClickExcelUpload"
         />
@@ -138,7 +142,7 @@
 // -------------------------------------------------------------------------------------------------
 import { codeUtil, useMeta, defineGrid, useDataService, getComponentType, useGlobal, gridUtil } from 'kw-lib';
 import dayjs from 'dayjs';
-import { cloneDeep } from 'lodash-es';
+import { cloneDeep, isEmpty } from 'lodash-es';
 
 const { getConfig } = useMeta();
 const { t } = useI18n();
@@ -193,9 +197,11 @@ async function fetchData() {
 }
 
 // 조회버튼 클릭 이벤트
+const isSearch = ref(true);
 async function onClickSearch() {
   pageInfo.value.pageIndex = 1;
   cachedParams = cloneDeep(searchParams.value);
+  isSearch.value = false;
   await fetchData();
 }
 
@@ -287,6 +293,60 @@ async function onClickExcelDownload() {
     checkBar: 'hidden',
     exportData: res.data,
   });
+}
+
+// 그리드의 입력된 창고번호로 창고명 조회
+async function findWareNm(strWareNo, itemIndex, grid) {
+  if (!isEmpty(strWareNo)) {
+    try {
+      const res = await dataService.get(`/sms/wells/service/as-consumables-stores/${searchParams.value.strRgstDt}-${strWareNo}/warehouse`);
+      const { strWareNm } = res.data;
+      grid.setValue(itemIndex, 'wareNm', strWareNm);
+    } catch (e) {
+      grid.setValue(itemIndex, 'strWareNo', '');
+      grid.setValue(itemIndex, 'wareNm', '');
+    }
+  } else {
+    grid.setValue(itemIndex, 'wareNm', '');
+  }
+}
+
+// 그리드의 입력된 SAP코드로 품목코드, 품목명 조회
+async function findPdCdNm(sapCd, itemIndex, grid) {
+  if (!isEmpty(sapCd)) {
+    try {
+      const res = await dataService.get(`/sms/wells/service/as-consumables-stores/${sapCd}/sapcd`);
+      const { itmPdCd, itmPdNm } = res.data;
+      grid.setValue(itemIndex, 'itmPdCd', itmPdCd);
+      grid.setValue(itemIndex, 'itmPdNm', itmPdNm);
+    } catch (e) {
+      grid.setValue(itemIndex, 'sapCd', '');
+      grid.setValue(itemIndex, 'itmPdCd', '');
+      grid.setValue(itemIndex, 'itmPdNm', '');
+    }
+  } else {
+    grid.setValue(itemIndex, 'itmPdCd', '');
+    grid.setValue(itemIndex, 'itmPdNm', '');
+  }
+}
+
+// 그리드의 입력된 품목코드로 sap코드, 품목명조회
+async function findSapCdNm(itmPdCd, itemIndex, grid) {
+  if (!isEmpty(itmPdCd)) {
+    try {
+      const res = await dataService.get(`/sms/wells/service/as-consumables-stores/${itmPdCd}/pdcd`);
+      const { sapCd, itmPdNm } = res.data;
+      grid.setValue(itemIndex, 'sapCd', sapCd);
+      grid.setValue(itemIndex, 'itmPdNm', itmPdNm);
+    } catch (e) {
+      grid.setValue(itemIndex, 'itmPdCd', '');
+      grid.setValue(itemIndex, 'sapCd', '');
+      grid.setValue(itemIndex, 'itmPdNm', '');
+    }
+  } else {
+    grid.setValue(itemIndex, 'sapCd', '');
+    grid.setValue(itemIndex, 'itmPdNm', '');
+  }
 }
 
 onMounted(async () => {
@@ -471,6 +531,21 @@ const initGrdMain = defineGrid((data, view) => {
   view.onCellEditable = (grid, index) => {
     if (!gridUtil.isCreatedRow(grid, index.dataRow) && ['strWareNo', 'wareNm', 'strRgstDt', 'sapCd', 'itmPdCd', 'itmPdNm', 'itmGdCd', 'strQty'].includes(index.column)) {
       return false;
+    }
+  };
+
+  // 그리드의 선택값을 변경하였을때 발생하는 이벤트 정리
+  view.onCellEdited = async (grid, itemIndex, row, field) => {
+    const { strWareNo, sapCd, itmPdCd } = grid.getValues(itemIndex);
+
+    const changedFieldName = grid.getDataSource().getOrgFieldName(field);
+
+    if (changedFieldName === 'strWareNo') {
+      await findWareNm(strWareNo, itemIndex, grid);
+    } else if (changedFieldName === 'sapCd') {
+      await findPdCdNm(sapCd, itemIndex, grid);
+    } else if (changedFieldName === 'itmPdCd') {
+      await findSapCdNm(itmPdCd, itemIndex, grid);
     }
   };
 });

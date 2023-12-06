@@ -155,6 +155,27 @@ export const DP_TP_CD = {
   SMT_MLG: '0702', // "스마트마일리지"
   KMBRS_POINT: '0703', // "K멤버스포인트"
   W_MONEY_WELS_ALNC: '0801', // "W머니웰스제휴"
-  W_MONEY: '0802', // "K머니"
+  K_MONEY: '0802', // "K머니"
   KMBRS_CASH: '0803', // "K멤버스캐시
+};
+
+export const RVE_DV_CD = {
+  CNTRAM: '01', // "계약금"
+  DLQFE: '02', // "연체가산금"
+  MM_PY: '03', // "월납입액"
+  MSH_SSPCS: '04', // "멤버십회비"
+  RGLR_SPP_SSPCS: '05', // "정기배송회비"
+  BSCH: '06', // "매변"
+  CCAM: '07', // "위약금"
+  RFDAMT: '08', // "환불금"
+  DFA: '09', // "대손"
+  RNTF: '10', // "손료"
+  PTYPF: '11', // "잡이익"
+  FGPT_RPLC: '12', // "사은품대체"
+  FEE_DDTN: '13', // "수수료공제"
+  SV_DP: '14', // "서비스입금"
+  PNPYAM: '15', // "가지급금"
+  LWSC: '16', // "소송비"
+  ATAM: '97', // "영업선수"
+  ETC_ATAM: '98', // "기타선수"
 };

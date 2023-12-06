@@ -90,7 +90,7 @@
         dense
         secondary
         :label="$t('MSG_BTN_EMAIL_SEND')"
-        :disable="searchParams.cntrDvCd === '1' || (searchParams.cntrDvCd === '2' && pageInfo.totalCount1 === 0)"
+        :disable="searchParams.cntrDvCd === '2' && pageInfo.totalCount1 === 0"
         @click="onClickEmailSend"
       />
       <kw-separator
@@ -231,6 +231,7 @@ const pageInfoContracts = ref({
 });
 
 let isOnly = false;
+let isFirstOnly = true;
 
 // -------------------------------------------------------------------------------------------------
 // Function & Event
@@ -256,6 +257,7 @@ const checkOption = ref([
   { codeId: '2', codeName: `${t('MSG_TXT_CST_NO')}(${props.cntrCstNo})` }, // 고객번호
 ]);
 
+// 증빙서류 종류 변경 이벤트 호출
 async function onChangeDocDvCd() {
   if (searchParams.value.docDvCd === '1') { // 입금내역서
     grdRef = grdDepositItemizationSheet;
@@ -289,36 +291,29 @@ async function onChangeDocDvCd() {
     // grdRef.value.getData().clearRows();
     pageInfo.value.pageIndex = 1;
     pageInfo.value.totalCount = 0;
+    isFirstOnly = true;
     // eslint-disable-next-line no-use-before-define
-    await fetchTrdSpcData(); // 증빙서류 종류
+    await fetchTrdSpcData(isFirstOnly); // 증빙서류 종류
   } else if (searchParams.value.cntrDvCd === '2') { // 고객번호
-    pageInfo.value.totalCount2 = 0;
-
-    grdContracts.value.getData().clearRows();
-    if (grdContracts.value?.getView()) gridUtil.reset(grdContracts.value.getView());
-
-    pageInfo.value.pageIndex = 1;
-    pageInfo.value.totalCount = 0;
-    pageInfoContracts.value.pageIndex = 1;
-    pageInfoContracts.value.totalCount = 0;
-
-    // eslint-disable-next-line no-use-before-define
-    await fetchCtnrLstData(isOnly); // 계약목록
+    searchParams.value.cntrDvCd = '1'; // 계약번호
+    pageInfo.value.totalCount1 = 0;
   }
 }
 
+// 고객번호 변경 이벤트 호출
 async function onChangeCntrDvCd() {
   if (searchParams.value.cntrDvCd === '1') { // 계약번호
     isGrdContractsVisible.value = false;
     isSearchDivVisible.value = false;
 
-    grdRef.value.getData().clearRows();
+    // grdRef.value.getData().clearRows();
     pageInfo.value.pageIndex = 1;
     pageInfo.value.totalCount = 0;
     // pageInfo.value.totalCount1 = pageInfo.value.totalCount;
 
+    isFirstOnly = true;
     // eslint-disable-next-line no-use-before-define
-    await fetchTrdSpcData(); // 증빙서류 종류
+    await fetchTrdSpcData(isFirstOnly); // 증빙서류 종류
   } else if (searchParams.value.cntrDvCd === '2') { // 고객번호
     isGrdContractsVisible.value = true;
     isSearchDivVisible.value = true;
@@ -368,14 +363,16 @@ async function fetchCtnrLstData(bOnly) {
   view.resetCurrent();
 
   if (bOnly === false) {
+    isFirstOnly = true;
     // eslint-disable-next-line no-use-before-define
-    await fetchTrdSpcData(); // 증빙서류 종류
+    await fetchTrdSpcData(isFirstOnly); // 증빙서류 종류
   }
   isOnly = false;
 }
 
 // 증빙서류종류
-async function fetchTrdSpcData() {
+// eslint-disable-next-line no-shadow
+async function fetchTrdSpcData(bFirstOnly) {
   // changing api & cacheparams according to search classification
   let res = '';
 
@@ -392,8 +389,8 @@ async function fetchTrdSpcData() {
   cachedParams = cloneDeep(searchParams.value);
 
   // 증빙서류종류 조회 시 기간제외
-  cachedParams.cntrCnfmStrtDt = '';
-  cachedParams.cntrCnfmEndDt = '';
+  // cachedParams.cntrCnfmStrtDt = '';
+  // cachedParams.cntrCnfmEndDt = '';
 
   // console.log(cachedParams);
   // console.log(pageInfo.value);
@@ -411,6 +408,11 @@ async function fetchTrdSpcData() {
   if (res.data.length === 0) {
     await notify(t('MSG_ALT_NO_DATA')); // 데이터가 존재하지 않습니다.
     return;
+  }
+
+  // 조회 시 Infinite Scroll 아닐 경우 증빙서류 종류 그리드 초기화
+  if (bFirstOnly === true) {
+    grdRef.value.getData().clearRows();
   }
 
   const view = grdRef.value.getView();
@@ -451,7 +453,8 @@ async function onClickSearch() {
     pageInfo.value.pageIndex = 1;
     pageInfo.value.totalCount = 0;
 
-    await fetchTrdSpcData(); // 증빙서류 종류
+    isFirstOnly = true;
+    await fetchTrdSpcData(isFirstOnly); // 증빙서류 종류
   } else if (searchParams.value.cntrDvCd === '2') {
     grdRef.value.getData().clearRows();
     grdContracts.value.getData().clearRows();
@@ -468,23 +471,52 @@ async function onClickSearch() {
 
 // 메일발송
 async function onClickEmailSend() {
+  let view;
+
   if (searchParams.value.cntrDvCd === '1') {
-    return;
+    if (searchParams.value.docDvCd === '1') {
+      view = grdDepositItemizationSheet.value.getView();
+    } else if (searchParams.value.docDvCd === '2') {
+      view = grdTradeSpecificationSheet.value.getView();
+    } else if (searchParams.value.docDvCd === '3') {
+      view = grdCardSalesSlipSheet.value.getView();
+    } else if (searchParams.value.docDvCd === '4') {
+      view = grdContractArticlesSheet.value.getView();
+    }
+  } else if (searchParams.value.cntrDvCd === '2') {
+    view = grdContracts.value.getView();
   }
 
-  const view = grdContracts.value.getView();
+  const count = view.getItemCount(view);
   const checkedItems = view.getCheckedItems();
   const cntrList = [];
 
-  if (checkedItems.length === 0) {
-    notify(t('MSG_ALT_BEFORE_SELECT_IT', [t('MSG_TXT_ITEM')]));
+  if (searchParams.value.cntrDvCd === '2' && count === 0) {
+    notify(t('MSG_ALT_NO_PRINT_LIST')); // 출력 내역이 없습니다.
+    return;
+  }
+
+  if (searchParams.value.cntrDvCd === '2' && checkedItems.length === 0) {
+    notify(t('MSG_ALT_BEFORE_SELECT_IT', [t('MSG_TXT_ITEM')])); // 항목 (을)를 선택해주세요
   } else {
-    const cntrs = gridUtil.getCheckedRowValues(view);
-    cntrs.forEach((row) => {
-      cntrList.push({
-        cntrNoFull: row.cntrDtlNo,
-      });
-    });
+    switch (searchParams.value.cntrDvCd) { // 계약/고객번호 구분
+      case '1': // 계약상세번호
+        cntrList.push({
+          cntrNoFull: ozParamsList.value[0].cntrDtlNo,
+        });
+        break;
+      case '2': // 고객번호
+        // eslint-disable-next-line no-case-declarations
+        const cntrs = gridUtil.getCheckedRowValues(view);
+        cntrs.forEach((row) => {
+          cntrList.push({
+            cntrNoFull: row.cntrDtlNo,
+          });
+        });
+        break;
+      default:
+        break;
+    }
 
     const searchPopupParams = {
       docDvCd: searchParams.value.docDvCd, // 증빙서류종류
@@ -535,8 +567,12 @@ async function onClickPblPrnt() {
     return;
   }
 
+  // console.log(checkedItems.length);
   if (searchParams.value.cntrDvCd === '2' && checkedItems.length === 0) {
     notify(t('MSG_ALT_BEFORE_SELECT_IT', [t('MSG_TXT_ITEM')])); // 항목 (을)를 선택해주세요
+  } else if (searchParams.value.cntrDvCd === '2' && checkedItems.length >= 81) {
+    await alert(t('MSG_ALT_SEL_MORE_THAN_CNTRS', [80])); // 최대 {0}개까지 선택할 수 있습니다.
+    return;
   } else {
     const cntrs = gridUtil.getCheckedRowValues(view);
     cntrs.forEach((row) => {
@@ -680,7 +716,7 @@ async function onClickPblPrnt() {
 }
 
 onMounted(async () => {
-  await fetchTrdSpcData(); // 증빙서류 종류(입금내역)
+  await fetchTrdSpcData(isFirstOnly); // 증빙서류 종류(입금내역)
 });
 
 // -------------------------------------------------------------------------------------------------
@@ -801,7 +837,8 @@ const initGrdDepositItemizationSheet = defineGrid((data, view) => {
   view.onScrollToBottom = async (g) => {
     if (pageInfo.value.pageIndex * pageInfo.value.pageSize <= g.getItemCount()) {
       pageInfo.value.pageIndex += 1;
-      await fetchTrdSpcData();
+      isFirstOnly = false;
+      await fetchTrdSpcData(isFirstOnly);
     }
   };
 });
@@ -847,7 +884,8 @@ const initGrdTradeSpecificationSheet = defineGrid((data, view) => {
   view.onScrollToBottom = async (g) => {
     if (pageInfo.value.pageIndex * pageInfo.value.pageSize <= g.getItemCount()) {
       pageInfo.value.pageIndex += 1;
-      await fetchTrdSpcData();
+      isFirstOnly = false;
+      await fetchTrdSpcData(isFirstOnly);
     }
   };
 });
@@ -856,7 +894,7 @@ const initGrdTradeSpecificationSheet = defineGrid((data, view) => {
 const initGrdCardSalesSlip = defineGrid((data, view) => {
   const fields = [
     { fieldName: 'cntrDtlNo' }, // 계약상세번호
-    { fieldName: 'istmMcn' }, // 할부개월
+    { fieldName: 'dpismn' }, // 할부개월
     { fieldName: 'pdNm' }, // 상품명
     { fieldName: 'dpstdt' }, // 거래일
     { fieldName: 'dpcndt' }, // 취소일
@@ -868,7 +906,7 @@ const initGrdCardSalesSlip = defineGrid((data, view) => {
 
   const columns = [
     { fieldName: 'cntrDtlNo', header: t('MSG_TXT_CNTR_DTL_NO'), width: '135', styleName: 'text-center' }, // 계약상세번호
-    { fieldName: 'istmMcn', header: t('MSG_TXT_ISTM_MCNT'), width: '110', styleName: 'text-right' }, // 할부개월
+    { fieldName: 'dpismn', header: t('MSG_TXT_ISTM_MCNT'), width: '110', styleName: 'text-right' }, // 할부개월
     { fieldName: 'pdNm', header: t('MSG_TXT_PRDT_NM'), width: '292', styleName: 'text-left' }, // 상품명
     { fieldName: 'dpstdt', header: t('MSG_TXT_TRD_DT'), width: '131', styleName: 'text-center', datetimeFormat: 'date' }, // 거래일
     { fieldName: 'dpcndt', header: t('MSG_TXT_CAN_D'), width: '131', styleName: 'text-center', datetimeFormat: 'date' }, // 취소일
@@ -896,7 +934,8 @@ const initGrdCardSalesSlip = defineGrid((data, view) => {
   view.onScrollToBottom = async (g) => {
     if (pageInfo.value.pageIndex * pageInfo.value.pageSize <= g.getItemCount()) {
       pageInfo.value.pageIndex += 1;
-      await fetchTrdSpcData();
+      isFirstOnly = false;
+      await fetchTrdSpcData(isFirstOnly);
     }
   };
 });
@@ -938,7 +977,8 @@ const initGrdContractArticles = defineGrid((data, view) => {
   view.onScrollToBottom = async (g) => {
     if (pageInfo.value.pageIndex * pageInfo.value.pageSize <= g.getItemCount()) {
       pageInfo.value.pageIndex += 1;
-      await fetchTrdSpcData();
+      isFirstOnly = false;
+      await fetchTrdSpcData(isFirstOnly);
     }
   };
 });

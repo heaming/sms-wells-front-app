@@ -21,13 +21,6 @@
       @search="onClickSearch"
     >
       <kw-search-row>
-        <kw-search-item :label="$t('MSG_TXT_DELV_WARE')">
-          <kw-select
-            v-model="searchParams.wareNo"
-            :options="logisticsCenters"
-            readonly
-          />
-        </kw-search-item>
         <kw-search-item :label="$t('MSG_TXT_WK_STS')">
           <kw-select
             v-model="searchParams.findGb"
@@ -44,14 +37,12 @@
             :label="$t('MSG_TXT_AK_DT')"
           />
         </kw-search-item>
-      </kw-search-row>
-      <kw-search-row>
         <kw-search-item :label="$t('MSG_TXT_PRTNR_BZS')">
           <kw-select
             v-model="searchParams.prtnrBzsCd"
-            :options="codes.PRTNR_BZS_CD"
             :label="$t('MSG_TXT_PRTNR_BZS_CD')"
-            first-option="all"
+            :placeholder="prtnrBzs"
+            readonly
           />
         </kw-search-item>
       </kw-search-row>
@@ -138,7 +129,7 @@ const now = dayjs();
 // -------------------------------------------------------------------------------------------------
 const baseUrl = '/sms/wells/service/md-product-returning-goods';
 
-const codes = await codeUtil.getMultiCodes('SV_BIZ_DCLSF_CD', 'PRTNR_BZS_CD');
+const codes = await codeUtil.getMultiCodes('SV_BIZ_DCLSF_CD');
 console.log(codes);
 
 const customCodes = {
@@ -173,121 +164,11 @@ const searchParams = ref({
 const totalCount = ref(0);
 
 let cachedParams;
-const logisticsCenters = ref();
-
-/* 물류센터 조회 */
-async function fetchLogisticsCenters() {
-  const res = await dataService.get(`${baseUrl}/logistics-centers`, {});
-  logisticsCenters.value = res.data;
-}
-
-await fetchLogisticsCenters();
 
 /* 택배상품 반품조회 */
 async function fetchData() {
   const res = await dataService.get(`${baseUrl}`, { params: { ...cachedParams } });
   const list = res.data;
-  // let list = res.data;
-  // // 임시 테스트 데이터 S
-  // list = [];
-  // list.push({
-  //   svBizDclsfCd: '3460',
-  //   svBizDclsfNm: '택배반품',
-  //   wkPrgsStatCd: '10',
-  //   wkPrgsStatNm: '작업대기',
-  //   reWkPrgsStatNm: '취소완료',
-  //   bcNo: 'AL4WAKD02Q70300051',
-  //   cntrNo: 'W20236183900',
-  //   cntrSn: '1',
-  //   cntrDtlNo: 'W20236210900-1',
-  //   rcgvpKnm: '테스트용',
-  //   cralLocaraTno: '010',
-  //   mexnoEncr: '5197',
-  //   cralIdvTno: '3287',
-  //   basePdCd: 'WP02120618',
-  //   basePdNm: 'AP107그레이/택배배송 렌탈 일반렌탈',
-  //   pdctPdCd: 'WM02100269',
-  //   cntrPdStrtdt: '20230802',
-  //   fwSppIvcNo: '530002881782',
-  //   pcsvRcgvDt: '20230802',
-  //   rcpdt: '20230804',
-  //   pdUseDc: '6',
-  //   cmptGd: 'E',
-  //   fnlGb: 'E',
-  //   rcpOgTpCd: 'HR1',
-  //   rcpIchrPrtnrNo: '37581',
-  //   prtnrKnm: '테스트계정',
-  //   wkWareNo: '100002',
-  //   wareNm: '교원파주물류센터',
-  //   wareMngtPrtnrNo: '99992',
-  //   wareMngtPrtnrOgTpCd: 'W02',
-  //   asLctCd: 'A806',
-  //   asPhnCd: 'B836',
-  //   asCausCd: 'Z538',
-  //   rpbLocaraCd: 'D010',
-  //   siteAwSvTpCd: '3',
-  //   siteAwAtcCd: 'A160',
-  //   pdUswyCd: '8',
-  //   asRefriDvCd: '1',
-  //   bfsvcRefriDvCd: '1',
-  //   urgtDvCd: 'N',
-  //   partCnt: '3',
-  //   partCd01: 'WM02100269',
-  //   partNm01: '공기청정기(AP107CGA) 미니 (H11)',
-  //   partQty01: '1',
-  //   partCd02: 'WM02100269',
-  //   partNm02: 'AL106FWA/택배배송 렌탈 일반렌탈',
-  //   partQty02: '1',
-  //   partCd03: 'WM02100260',
-  //   partNm03: '공기청정기AL106FWA',
-  //   partQty03: '2',
-  //   cntrCstNo: '034261450',
-  //   sellTpCd: '2',
-  //   sellTpNm: '렌탈/리스',
-  //   sellTpDtlCd: '21',
-  //   sellTpDtlNm: '일반렌탈',
-  //   cntrDtlStatCd: '101',
-  //   cntrDtlStatNm: '정상',
-  //   cntrRcpFshDtm: '20230801000000',
-  //   adrId: '5197',
-  //   newAdrZip: '22140',
-  //   rnadr: '인천 미추홀구 경인로 395',
-  //   rdadr: '3동 808호 (주안동,현대아파트)',
-  //   locaraTno: '010',
-  //   exnoEncr: 'SgBG9oaLr6l4CnWEAh1gBw==',
-  //   idvTno: '3287',
-  //   rsgAplcDt: '',
-  //   rsgFshDt: '20230921', // 취소완료
-  //   // rsgFshDt: '', // 반품등록
-  //   arvDt: '20230811',
-  //   dtmChRsonCd: '91',
-  //   pscocd: '',
-  //   dtmChRsonDtlCn: '대한통운/지수*',
-  //   reqdDt: '20230816',
-  //   mngrDvCd: '2',
-  //   dgr1LevlOgId: '',
-  //   dgr3LevlOgId: '',
-  //   rmk_cn: '',
-  //   editYn: 'Y',
-  //   svBizHclsfCd: '3',
-  //   pdQty: '1',
-  //   istDt: '20230802',
-  //   cstSvAsnNo: '3202308040000838218',
-  //   ogId: 'OG00066166',
-  //   ogTpCd: 'W02',
-  //   prtnrNo: '700559',
-  //   findGb: '',
-  //   ostrTpCd: '',
-  //   ostrDt: '',
-  //   itmOstrNo: '',
-  //   ostrSn: '',
-  //   logisticsPdCd: '',
-  //   logisticsPdNm: '',
-  //   logisticsPdQty: '',
-  //   clnSppIvcNo: '843818808143',
-  //   prtnrBzsNm: '롯데푸드',
-  // });
-  // 임시 테스트 데이터 E
   totalCount.value = list.length;
 
   const view = grdMainRef.value.getView();
@@ -353,6 +234,21 @@ async function onClickSave() {
     await fetchData();
   }
 }
+
+const prtnrBzs = ref();
+async function getLoginPrtnrBzs() {
+  // 로그인된 사용자기준으로 파트너업체를 설정한다.
+  const res = await dataService.get(`${baseUrl}/login-prtnr-bzs`, { params: cachedParams });
+  const result = res.data;
+  if (!isEmpty(result)) {
+    prtnrBzs.value = result;
+    searchParams.value.prtnrBzsCd = result;
+  }
+}
+
+onMounted(async () => {
+  await getLoginPrtnrBzs();
+});
 
 // -------------------------------------------------------------------------------------------------
 // Initialize Grid

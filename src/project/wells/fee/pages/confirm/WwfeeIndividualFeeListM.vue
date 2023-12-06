@@ -115,12 +115,6 @@
           <span class="ml8">{{ $t('MSG_TXT_UNIT_COLON_WON') }}</span>
         </template>
         <kw-btn
-          :label="$t('MSG_BTN_DSB_SPCSH_PRNT')"
-          icon="report"
-          dense
-          @click="openFeeReportPopup"
-        />
-        <kw-btn
           v-permission:download
           dense
           secondary
@@ -135,10 +129,17 @@
           spaced
         />
         <kw-btn
-          v-permission:update
+          v-permission:read
           :label="$t('MSG_BTN_FEE_INQR_PTRM_SE')"
           dense
           @click="onClickFeeDsbSpcsh"
+        />
+        <kw-btn
+          v-if="isReportVisible"
+          :label="$t('MSG_BTN_DSB_SPCSH_PRNT')"
+          icon="report"
+          dense
+          @click="openFeeReportPopup"
         />
       </kw-action-top>
       <kw-grid
@@ -154,7 +155,7 @@
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
-import { useDataService, getComponentType, defineGrid, modal, codeUtil, notify, gridUtil } from 'kw-lib';
+import { useDataService, getComponentType, defineGrid, modal, codeUtil, notify, gridUtil, useMeta } from 'kw-lib';
 import { openReportPopup } from '~common/utils/cmPopupUtil';
 
 import dayjs from 'dayjs';
@@ -173,6 +174,10 @@ const grdMainRef = ref(getComponentType('KwGrid'));
 const isSelectMrsbDvCdVisile = ref(true);
 const isSelectPrsbDvCdVisile = ref(false);
 const isSelectHrsbDvCdVisile = ref(false);
+const isReportVisible = ref(false);
+const { getUserInfo } = useMeta();
+const { roles } = getUserInfo();
+const roleNickNames = roles.map((role) => role.roleNickName);
 const { currentRoute } = useRouter();
 const router = useRouter();
 
@@ -201,6 +206,8 @@ const searchParams = ref({
   ogLevl3: '',
   prtnrNo: '',
   feeDsbYn: '',
+  ddlnDvId: '',
+  ddlnId: '',
 });
 
 const saveParams = ref({
@@ -292,6 +299,13 @@ async function fetchData() {
 
   const view = grdMainRef.value.getView();
   view.getDataSource().setRows(dataList);
+
+  const resDeadLine = await dataService.get('/sms/common/fee/fee-deadline', { params: { ddlnDvId: searchParams.value.ddlnDvId, ddlnId: searchParams.value.ddlnId } });
+  const getDate = dayjs().format('YYYYMMDD');
+
+  if (roleNickNames.includes('ROL_W1580') || (getDate >= resDeadLine.data.startDt + resDeadLine.data.startHm && getDate <= resDeadLine.data.finsDt + resDeadLine.data.finsHm)) { // wells영업지원팀 이거나 수수료조회기간일때 해당 버튼을 표시한다.
+    isReportVisible.value = true;
+  }
 }
 
 /*
@@ -311,6 +325,32 @@ async function onClickExcelDownload() {
 }
 
 async function onClickSearch() {
+  if (searchParams.value.ogTpCd === 'W01') { /* P조직 */
+    if (searchParams.value.rsbDvCd === 'W0104') {
+      searchParams.value.ddlnDvId = 'DLD_W01_FEE_DSB_SPCSH1';
+      searchParams.value.ddlnId = 'DLN_00081';
+    } else if (searchParams.value.rsbDvCd === 'W0105') {
+      searchParams.value.ddlnDvId = 'DLD_W01_FEE_DSB_SPCSH2';
+      searchParams.value.ddlnId = 'DLN_00082';
+    }
+  } else if (searchParams.value.ogTpCd === 'W02') { /* M조직 */
+    if (searchParams.value.rsbDvCd === 'W0204') {
+      searchParams.value.ddlnDvId = 'DLD_W02_FEE_DSB_SPCSH1';
+      searchParams.value.ddlnId = 'DLN_00083';
+    } else if (searchParams.value.rsbDvCd === 'W0205') {
+      searchParams.value.ddlnDvId = 'DLD_W02_FEE_DSB_SPCSH2';
+      searchParams.value.ddlnId = 'DLN_00084';
+    }
+  } else if (searchParams.value.ogTpCd === 'W03') { /* 홈마스터 */
+    if (searchParams.value.rsbDvCd === 'W0301') {
+      searchParams.value.ddlnDvId = 'DLD_W03_FEE_DSB_SPCSH1';
+      searchParams.value.ddlnId = 'DLN_00085';
+    } else if (searchParams.value.rsbDvCd === 'W0302') {
+      searchParams.value.ddlnDvId = 'DLD_W03_FEE_DSB_SPCSH2';
+      searchParams.value.ddlnId = 'DLN_00086';
+    }
+  }
+
   cachedParams = cloneDeep(searchParams.value);
 
   await fetchData();

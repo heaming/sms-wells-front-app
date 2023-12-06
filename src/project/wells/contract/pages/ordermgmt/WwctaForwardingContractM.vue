@@ -54,8 +54,9 @@
             v-model="searchParams.bzrno"
             :label="$t('MSG_TXT_ENTRP_NO')"
             rules="required"
+            mask="###-##-#####"
             :placeholder="`${t('MSG_TXT_ENTRP_NO')} 10${t('MSG_TXT_DIGITS')}`"
-            :maxlength="10"
+            :maxlength="12"
           />
         </slot>
       </template>
@@ -131,9 +132,12 @@ const props = defineProps({
   spectxPblDDvCd: { type: String, default: undefined }, // 거래명세서발행일구분코드
   encryptedParam: { type: String, default: undefined }, // 암호화 된 파라미터
   cntrCnfmStrtDt: { type: String, default: undefined }, // 계약확정시작일자
+  cntrCnfmEndDt: { type: String, default: undefined }, // 계약확정종료일자
   cntrTempSaveDt: { type: String, default: undefined }, // 계약임시저장일자
   stplTn: { type: String, default: undefined }, // 약정회차
   device: { type: String, default: undefined }, // 기기
+  cstNo: { type: String, default: undefined }, // 고객번호
+  cntrCstNo: { type: String, default: undefined }, // 계약고객번호
 });
 
 // props에서 받은 파라미터들
@@ -149,9 +153,12 @@ const params = decryptEncryptedParam(props.encryptedParam, {
   spectxPblDDvCd: props.spectxPblDDvCd,
   spectxGrpNo: props.spectxGrpNo,
   cntrCnfmStrtDt: props.cntrCnfmStrtDt,
+  cntrCnfmEndDt: props.cntrCnfmEndDt,
   cntrTempSaveDt: props.cntrTempSaveDt,
   stplTn: props.stplTn,
   device: props.device,
+  cntrCstNo: props.cntrCstNo,
+  cstNo: props.cstNo,
 });
 
 const searchParams = ref({
@@ -209,6 +216,8 @@ const rptIdGbn = computed(() => { // 리포트 종류 구분 처리 computed
 //   window.close();
 // }
 
+console.log(params);
+
 // openCntrOZReport: Oz리포트 오픈
 async function openCntrOZReport() {
   const dtm = isEmpty(params.cntrTempSaveDt) ? '' : params.cntrTempSaveDt;
@@ -228,9 +237,11 @@ async function openCntrOZReport() {
     spectxPblDDvCd: params.spectxPblDDvCd,
     spectxGrpNo: params.spectxGrpNo,
     cntrCnfmStrtDt: params.cntrCnfmStrtDt,
+    cntrCnfmEndDt: params.cntrCnfmEndDt,
     stplTn: params.stplTn,
     cntrNo: params.cntrNo,
     cntrSn: params.cntrSn,
+    cntrCstNo: isEmpty(params.cntrCstNo) ? params.cstNo : params.cntrCstNo,
   };
 
   // OZ 리포트 팝업 파라미터 설정

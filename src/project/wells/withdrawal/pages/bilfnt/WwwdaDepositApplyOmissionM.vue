@@ -23,6 +23,7 @@
         :label="t('MSG_TXT_BASE_YM')"
         required
       >
+        <!-- 기준년월 -->
         <kw-date-picker
           v-model="searchParams.bilYm"
           rules="required"
@@ -43,6 +44,7 @@
           @change="fetchData"
         />
         <span class="ml8">{{ t('MSG_TXT_UNIT_WON') }}</span>
+        <!-- (단위 : 원) -->
       </template>
 
       <kw-btn
@@ -54,6 +56,7 @@
         :label="t('MSG_BTN_EXCEL_DOWN')"
         @click="onClickExcelDownload"
       />
+      <!-- 엑셀 다운로드 -->
     </kw-action-top>
 
     <kw-grid
@@ -125,12 +128,14 @@ async function fetchData() {
   view.resetCurrent();
 }
 
+// 조회
 async function onClickSearch() {
   pageInfo.value.pageIndex = 1;
   cachedParams = { ...searchParams.value };
   await fetchData();
 }
 
+// 엑셀 다운로드
 async function onClickExcelDownload() {
   const res = await dataService.get('/sms/wells/withdrawal/bilfnt/sales-perf-checks/excel-download', { params: cachedParams, timeout: 30000000 });
   const view = grdMainRef.value.getView();
@@ -159,24 +164,24 @@ const initGrid = defineGrid((data, view) => {
   ];
 
   const columns = [
-    { fieldName: 'sellTpNm', header: t('MSG_TXT_AUTO_FNT_CLSF'), width: '290' },
+    { fieldName: 'sellTpNm', header: t('MSG_TXT_AUTO_FNT_CLSF'), width: '290' }, // 자동이체 분류
     { fieldName: 'baseYm',
-      header: t('MSG_TXT_PERF_YM'),
+      header: t('MSG_TXT_PERF_YM'), // 실적년월
       width: '200',
       styleName: 'text-center',
       datetimeFormat: 'yyyy-MM',
 
     },
     { fieldName: 'cntr',
-      header: t('MSG_TXT_CNTR_DTL_NO'),
+      header: t('MSG_TXT_CNTR_DTL_NO'), // 계약상세번호
       width: '250',
       styleName: 'text-center',
     },
-    { fieldName: 'rentalNmn', header: t('MSG_TXT_RENTAL_NMN'), width: '150', styleName: 'text-center' },
-    { fieldName: 'thmIntamDpAmt', header: t('MSG_TXT_PRPD_DP'), width: '150', styleName: 'text-right', numberFormat: '#,##0' },
-    { fieldName: 'thmIstmRfndAmt', header: t('MSG_TXT_PRPD_RFND'), width: '150', styleName: 'text-right', numberFormat: '#,##0' },
-    { fieldName: 'rveAmt', header: t('MSG_TXT_AMT'), width: '150', styleName: 'text-right', numberFormat: '#,##0' },
-    { fieldName: 'dpMesCd', header: t('MSG_TXT_STLM_INF'), width: '117', styleName: 'text-center', options: codes.DP_MES_CD },
+    { fieldName: 'rentalNmn', header: t('MSG_TXT_RENTAL_NMN'), width: '150', styleName: 'text-center' }, // 렌탈차월
+    { fieldName: 'thmIntamDpAmt', header: t('MSG_TXT_PRPD_DP'), width: '150', styleName: 'text-right', numberFormat: '#,##0' }, // 선수입금
+    { fieldName: 'thmIstmRfndAmt', header: t('MSG_TXT_PRPD_RFND'), width: '150', styleName: 'text-right', numberFormat: '#,##0' }, // 선수환불
+    { fieldName: 'rveAmt', header: t('MSG_TXT_AMT'), width: '150', styleName: 'text-right', numberFormat: '#,##0' }, // 금액
+    { fieldName: 'dpMesCd', header: t('MSG_TXT_STLM_INF'), width: '117', styleName: 'text-center', options: codes.DP_MES_CD }, // 결제정보
   ];
 
   data.setFields(fields);

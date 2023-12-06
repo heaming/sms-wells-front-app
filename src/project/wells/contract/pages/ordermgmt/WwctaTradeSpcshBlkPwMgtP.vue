@@ -110,10 +110,11 @@
 import { codeUtil, gridUtil, getComponentType, defineGrid, useDataService, useMeta, useGlobal } from 'kw-lib';
 import dayjs from 'dayjs';
 import { cloneDeep, isEmpty } from 'lodash-es';
+import { openReportPopup } from '~common/utils/cmPopupUtil';
 
 const dataService = useDataService();
 const { t } = useI18n();
-const { alert, notify } = useGlobal();
+const { alert, notify, confirm } = useGlobal();
 // -------------------------------------------------------------------------------------------------
 // Function & Event
 // -------------------------------------------------------------------------------------------------
@@ -180,10 +181,44 @@ async function onClickSend() {
     notify(t('MSG_ALT_CHK_ID', [t('MSG_TXT_FW_CN')]));
     return;
   }
-  await dataService.post('sms/wells/contract/contracts/send-trade-specification-sheets', checkRows);
 
-  notify(t('MSG_ALT_SAVE_DATA'));
-  await onClickSearch();
+  // eslint-disable-next-line no-restricted-syntax
+  for (const row of checkRows) {
+    if (isEmpty(row.emadr)) { // 이메일 주소가 존재하지 않는 경우
+      notify(`${t('MSG_ALT_USER_NOT_FOUND')}[그룹번호 : ${row.spectxGrpNo}]`); // 해당 이메일 또는 이름이 등록되어 있지 않습니다.
+      return;
+    }
+  }
+
+  if (await confirm(t(
+    'MSG_ALT_EML_FW_CONF',
+    [checkRows.length > 1 ? `${checkRows[0].cstKnm} 외 ${checkRows.length - 1}명` : checkRows[0].cstKnm,
+      checkRows.length > 1 ? `${checkRows[0].emadr} 외 ${checkRows.length - 1}건` : checkRows[0].emadr],
+  ))) { // 이메일을 발송 하시겠습니까?[수신자(외 x명)]님에게 메일을 발송하겠습니까?[수신자 메일(외 x건)]
+    await dataService.post('sms/wells/contract/contracts/send-trade-specification-sheets', checkRows);
+
+    notify(t('MSG_ALT_EML_FW_FSH')); // 메일 발송이 완료 되었습니다.
+    await onClickSearch();
+  }
+}
+
+async function onClickPriview(item) {
+  const rptParams = {
+    spectxGrpNo: item.spectxGrpNo, // 그룹번호
+    spectxPblDDvCd: item.spectxPblDDvCd, // 발행일자구분코드
+    cntrCnfmStrtDt: item.slClYm, // 확정일자(cntrCnfmStrtDt)
+    custNm: item.cstNm, // 계약자명
+    reportHeaderTitle: '거래명세서 조회', // 리포트타이틀
+  };
+  const searchApiUrl = '/api/v1/sms/wells/contract/contracts/send-trade-specification-sheets/oz';
+  const args = { searchApiUrl, ...rptParams };
+
+  console.log(args);
+  openReportPopup(
+    '/kstation-w/dpst/dealSpec.ozr',
+    '',
+    JSON.stringify(args),
+  );
 }
 // -------------------------------------------------------------------------------------------------
 // Initialize Grid
@@ -266,10 +301,11 @@ const initTradeSpcshBlkPwMgtList = defineGrid((data, view) => {
   view.checkBar.visible = true;
   view.rowIndicator.visible = true;
 
-  view.onCellItemClicked = async (g, { column }) => {
-    // TODO: 미리보기 팝업화면 개발진행 후 변경 예정
+  view.onCellItemClicked = async (g, { column, dataRow }) => {
     if (column === 'preview') {
-      notify(t('팝업 준비중 입니다.')); // 리포트 팝업 준비 중
+      const item = gridUtil.getRowValue(g, dataRow);
+      console.log('ok', item);
+      onClickPriview(item);
     }
   };
 });

@@ -9,12 +9,13 @@
  ****************************************************************************************************
  * 프로그램 설명
  ****************************************************************************************************
- - 변경된 관리고객 급지 및 배정담당자 정보를 변경한다.
+ - 변경된 관리고객 급지와 배정담당자 정보를 변경한다.
  ****************************************************************************************************
 --->
 <template>
   <kw-page>
     <kw-search
+      ref="searchRef"
       v-permission:read
       :cols="4"
       :modified-targets="['grdMain']"
@@ -274,7 +275,7 @@
       <kw-grid
         ref="grdMainRef"
         name="grdMain"
-        :page-size="codes.COD_PAGE_SIZE_OPTIONS.find((x) => x.codeId === '30').codeName"
+        :page-size="codes.COD_PAGE_SIZE_OPTIONS.find((x) => x.codeId === '20').codeName"
         :total-count="totalCount"
         @init="initGrdMain"
       />
@@ -309,6 +310,7 @@ const { getters } = useStore();
 const { currentRoute } = useRouter();
 const totalCount = ref(0);
 const managerAuthYn = ref(false); // false : Admin, true : not Admin
+const searchRef = ref();
 
 // -------------------------------------------------------------------------------------------------
 // Function & Event
@@ -356,7 +358,7 @@ async function fetchData() {
   //   await alert(`${t('MSG_ALT_NOT_FOUND_OG_INF')}111`); // 조직정보를 찾을 수 없습니다.
   //   return;
   // }
-  const res = await dataService.get('/sms/wells/service/manage-customer-rglvl', { params: cachedParams });
+  const res = await dataService.get('/sms/wells/service/manage-customer-rglvl', { params: cachedParams, timeout: 300000 });
   const list = res.data;
   pageInfo.value.totalCount = list.length;
 
@@ -567,6 +569,10 @@ async function onClickBulkUpdateCurMnthAlctn() {
 
   data.beginUpdate();
   checkedRows.forEach((rowValue) => {
+    // 2023.11.29 ::: 당월배정 매니저가 없을 경우 데이터 세팅 안함.
+    if (isEmpty(rowValue.curMnthAlctnPrtnrKnm)) {
+      return;
+    }
     data.updateRow(rowValue.dataRow, {
       curMnthAlctnDgr2LevlOgCd: dgr2LevlOgCd,
       curMnthAlctnDgr3LevlOgCd: ogCd,
@@ -641,7 +647,7 @@ async function onClickSave() {
 
 async function onClickExcelDownload() {
   const view = grdMainRef.value.getView();
-  const { data } = await dataService.get('/sms/wells/service/manage-customer-rglvl/excel-download', { params: cachedParams });
+  const { data } = await dataService.get('/sms/wells/service/manage-customer-rglvl/excel-download', { params: cachedParams, timeout: 300000 });
 
   await gridUtil.exportView(view, {
     fileName: currentRoute.value.meta.menuName,
@@ -694,8 +700,8 @@ function initGrdMain(data, view) {
     { fieldName: 'cntrNo' }, // 계약번호
     { fieldName: 'cntrSn' }, // 계약번호
     { fieldName: 'rcgvpKnm' }, // 고객명
-    { fieldName: 'svpdSapCd' }, // SAP코드
-    { fieldName: 'pdctPdCd' }, // 품목코드
+    // { fieldName: 'svpdSapCd' }, // SAP코드
+    // { fieldName: 'pdctPdCd' }, // 품목코드
     { fieldName: 'svpdNmAbbr1' }, // 상품명
     { fieldName: 'istDt' }, // 설치일자
     { fieldName: 'newAdrZip' }, // 우편번호
@@ -704,11 +710,11 @@ function initGrdMain(data, view) {
     { fieldName: 'rcgvpDiv' }, // 고객구분
     { fieldName: 'fix' }, // 고정
     { fieldName: 'vstDuedt' }, // 차기방문월
-    { fieldName: 'mngStdDgr2LevlOgCd' }, // 관리기준(관리계정) - 지역단
+    // { fieldName: 'mngStdDgr2LevlOgCd' }, // 관리기준(관리계정) - 지역단
     { fieldName: 'mngStdDgr3LevlOgCd' }, // 관리기준(관리계정) - 지점
     { fieldName: 'mngStdPrtnrKnm' }, // 관리기준(관리계정) - 매니저
     { fieldName: 'mngStdMngerRglvlDvCd' }, // 관리기준(관리계정) - 관리기준급지
-    { fieldName: 'curMnthAlctnDgr2LevlOgCd' }, // 당월배정 - 지역단
+    // { fieldName: 'curMnthAlctnDgr2LevlOgCd' }, // 당월배정 - 지역단
     { fieldName: 'curMnthAlctnDgr3LevlOgCd' }, // 당월배정 - 지점
     { fieldName: 'curMnthAlctnPrtnrKnm' }, // 당월배정 - 매니저
     { fieldName: 'bfchIchrBrchOgId' }, // 당월배정
@@ -723,12 +729,14 @@ function initGrdMain(data, view) {
     { fieldName: 'mngtPrtnrOgTpCd' }, // [관리기준] 조직유형코드
     { fieldName: 'mngtPrtnrNo' }, // [관리기준] 파트너번호
     // { fieldName: 'mngStdMngerRglvlDvCd' }, // [관리기준] 급지구분코드
+    { fieldName: 'mngStdFnlCltnDt' }, // [관리기준] 최종해약일자
 
     { fieldName: 'asnPsicPrtnrOgTpCd' }, // [당월배정] 조직유형코드
     { fieldName: 'asnPsicPrtnrNo' }, // [당월배정] 파트너번호
     { fieldName: 'cnfmPsicPrtnrOgTpCd' }, // [당월배정] 조직유형코드
     { fieldName: 'cnfmPsicPrtnrNo' }, // [당월배정] 파트너번호
     // { fieldName: 'curMnthAlctnMngerRglvlDvCd' }, // [당월배정] 급지구분코드
+    { fieldName: 'curFnlCltnDt' }, // [당월배정] 최종해약일자
 
     { fieldName: 'afchIchrBrchOgId' }, // 당월배정
     { fieldName: 'afchIchrPrtnrOgTpCd' }, // 당월배정
@@ -738,8 +746,8 @@ function initGrdMain(data, view) {
   const columns = [
     { fieldName: 'cntr', header: t('MSG_TXT_CNTR_DTL_NO'), width: '140', styleName: 'rg-button-link text-center', renderer: { type: 'button' } }, // 계약번호
     { fieldName: 'rcgvpKnm', header: t('MSG_TXT_CST_NM'), width: '100', styleName: 'text-center' }, // 고객명
-    { fieldName: 'svpdSapCd', header: t('MSG_TXT_SAP_CD'), width: '180', styleName: 'text-center' }, // SAP 코드
-    { fieldName: 'pdctPdCd', header: t('MSG_TXT_ITM_CD'), width: '110', styleName: 'text-center' }, // 품목코드
+    // { fieldName: 'svpdSapCd', header: t('MSG_TXT_SAP_CD'), width: '180', styleName: 'text-center' }, // SAP 코드
+    // { fieldName: 'pdctPdCd', header: t('MSG_TXT_ITM_CD'), width: '110', styleName: 'text-center' }, // 품목코드
     { fieldName: 'svpdNmAbbr1', header: t('MSG_TXT_PRDT_NM'), width: '110', styleName: 'text-center' }, // 상품명
     { fieldName: 'istDt', header: t('MSG_TXT_IST_DT'), width: '100', datetimeFormat: 'yyyy-MM-dd', styleName: 'text-center' }, // 설치일자
     { fieldName: 'newAdrZip', header: t('MSG_TXT_ZIP'), width: '70', styleName: 'text-center' }, // 우편번호
@@ -755,9 +763,11 @@ function initGrdMain(data, view) {
       } }, // 고객구분
     { fieldName: 'fix', header: t('MSG_TXT_FXN'), width: '50', styleName: 'text-center' }, // 고정
     { fieldName: 'vstDuedt', header: t('MSG_TXT_NX_VISIT_MON'), width: '100', styleName: 'text-center' }, // 차기방문월
-    { fieldName: 'mngStdDgr2LevlOgCd', header: t('MSG_TXT_RGNL_GRP'), width: '100', styleName: 'text-center' }, // 관리기준(관리계정): 지역단
+    // { fieldName: 'mngStdDgr2LevlOgCd', header: t('MSG_TXT_RGNL_GRP')
+    // , width: '100', styleName: 'text-center' }, // 관리기준(관리계정):지역단
     { fieldName: 'mngStdDgr3LevlOgCd', header: t('MSG_TXT_BRANCH'), width: '100', styleName: 'text-center' }, // 관리기준(관리계정): 지점
     { fieldName: 'mngStdPrtnrKnm', header: t('MSG_TXT_MANAGER'), width: '100', styleName: 'text-center' }, // 관리기준(관리계정): 매니저
+    { fieldName: 'mngStdFnlCltnDt', header: t('해약일자'), width: '100', datetimeFormat: 'yyyy-MM-dd', styleName: 'text-center' }, // 관리기준(관리계정): 최종해약일자
     { fieldName: 'mngStdMngerRglvlDvCd',
       header: t('MSG_TXT_MNGER_RGLVL_DV'),
       width: '100',
@@ -766,9 +776,11 @@ function initGrdMain(data, view) {
       editor: {
         type: 'dropdown',
       } }, // 관리기준(관리계정): 관리기준급지
-    { fieldName: 'curMnthAlctnDgr2LevlOgCd', header: t('MSG_TXT_RGNL_GRP'), width: '100', styleName: 'text-center' }, // 당월배정: 지역단
+    // { fieldName: 'curMnthAlctnDgr2LevlOgCd', header: t('MSG_TXT_RGNL_GRP')
+    // , width: '100', styleName: 'text-center' }, // 당월배정: 지역단
     { fieldName: 'curMnthAlctnDgr3LevlOgCd', header: t('MSG_TXT_BRANCH'), width: '100', styleName: 'text-center' }, // 당월배정: 지점
     { fieldName: 'curMnthAlctnPrtnrKnm', header: t('MSG_TXT_MANAGER'), width: '100', styleName: 'text-center' }, // 당월배정: 매니저
+    { fieldName: 'curFnlCltnDt', header: t('해약일자'), width: '100', datetimeFormat: 'yyyy-MM-dd', styleName: 'text-center' }, // 당월배정: 최종해약일자
     { fieldName: 'curMnthAlctnMngerRglvlDvCd',
       header: t('MSG_TXT_MNGER_RGLVL_DV'),
       width: '100',
@@ -784,13 +796,13 @@ function initGrdMain(data, view) {
   view.setColumns(columns);
   view.checkBar.visible = true; // create checkbox column
   view.rowIndicator.visible = true; // create number indicator column
-  view.fixedOptions.colCount = 4;
+  view.fixedOptions.colCount = 2;
 
   view.setColumnLayout([
     'cntr',
     'rcgvpKnm',
-    'svpdSapCd',
-    'pdctPdCd',
+    // 'svpdSapCd',
+    // 'pdctPdCd',
     'svpdNmAbbr1',
     'istDt',
     'newAdrZip',
@@ -802,12 +814,12 @@ function initGrdMain(data, view) {
     {
       header: t('MSG_TXT_MNGER_RGLVL'), // 관리기준(관리계정)
       direction: 'horizontal', // merge type
-      items: ['mngStdDgr2LevlOgCd', 'mngStdDgr3LevlOgCd', 'mngStdPrtnrKnm', 'mngStdMngerRglvlDvCd'],
+      items: ['mngStdDgr3LevlOgCd', 'mngStdPrtnrKnm', 'mngStdFnlCltnDt', 'mngStdMngerRglvlDvCd'], // 지역단 제외 'mngStdDgr2LevlOgCd',
     }, // 이관전담당자
     {
       header: t('MSG_TXT_CRT_TRGT'), // 당월배정
       direction: 'horizontal',
-      items: ['curMnthAlctnDgr2LevlOgCd', 'curMnthAlctnDgr3LevlOgCd', 'curMnthAlctnPrtnrKnm', 'curMnthAlctnMngerRglvlDvCd'],
+      items: ['curMnthAlctnDgr3LevlOgCd', 'curMnthAlctnPrtnrKnm', 'curFnlCltnDt', 'curMnthAlctnMngerRglvlDvCd'], // 지역단 제외 'curMnthAlctnDgr2LevlOgCd',
     }, // 이관후담당자
   ]);
 
@@ -843,6 +855,7 @@ onMounted(async () => {
       ogSearchRef.value.onChangeDgr2LevlOgId(localGroup.value);
     }
   });
+  await searchRef.value.init();
 });
 </script>
 

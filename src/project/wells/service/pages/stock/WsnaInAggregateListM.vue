@@ -15,11 +15,13 @@
 <template>
   <kw-page ref="pageRef">
     <kw-search
+      :cols="5"
       @search="onClickSearch"
     >
       <kw-search-row>
         <kw-search-item
           :label="$t('MSG_TXT_STR_TP')"
+          :colspan="1"
         >
           <kw-select
             v-model="searchParams.strTpCd"
@@ -28,18 +30,18 @@
           />
         </kw-search-item>
         <kw-search-item
-          :label="$t('MSG_TXT_ITM_CD')"
+          :label="$t('MSG_TXT_STR_DT')"
+          :colspan="2"
         >
-          <kw-input
-            v-model="searchParams.pdCdFrom"
-          />
-          <span>~</span>
-          <kw-input
-            v-model="searchParams.pdCdTo"
+          <kw-date-range-picker
+            v-model:from="searchParams.baseDateFrom"
+            v-model:to="searchParams.baseDateTo"
+            rules="date_range_months:1"
           />
         </kw-search-item>
         <kw-search-item
           :label="$t('MSG_TXT_SAPCD')"
+          :colspan="2"
         >
           <kw-input
             v-model="searchParams.sapCdFrom"
@@ -52,12 +54,13 @@
       </kw-search-row>
       <kw-search-row>
         <kw-search-item
-          :label="$t('MSG_TXT_STR_DT')"
+          :label="$t('MSG_TXT_WARE_DV')"
         >
-          <kw-date-range-picker
-            v-model:from="searchParams.baseDateFrom"
-            v-model:to="searchParams.baseDateTo"
-            rules="date_range_months:1"
+          <kw-select
+            v-model="searchParams.wareDvCd"
+            :options="codes.WARE_DV_CD.filter((v) => ['2', '3'].includes(v.codeId))"
+            :label="$t('MSG_TXT_WARE_DV')"
+            rules="required"
           />
         </kw-search-item>
         <kw-search-item
@@ -67,13 +70,24 @@
           <kw-select
             v-model="searchParams.itmKndCd"
             :options="codes.ITM_KND_CD"
-            class="w166"
             @change="onChangeItmKndCd"
           />
           <kw-select
             v-model="searchParams.pdCd"
             :options="productCodes"
             first-option="all"
+          />
+        </kw-search-item>
+        <kw-search-item
+          :label="$t('MSG_TXT_ITM_CD')"
+          :colspan="2"
+        >
+          <kw-input
+            v-model="searchParams.pdCdFrom"
+          />
+          <span>~</span>
+          <kw-input
+            v-model="searchParams.pdCdTo"
           />
         </kw-search-item>
       </kw-search-row>
@@ -100,6 +114,9 @@
     </kw-search>
     <div class="result-area">
       <kw-action-top>
+        <template #left>
+          <kw-paging-info :total-count="totalCount" />
+        </template>
         <kw-btn
           icon="print"
           dense
@@ -117,7 +134,7 @@
       </kw-action-top>
       <kw-grid
         ref="grdMainRef"
-        :visible-rows="10"
+        :total-count="totalCount"
         @init="initGrdMain"
       />
     </div>
@@ -128,7 +145,7 @@
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
-import { codeUtil, useDataService, getComponentType, gridUtil } from 'kw-lib';
+import { codeUtil, useDataService, getComponentType, gridUtil, defineGrid } from 'kw-lib';
 import dayjs from 'dayjs';
 import { cloneDeep } from 'lodash-es';
 import { printElement } from '~common/utils/common';
@@ -150,6 +167,8 @@ const codes = await codeUtil.getMultiCodes(
   'PD_GD_CD',
   'COD_YN',
   'MAT_LGST_TP_DV_CD',
+  'COD_PAGE_SIZE_OPTIONS',
+  'WARE_DV_CD',
 );
 
 const searchParams = ref({
@@ -164,16 +183,67 @@ const searchParams = ref({
   pdCd: '',
   pdGdCd: '',
   useYn: '',
+  wareDvCd: '2',
 });
+
+let gridView;
+let gridData;
+let logisticsFields;
+let tmpFields;
+let fieldsObj;
+let fieldsWidth;
+
+async function getWareHouses() {
+  const wareParams = {
+    baseDateFrom: searchParams.value.baseDateFrom,
+    wareDvCd: searchParams.value.wareDvCd,
+  };
+  const result = await dataService.get('/sms/wells/service/in-aggregate/ware-houses', { params: wareParams });
+  if (result.data.length > 0) {
+    const wareHouses = result.data;
+    const wareLogisticsFields = wareHouses.filter((v) => v.wareNo.substring(0, 1) === '1'); // 물류센터
+    const wareTmpFields = wareHouses.filter((v) => v.wareNo.substring(0, 1) === '2' || v.wareNo.substring(0, 1) === '3'); // 서비스센터
+    fieldsWidth = 80; // 창고 그리드 가로폭 사이즈 설정
+
+    logisticsFields = [];
+    tmpFields = [];
+
+    logisticsFields.push(...wareLogisticsFields.map((v) => ({
+      fieldName: `ware${v.wareNo}`,
+      header: v.wareNm,
+      width: fieldsWidth,
+      styleName: 'text-right',
+      dataType: 'number',
+      numberFormat: '#,##0',
+      footer: { expression: 'sum', numberFormat: '#,##0', styleName: 'text-right text-weight-bold' },
+    })));
+    // 서비스센터 , 영업센터
+    tmpFields.push(...wareTmpFields.map((v) => ({
+      fieldName: `ware${v.wareNo}`,
+      header: v.wareNm,
+      width: fieldsWidth,
+      styleName: 'text-right',
+      dataType: 'number',
+      numberFormat: '#,##0',
+      footer: { expression: 'sum', numberFormat: '#,##0', styleName: 'text-right text-weight-bold' },
+    })));
+    // 필드 셋팅
+    fieldsObj.setFields();
+  }
+}
+
+const totalCount = ref(0);
 
 async function fetchData() {
   const res = await dataService.get('/sms/wells/service/in-aggregate', { params: { ...cachedParams } });
+  totalCount.value = res.data.length;
   const view = grdMainRef.value.getView();
   view.getDataSource().setRows(res.data);
 }
 
 async function onClickSearch() {
   cachedParams = cloneDeep(searchParams.value);
+  await getWareHouses();
   await fetchData();
 }
 
@@ -207,674 +277,79 @@ async function onClickPrintEl() {
 // -------------------------------------------------------------------------------------------------
 // Initialize Grid
 // -------------------------------------------------------------------------------------------------
-function initGrdMain(data, view) {
-  const fields = [
-    { fieldName: 'matMngtDvCd' },
-    { fieldName: 'sapMatCd' },
-    { fieldName: 'pdCd' },
-    { fieldName: 'pdNm' },
-    { fieldName: 'typ100002', dataType: 'number' },
-    { fieldName: 'typ100003', dataType: 'number' },
-    { fieldName: 'typ100000', dataType: 'number' },
-    { fieldName: 'typ200001', dataType: 'number' },
-    { fieldName: 'typ200002', dataType: 'number' },
-    { fieldName: 'typ200465', dataType: 'number' },
-    { fieldName: 'typ200009', dataType: 'number' },
-    { fieldName: 'typ200006', dataType: 'number' },
-    { fieldName: 'typ200024', dataType: 'number' },
-    { fieldName: 'typ200017', dataType: 'number' },
-    { fieldName: 'typ200005', dataType: 'number' },
-    { fieldName: 'typ200934', dataType: 'number' },
-    { fieldName: 'typ200003', dataType: 'number' },
-    { fieldName: 'typ200010', dataType: 'number' },
-    { fieldName: 'typ200012', dataType: 'number' },
-    { fieldName: 'typ200466', dataType: 'number' },
-    { fieldName: 'typ200014', dataType: 'number' },
-    { fieldName: 'typ200013', dataType: 'number' },
-    { fieldName: 'typ200609', dataType: 'number' },
-    { fieldName: 'typ200127', dataType: 'number' },
-    { fieldName: 'typ200467', dataType: 'number' },
-    { fieldName: 'typ200608', dataType: 'number' },
-    { fieldName: 'typ200007', dataType: 'number' },
-    { fieldName: 'typ200371', dataType: 'number' },
-    { fieldName: 'typ200008', dataType: 'number' },
-    { fieldName: 'typ200926', dataType: 'number' },
-    { fieldName: 'typ200015', dataType: 'number' },
-    { fieldName: 'typ200986', dataType: 'number' },
-    { fieldName: 'typ299999', dataType: 'number' },
-    { fieldName: 'typ200000', dataType: 'number' },
-    { fieldName: 'typ300001', dataType: 'number' },
-    { fieldName: 'typ300002', dataType: 'number' },
-    { fieldName: 'typ300003', dataType: 'number' },
-    { fieldName: 'typ300004', dataType: 'number' },
-    { fieldName: 'typ300005', dataType: 'number' },
-    { fieldName: 'typ300006', dataType: 'number' },
-    { fieldName: 'typ300007', dataType: 'number' },
-    { fieldName: 'typ300008', dataType: 'number' },
-    { fieldName: 'typ300009', dataType: 'number' },
-    { fieldName: 'typ300010', dataType: 'number' },
-    { fieldName: 'typ300011', dataType: 'number' },
-    { fieldName: 'typ300012', dataType: 'number' },
-    { fieldName: 'typ300013', dataType: 'number' },
-    { fieldName: 'typ300014', dataType: 'number' },
-    { fieldName: 'typ300015', dataType: 'number' },
-    { fieldName: 'typ300016', dataType: 'number' },
-    { fieldName: 'typ300017', dataType: 'number' },
-    { fieldName: 'typ300018', dataType: 'number' },
-    { fieldName: 'typ300019', dataType: 'number' },
-    { fieldName: 'typ300020', dataType: 'number' },
-    { fieldName: 'typ300021', dataType: 'number' },
-    { fieldName: 'typ300022', dataType: 'number' },
-    { fieldName: 'typ300023', dataType: 'number' },
-    { fieldName: 'typ300024', dataType: 'number' },
-    { fieldName: 'typ300025', dataType: 'number' },
-    { fieldName: 'typ300026', dataType: 'number' },
-    { fieldName: 'typ300027', dataType: 'number' },
-    { fieldName: 'typ300028', dataType: 'number' },
-    { fieldName: 'typ300029', dataType: 'number' },
-    { fieldName: 'typ399999', dataType: 'number' },
-    { fieldName: 'typ300000', dataType: 'number' },
-    { fieldName: 'typ999999', dataType: 'number' },
-  ];
+fieldsObj = {
 
-  const columns = [
-    { fieldName: 'matMngtDvCd', header: t('MSG_TXT_STOC_TYPE'), width: '70', styleName: 'text-center', options: codes.MAT_LGST_TP_DV_CD },
-    { fieldName: 'sapMatCd', header: t('MSG_TXT_SAPCD'), width: '200', styleName: 'text-center' },
-    { fieldName: 'pdCd', header: t('MSG_TXT_ITM_CD'), width: '120', styleName: 'text-center' },
-    { fieldName: 'pdNm',
-      header: t('MSG_TXT_ITM_NM'),
-      width: '250',
-      footer: {
-        text: t('MSG_TXT_SUM'),
-        styleName: 'text-left',
-      } },
-    { fieldName: 'typ100002',
-      header: '교원파주',
-      width: '80',
-      styleName: 'text-right',
-      numberFormat: '#,##0',
-      footer: {
-        expression: 'sum',
-        numberFormat: '#,##0',
-      } },
-    { fieldName: 'typ100003',
-      header: 'L&C파주',
-      width: '80',
-      styleName: 'text-right',
-      numberFormat: '#,##0',
-      footer: {
-        expression: 'sum',
-        numberFormat: '#,##0',
-      } },
-    { fieldName: 'typ100000',
+  // 그리드 공통컬럼
+  defaultFields: [
+    { fieldName: 'matMngtDvCd', header: t('MSG_TXT_STOC_TYPE'), width: '100', styleName: 'text-center' },
+    { fieldName: 'sapMatCd', header: t('MSG_TXT_SAP_CD'), width: '170', styleName: 'text-center' },
+    { fieldName: 'pdCd', header: t('MSG_TXT_ITM_CD'), width: '150', styleName: 'text-center' },
+    { fieldName: 'pdNm', header: t('MSG_TXT_ITM_NM'), width: '240', styleName: 'text-left' },
+  ],
+  totalFields: [
+    {
+      fieldName: 'ware999999',
       header: t('MSG_TXT_AGG'),
-      width: '80',
+      width: '106',
       styleName: 'text-right',
+      dataType: 'number',
       numberFormat: '#,##0',
-      footer: {
-        expression: 'sum',
-        numberFormat: '#,##0',
-      } },
-    { fieldName: 'typ200001',
-      header: '성수',
-      width: '80',
-      styleName: 'text-right',
-      numberFormat: '#,##0',
-      footer: {
-        expression: 'sum',
-        numberFormat: '#,##0',
-      } },
-    { fieldName: 'typ200002',
-      header: '의정부',
-      width: '80',
-      styleName: 'text-right',
-      numberFormat: '#,##0',
-      footer: {
-        expression: 'sum',
-        numberFormat: '#,##0',
-      } },
-    { fieldName: 'typ200465',
-      header: '남양주',
-      width: '80',
-      styleName: 'text-right',
-      numberFormat: '#,##0',
-      footer: {
-        expression: 'sum',
-        numberFormat: '#,##0',
-      } },
-    { fieldName: 'typ200009',
-      header: '원주',
-      width: '80',
-      styleName: 'text-right',
-      numberFormat: '#,##0',
-      footer: {
-        expression: 'sum',
-        numberFormat: '#,##0',
-      } },
-    { fieldName: 'typ200006',
-      header: '수원',
-      width: '80',
-      styleName: 'text-right',
-      numberFormat: '#,##0',
-      footer: {
-        expression: 'sum',
-        numberFormat: '#,##0',
-      } },
-    { fieldName: 'typ200024',
-      header: '안양',
-      width: '80',
-      styleName: 'text-right',
-      numberFormat: '#,##0',
-      footer: {
-        expression: 'sum',
-        numberFormat: '#,##0',
-      } },
-    { fieldName: 'typ200017',
-      header: '광명',
-      width: '80',
-      styleName: 'text-right',
-      numberFormat: '#,##0',
-      footer: {
-        expression: 'sum',
-        numberFormat: '#,##0',
-      } },
-    { fieldName: 'typ200005',
-      header: '인천',
-      width: '80',
-      styleName: 'text-right',
-      numberFormat: '#,##0',
-      footer: {
-        expression: 'sum',
-        numberFormat: '#,##0',
-      } },
-    { fieldName: 'typ200934',
-      header: '강서',
-      width: '80',
-      styleName: 'text-right',
-      numberFormat: '#,##0',
-      footer: {
-        expression: 'sum',
-        numberFormat: '#,##0',
-      } },
-    { fieldName: 'typ200003',
-      header: '일산',
-      width: '80',
-      styleName: 'text-right',
-      numberFormat: '#,##0',
-      footer: {
-        expression: 'sum',
-        numberFormat: '#,##0',
-      } },
-    { fieldName: 'typ200010',
-      header: '청주',
-      width: '80',
-      styleName: 'text-right',
-      numberFormat: '#,##0',
-      footer: {
-        expression: 'sum',
-        numberFormat: '#,##0',
-      } },
-    { fieldName: 'typ200012',
-      header: '대전',
-      width: '80',
-      styleName: 'text-right',
-      numberFormat: '#,##0',
-      footer: {
-        expression: 'sum',
-        numberFormat: '#,##0',
-      } },
-    { fieldName: 'typ200466',
-      header: '천안',
-      width: '80',
-      styleName: 'text-right',
-      numberFormat: '#,##0',
-      footer: {
-        expression: 'sum',
-        numberFormat: '#,##0',
-      } },
-    { fieldName: 'typ200014',
-      header: '전주',
-      width: '80',
-      styleName: 'text-right',
-      numberFormat: '#,##0',
-      footer: {
-        expression: 'sum',
-        numberFormat: '#,##0',
-      } },
-    { fieldName: 'typ200013',
-      header: '광주',
-      width: '80',
-      styleName: 'text-right',
-      numberFormat: '#,##0',
-      footer: {
-        expression: 'sum',
-        numberFormat: '#,##0',
-      } },
-    { fieldName: 'typ200609',
-      header: '순천',
-      width: '80',
-      styleName: 'text-right',
-      numberFormat: '#,##0',
-      footer: {
-        expression: 'sum',
-        numberFormat: '#,##0',
-      } },
-    { fieldName: 'typ200127',
-      header: '서대구',
-      width: '80',
-      styleName: 'text-right',
-      numberFormat: '#,##0',
-      footer: {
-        expression: 'sum',
-        numberFormat: '#,##0',
-      } },
-    { fieldName: 'typ200467',
-      header: '동대구',
-      width: '80',
-      styleName: 'text-right',
-      numberFormat: '#,##0',
-      footer: {
-        expression: 'sum',
-        numberFormat: '#,##0',
-      } },
-    { fieldName: 'typ200608',
-      header: '포항',
-      width: '80',
-      styleName: 'text-right',
-      numberFormat: '#,##0',
-      footer: {
-        expression: 'sum',
-        numberFormat: '#,##0',
-      } },
-    { fieldName: 'typ200007',
-      header: '부산',
-      width: '80',
-      styleName: 'text-right',
-      numberFormat: '#,##0',
-      footer: {
-        expression: 'sum',
-        numberFormat: '#,##0',
-      } },
-    { fieldName: 'typ200371',
-      header: '김해',
-      width: '80',
-      styleName: 'text-right',
-      numberFormat: '#,##0',
-      footer: {
-        expression: 'sum',
-        numberFormat: '#,##0',
-      } },
-    { fieldName: 'typ200008',
-      header: '창원',
-      width: '80',
-      styleName: 'text-right',
-      numberFormat: '#,##0',
-      footer: {
-        expression: 'sum',
-        numberFormat: '#,##0',
-      } },
-    { fieldName: 'typ200926',
-      header: '진주',
-      width: '80',
-      styleName: 'text-right',
-      numberFormat: '#,##0',
-      footer: {
-        expression: 'sum',
-        numberFormat: '#,##0',
-      } },
-    { fieldName: 'typ200015',
-      header: '제주',
-      width: '80',
-      styleName: 'text-right',
-      numberFormat: '#,##0',
-      footer: {
-        expression: 'sum',
-        numberFormat: '#,##0',
-      } },
-    { fieldName: 'typ200986',
-      header: '홈케어',
-      width: '80',
-      styleName: 'text-right',
-      numberFormat: '#,##0',
-      footer: {
-        expression: 'sum',
-        numberFormat: '#,##0',
-      } },
-    { fieldName: 'typ299999',
-      header: '엔지니어',
-      width: '80',
-      styleName: 'text-right',
-      numberFormat: '#,##0',
-      footer: {
-        expression: 'sum',
-        numberFormat: '#,##0',
-      } },
-    { fieldName: 'typ200000',
-      header: t('MSG_TXT_AGG'),
-      width: '80',
-      styleName: 'text-right',
-      numberFormat: '#,##0',
-      footer: {
-        expression: 'sum',
-        numberFormat: '#,##0',
-      } },
-    { fieldName: 'typ300001',
-      header: '강남',
-      width: '80',
-      styleName: 'text-right',
-      numberFormat: '#,##0',
-      footer: {
-        expression: 'sum',
-        numberFormat: '#,##0',
-      } },
-    { fieldName: 'typ300002',
-      header: '강동',
-      width: '80',
-      styleName: 'text-right',
-      numberFormat: '#,##0',
-      footer: {
-        expression: 'sum',
-        numberFormat: '#,##0',
-      } },
-    { fieldName: 'typ300003',
-      header: '강서',
-      width: '80',
-      styleName: 'text-right',
-      numberFormat: '#,##0',
-      footer: {
-        expression: 'sum',
-        numberFormat: '#,##0',
-      } },
-    { fieldName: 'typ300004',
-      header: '노원',
-      width: '80',
-      styleName: 'text-right',
-      numberFormat: '#,##0',
-      footer: {
-        expression: 'sum',
-        numberFormat: '#,##0',
-      } },
-    { fieldName: 'typ300005',
-      header: '성동',
-      width: '80',
-      styleName: 'text-right',
-      numberFormat: '#,##0',
-      footer: {
-        expression: 'sum',
-        numberFormat: '#,##0',
-      } },
-    { fieldName: 'typ300006',
-      header: '영등포',
-      width: '80',
-      styleName: 'text-right',
-      numberFormat: '#,##0',
-      footer: {
-        expression: 'sum',
-        numberFormat: '#,##0',
-      } },
-    { fieldName: 'typ300007',
-      header: '부산동화',
-      width: '80',
-      styleName: 'text-right',
-      numberFormat: '#,##0',
-      footer: {
-        expression: 'sum',
-        numberFormat: '#,##0',
-      } },
-    { fieldName: 'typ300008',
-      header: '부산영진',
-      width: '80',
-      styleName: 'text-right',
-      numberFormat: '#,##0',
-      footer: {
-        expression: 'sum',
-        numberFormat: '#,##0',
-      } },
-    { fieldName: 'typ300009',
-      header: '부산영풍',
-      width: '80',
-      styleName: 'text-right',
-      numberFormat: '#,##0',
-      footer: {
-        expression: 'sum',
-        numberFormat: '#,##0',
-      } },
-    { fieldName: 'typ300010',
-      header: '대구공문',
-      width: '80',
-      styleName: 'text-right',
-      numberFormat: '#,##0',
-      footer: {
-        expression: 'sum',
-        numberFormat: '#,##0',
-      } },
-    { fieldName: 'typ300011',
-      header: '대구대성',
-      width: '80',
-      styleName: 'text-right',
-      numberFormat: '#,##0',
-      footer: {
-        expression: 'sum',
-        numberFormat: '#,##0',
-      } },
-    { fieldName: 'typ300012',
-      header: '대구청구',
-      width: '80',
-      styleName: 'text-right',
-      numberFormat: '#,##0',
-      footer: {
-        expression: 'sum',
-        numberFormat: '#,##0',
-      } },
-    { fieldName: 'typ300013',
-      header: '인천',
-      width: '80',
-      styleName: 'text-right',
-      numberFormat: '#,##0',
-      footer: {
-        expression: 'sum',
-        numberFormat: '#,##0',
-      } },
-    { fieldName: 'typ300014',
-      header: '광주',
-      width: '80',
-      styleName: 'text-right',
-      numberFormat: '#,##0',
-      footer: {
-        expression: 'sum',
-        numberFormat: '#,##0',
-      } },
-    { fieldName: 'typ300015',
-      header: '대전',
-      width: '80',
-      styleName: 'text-right',
-      numberFormat: '#,##0',
-      footer: {
-        expression: 'sum',
-        numberFormat: '#,##0',
-      } },
-    { fieldName: 'typ300016',
-      header: '구리',
-      width: '80',
-      styleName: 'text-right',
-      numberFormat: '#,##0',
-      footer: {
-        expression: 'sum',
-        numberFormat: '#,##0',
-      } },
-    { fieldName: 'typ300017',
-      header: '분당',
-      width: '80',
-      styleName: 'text-right',
-      numberFormat: '#,##0',
-      footer: {
-        expression: 'sum',
-        numberFormat: '#,##0',
-      } },
-    { fieldName: 'typ300018',
-      header: '수원',
-      width: '80',
-      styleName: 'text-right',
-      numberFormat: '#,##0',
-      footer: {
-        expression: 'sum',
-        numberFormat: '#,##0',
-      } },
-    { fieldName: 'typ300019',
-      header: '안산',
-      width: '80',
-      styleName: 'text-right',
-      numberFormat: '#,##0',
-      footer: {
-        expression: 'sum',
-        numberFormat: '#,##0',
-      } },
-    { fieldName: 'typ300020',
-      header: '안양',
-      width: '80',
-      styleName: 'text-right',
-      numberFormat: '#,##0',
-      footer: {
-        expression: 'sum',
-        numberFormat: '#,##0',
-      } },
-    { fieldName: 'typ300021',
-      header: '용인',
-      width: '80',
-      styleName: 'text-right',
-      numberFormat: '#,##0',
-      footer: {
-        expression: 'sum',
-        numberFormat: '#,##0',
-      } },
-    { fieldName: 'typ300022',
-      header: '의정부',
-      width: '80',
-      styleName: 'text-right',
-      numberFormat: '#,##0',
-      footer: {
-        expression: 'sum',
-        numberFormat: '#,##0',
-      } },
-    { fieldName: 'typ300023',
-      header: '일산',
-      width: '80',
-      styleName: 'text-right',
-      numberFormat: '#,##0',
-      footer: {
-        expression: 'sum',
-        numberFormat: '#,##0',
-      } },
-    { fieldName: 'typ300024',
-      header: '김해',
-      width: '80',
-      styleName: 'text-right',
-      numberFormat: '#,##0',
-      footer: {
-        expression: 'sum',
-        numberFormat: '#,##0',
-      } },
-    { fieldName: 'typ300025',
-      header: '진주',
-      width: '80',
-      styleName: 'text-right',
-      numberFormat: '#,##0',
-      footer: {
-        expression: 'sum',
-        numberFormat: '#,##0',
-      } },
-    { fieldName: 'typ300026',
-      header: '창원',
-      width: '80',
-      styleName: 'text-right',
-      numberFormat: '#,##0',
-      footer: {
-        expression: 'sum',
-        numberFormat: '#,##0',
-      } },
-    { fieldName: 'typ300027',
-      header: '포항',
-      width: '80',
-      styleName: 'text-right',
-      numberFormat: '#,##0',
-      footer: {
-        expression: 'sum',
-        numberFormat: '#,##0',
-      } },
-    { fieldName: 'typ300028',
-      header: '전주',
-      width: '80',
-      styleName: 'text-right',
-      numberFormat: '#,##0',
-      footer: {
-        expression: 'sum',
-        numberFormat: '#,##0',
-      } },
-    { fieldName: 'typ300029',
-      header: '당진',
-      width: '80',
-      styleName: 'text-right',
-      numberFormat: '#,##0',
-      footer: {
-        expression: 'sum',
-        numberFormat: '#,##0',
-      } },
-    { fieldName: 'typ399999',
-      header: 'LP',
-      width: '80',
-      styleName: 'text-right',
-      numberFormat: '#,##0',
-      footer: {
-        expression: 'sum',
-        numberFormat: '#,##0',
-      } },
-    { fieldName: 'typ300000',
-      header: t('MSG_TXT_AGG'),
-      width: '80',
-      styleName: 'text-right',
-      numberFormat: '#,##0',
-      footer: {
-        expression: 'sum',
-        numberFormat: '#,##0',
-      } },
-    { fieldName: 'typ999999',
-      header: t('MSG_TXT_AGG'),
-      width: '80',
-      styleName: 'text-right',
-      numberFormat: '#,##0',
-      footer: {
-        expression: 'sum',
-        numberFormat: '#,##0',
-      } },
-  ];
+      footer: { expression: 'sum', numberFormat: '#,##0', styleName: 'text-right text-weight-bold' },
+    },
+  ],
+  // 필드 세팅
+  setFields() {
+    const columns = [...fieldsObj.defaultFields,
+      ...logisticsFields,
+      ...tmpFields,
+      ...fieldsObj.totalFields];
+
+    // 헤더 부분 merge
+    const layoutColumns = [...fieldsObj.getColumnNameArr(fieldsObj.defaultFields),
+      {
+        direction: 'horizontal',
+        header: { text: t('MSG_TXT_LGST_STOC') }, /* 물류재고 */
+        width: fieldsWidth,
+        items: [...fieldsObj.getColumnNameArr(logisticsFields)],
+      },
+      {
+        direction: 'horizontal',
+        header: searchParams.value.wareDvCd === '2' ? { text: t('MSG_TXT_SV_CNR') } : { text: t('MSG_TXT_BSNS_CNTR') },
+        width: fieldsWidth,
+        items: [...fieldsObj.getColumnNameArr(tmpFields)],
+      },
+      ...fieldsObj.getColumnNameArr(fieldsObj.totalFields),
+    ];
+    const fields = columns.map(({ fieldName, dataType }) => (dataType ? { fieldName, dataType } : { fieldName }));
+
+    gridData.setFields(fields);
+    gridView.setColumns(columns);
+    gridView.setFixedOptions({ colCount: 4, resizable: true });
+    gridView.columnByName('pdNm').setFooters({ text: t('MSG_TXT_TOT_SUM'), styleName: 'text-left text-weight-bold' });
+    gridView.setColumnLayout([...layoutColumns]);
+    gridView.setFooters({ visible: true, items: [{ height: 30 }] });
+  },
+  // 리스트에 담겨진 항목중 {fieldName : "" }  만  가져옴
+  getColumnNameList(objList) {
+    return objList.map((obj) => ({ fieldName: obj.fieldName }));
+  },
+  // 리스트에 담겨진 항목 중 fieldName 배열로 가져옴
+  getColumnNameArr(objList) {
+    return objList.map((v) => v.fieldName);
+  },
+
+};
+
+const initGrdMain = defineGrid((data, view) => {
+  const columns = [...fieldsObj.defaultFields];
+  const fields = columns.map(({ fieldName, dataType }) => (dataType ? { fieldName, dataType } : { fieldName }));
 
   data.setFields(fields);
   view.setColumns(columns);
+
   view.checkBar.visible = false;
   view.rowIndicator.visible = true;
-  view.setFixedOptions({ colCount: 4 });
-  view.setOptions({ summaryMode: 'aggregate' });
-  view.setFooters({ visible: true });
-
-  view.footer.visible = true;
-  view.setColumnLayout([
-    'matMngtDvCd', 'sapMatCd', 'pdCd', 'pdNm',
-    {
-      header: '물류센터', // colspan title
-      direction: 'horizontal', // merge type
-      items: ['typ100002', 'typ100003', 'typ100000'],
-    },
-    {
-      header: '서비스센터',
-      direction: 'horizontal',
-      items: ['typ200001', 'typ200002', 'typ200465', 'typ200009', 'typ200006', 'typ200024', 'typ200017', 'typ200005', 'typ200934', 'typ200003', 'typ200010', 'typ200012', 'typ200466', 'typ200014', 'typ200013', 'typ200609', 'typ200127', 'typ200467', 'typ200608', 'typ200007', 'typ200371', 'typ200008', 'typ200926', 'typ200015', 'typ200986', 'typ299999', 'typ200000'],
-    },
-    {
-      header: '영업센터',
-      direction: 'horizontal',
-      items: ['typ300001', 'typ300002', 'typ300003', 'typ300004', 'typ300005', 'typ300006', 'typ300007', 'typ300008', 'typ300009', 'typ300010', 'typ300011', 'typ300012', 'typ300013', 'typ300014', 'typ300015', 'typ300016', 'typ300017', 'typ300018', 'typ300019', 'typ300020', 'typ300021', 'typ300022', 'typ300023', 'typ300024', 'typ300025', 'typ300026', 'typ300027', 'typ300028', 'typ300029', 'typ399999', 'typ300000'],
-    },
-    'typ999999',
-  ]);
-}
+  gridView = view;
+  gridData = data;
+});
 </script>

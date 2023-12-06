@@ -100,6 +100,7 @@ import smsCommon from '~sms-wells/service/composables/useSnCode';
 
 const { t } = useI18n();
 const dataService = useDataService();
+const { currentRoute } = useRouter();
 
 // const { getConfig } = useMeta();
 
@@ -192,10 +193,7 @@ function calcData(data) {
 }
 
 async function fetchData() {
-  const res = await dataService.get(
-    '/sms/wells/service/as-assign-state/product-services',
-    { params: { ...cachedParams } },
-  );
+  const res = await dataService.get('/sms/wells/service/as-assign-state/product-services', { params: { ...cachedParams }, timeout: 300000 }); // 타임아웃 5분
 
   const view = grdMainRef.value.getView();
 
@@ -217,7 +215,7 @@ async function onClickExcelDownload() {
   const view = grdMainRef.value.getView();
   const res = await dataService.get('/sms/wells/service/as-assign-state/product-services', { params: cachedParams });
   await gridUtil.exportView(view, {
-    fileName: 'productServiceStates',
+    fileName: currentRoute.value.meta.menuName,
     timePostfix: true,
     exportData: calcData(res.data),
   });
@@ -231,7 +229,7 @@ const initGrdMain = defineGrid((data, view) => {
     { fieldName: 'wkExcnDt' },
     { fieldName: 'svBizHclsfNm' },
     { fieldName: 'totalCount', dataType: 'number' },
-    { fieldName: 'per', dataType: 'number' },
+    { fieldName: 'per' },
     { fieldName: 'acol1', dataType: 'number' },
     { fieldName: 'acol2', dataType: 'number' },
     { fieldName: 'acol3', dataType: 'number' },
@@ -263,16 +261,20 @@ const initGrdMain = defineGrid((data, view) => {
     { fieldName: 'totalCount',
       header: t('MSG_TXT_SUM'),
       width: '150',
-      styleName: 'text-left',
+      styleName: 'text-right',
       numberFormat: '#,##0',
       footer: { expression: 'sum', numberFormat: '#,##0', styleName: 'text-right' } },
 
     { fieldName: 'per',
-      header: `${t('MSG_TXT_RAT')}(%)`,
+      header: `${t('MSG_TXT_RAT')}`,
       width: '40',
       styleName: 'text-right',
-      numberFormat: '#,##0',
-      footer: { expression: 'sum', numberFormat: '#,##0', styleName: 'text-right' } },
+      displayCallback: (grid, index) => {
+        const { per } = grid.getValues(index.dataRow) || {};
+        return `${per}%`;
+      },
+      footer: { expression: 'sum', numberFormat: '#,##0', styleName: 'text-right', valueCallback() { return '100%'; } } },
+
     { fieldName: 'acol1',
       header: `1${t('MSG_TXT_MON')}`,
       width: '40',

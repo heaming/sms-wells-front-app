@@ -65,6 +65,7 @@
             v-model:page-size="pageInfo.pageSize"
             :total-count="pageInfo.totalCount"
             :page-size-options="codes.COD_PAGE_SIZE_OPTIONS"
+            @change="fetchPages"
           />
           <span class="ml8">({{ $t('단위:원') }})</span>
         </template>
@@ -114,6 +115,7 @@
         v-model:page-index="pageInfo.pageIndex"
         v-model:page-size="pageInfo.pageSize"
         :total-count="pageInfo.totalCount"
+        @change="fetchPages"
       />
       <kw-separator />
     </div>
@@ -149,7 +151,7 @@ ogTpCds.value = codes.OG_TP_CD.filter((v) => ['W02', 'W03'].includes(v.codeId));
 const actiGdsSns = ref();
 const actiGdsStddCds = ref();
 const searchParams = ref({
-  ogTpCd: '', /* 조직유형코드 */
+  ogTpCd: userInfo.wkOjOgTpCd, /* 조직유형코드 */
   aplcDt: now.format('YYYYMM'),
   prtnrNo: '',
   prtnrKnm: '',

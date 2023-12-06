@@ -547,7 +547,7 @@
       >
         <kw-select
           v-model="searchDetail.csmbCsExmptDvCd"
-          :options="codes.CSMB_CS_EXMPT_DV_CD"
+          :options="searchDetail.isDisCsmb==='Y'?[]:codes.CSMB_CS_EXMPT_DV_CD"
           first-option="select"
         />
         <kw-input
@@ -555,11 +555,12 @@
           class="w80"
           regex="num"
           maxlength="1"
+          :readonly="searchDetail.isDisCsmb==='Y'"
           @update:model-value="onChangeTextforSelect('sel3')"
         />
         <kw-select
           v-model="searchDetail.reqdCsExmptDvCd"
-          :options="codes.REQD_CS_EXMPT_DV_CD"
+          :options="searchDetail.isDisReqd==='Y'?[]:codes.REQD_CS_EXMPT_DV_CD"
           first-option="select"
         />
         <kw-input
@@ -567,11 +568,12 @@
           class="w80"
           regex="num"
           maxlength="1"
+          :readonly="searchDetail.isDisReqd==='Y'"
           @update:model-value="onChangeTextforSelect('sel4')"
         />
         <kw-select
           v-model="searchDetail.reqdAkRcvryDvCd"
-          :options="codes.REQD_RCVRY_DV_CD"
+          :options="searchDetail.isDisRcvry==='Y'?[]:codes.REQD_RCVRY_DV_CD"
           first-option="select"
         />
         <kw-btn
@@ -674,16 +676,18 @@
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
-import { codeUtil, getComponentType, stringUtil, store, useDataService, useGlobal } from 'kw-lib';
+import { codeUtil, getComponentType, store, stringUtil, useDataService, useGlobal, useMeta } from 'kw-lib';
 import dayjs from 'dayjs';
 import { isEmpty, isEqual } from 'lodash';
 import { openReportPopup } from '~common/utils/cmPopupUtil';
 
 const { t } = useI18n();
-const dataService = useDataService();
-const frmMainRental = ref(getComponentType('KwForm'));
 const { notify, modal } = useGlobal();
+const dataService = useDataService();
 const { companyCode } = store.getters['meta/getUserInfo'];
+const frmMainRental = ref(getComponentType('KwForm'));
+const { getUserInfo } = useMeta();
+const sessionUserInfo = getUserInfo();
 
 const codes = await codeUtil.getMultiCodes(
   'CCAM_EXMPT_DV_CD', // 위약금면책구분코드
@@ -717,6 +721,9 @@ codes.CCAM_EXMPT_DV_CD.forEach((e) => { e.codeName = `(${e.codeId})${e.codeName}
 codes.CMN_STAT_CH_RSON_CD.forEach((e) => { e.codeName = `(${e.codeId})${e.codeName}`; });
 codes.CSMB_CS_EXMPT_DV_CD.forEach((e) => { e.codeName = `(${e.codeId})${e.codeName}`; });
 codes.REQD_CS_EXMPT_DV_CD.forEach((e) => { e.codeName = `(${e.codeId})${e.codeName}`; });
+
+searchDetail.slCtrRqrId = searchDetail.slCtrRqrId ?? sessionUserInfo.employeeIDNumber;
+
 // -------------------------------------------------------------------------------------------------
 // Function & Event
 // -------------------------------------------------------------------------------------------------
@@ -766,6 +773,7 @@ async function onClickSearchCancel() {
     cancelDt: searchDetail.rsgFshDt,
     adCtrAmt: searchDetail.adCtrAmt,
     canCtrAmt: searchDetail.canCtrAmt,
+    lsRntf: searchDetail.lsRntf,
   });
 
   isReSearch.value = searchDetail.cancelStatNm === '취소등록' ? 'Y' : 'N';

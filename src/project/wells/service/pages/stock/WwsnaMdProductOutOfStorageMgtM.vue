@@ -17,6 +17,7 @@
   <kw-page>
     <kw-search
       :cols="4"
+      :default-visible-rows="3"
       @search="onClickSearch"
     >
       <kw-search-row>
@@ -51,12 +52,14 @@
         </kw-search-item>
         <kw-search-item
           v-if="isCompStatus"
+          :colspan="2"
           :label="$t('MSG_TXT_WK_DT')"
         >
-          <kw-date-picker
-            v-model="searchParams.ostrCnfmDt"
+          <kw-date-range-picker
+            v-model:from="searchParams.wkStartDt"
+            v-model:to="searchParams.wkEndDt"
             :label="$t('MSG_TXT_WK_DT')"
-            rules="required"
+            rules="date_range_required"
           />
         </kw-search-item>
       </kw-search-row>
@@ -97,9 +100,10 @@
         <kw-search-item :label="$t('MSG_TXT_PRTNR_BZS')">
           <kw-select
             v-model="searchParams.prtnrBzsCd"
-            :options="codes.PRTNR_BZS_CD"
             :label="$t('MSG_TXT_PRTNR_BZS_CD')"
-            first-option="all"
+            rules="required"
+            :placeholder="prtnrBzs"
+            readonly
           />
         </kw-search-item>
         <kw-search-item
@@ -123,13 +127,13 @@
             :total-count="totalCount"
           />
         </template>
-        <!-- 택배송장 -->
+        <!-- 엑셀 업로드 -->
         <kw-btn
           v-show="isCompStatus"
           icon="download_on"
           dense
           secondary
-          :label="$t('MSG_TXT_PCSV_IVC')"
+          :label="$t('MSG_TXT_IVC_FORM')"
           @click="onClickExcelDownload2"
         />
         <!-- 엑셀업로드 -->
@@ -210,9 +214,10 @@ const customCodes = {
   ],
 };
 const searchParams = ref({
-  startDt: now.startOf('month').format('YYYYMMDD'), // 시작일자
-  endDt: now.format('YYYYMMDD'), // 종료일자
-  ostrCnfmDt: now.format('YYYYMMDD'),
+  startDt: now.startOf('month').format('YYYYMMDD'), /*  계약 시작일자 */
+  endDt: now.format('YYYYMMDD'), /* 계약 종료일자 */
+  wkStartDt: now.format('YYYYMMDD'), /*  작업 시작일자 */
+  wkEndDt: now.format('YYYYMMDD'), /* 작업 종료일자 */
   firstSppGb: 'ALL', /* 첫 배송 여부 */
   findGb: '2', /* 조회 구분 */
   selCnt: '', /* 조회 제한건수  */
@@ -249,7 +254,7 @@ async function fetchData() {
   const view = grdMainRef.value.getView();
   view.getDataSource().setRows(list);
   view.resetCurrent();
-  // 택배송장 목록
+  // 엑셀 업로드 목록
   const view2 = grdSppIvcRef.value.getView();
   view2.getDataSource().setRows(list);
 }
@@ -281,9 +286,19 @@ async function onClickExcelDownload() {
 }
 async function onClickExcelDownload2() {
   const view = grdSppIvcRef.value.getView();
+
+  // 택배사 코드 엑셀 헤더에 표시
+  let pcsvBzsStr = '';
+  const pcsvBzs = codes.PCSV_BZS_CD;
+  pcsvBzs.forEach((item) => {
+    pcsvBzsStr += `${item.codeId}: ${item.codeName} | `;
+  });
+
+  // 송장 양식 다운로드
   await gridUtil.exportView(view, {
-    fileName: `${currentRoute.value.meta.menuName}_${t('MSG_TXT_PCSV_IVC')}_${t('MSG_BTN_ULD_SMP')}`,
+    fileName: `${t('MSG_TXT_IVC_FORM')}`,
     timePostfix: true,
+    userCells: [{ row: 0, col: 0, value: pcsvBzsStr }],
     exportData: gridUtil.getAllRowValues(view),
   });
 }
@@ -360,7 +375,7 @@ async function onClickExcelUpload() {
   const { result } = await modal({
     component: 'ZctzExcelUploadP',
     componentProps: {
-      templateDocId: `${currentRoute.value.meta.menuName}_${t('MSG_TXT_PCSV_IVC')}_${t('MSG_TXT_WK_RS')}`,
+      size: '2xl',
       headerRows: 2,
       validationBtn: true,
       downloadBtn: true,
@@ -371,15 +386,30 @@ async function onClickExcelUpload() {
         cntrDtlNo: { label: t('MSG_TXT_CNTR_DTL_NO'), width: 160, rules: 'max:17|regex:W\\d{11}-[0-9]', required: true },
         pcsvCompDv: { label: t('MSG_TXT_PCSV_CO'), width: 130, options: codes.PCSV_BZS_CD, rules: 'max:2|regex:[0-9]', required: true },
         sppIvcNo: { label: t('MSG_TXT_IVC_NO'), width: 150, rules: 'max:15|regex:[0-9]', required: true },
-        sppBzsPdId: { label: t('MSG_TXT_SR_NO'), width: 130, rules: 'max:20', required: true },
+        sppBzsPdId: { label: t('MSG_TXT_SR_NO'), width: 130, rules: 'max:20' },
       },
     },
   });
   console.log(excelUploadRows);
-  if (result) {
+  if (result && excelUploadRows.length > 0) {
     await dataService.post(`${baseUrl}/excel-upload`, excelUploadRows);
+    await onClickSearch();
   }
 }
+const prtnrBzs = ref();
+async function getLoginPrtnrBzs() {
+  // 로그인된 사용자기준으로 파트너업체를 설정한다.
+  const res = await dataService.get(`${baseUrl}/login-prtnr-bzs`, { params: cachedParams });
+  const result = res.data;
+  if (!isEmpty(result)) {
+    prtnrBzs.value = result;
+    searchParams.value.prtnrBzsCd = result;
+  }
+}
+
+onMounted(async () => {
+  await getLoginPrtnrBzs();
+});
 
 // -------------------------------------------------------------------------------------------------
 // Initialize Grid
@@ -534,10 +564,10 @@ const initGrdMain = defineGrid((data, view) => {
   view.rowIndicator.visible = true;
 });
 
-// 택배 송장 Grid
+// 송장양식 Grid
 const initGrdSppIvc = defineGrid((data, view) => {
   const columns = [
-    { fieldName: 'cstSvAsnNo', header: t('MSG_TXT_ASGN_NO'), width: 160 },
+    { fieldName: 'cstSvAsnNo', header: t('MSG_TXT_ASGN_NO'), width: 180, styleName: 'text-center' },
     {
       fieldName: 'cntrNo',
       header: t('MSG_TXT_CNTR_DTL_NO'),
@@ -551,9 +581,9 @@ const initGrdSppIvc = defineGrid((data, view) => {
       },
     },
     { fieldName: 'cntrSn', visible: false },
-    { fieldName: 'pcsvCompDv', header: `${t('MSG_TXT_PCSV_CO')}`, width: 120 },
-    { fieldName: 'sppIvcNo', header: t('MSG_TXT_IVC_NO'), width: 150 },
-    { fieldName: 'sppBzsPdId', header: t('MSG_TXT_SR_NO'), width: 130 },
+    { fieldName: 'pcsvCompDv', header: `${t('MSG_TXT_PCSV_CO')}`, width: 120, styleName: 'text-center' },
+    { fieldName: 'sppIvcNo', header: t('MSG_TXT_IVC_NO'), width: 150, styleName: 'text-center' },
+    { fieldName: 'sppBzsPdId', header: t('MSG_TXT_SR_NO'), width: 160, styleName: 'text-center' },
   ];
   const fields = columns.map(({ fieldName, dataType }) => (dataType ? { fieldName, dataType } : { fieldName }));
   data.setFields(fields);

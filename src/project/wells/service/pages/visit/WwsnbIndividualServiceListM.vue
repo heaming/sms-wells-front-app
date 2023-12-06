@@ -979,8 +979,11 @@ const initGridState = defineGrid((data, view) => {
       header: t('MSG_TXT_PROCS_RS'),
       width: '100',
       styleName: 'text-center',
-      styleCallback(grd, dataCell) {
-        const procStus = grd.getValue(dataCell.item.dataRow, 'procStus');
+      styleCallback(grid, dataCell) {
+        const { procStus, prtnrNo } = grid.getValues(dataCell.index.itemIndex);
+        if (prtnrNo === '99992') {
+          return { renderer: { type: 'text' } };
+        }
         return (procStus === '00' || procStus === '10' || procStus === '20') ? { styleName: 'rg-button-link', renderer: { type: 'button' } } : { renderer: { type: 'text' } };
       },
     },
@@ -1028,6 +1031,7 @@ const initGridState = defineGrid((data, view) => {
     if (cData.fieldName === 'wkPrgsStat' || cData.fieldName === 'imgYn') { return false; }
 
     const { cstSvAsnNo, gubun } = g.getValues(cData.itemIndex);
+
     await modal({
       component: 'WwsnbServiceProcDetailListP',
       componentProps: {

@@ -233,8 +233,17 @@
               <kw-item-section>
                 <kw-item-label>
                   <!-- 주문상품 선택 -->
-                  <h3>
+                  <h3
+                    style="display: inline-block;"
+                  >
                     {{ $t('MSG_TXT_ODER') + $t('MSG_TXT_PRDT') + ' ' + $t('MSG_TXT_SELT') }}
+                  </h3>
+
+                  <h3
+                    v-if="fieldData.svcPdChYn==='Y'"
+                    style="float: right; color: red;"
+                  >
+                    {{ '※ 서비스제품변경 건으로 가격 수정이 불가합니다.' }}
                   </h3>
                 </kw-item-label>
               </kw-item-section>
@@ -251,7 +260,10 @@
                   icon="search"
                   maxlength="100"
                   grow
-                  :disable="fieldData.slClYn==='Y' || !isEmpty(fieldData.vstSchDt)"
+                  :disable="fieldData.slClYn==='Y'
+                    || !isEmpty(fieldData.vstSchDt)
+                    || !isEmpty(fieldData.istDt)
+                    || fieldData.svcPdChYn==='Y'"
                   @click-icon="onClickSelectProduct"
                 />
               </kw-form-item>
@@ -264,6 +276,7 @@
                 :model-value="orderProduct"
                 :bas="fieldData"
                 modify
+                :readonly="!isEmpty(fieldData.istDt) || fieldData.svcPdChYn==='Y'"
                 @select:one-plus-one="onClickOnePlusOne"
                 @delete:one-plus-one="onDeleteOnePlusOne"
                 @select:device="onClickDeviceChange"
@@ -629,6 +642,8 @@ async function initIstEnvRequest() {
 
 // 프로모션정보 조회
 async function fetchPromotionData(cntrNo, pdPrcFnlDtlId, sellEvCd, mchnCh) {
+  if (isEmpty(pdPrcFnlDtlId)) return;
+
   // 적용가능한 프로모션 정보 조회
   const res = await dataService.post(
     '/sms/wells/contract/contracts/promotions',
@@ -675,6 +690,10 @@ async function fetchData() {
   );
   Object.assign(fieldData.value, res.data);
 
+  if (isEmpty(fieldData.value.pdPrcFnlDtlId)) {
+    alert('가격이 설정되지 않아, 가격을 조회하는데 실패했습니다.');
+  }
+
   // 주문상품 검색창에 상품명 세팅
   searchParams.value.pdNm = fieldData.value.pdNm;
 
@@ -698,6 +717,7 @@ async function fetchData() {
   // console.log('orderProduct 세팅');
   const product = {
     pdPrcFnlDtlId: fieldData.value.pdPrcFnlDtlId,
+    verSn: fieldData.value.verSn,
     pdQty: fieldData.value.pdQty,
     promotions: promotions.value,
     appliedPromotions: fieldData.value.promts,
@@ -705,12 +725,9 @@ async function fetchData() {
     pdCd: fieldData.value.pdCd,
     cntrNo: fieldData.value.cntrNo,
     pdClsfNm: fieldData.value.pdMclsfNm,
+    sellDscCtrAmt: fieldData.value.sellDscCtrAmt,
     wellsDtl: {
       sellEvCd: isEmpty(fieldData.value.sellEvCd) ? '' : fieldData.value.sellEvCd,
-    },
-    priceOptionFilter: {
-      rentalDscDvCd: fieldData.value.sellDscDvCd || '',
-      rentalDscTpCd: fieldData.value.sellDscTpCd || '',
     },
   };
 
@@ -779,7 +796,7 @@ async function fetchData() {
 
 // 상품 가격이 바꼈을 때, 이벤트
 function onPriceChanged(item, price) {
-  // console.log('onPriceChanged');
+  compKey.value += 1;
   item.finalPrice = price;
 
   orderProduct.value = item;
@@ -801,7 +818,7 @@ function onPriceChanged(item, price) {
     isCnfmPd.value = true;
     obsRef.value.init();
   } else {
-    promotions.value = [];
+    promotions.value = isEmpty(fieldData.value.promts) ? [] : fieldData.value.promts;
     isCnfmPd.value = false;
   }
 }

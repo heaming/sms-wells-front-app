@@ -1,3 +1,4 @@
+<!-- eslint-disable max-len -->
 <!----
 ****************************************************************************************************
 * 프로그램 개요
@@ -87,7 +88,7 @@
                     dense
                     icon="sms"
                     class="ml8"
-                    @click="onClickMessageSend"
+                    @click="onClickMessageSend(customer.cntrCralLocaraTno+customer.cntrMexnoEncr+customer.cntrCralIdvTno)"
                   />
                   <kw-btn
                     v-permission:create
@@ -233,7 +234,7 @@
                     icon="sms"
                     class="ml8"
                     style="font-size: 16px;"
-                    @click="onClickMessageSend"
+                    @click="onClickMessageSend(customer.istCralLocaraTno+customer.istMexnoEncr+customer.istCralIdvTno)"
                   />
                   <kw-btn
                     v-permission:create
@@ -395,7 +396,7 @@
                     icon="sms"
                     class="ml8"
                     style="font-size: 16px;"
-                    @click="onClickMessageSend"
+                    @click="onClickMessageSend(customer.plarCralLocaraTno+customer.plarMexnoEncr+customer.plarCralIdvTno)"
                   />
                 </kw-form-item>
                 <kw-form-item
@@ -434,7 +435,7 @@
                     icon="sms"
                     class="ml8"
                     style="font-size: 16px;"
-                    @click="onClickMessageSend"
+                    @click="onClickMessageSend(customer.dsmnCralLocaraTno+customer.dsmnMexnoEncr+customer.dsmnCralIdvTno)"
                   />
                 </kw-form-item>
                 <kw-form-item
@@ -1435,13 +1436,12 @@ async function onClickBurdenNotice() {
 }
 
 // TODO: 문자발송
-async function onClickMessageSend() {
+async function onClickMessageSend(tno) {
   await modal({
     component: 'ZwbncMessageSendP',
     componentProps: {
       listType: 'customer',
-      dataList: customer.value,
-      cntrType: 'i',
+      dataList: tno,
     },
   });
 }
@@ -1456,10 +1456,14 @@ async function onClickCustomerCardPrint() {
 
 // TODO: 전화거부
 async function onClickTelephoneRej() {
-  await modal({
+  const { result: isChanged } = await modal({
     component: 'ZwbncCounselTelephoneRejMgtP',
     componentProps: customer.value,
   });
+
+  if (!isChanged) {
+    await fetchData();
+  }
 }
 
 // TODO: 서비스 상세

@@ -20,7 +20,7 @@
       :cols="4"
       @search="onClickSearch"
     >
-      <kw-search-row>
+      <kw-search-row :cols="4">
         <!-- 조회기간 -->
         <kw-search-item
           :label="t('MSG_TXT_LOOKUP_PERIOD')"
@@ -36,7 +36,7 @@
           <kw-date-range-picker
             v-model:from="fieldParams.cntrCnfmDtFr"
             v-model:to="fieldParams.cntrCnfmDtTo"
-            rules="date_range_required|date_range_months:2"
+            rules="date_range_required|date_range_months:3"
             :label="t('MSG_TXT_LOOKUP_PERIOD')"
           />
         </kw-search-item>
@@ -68,11 +68,12 @@
         </kw-search-item>
       </kw-search-row>
 
-      <kw-search-row>
+      <kw-search-row :cols="4">
         <!-- 조직구분 -->
         <!-- 고객 요청에 의해 조직 유형 코드로 변경 20231116-->
         <kw-search-item
           :label="t('MSG_TXT_OG_TP')"
+          :colspan="1"
         >
           <kw-select
             v-model="fieldParams.ogTpCd"
@@ -81,20 +82,29 @@
             first-option-val=""
           />
         </kw-search-item>
+        <!-- 조직코드 -->
         <kw-search-item
-          :label="t('MSG_TXT_SEL_CHNL')"
+          :label="$t('MSG_TXT_OG_CD')"
+          :colspan="1"
         >
-          <kw-select
-            v-model="fieldParams.sellChnlDvCd"
-            :options="commonCodes.SELL_CHNL_DV_CD"
-            first-option="all"
-            first-option-val=""
+          <kw-input
+            v-model="fieldParams.strtOgCd"
+            maxlength="10"
+            upper-case
+            regex="alpha_num"
+            rules="|max:10"
+            :custom-messages="{'required': $t('MSG_ALT_CHK_NCSR', [$t('MSG_TXT_OG_CD')])}"
+            :label="$t('MSG_TXT_OG_CD')"
           />
-          <kw-select
-            v-model="fieldParams.sellChnlDtlCd"
-            :options="commonCodes.SELL_CHNL_DTL_CD"
-            first-option="all"
-            first-option-val=""
+          <span>~</span>
+          <kw-input
+            v-model="fieldParams.endOgCd"
+            maxlength="10"
+            upper-case
+            regex="alpha_num"
+            rules="|max:10"
+            :custom-messages="{'required': $t('MSG_ALT_CHK_NCSR', [$t('MSG_TXT_OG_CD')])}"
+            :label="$t('MSG_TXT_OG_CD')"
           />
         </kw-search-item>
         <!-- 고객 요청에 의해 조직 유형 코드로 변경 end 20231116-->
@@ -172,6 +182,23 @@
       </kw-search-row>
 
       <kw-search-row>
+        <!-- 판매채널 -->
+        <kw-search-item
+          :label="t('MSG_TXT_SEL_CHNL')"
+        >
+          <kw-select
+            v-model="fieldParams.sellChnlDvCd"
+            :options="commonCodes.SELL_CHNL_DV_CD"
+            first-option="all"
+            first-option-val=""
+          />
+          <kw-select
+            v-model="fieldParams.sellChnlDtlCd"
+            :options="commonCodes.SELL_CHNL_DTL_CD"
+            first-option="all"
+            first-option-val=""
+          />
+        </kw-search-item>
         <!-- 예정일 -->
         <kw-search-item :label="t('MSG_TXT_DUEDT')">
           <kw-date-picker
@@ -196,6 +223,9 @@
             :multiple="true"
           />
         </kw-search-item>
+      </kw-search-row>
+      <!-- 고객 요청에 의해 조직 유형 코드로 변경 20231116-->
+      <kw-search-row>
         <!-- 관리서비스 -->
         <kw-search-item :label="`${t('MSG_TXT_MGT')} ${t('MSG_TXT_SERVICE')}`">
           <kw-option-group
@@ -206,15 +236,20 @@
             type="radio"
           />
         </kw-search-item>
-      </kw-search-row>
-      <!-- 고객 요청에 의해 조직 유형 코드로 변경 20231116-->
-      <kw-search-row>
         <!-- 인센티브 대상 -->
         <kw-search-item :label="`${t('MSG_TXT_ICT_OJ')}`">
           <kw-option-group
             v-model="fieldParams.incentiveYn"
             type="checkbox"
             :options="codes.incentiveYn"
+          />
+        </kw-search-item>
+        <!-- 사전접수여부 -->
+        <kw-search-item :label="`${t('MSG_TXT_PRR_RCP')}`">
+          <kw-option-group
+            v-model="fieldParams.prrRcpCntrYn"
+            type="checkbox"
+            :options="codes.prrRcpCntrYn"
           />
         </kw-search-item>
       </kw-search-row>
@@ -273,7 +308,7 @@ import pdConst from '~sms-common/product/constants/pdConst';
 const { t } = useI18n();
 const dataService = useDataService();
 const now = dayjs();
-const { modal } = useGlobal();
+const { modal, alert } = useGlobal();
 const { currentRoute } = useRouter();
 
 const fieldParams = ref({
@@ -298,6 +333,9 @@ const fieldParams = ref({
   ogTpCd: '',
   sellChnlDvCd: '',
   sellChnlDtlCd: '',
+  prrRcpCntrYn: false, // 사전접수여부
+  strtOgCd: '', // 시작조직코드
+  endOgCd: '', // 마지막조직코드
 });
 
 const srchMainRef = ref(getComponentType('KwSearch'));
@@ -336,6 +374,7 @@ const codes = ref({
   sellTpCd: [{ codeId: '7', codeName: t('MSG_TXT_LEASE'), num: 2 }],
   sellInflwChnlDtlCd: commonCodes.SELL_CHNL_DTL_CD.filter((v) => v.codeId === '1010' || v.codeId === '3010'),
   incentiveYn: [{ codeId: 1, codeName: t('MSG_TXT_ICT_OJ') }],
+  prrRcpCntrYn: [{ codeId: 1, codeName: t('MSG_TXT_PRR_RCP_CNTR_YN') }],
   sppDuedtYn: [{ codeId: 1, codeName: `${t('MSG_TXT_DUEDT')} ${t('MSG_TXT_NO_RGS')}` }],
   pdDvs: [
     { codeId: '1', codeName: t('MSG_TXT_IST_PDCT') },
@@ -498,11 +537,18 @@ async function fetchData() {
   grdMainRef.value.getData().clearRows();
   const view = grdMainRef.value.getView();
   view.getDataSource().setRows(list);
+  view.rowIndicator.indexOffset = gridUtil.getPageIndexOffset(pageInfo);
 }
 
 async function onClickSearch() {
   pageInfo.value.pageIndex = 1;
   cachedParams = cloneDeep(fieldParams.value);
+  const { strtOgCd, endOgCd } = cachedParams;
+  /* 조직코드 입력 시 시작조직코드, 끝조직코드 중 하나라도 비어있으면 return */
+  if ((!isEmpty(strtOgCd) || !isEmpty(endOgCd)) && (isEmpty(strtOgCd) || isEmpty(endOgCd))) {
+    alert(t('MSG_ALT_STRT_OG_CD_AND_END_OG_CD_REQUIRED'));
+    return;
+  }
   await fetchData();
 }
 
@@ -599,6 +645,8 @@ const initGrid = defineGrid((data, view) => {
     { fieldName: 'prtnrMngYn' }, /* 웰스매니저 1 */
     { fieldName: 'cntrCnfmDt' }, /* 계약확정일시 - 접수일 1 */
     { fieldName: 'cntrCnfmTm' }, /* 계약확정일시 - 접수시간 1 */
+    { fieldName: 'prrCntrCnfmDt' }, /* 사전접수일시 - 사전접수일 1 */
+    { fieldName: 'prrCntrCnfmTm' }, /* 사전접수일시 - 사전접수시간 1 */
     { fieldName: 'fnlMdfcDt' }, /* 최종수정일시-최종변경일 1 */
     { fieldName: 'fnlMdfcTm' }, /* 최종수정일시-최종변경일 1 */
     { fieldName: 'sppDuedt' }, /* 배송예정일자-예정일 1 */
@@ -677,6 +725,8 @@ const initGrid = defineGrid((data, view) => {
 
     { fieldName: 'cntrCnfmDt', header: t('MSG_TXT_RCPDT'), width: '129', styleName: 'text-center', datetimeFormat: 'date' }, // 접수일
     { fieldName: 'cntrCnfmTm', header: t('MSG_TXT_RCPT_HH'), width: '129', styleName: 'text-center', datetimeFormat: 'time' }, // 접수시간
+    { fieldName: 'prrCntrCnfmDt', header: t('MSG_TXT_PRR_RCP_DT'), width: '129', styleName: 'text-center', datetimeFormat: 'date' }, // 사전접수일
+    { fieldName: 'prrCntrCnfmTm', header: t('MSG_TXT_PRR_RCP_HH'), width: '129', styleName: 'text-center', datetimeFormat: 'time' }, // 사전접수시간
     { fieldName: 'fnlMdfcDt', header: `${t('MSG_TXT_FNL')}${t('MSG_TXT_CH_DT')}`, width: '129', styleName: 'text-center', datetimeFormat: 'date' }, // 최종변경일
     { fieldName: 'fnlMdfcTm', header: `${t('MSG_TXT_FNL')}${t('MSG_TXT_RCPT_HH')}`, width: '129', styleName: 'text-center', datetimeFormat: 'time' }, // 최종변경시간
     { fieldName: 'sppDuedt', header: t('MSG_TXT_DUEDT'), width: '129', styleName: 'text-center', datetimeFormat: 'date' }, // 예정일
@@ -741,7 +791,7 @@ const initGrid = defineGrid((data, view) => {
     {
       header: t('MSG_TXT_RCP_AND_INST_INF'), // 접수 및 설치 정보
       direction: 'horizontal', // merge type
-      items: ['cntrCnfmDt', 'cntrCnfmTm', 'fnlMdfcDt', 'fnlMdfcTm', 'sppDuedt', 'istDt', 'reqdDt', 'ssBooDt', 'ssStocStrDt'],
+      items: ['cntrCnfmDt', 'cntrCnfmTm', 'prrCntrCnfmDt', 'prrCntrCnfmTm', 'fnlMdfcDt', 'fnlMdfcTm', 'sppDuedt', 'istDt', 'reqdDt', 'ssBooDt', 'ssStocStrDt'],
     },
     {
       header: t('MSG_TXT_ETC'), // 기타

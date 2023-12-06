@@ -185,7 +185,7 @@
       >
         <kw-select
           v-model="searchDetail.csmbCsExmptDvCd"
-          :options="codes.CSMB_CS_EXMPT_DV_CD"
+          :options="searchDetail.isDisCsmb==='Y'?[]:codes.CSMB_CS_EXMPT_DV_CD"
           first-option="select"
         />
         <kw-input
@@ -193,6 +193,7 @@
           class="w80"
           regex="num"
           maxlength="1"
+          :readonly="searchDetail.isDisCsmb==='Y'"
           @update:model-value="onChangeTextforSelect('sel3')"
         />
       </kw-form-item>

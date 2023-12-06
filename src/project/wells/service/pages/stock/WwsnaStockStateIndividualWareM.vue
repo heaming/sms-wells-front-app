@@ -56,6 +56,7 @@
           <kw-select
             v-model="searchParams.itmKndCd"
             :options="codes.ITM_KND_CD"
+            first-option="all"
           />
         </kw-search-item>
       </kw-search-row>
@@ -193,12 +194,12 @@ let cachedParams;
 const searchParams = ref({
   stockDt: now.format('YYYYMMDD'),
   baseYm: now.format('YYYYMM'),
-  wareNo: '200001', // 서비스센타 성수 세팅
+  wareNo: '', // 서비스센타 성수 세팅
   itmGdCd: '', // 등급
   useYn: '', // 사용여부
   wareUseYn: '', // 창고사용여부
   stndUnuseYn: '', // 표준미사용여부
-  itmKndCd: '4', // 품목구분 - 디폴트 4 상품
+  itmKndCd: '', // 품목구분 - 디폴트 4 상품
 });
 
 let gridView;
@@ -210,12 +211,23 @@ let fieldsWidth;
 const servierCenterOrg = ref();
 
 async function fetchServiceCenters() {
-  const res = await dataService.get(`${baseUrl}/service_center`, { params: searchParams.value });
+  const res = await dataService.get(`${baseUrl}/service-center`, { params: searchParams.value });
   const resList = res.data;
   servierCenterOrg.value = resList.map((v) => ({ codeId: v.wareNo, codeName: v.wareNm }));
 }
 
 await fetchServiceCenters();
+
+async function fetchMyServiceCenters() {
+  const res = await dataService.get(`${baseUrl}/my-service-center`, { params: searchParams.value });
+  if (res.data !== '') {
+    searchParams.value.wareNo = res.data.toString();
+  } else {
+    searchParams.value.wareNo = '200001';
+  }
+}
+
+await fetchMyServiceCenters();
 
 const totalCount = ref(0);
 
@@ -273,6 +285,9 @@ async function getWareHouseList() {
     })));
     // 필드 셋팅
     fieldsObj.setFields();
+  } else {
+    // 디폴트 필드 셋팅
+    fieldsObj.setDefaultFields();
   }
 }
 
@@ -334,7 +349,6 @@ async function onClickExcelDownload() {
 
 onMounted(async () => {
   // 품목구분 : 상품 기본설정(4)
-  searchParams.value.itmKndCd = '4';
   searchParams.value.itmGdCd = 'A';
   searchParams.value.baseYm = searchParams.value.stockDt.substring(0, 6);
   searchParams.value.stndUnuseYn = 'Y';
@@ -394,6 +408,20 @@ fieldsObj = {
 
     const layoutColumns = [...fieldsObj.getColumnNameArr(fieldsObj.defaultFields),
       ...fieldsObj.getColumnNameArr(serviceFields)];
+    const fields = columns.map(({ fieldName, dataType }) => (dataType ? { fieldName, dataType } : { fieldName }));
+
+    gridData.setFields(fields);
+    gridView.setColumns(columns);
+    gridView.setColumnLayout([...layoutColumns]);
+    gridView.setFixedOptions({ colCount: 4, resizable: true });
+    gridView.columnByName('kiwiPdCd').setFooters({ text: t('MSG_TXT_TOT_SUM'), styleName: 'text-left text-weight-bold' });
+    gridView.setFooters({ visible: true, items: [{ height: 30 }] });
+  },
+
+  // 디폴트 필드 세팅
+  setDefaultFields() {
+    const columns = [...fieldsObj.defaultFields];
+    const layoutColumns = [...fieldsObj.getColumnNameArr(fieldsObj.defaultFields)];
     const fields = columns.map(({ fieldName, dataType }) => (dataType ? { fieldName, dataType } : { fieldName }));
 
     gridData.setFields(fields);

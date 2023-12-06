@@ -180,6 +180,7 @@
 // -------------------------------------------------------------------------------------------------
 import { getComponentType, defineGrid, useMeta, codeUtil, useDataService, gridUtil, useGlobal, fileUtil } from 'kw-lib';
 import ZwcmWareHouseSearch from '~sms-common/service/components/ZwsnzWareHouseSearch.vue';
+import { openReportPopup } from '~common/utils/cmPopupUtil';
 import dayjs from 'dayjs';
 import { cloneDeep, isEmpty } from 'lodash-es';
 
@@ -231,6 +232,11 @@ const wareDvCd = { WARE_DV_CD: [
   { codeId: '2', codeName: t('MSG_TXT_SV_CNR') },
   { codeId: '3', codeName: t('MSG_TXT_BSNS_CNTR') },
 ] };
+
+const ozParam = ref({
+  height: 1100,
+  width: 1200,
+});
 
 const filterCodes = ref({
   wareDtlDvCd: [],
@@ -505,13 +511,23 @@ const initGrdMain = defineGrid((data, view) => {
     { fieldName: 'cnfmPitmOstrGapQty', dataType: 'number' }, // 확정시점출고차이수량
     { fieldName: 'diffQty', dataType: 'number' }, // 확정차이
     { fieldName: 'iostRfdt' }, // 입출고반영일자
+    { fieldName: 'stocAcinspAkId' }, // 재고실사요청ID
 
   ];
 
   const columns = [
     { fieldName: 'statusT', header: t('MSG_TXT_APLC_STAT'), width: '100', styleName: 'text-center' },
     // TODO: 확인서 관련 확인필요
-    { fieldName: 'col2', header: t('MSG_TXT_CFDC'), width: '100', styleName: 'text-center' },
+    { fieldName: 'col2',
+      header: t('MSG_TXT_CFDC'),
+      width: '100',
+      styleName: 'rg-button-icon--search',
+      button: 'action',
+      buttonVisibleCallback: (grid, index) => {
+        const stocAcinspAkId = grid.getValue(index.itemIndex, 'stocAcinspAkId');
+        return (!isEmpty(stocAcinspAkId));
+      },
+    },
     { fieldName: 'wareNo', header: t('MSG_TXT_WARE_CD'), width: '100', styleName: 'text-center' },
     { fieldName: 'wareNm', header: t('MSG_TXT_WARE_NM'), width: '150' },
     { fieldName: 'sapCd', header: t('MSG_TXT_SAPCD'), width: '150', styleName: 'text-center' },
@@ -548,7 +564,7 @@ const initGrdMain = defineGrid((data, view) => {
     { fieldName: 'acinspRmkCn',
       header: t('MSG_TXT_NOTE'),
       width: '150',
-      styleName: 'text-right',
+      styleName: 'text-left',
       editable: true,
       editor: {
         maxLength: 4000 },
@@ -557,6 +573,7 @@ const initGrdMain = defineGrid((data, view) => {
     { fieldName: 'cnfmPitmEotStocQty', header: t('MSG_TXT_CNFM_EOT'), width: '150', styleName: 'text-right' },
     { fieldName: 'diffQty', header: t('MSG_TXT_CNFM_GAP'), width: '150', styleName: 'text-right' },
     { fieldName: 'iostRfdt', header: t('MSG_TXT_RFLT_DT'), width: '150', styleName: 'text-right', datetimeFormat: 'date' },
+    { fieldName: 'stocAcinspAkId' },
 
   ];
 
@@ -578,7 +595,6 @@ const initGrdMain = defineGrid((data, view) => {
     'cnfmPitmEotStocQty',
     'diffQty',
     'iostRfdt',
-
   ];
 
   data.setFields(fields);
@@ -595,6 +611,22 @@ const initGrdMain = defineGrid((data, view) => {
     if (changedFieldName === 'acinspQty') {
       const calcQty = Number(acinspQty) - Number(eotStoc);
       grid.setValue(itemIndex, 'minusQty', calcQty);
+    }
+  };
+
+  view.onCellButtonClicked = async (grid, { column, itemIndex }) => {
+    if (column === 'col2') {
+      const stocAcinspAkId = grid.getValue(itemIndex, 'stocAcinspAkId');
+      openReportPopup(
+        '/kyowon_as/due_diligence.ozr',
+        '/kyowon_as/due_diligence.odi',
+        JSON.stringify(
+          {
+            ST125_REQ_ID: stocAcinspAkId,
+          },
+        ),
+        { width: ozParam.width, height: ozParam.height },
+      );
     }
   };
 

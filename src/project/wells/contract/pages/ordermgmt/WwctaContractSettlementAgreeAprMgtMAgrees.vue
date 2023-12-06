@@ -81,6 +81,7 @@
           center
         >
           <kw-btn
+            v-if="codeTerms[item.agAtcDvCd]"
             borderless
             dense
             icon="arrow_stepper"
@@ -124,28 +125,28 @@ const AG_STAT_CD_AG = '01';
 const AG_STAT_CD_REJ = '02';
 const AG_STAT_CD_UNDEF = '03';
 
-const codeTerms = [
-  {
+const codeTerms = {
+  114: {
     agAtcDvCd: '114', // [필수] 개인신용정보 수집, 제공, 조회 동의
     termsId: 'W002',
   },
-  {
+  111: {
     agAtcDvCd: '111', // [필수] 개인정보 수집 및 이용동의
     termsId: 'W003',
   },
-  {
+  112: {
     agAtcDvCd: '112', // [선택] 개인정보 제3자 제공동의
     termsId: 'W004',
   },
-  {
+  113: {
     agAtcDvCd: '113', // [선택] 마케팅 목적 처리 동의
     termsId: 'W005',
   },
-  {
+  151: {
     agAtcDvCd: '151', // 포인트 플러스 또는 플래너 429/599 가입 후 캐쉬 보유 고객 필수 동의서
     termsId: 'W006',
   },
-];
+};
 // -------------------------------------------------------------------------------------------------
 // Function & Event
 // -------------------------------------------------------------------------------------------------
@@ -156,7 +157,7 @@ async function onClickShowTerms(val) {
     componentProps: {
       termsGroupTypeCd: 'CT',
       termsTypeCd: 'CTA',
-      termsId: codeTerms.find((i) => val.agAtcDvCd === i.agAtcDvCd)?.termsId,
+      termsId: codeTerms[val.agAtcDvCd]?.termsId,
     },
   });
 }
