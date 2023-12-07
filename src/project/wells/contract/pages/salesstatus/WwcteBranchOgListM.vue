@@ -117,6 +117,7 @@
           spaced
         />
         <kw-btn
+          v-show="false"
           v-permission:print
           :label="$t('MSG_BTN_PRINT')"
           icon="report"
@@ -127,9 +128,7 @@
       </kw-action-top>
       <kw-grid
         ref="grdMainRef"
-        view-classification
-        :page-size="pageInfo.pageSize"
-        :total-count="pageInfo.totalCount"
+        :visible-rows="10"
         @init="initGrid"
       />
     </div>
@@ -364,7 +363,7 @@ async function onClickExcelDownload() {
 async function onClickPrint() {
   // OZ 리포트 팝업 파라미터 설정
   const ozParams = {
-    ozrPath: '/kstation-w/acrs/newIntmChngAcrsReport.ozr', // 레포트 파일 경로
+    ozrPath: '/kstation-w/', // 레포트 파일 경로
     odiPath: '',
     args: {},
   };
@@ -377,7 +376,7 @@ async function onClickPrint() {
 
   switch (cachedParams.inqrDv) { // 조회구분 분기처리
     case '4': // 개인
-      ozParams.ozrPath = '/kstation-w/acrs/newIntmChngAcrsPlanerReport.ozr'; // 플래너 레포트 파일
+      ozParams.ozrPath = '/kstation-w/acrs/newxx.ozr'; // 레포트 파일
       inqrDv = t('MSG_TXT_INDV');
       break;
     case '3': // 지점
@@ -407,7 +406,7 @@ async function onClickPrint() {
   // cachedParams.srchRgnDan = srchRgnDan; // 지역단
   // cachedParams.srchOprtDiv = srchOprtDiv; // 가동구분
 
-  const args = { searchApiUrl: '/api/v1/sms/wells/contract/contracts/new-machine-changes/oz', ...cachedParams };
+  const args = { searchApiUrl: '/api/v1/oz', ...cachedParams };
 
   // OZ 레포트 팝업호출
   openReportPopup(
@@ -425,19 +424,18 @@ const initGrid = defineGrid((data, view) => {
   const columns = [
     { fieldName: 'prtnrNm', header: t('MSG_TXT_EMPL_NM'), width: '145', styleName: 'text-center' }, // 성명
     { fieldName: 'ogCd', header: t('MSG_TXT_BLG_CD'), width: '145', styleName: 'text-center' }, // 소속
-    { fieldName: 'branchCnt', header: t('MSG_TXT_BRANCH'), width: '145', styleName: 'text-right' }, // 지점
-    { fieldName: 'optnPerfCnt', header: t('MSG_TXT_OPTN') + t('MSG_TXT_PERF'), width: '145', styleName: 'text-right' }, // 가동실적
-    { fieldName: 'optnBrnchAvg', header: t('MSG_TXT_OPTN') + t('MSG_TXT_BRNCH_OFFC_AVG'), width: '145', styleName: 'text-right' }, // 가동지평
-    { fieldName: 'engmPerfCnt', header: t('MSG_TXT_ENGM') + t('MSG_TXT_PERF'), width: '145', styleName: 'text-right' }, // 채용실적
-    { fieldName: 'engmBrnchAvg', header: t('MSG_TXT_ENGM') + t('MSG_TXT_BRNCH_OFFC_AVG'), width: '145', styleName: 'text-right' }, // 채용지평
-    { fieldName: 'welsMngerEnrlCnt', header: t('MSG_TXT_WELS_MNGER') + t('MSG_TXT_ENRL'), width: '240', styleName: 'text-right' }, // 웰스매니저재적
-    { fieldName: 'welsMngerAclActiCnt', header: t('MSG_TXT_WELS_MNGER') + t('MSG_TXT_ACL_ACTI'), width: '239', styleName: 'text-right' }, // 웰스매니저 실활동
+    { fieldName: 'branchCnt', header: t('MSG_TXT_BRANCH'), width: '145', styleName: 'text-right', dataType: 'number' }, // 지점
+    { fieldName: 'optnPerfCnt', header: t('MSG_TXT_OPTN') + t('MSG_TXT_PERF'), width: '145', styleName: 'text-right', dataType: 'number' }, // 가동실적
+    { fieldName: 'optnBrnchAvg', header: t('MSG_TXT_OPTN') + t('MSG_TXT_BRNCH_OFFC_AVG'), width: '145', styleName: 'text-right', dataType: 'number' }, // 가동지평
+    { fieldName: 'engmPerfCnt', header: t('MSG_TXT_ENGM') + t('MSG_TXT_PERF'), width: '145', styleName: 'text-right', dataType: 'number' }, // 채용실적
+    { fieldName: 'engmBrnchAvg', header: t('MSG_TXT_ENGM') + t('MSG_TXT_BRNCH_OFFC_AVG'), width: '145', styleName: 'text-right', dataType: 'number' }, // 채용지평
+    { fieldName: 'welsMngerEnrlCnt', header: t('MSG_TXT_WELS_MNGER') + t('MSG_TXT_ENRL'), width: '145', styleName: 'text-right', dataType: 'number' }, // 웰스매니저재적
+    { fieldName: 'welsMngerAclActiCnt', header: t('MSG_TXT_WELS_MNGER') + t('MSG_TXT_ACL_ACTI'), width: '145', styleName: 'text-right', dataType: 'number' }, // 웰스매니저 실활동
   ];
 
   const fields = columns.map(({ fieldName, dataType }) => (dataType ? { fieldName, dataType } : { fieldName }));
   data.setFields(fields);
   view.setColumns(columns);
-
   view.setHeaderSummaries({
     visible: true,
     items: [
@@ -446,12 +444,12 @@ const initGrid = defineGrid((data, view) => {
       },
     ],
   });
-  view.columnByName('ogCd').setHeaderSummaries({ text: t('MSG_TXT_SUM'), styleName: 'text-center' });
+  view.columnByName('prtnrNm').setHeaderSummaries({ text: t('MSG_TXT_SUM'), styleName: 'text-center' });
   view.columnByName('branchCnt').setHeaderSummaries({ numberFormat: '#,##0', expression: 'sum' });
   view.columnByName('optnPerfCnt').setHeaderSummaries({ numberFormat: '#,##0', expression: 'sum' });
-  view.columnByName('optnBrnchAvg').setHeaderSummaries({ numberFormat: '#,##0', expression: 'sum' });
+  view.columnByName('optnBrnchAvg').setHeaderSummaries({ numberFormat: '#,##0.#', expression: 'avg' });
   view.columnByName('engmPerfCnt').setHeaderSummaries({ numberFormat: '#,##0', expression: 'sum' });
-  view.columnByName('engmBrnchAvg').setHeaderSummaries({ numberFormat: '#,##0', expression: 'sum' });
+  view.columnByName('engmBrnchAvg').setHeaderSummaries({ numberFormat: '#,##0.#', expression: 'avg' });
   view.columnByName('welsMngerEnrlCnt').setHeaderSummaries({ numberFormat: '#,##0', expression: 'sum' });
   view.columnByName('welsMngerAclActiCnt').setHeaderSummaries({ numberFormat: '#,##0', expression: 'sum' });
 
@@ -459,6 +457,8 @@ const initGrid = defineGrid((data, view) => {
     'prtnrNm', 'ogCd', 'branchCnt', 'optnPerfCnt', 'optnBrnchAvg', 'engmPerfCnt', 'engmBrnchAvg', 'welsMngerEnrlCnt', 'welsMngerAclActiCnt',
   ];
   view.setColumnLayout(layout1);
+  view.layoutByColumn('prtnrNm').summaryUserSpans = [{ colspan: 2 }];
+  view.rowIndicator.visible = true;
 });
 
 </script>
