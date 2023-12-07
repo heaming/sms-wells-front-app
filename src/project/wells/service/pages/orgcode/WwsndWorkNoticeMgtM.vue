@@ -37,7 +37,6 @@
             v-model="searchParams.mngrDvCd"
             :options="codes.MNGR_DV_CD"
             first-option="all"
-            :readonly="!isEmpty(deptMngrDvCd)"
           />
         </kw-search-item>
         <kw-search-item
@@ -119,7 +118,6 @@ import dayjs from 'dayjs';
 const { modal } = useGlobal();
 const { t } = useI18n();
 const { getConfig } = useMeta();
-const userInfo = useStore().getters['meta/getUserInfo'];
 const dataService = useDataService();
 
 // -------------------------------------------------------------------------------------------------
@@ -148,19 +146,8 @@ const pageInfo = ref({
 
 let cachedParams;
 
-const deptMngrDvCd = computed(() => {
-  if (userInfo.departmentId === 'Y') { // 영업지원팀
-    return '1';
-  }
-  if (userInfo.departmentId === 'S') { // 서비스운영팀
-    return '2';
-  }
-  return '';
-});
-
 searchParams.value.stRgstDt = dayjs().add(-7, 'day').format('YYYYMMDD');
 searchParams.value.edRgstDt = dayjs().add(7, 'day').format('YYYYMMDD');
-searchParams.value.mngrDvCd = deptMngrDvCd.value;
 
 async function fetchWorkNoticePages(params) {
   return await dataService.get('/sms/wells/service/work-notices/paging', params);
