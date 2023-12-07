@@ -311,7 +311,8 @@ async function addRow() {
         cstKnm: data.cstKnm, // 고객명
         procsErrTpCd: data.procsErrTpCd,
         // cntrNo: `W${data.giroInqNo.substring(2, 13)}`,
-        cntrNo: data.cntr,
+        // cntrNo: data.cntr,
+        cntr: data.cntr,
         perfDt: data.rveDt, // 실적일
         rveAmt: data.pyAmt, // 납입금액
         giroFee: data.giroFeeDvCd,
@@ -424,7 +425,7 @@ async function onClickSave() {
 
   paramData = fileData;
 
-  // console.log(paramData);
+  console.log(paramData);
   // console.log(paramData.length);
 
   if (isUploadChk.value === false) {
@@ -455,7 +456,7 @@ async function onClickSave() {
 
   const resResult = res.data;
 
-  // console.log(resResult);
+  console.log(resResult);
 
   if (resResult.itgDpProcsYCnt > 0) {
     await alert(t('MSG_ALT_ITG_DP_RGST_CPRCNF_PROCS_ULD_NOT')); // '통합입금에 등록된 후 대사 처리된 Data는 업로드할 수 없습니다.'
@@ -463,19 +464,30 @@ async function onClickSave() {
   }
   if (resResult.chkCnt > 0) {
     if (await confirm(t('MSG_ALT_RVE_DT_ULD_DL_ULD', [dayjs(resResult.fntDt).format('YYYY-MM-DD')]))) { // "수납일자 '2023-02-27'에 업로드된 Data를 삭제 후 재업로드 하시겠습니까?"
-      await dataService.post('/sms/wells/withdrawal/idvrve/giro-deposits', paramData);
+      await dataService.post(`/sms/wells/withdrawal/idvrve/giro-deposits/${resResult.fntDt}`, paramData);
       await onClickSearch();
       notify(t('MSG_ALT_SAVE_DATA'));
     }
   } else {
-    await dataService.post('/sms/wells/withdrawal/idvrve/giro-deposits', paramData);
+    await dataService.post(`/sms/wells/withdrawal/idvrve/giro-deposits/${resResult.fntDt}`, paramData);
     await onClickSearch();
     notify(t('MSG_ALT_SAVE_DATA'));
   }
   isUploadChk.value = false;
 }
 
+let uploadParam;
+
 async function onClickExcelUpload() {
+  uploadParam = { fntDt: now.format('YYYYMMDD') };
+
+  const res = await dataService.get('/sms/wells/withdrawal/idvrve/giro-deposits/check', { params: uploadParam });
+
+  if (res.data > 0) {
+    alert(t(`해당 입금일자(${dayjs(uploadParam.fntDt).format('YYYY-MM-DD')})에 대사가 완료된 데이터가 존재합니다.`));
+    return;
+  }
+
   const view = grdMainRef.value.getView();
 
   const gridData = gridUtil.getAllRowValues(view);
@@ -528,6 +540,7 @@ function initGrid(data, view) {
     { fieldName: 'sumMain' },
     { fieldName: 'kwGrpCoCd' },
     { fieldName: 'cntrNo' },
+    { fieldName: 'cntr' },
     { fieldName: 'cstKnm' },
     { fieldName: 'rveDt' },
     { fieldName: 'perfDt' },
@@ -541,7 +554,7 @@ function initGrid(data, view) {
   ];
 
   const columns = [
-    { fieldName: 'cntrNo',
+    { fieldName: 'cntr',
       header: t('MSG_TXT_CNTR_DTL_NO'),
       // header: '계약상세번호',
       width: '150',
@@ -630,7 +643,7 @@ function initGrid(data, view) {
   // };
 
   // summary 병합
-  view.layoutByColumn('cntrNo').summaryUserSpans = [{ colspan: 4 }];
+  view.layoutByColumn('cntr').summaryUserSpans = [{ colspan: 4 }];
   view.layoutByColumn('sellTpCd').summaryUserSpans = [{ colspan: 4 }];
 
   // 헤더쪽 합계 행고정, summary
