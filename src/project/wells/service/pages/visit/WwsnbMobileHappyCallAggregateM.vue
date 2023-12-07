@@ -25,14 +25,27 @@
       @search="onClickSearch"
     >
       <kw-search-row>
+        <kw-search-item
+          :label="$t('MSG_TXT_WK_CLS')"
+        >
+          <kw-select
+            v-model="searchParams.svBizHclsfCd"
+            :options="codes.SV_BIZ_HCLSF_CD.filter((v) => ['1', '2', '3', '4'].includes(v.codeId))"
+            first-option="all"
+          />
+        </kw-search-item>
         <!-- 조회기간 -->
-        <kw-search-item :label="t('MSG_TXT_LOOKUP_PERIOD')">
+        <kw-search-item
+          :label="t('MSG_TXT_LOOKUP_PERIOD')"
+        >
           <kw-date-range-picker
             v-model:from="searchParams.searchDateFrom"
             v-model:to="searchParams.searchDateTo"
             rules="date_range_months:1"
           />
         </kw-search-item>
+      </kw-search-row>
+      <kw-search-row>
         <!-- 서비스센터 -->
         <kw-search-item :label="t('MSG_TXT_SRVC_CNTR')">
           <kw-select
@@ -114,8 +127,9 @@ const dataService = useDataService();
 
 const codes = await codeUtil.getMultiCodes(
   'SV_DV_CD',
+  'SV_BIZ_HCLSF_CD',
 );
-console.log('codes.SV_DV_CD >>>>', codes.SV_DV_CD);
+// console.log('codes.SV_DV_CD >>>>', codes.SV_DV_CD);
 
 // -------------------------------------------------------------------------------------------------
 // Function & Event
@@ -137,6 +151,7 @@ const engineers = ref(engineerList.data);
 console.log('engineers.value >>>', engineers.value);
 
 const searchParams = ref({
+  svBizHclsfCd: '',
   searchDateFrom: dayjs().date(1).format('YYYYMMDD'),
   searchDateTo: dayjs().format('YYYYMMDD'),
   ogId: '',
@@ -219,6 +234,7 @@ function initGrid(data, view) {
         return isEmpty(cntrDt) ? '' : dayjs(cntrDt).format('YYYY-MM-DD');
       },
     },
+    { fieldName: 'svBizHclsfCd', header: t('TXT_MSG_SV_TP_CD'), width: '100', styleName: 'text-center' }, // 서비스유형
     { // 평균(점)
       fieldName: 'synthAvg',
       header: `${t('MSG_TXT_AV')}(${t('점')})`,
@@ -524,28 +540,28 @@ function initGrid(data, view) {
     //     return retValue;
     //   },
     // },
-    // { // 해피콜 건수
-    //   fieldName: 'hpcallScore',
-    //   header: t('MSG_TXT_HPCALL'),
-    //   width: '100',
-    //   styleName: 'text-center',
-    //   displayCallback(grid, index) {
-    //     const { hpcallScore } = grid.getValues(index.itemIndex);
-    //     let retValue;
-    //     if (hpcallScore === 0 || isEmpty(hpcallScore)) {
-    //       retValue = '0';
-    //     } else {
-    //       retValue = hpcallScore;
-    //     }
-    //     return retValue;
-    //   },
-    // },
-    { fieldName: 'envrElhmCnt', visible: false }, // 환경가전 건수
-    { fieldName: 'sdingSpcltCnt', visible: false }, // 모종전문 건수
-    { fieldName: 'hcrCnt', visible: false }, // 홈케어 건수
-    { fieldName: 'lgszElhmCnt', visible: false }, // 대형가전 건수
-    { fieldName: 'mdimRprCnt', visible: false }, // 중수리 건수
-    { fieldName: 'acpnCnt', visible: false }, // 동행 건수
+    { // 해피콜 건수
+      fieldName: 'hpcallScore',
+      header: t('MSG_TXT_HPCALL'),
+      width: '100',
+      styleName: 'text-center',
+      displayCallback(grid, index) {
+        const { hpcallScore } = grid.getValues(index.itemIndex);
+        let retValue;
+        if (hpcallScore === 0 || isEmpty(hpcallScore)) {
+          retValue = '0';
+        } else {
+          retValue = hpcallScore;
+        }
+        return retValue;
+      },
+    },
+    // { fieldName: 'envrElhmCnt', visible: false }, // 환경가전 건수
+    // { fieldName: 'sdingSpcltCnt', visible: false }, // 모종전문 건수
+    // { fieldName: 'hcrCnt', visible: false }, // 홈케어 건수
+    // { fieldName: 'lgszElhmCnt', visible: false }, // 대형가전 건수
+    // { fieldName: 'mdimRprCnt', visible: false }, // 중수리 건수
+    // { fieldName: 'acpnCnt', visible: false }, // 동행 건수
   ];
 
   data.setFields(columns.map(({ fieldName, dataType }) => (dataType ? { fieldName, dataType } : { fieldName })));
@@ -558,6 +574,7 @@ function initGrid(data, view) {
     'prtnrNo',
     'prtnrKnm',
     'cntrDt',
+    'svBizHclsfCd',
     { // 해피콜 종합
       header: { text: `${t('MSG_TXT_HPCALL')} ${t('MSG_TXT_SYNTH')}` },
       direction: 'horizontal',
@@ -601,7 +618,7 @@ function initGrid(data, view) {
     'trsCnt',
     'compCnt',
     // 'grdRplyCnt',
-    // 'hpcallScore',
+    'hpcallScore',
   ]);
 }
 </script>
