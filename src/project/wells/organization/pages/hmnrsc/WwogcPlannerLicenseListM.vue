@@ -243,7 +243,7 @@ let cachedParams;
 
 // 인사정보 목록 데이터 조회
 async function fetchData() {
-  const res = await dataService.get(`${SMS_WELLS_URI}/partner/planner-license`, { params: { ...cachedParams } }, { timeout: 5 * 60 * 1000 * 1000 });
+  const res = await dataService.get(`${SMS_WELLS_URI}/partner/planner-license`, { params: { ...cachedParams } });
   const list = res.data;
   grdMain1Datas.value = list;
   grdMain1Datas.value.forEach((item) => {
