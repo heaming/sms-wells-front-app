@@ -227,12 +227,14 @@ async function setGridColumnLayoutType1(data, view) { // 일시불
     'interContCanSlAmt',
     'interContDpAmt',
   ];
+  // 집계는 전기이월 이전 항목 중 (판매유형, 판매유형상세, SAP상품구분코드명) 만 노출
   if (!['3', '4'].includes(searchParams.value.agrgDv)) {
-    layoutMain.splice(1, 9);
+    layoutMain.splice(1, 1);
+    layoutMain.splice(4, 5);
   }
   view.setColumnLayout(layoutMain);
 
-  view.layoutByColumn('slClYm').summaryUserSpans = [{ colspan: (!['3', '4'].includes(searchParams.value.agrgDv)) ? 1 : 9 }];
+  view.layoutByColumn('slClYm').summaryUserSpans = [{ colspan: (!['3', '4'].includes(searchParams.value.agrgDv)) ? 4 : 9 }];
   view.setHeaderSummaries({
     visible: true,
     items: [
@@ -301,11 +303,12 @@ async function setGridColumnLayoutType2(data, view) { // 렌탈
     'dfaProcsAmt',
   ];
   if (!['3', '4'].includes(searchParams.value.agrgDv)) {
-    layoutMain.splice(1, 9);
+    layoutMain.splice(1, 1);
+    layoutMain.splice(4, 5);
   }
   view.setColumnLayout(layoutMain);
 
-  view.layoutByColumn('slClYm').summaryUserSpans = [{ colspan: (!['3', '4'].includes(searchParams.value.agrgDv)) ? 1 : 9 }];
+  view.layoutByColumn('slClYm').summaryUserSpans = [{ colspan: (!['3', '4'].includes(searchParams.value.agrgDv)) ? 4 : 9 }];
   view.setHeaderSummaries({
     visible: true,
     items: [
@@ -358,10 +361,11 @@ async function setGridColumnLayoutType3(data, view) { // 멤버십
     'totDpAmt', 'totEotUcAmt', 'dfaProcsAmt',
   ];
   if (!['3', '4'].includes(searchParams.value.agrgDv)) {
-    layoutMain.splice(1, 9);
+    layoutMain.splice(1, 1);
+    layoutMain.splice(4, 5);
   }
   view.setColumnLayout(layoutMain);
-  view.layoutByColumn('slClYm').summaryUserSpans = [{ colspan: (!['3', '4'].includes(searchParams.value.agrgDv)) ? 1 : 9 }];
+  view.layoutByColumn('slClYm').summaryUserSpans = [{ colspan: (!['3', '4'].includes(searchParams.value.agrgDv)) ? 4 : 9 }];
 
   view.setHeaderSummaries({
     visible: true,
@@ -383,9 +387,9 @@ async function setGridColumnLayoutType4(data, view) { // 정기배송
   const columns = [
     { fieldName: 'slClYm', header: t('MSG_TXT_PERF_YM'), width: '150', styleName: 'text-center', datetimeFormat: 'yyyy-MM', headerSummary: { text: t('MSG_TXT_TOT_SUM'), styleName: 'text-center' } }, // 실적년월
     { fieldName: 'slClDt', header: t('MSG_TXT_PERF_DT'), wdth: '130', styleName: 'text-center', dataType: 'date', datetimeFormat: 'date', visible: (['3', '4'].includes(searchParams.value.agrgDv)) }, // 실적일자
-    { fieldName: 'sellTpCdNm', header: t('MSG_TXT_SEL_TYPE'), width: '130', styleName: 'text-center', visible: (['3', '4'].includes(searchParams.value.agrgDv)) }, // 판매유형
-    { fieldName: 'sellTpDtlCdNm', header: t('MSG_TXT_SELL_TP_DTL'), width: '130', styleName: 'text-center', visible: (['3', '4'].includes(searchParams.value.agrgDv)) }, // 판매유형상세
-    { fieldName: 'sapPdAtcNm', header: t('MSG_TXT_SAP_PD_DV_CD_NM'), width: '130', styleName: 'text-center', visible: (['3', '4'].includes(searchParams.value.agrgDv)) }, // SAP상품구분코드명
+    { fieldName: 'sellTpCdNm', header: t('MSG_TXT_SEL_TYPE'), width: '130', styleName: 'text-center' }, // 판매유형
+    { fieldName: 'sellTpDtlCdNm', header: t('MSG_TXT_SELL_TP_DTL'), width: '130', styleName: 'text-center' }, // 판매유형상세
+    { fieldName: 'sapPdAtcNm', header: t('MSG_TXT_SAP_PD_DV_CD_NM'), width: '130', styleName: 'text-center' }, // SAP상품구분코드명
     { fieldName: 'cntrNo', header: t('MSG_TXT_CNTR_DTL_NO'), width: '130', styleName: 'text-center', visible: (['3', '4'].includes(searchParams.value.agrgDv)) }, // 계약상세번호
     { fieldName: 'cstKnm', header: t('MSG_TXT_CST_NM'), width: '130', styleName: 'text-center', visible: (['3', '4'].includes(searchParams.value.agrgDv)) }, // 고객명
     { fieldName: 'pdCd', header: t('MSG_TXT_PRDT_CODE'), width: '130', styleName: 'text-center', visible: (['3', '4'].includes(searchParams.value.agrgDv)) }, // 상품코드
@@ -403,7 +407,7 @@ async function setGridColumnLayoutType4(data, view) { // 정기배송
   view.checkBar.visible = false;
   view.rowIndicator.visible = true;
 
-  view.layoutByColumn('slClYm').summaryUserSpans = [{ colspan: (!['3', '4'].includes(searchParams.value.agrgDv)) ? 1 : 9 }];
+  view.layoutByColumn('slClYm').summaryUserSpans = [{ colspan: (!['3', '4'].includes(searchParams.value.agrgDv)) ? 4 : 9 }];
 
   view.setHeaderSummaries({
     visible: true,
@@ -462,11 +466,12 @@ async function setGridColumnLayoutType5(data, view) { // 리스/할부
     'dfaProcsAmt',
   ];
   if (!['3', '4'].includes(searchParams.value.agrgDv)) {
-    layoutMain.splice(1, 9);
+    layoutMain.splice(1, 1);
+    layoutMain.splice(4, 5);
   }
   view.setColumnLayout(layoutMain);
 
-  view.layoutByColumn('slClYm').summaryUserSpans = [{ colspan: (!['3', '4'].includes(searchParams.value.agrgDv)) ? 1 : 9 }];
+  view.layoutByColumn('slClYm').summaryUserSpans = [{ colspan: (!['3', '4'].includes(searchParams.value.agrgDv)) ? 4 : 9 }];
 
   view.setHeaderSummaries({
     visible: true,
