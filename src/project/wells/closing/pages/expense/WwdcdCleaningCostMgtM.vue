@@ -305,7 +305,7 @@ const initGrdMain = defineGrid((data, view) => {
       });
       if (result) {
         notify(t('MSG_ALT_SAVE_DATA'));
-        await fetchData();
+        await onClickSearch();
       }
     }
   };

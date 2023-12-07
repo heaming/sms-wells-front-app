@@ -112,6 +112,7 @@
             :regex="/^[0-9]*$/i"
             :maxlength="7"
             type="password"
+            autocomplete="new-password"
           />
         </kw-form-item>
       </kw-form-row>
