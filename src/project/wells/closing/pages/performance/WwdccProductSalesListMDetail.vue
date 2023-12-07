@@ -25,9 +25,12 @@
         <kw-date-range-picker
           v-model:from="searchParams.baseDtmnFrom"
           v-model:to="searchParams.baseDtmnTo"
+          ref:
+          date-range-picker
           type="date"
           :label="$t('MSG_TXT_SL_DT')"
-          rules="date_range_required|date_range_months:1"
+          :rules="searchParams.cntrNo && searchParams.cntrSn
+            ? 'date_range_required':'date_range_required|date_range_months:1'"
         />
       </kw-search-item>
       <kw-search-item
