@@ -2,10 +2,10 @@
 ****************************************************************************************************
 * 프로그램 개요
 ****************************************************************************************************
-1. 모듈 : CTB
+1. 모듈 : PSF
 2. 프로그램 ID : WwpsfRuleBaseInquirylistM - 규정 및 기준조회
-3. 작성자 : jisung you
-4. 작성일 : 2023.06.22
+3. 작성자 : jisung you -> park yesol
+4. 작성일 : 2023.06.22 -> 2023.12.06
 ****************************************************************************************************
 * 프로그램 설명
 ****************************************************************************************************
@@ -16,6 +16,7 @@
   <kw-page>
     <kw-search
       :cols="2"
+      @search="onClickSearch"
     >
       <kw-search-row>
         <kw-search-item
@@ -23,12 +24,14 @@
           required
         >
           <kw-select
-            v-model="searchParams.oneDepth"
-            :options="oneDepth"
+            v-model="searchParams.lvl1Depth"
+            :options="lvl1Depth"
             :label="$t('MSG_TXT_INQR_DV')"
             first-option="select"
+            option-label="bznsSpptMnalNm"
+            option-value="bznsSpptMnalId"
             rules="required"
-            @change="twoDepthChange"
+            @change="lvl2DepthChange"
           />
         </kw-search-item>
         <kw-search-item
@@ -36,13 +39,14 @@
           required
         >
           <kw-select
-            v-model="searchParams.twoDepth"
+            v-model="searchParams.lvl2Depth"
             :label="$t('MSG_TXT_PD_MCLSF_ID')"
-            :options="twoDepth"
+            :options="lvl2Depth"
             first-option="select"
+            option-label="bznsSpptMnalNm"
+            option-value="bznsSpptMnalId"
             rules="required"
-            :disable="isTwoDepth"
-            @change="threeDepthChange"
+            @change="lvl3DepthChange"
           />
         </kw-search-item>
       </kw-search-row>
@@ -52,11 +56,13 @@
           required
         >
           <kw-select
-            v-model="searchParams.threeDepth"
-            :options="threeDepth"
+            v-model="searchParams.lvl3Depth"
+            :options="lvl3Depth"
             first-option="select"
+            option-label="bznsSpptMnalNm"
+            option-value="bznsSpptMnalId"
             rules="required"
-            :disable="isThreeDepth"
+            @change="onChangeRegDate"
           />
         </kw-search-item>
         <kw-search-item
@@ -64,11 +70,13 @@
           required
         >
           <kw-select
-            v-model="searchParams.fnlMdfcDt"
+            v-model="searchParams.vlStrtDtm"
             first-option="select"
-            rules="required"
             :label="$t('MSG_TXT_FST_RGST_DT')"
-            :options="fnlMdfcDts"
+            option-label="fnlMdfcUsrNm"
+            option-value="vlStrtDtm"
+            :options="vlStrtDtms"
+            rules="required"
           />
         </kw-search-item>
       </kw-search-row>
@@ -76,7 +84,7 @@
         <kw-btn
           :label="$t('MSG_BTN_SMAP')"
           default
-          @click="onClickDetail"
+          @click="onClickSiteMap"
         />
       </div>
     </kw-search>
@@ -89,11 +97,11 @@
       <h3 class="inline-block">
         개정(변경)내용
       </h3>
-      <p class="inline-block kw-font-pt14 pl50">
-        22년 10월 신규등록 (상품기획팀)
-      </p>
+      <p class="inline-block kw-font-pt14 pl50" />
       <h3>옵션영역</h3>
-      <div class="grid-blank" />
+      <kw-pdf-preview
+        :pdf="pdf"
+      />
     </div>
   </kw-page>
 </template>
@@ -101,137 +109,120 @@
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
-import { useDataService, useGlobal } from 'kw-lib';
+import { useDataService, useGlobal, alert } from 'kw-lib';
+import { isEmpty } from 'lodash-es';
+import dayjs from 'dayjs';
 
 const { modal } = useGlobal();
+const { t } = useI18n();
 const dataService = useDataService();
 // -------------------------------------------------------------------------------------------------
 // Function & Event
 // -------------------------------------------------------------------------------------------------
+
 const searchParams = ref({
-  oneDepth: '',
-  twoDepth: '',
-  threeDepth: '',
-  fnlMdfcDt: '',
+  lvl1Depth: '',
+  lvl2Depth: '',
+  lvl3Depth: '',
+  vlStrtDtm: '',
 });
 
-const oneDepth = ref([]);
-const twoDepth = ref([]);
-const threeDepth = ref([]);
-const fnlMdfcDts = ref([]);
+let cachedParams;
 
-const isTwoDepth = ref(true);
-const isThreeDepth = ref(true);
+const pdf = ref();
+const totList = ref([]);
+const lvl1Depth = ref([]);
+const lvl2Depth = ref([]);
+const lvl3Depth = ref([]);
+const vlStrtDtms = ref([]);
 
-let treeDatas = [];
-async function fetchData() {
-  const cachedParams = { ...searchParams.value };
-  return await dataService.get('/sms/wells/competence/business/rulebase', { params: cachedParams });
-}
-
-async function init() {
-  const res = await fetchData();
-  treeDatas = res.data;
-  console.log(treeDatas);
-  isTwoDepth.value = true;
-  isThreeDepth.value = true;
-  twoDepth.value = [];
-  threeDepth.value = [];
-  searchParams.value.oneDepth = '';
-  searchParams.value.twoDepth = '';
-  searchParams.value.threeDepth = '';
-
-  treeDatas.forEach((obj) => {
-    if (obj.inqrLvTcnt === 1) {
-      const addData = { codeId: '', codeName: '', prtsCodeId: '' };
-      addData.codeId = obj.bznsSpptMnalId;
-      addData.codeName = obj.bznsSpptMnalNm;
-      oneDepth.value.push(addData);
-    }
+const init = async () => {
+  const res = await dataService.get('/sms/wells/competence/rulebase/user', { params: cachedParams });
+  lvl1Depth.value = res.data.filter((obj) => obj.inqrLvTcnt === 1);
+  res.data.forEach((obj) => {
+    const day = dayjs(obj.vlStrtDtm).format('YYYY-MM-DD HH:mm:ss');
+    obj.fnlMdfcUsrNm = `${obj.fnlMdfcUsrNm} ${day}`;
   });
-}
+  totList.value = res.data;
+};
 
-function twoDepthChange() {
-  console.log('twoDepthChange', searchParams.value.oneDepth);
-  isTwoDepth.value = false;
-  const depthData = [];
-  if (searchParams.value.oneDepth === '') {
-    searchParams.value.twoDepth = '';
-    searchParams.value.threeDepth = '';
-    isTwoDepth.value = true;
-    isThreeDepth.value = true;
-    twoDepth.value = [];
-    threeDepth.value = [];
+const lvl2DepthChange = async (val) => {
+  searchParams.value.lvl2Depth = '';
+  const row = totList.value.filter((obj) => val === obj.bznsSpptMnalId)[0];
+  if (!isEmpty(val)) {
+    // eslint-disable-next-line max-len
+    lvl2Depth.value = totList.value.filter((obj) => row.bznsSpptMnalId === obj.hgrBznsSpptMnalId && obj.inqrLvTcnt === 2);
+  } else {
+    lvl2Depth.value = [];
   }
-  treeDatas.forEach((obj) => {
-    if (obj.inqrLvTcnt === 2 && obj.hgrBznsSpptMnalId === searchParams.value.oneDepth) {
-      const addData = { codeId: '', codeName: '', prtsCodeId: '' };
-      addData.codeId = obj.bznsSpptMnalId;
-      addData.codeName = obj.bznsSpptMnalNm;
-      depthData.push(addData);
-    }
-  });
-  twoDepth.value = depthData;
-}
+};
 
-function threeDepthChange() {
-  console.log('threeDepthChange', searchParams.value.twoDepth);
-  isThreeDepth.value = false;
-  const depthData = [];
-  if (searchParams.value.twoDepth === '') {
-    searchParams.value.threeDepth = '';
-    isThreeDepth.value = true;
-    threeDepth.value = [];
+const lvl3DepthChange = async (val) => {
+  searchParams.value.lvl3Depth = '';
+  const row = totList.value.filter((obj) => val === obj.bznsSpptMnalId)[0];
+  if (!isEmpty(val)) {
+    // eslint-disable-next-line max-len
+    lvl3Depth.value = totList.value.filter((obj) => row.bznsSpptMnalId === obj.hgrBznsSpptMnalId && obj.inqrLvTcnt === 3);
+  } else {
+    lvl3Depth.value = [];
   }
-  treeDatas.forEach((obj) => {
-    if (obj.inqrLvTcnt === 3 && obj.hgrBznsSpptMnalId === searchParams.value.twoDepth) {
-      const addData = { codeId: '', codeName: '', prtsCodeId: '' };
-      addData.codeId = obj.bznsSpptMnalId;
-      addData.codeName = obj.bznsSpptMnalNm;
-      depthData.push(addData);
-    }
-  });
-  threeDepth.value = depthData;
-}
+};
 
-async function onClickDetail() {
+const onChangeRegDate = async (val) => {
+  const row = totList.value.filter((obj) => val === obj.bznsSpptMnalId);
+  vlStrtDtms.value = row;
+};
+
+const onClickSiteMap = async () => {
   const { result, payload } = await modal({
-    component: 'WwpsfRuleBaseInquirylistP',
+    component: 'WwpsfRuleBaseListP',
     componentProps: {
 
     },
   });
 
   if (result) {
-    const { orgPath } = payload;
-    const orgPaths = orgPath.split('.');
-
-    searchParams.value.oneDepth = '';
-    searchParams.value.twoDepth = '';
-    searchParams.value.threeDepth = '';
-    const depthData = [];
-
-    treeDatas.forEach((obj) => {
-      if (obj.inqrLvTcnt === 1 && orgPaths[2].includes(obj.bznsSpptMnalId)) {
-        searchParams.value.oneDepth = obj.bznsSpptMnalId;
-      }
-      if (obj.inqrLvTcnt === 2 && orgPaths[3].includes(obj.bznsSpptMnalId)) {
-        searchParams.value.twoDepth = obj.bznsSpptMnalId;
-      }
-      if (obj.inqrLvTcnt === 3 && orgPaths[4].includes(obj.bznsSpptMnalId)) {
-        searchParams.value.threeDepth = obj.bznsSpptMnalId;
+    await lvl1Depth.value.forEach((obj) => {
+      if (payload.orgPath.indexOf(obj.bznsSpptMnalId) > -1) {
+        searchParams.value.lvl1Depth = obj.bznsSpptMnalId;
       }
     });
-
-    const addData = { codeId: '', codeName: '', prtsCodeId: '' };
-    addData.codeId = payload.bznsSpptMnalId;
-    addData.codeName = `${payload.fnlMdfcUsrNm} ${payload.fnlMdfcDt}`;
-    depthData.push(addData);
-
-    searchParams.value.fnlMdfcDt = payload.bznsSpptMnalId;
-    fnlMdfcDts.value = depthData;
+    await lvl2Depth.value.forEach((obj) => {
+      if (payload.orgPath.indexOf(obj.bznsSpptMnalId) > -1) {
+        searchParams.value.lvl2Depth = obj.bznsSpptMnalId;
+      }
+    });
+    await lvl3Depth.value.forEach((obj) => {
+      if (payload.orgPath.indexOf(obj.bznsSpptMnalId) > -1) {
+        searchParams.value.lvl3Depth = obj.bznsSpptMnalId;
+      }
+    });
   }
-}
+};
+
+const fetchData = async () => {
+  const row = totList.value.filter((obj) => obj.bznsSpptMnalId === searchParams.value.lvl3Depth
+  && obj.inqrLvTcnt === 3
+  && searchParams.value.vlStrtDtm === obj.vlStrtDtm)[0];
+  if (!isEmpty(row.fileUid)) {
+    const params = {
+      fileUid: row.fileUid,
+    };
+    const res = await dataService.get('/sflex/common/common/file/temp/download', {
+      params,
+      responseType: 'arraybuffer',
+    });
+    pdf.value = res.data;
+  } else {
+    await alert(t('MSG_ALT_APN_FILE_RGST'));
+  }
+};
+
+const onClickSearch = async () => {
+  // 자동완성 검색조건 설정
+  // cachedParams = cloneDeep(searchParams.value);
+  await fetchData();
+};
 
 onMounted(() => {
   init();
