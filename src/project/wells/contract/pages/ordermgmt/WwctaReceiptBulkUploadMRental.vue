@@ -151,7 +151,7 @@ const initGrd = defineGrid((data, view) => {
       classes: 'text-center',
     },
     copnDvCd: { label: t('개인법인구분'), width: 146, options: codes.COPN_DV_CD, required: true },
-    cstNo: { label: t('고객번호'), width: 146, classes: 'text-center', required: true },
+    cstNo: { label: t('고객번호'), width: 146, classes: 'text-center' },
     alncmpDgPrtnrMapngCd: {
       label: t('대표파트너번호'),
       width: 146,
