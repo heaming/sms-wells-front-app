@@ -482,6 +482,12 @@ function isValidAplyPeriod() {
 async function onClickSave() {
   saveData = [];
 
+  // 영업지원팀이 아닐 경우 저장 전 등록기간 조회를 한번 더 한다.
+  if (!isBusinessSupportTeam.value) {
+    // 등록기간 조회
+    await getNewMCsmbAplcClose();
+  }
+
   if (!isValidAplyPeriod()) {
     // 신청 기간이 아닙니다.
     await alert(t('MSG_ALT_NOT_APLC_PTRM'));

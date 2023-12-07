@@ -26,7 +26,7 @@
             v-model:to="searchParams.mngtYmTo"
             :label="$t('MSG_TXT_LOOKUP_PERIOD')"
             type="month"
-            rules="required|date_range_months:6"
+            rules="required|date_range_months:12"
             @change="onChangeMngtYm"
           />
         </kw-search-item>
@@ -146,7 +146,7 @@ const codes = await codeUtil.getMultiCodes(
 );
 
 const searchParams = ref({
-  mngtYmFrom: dayjs().add(-5, 'month').format('YYYYMM'),
+  mngtYmFrom: dayjs().add(-11, 'month').format('YYYYMM'),
   mngtYmTo: dayjs().format('YYYYMM'),
   bldCds: [],
   itmCd: '',
@@ -274,8 +274,22 @@ async function onChangeMngtYm() {
   ];
 
   const columns = [
-    { fieldName: 'bldCd', header: t('MSG_TXT_BLD_CD'), width: '80', styleName: 'text-center' },
-    { fieldName: 'bldNm', header: t('MSG_TXT_BLD_NM'), width: '120', styleName: 'text-center' },
+    { fieldName: 'bldCd',
+      header: t('MSG_TXT_BLD_CD'),
+      width: '80',
+      styleName: 'text-center',
+      mergeRule: {
+        criteria: 'value',
+      },
+    },
+    { fieldName: 'bldNm',
+      header: t('MSG_TXT_BLD_NM'),
+      width: '120',
+      styleName: 'text-center',
+      mergeRule: {
+        criteria: 'value',
+      },
+    },
     { fieldName: 'sapMatCd', header: t('MSG_TXT_SAP_CD'), width: '100', styleName: 'text-center' },
     { fieldName: 'csmbPdCd', header: t('TXT_MSG_AS_ITM_CD'), width: '120', styleName: 'text-center' },
     { fieldName: 'pdNm', header: t('MSG_TXT_ITM_NM'), width: '200', styleName: 'text-left' },
@@ -283,19 +297,110 @@ async function onChangeMngtYm() {
     { fieldName: 'indv', header: t('MSG_TXT_INDV'), width: '80', styleName: 'text-center' },
     { fieldName: 'bld', header: t('MSG_TXT_BUILDING'), width: '80', styleName: 'text-center' },
     { fieldName: 'ddlvQtySum', header: t('MSG_TXT_AGG'), width: '80', styleName: 'text-right' },
-    { fieldName: 'vstAccSum', header: t('MSG_TXT_AGG'), width: '80', styleName: 'text-right' },
-    { fieldName: 'wrfr', header: t('MSG_TXT_WRFR'), width: '80', styleName: 'text-right' },
-    { fieldName: 'bdtIndv', header: t('MSG_TXT_BDT_INDV'), width: '80', styleName: 'text-right' },
-    { fieldName: 'bdtCrp', header: t('MSG_TXT_BDT_CRP'), width: '80', styleName: 'text-right' },
-    { fieldName: 'arcleIndv', header: t('MSG_TXT_ARCLE_INDV'), width: '120', styleName: 'text-right' },
-    { fieldName: 'arcleCrp', header: t('MSG_TXT_ARCLE_CRP'), width: '120', styleName: 'text-right' },
-    { fieldName: 'wtrSftnr', header: t('MSG_TXT_WTST'), width: '80', styleName: 'text-right' },
-    { fieldName: 'cffMchn', header: t('MSG_TXT_CFF_MCHN'), width: '80', styleName: 'text-right' },
-    { fieldName: 'msgcr', header: t('MSG_TXT_MSGCR'), width: '80', styleName: 'text-right' },
-    { fieldName: 'dryr', header: t('MSG_TXT_DRYER'), width: '80', styleName: 'text-right' },
-    { fieldName: 'wash', header: t('MSG_TXT_WASHER'), width: '80', styleName: 'text-right' },
-    { fieldName: 'ardrssr', header: t('MSG_TXT_ARDRSSR'), width: '80', styleName: 'text-right' },
-    { fieldName: 'sscling', header: t('MSG_TXT_SS_CLING_MCHN'), width: '80', styleName: 'text-right' },
+    { fieldName: 'vstAccSum',
+      header: t('MSG_TXT_AGG'),
+      width: '100',
+      styleName: 'text-right',
+      mergeRule: {
+        criteria: 'value',
+      },
+    },
+    { fieldName: 'wrfr',
+      header: t('MSG_TXT_WRFR'),
+      width: '80',
+      styleName: 'text-right',
+      mergeRule: {
+        criteria: 'value',
+      },
+    },
+    { fieldName: 'bdtIndv',
+      header: t('MSG_TXT_BDT_INDV'),
+      width: '80',
+      styleName: 'text-right',
+      mergeRule: {
+        criteria: 'value',
+      },
+    },
+    { fieldName: 'bdtCrp',
+      header: t('MSG_TXT_BDT_CRP'),
+      width: '80',
+      styleName: 'text-right',
+      mergeRule: {
+        criteria: 'value',
+      },
+    },
+    { fieldName: 'arcleIndv',
+      header: t('MSG_TXT_ARCLE_INDV'),
+      width: '120',
+      styleName: 'text-right',
+      mergeRule: {
+        criteria: 'value',
+      },
+    },
+    { fieldName: 'arcleCrp',
+      header: t('MSG_TXT_ARCLE_CRP'),
+      width: '120',
+      styleName: 'text-right',
+      mergeRule: {
+        criteria: 'value',
+      },
+    },
+    { fieldName: 'wtrSftnr',
+      header: t('MSG_TXT_WTST'),
+      width: '80',
+      styleName: 'text-right',
+      mergeRule: {
+        criteria: 'value',
+      },
+    },
+    { fieldName: 'cffMchn',
+      header: t('MSG_TXT_CFF_MCHN'),
+      width: '80',
+      styleName: 'text-right',
+      mergeRule: {
+        criteria: 'value',
+      },
+    },
+    { fieldName: 'msgcr',
+      header: t('MSG_TXT_MSGCR'),
+      width: '80',
+      styleName: 'text-right',
+      mergeRule: {
+        criteria: 'value',
+      },
+    },
+    { fieldName: 'dryr',
+      header: t('MSG_TXT_DRYER'),
+      width: '80',
+      styleName: 'text-right',
+      mergeRule: {
+        criteria: 'value',
+      },
+    },
+    { fieldName: 'wash',
+      header: t('MSG_TXT_WASHER'),
+      width: '80',
+      styleName: 'text-right',
+      mergeRule: {
+        criteria: 'value',
+      },
+    },
+    { fieldName: 'ardrssr',
+      header: t('MSG_TXT_ARDRSSR'),
+      width: '80',
+      styleName: 'text-right',
+      mergeRule: {
+        criteria: 'value',
+      },
+    },
+    { fieldName: 'sscling',
+      header: t('MSG_TXT_SS_CLING_MCHN'),
+      width: '80',
+      styleName: 'text-right',
+      mergeRule: {
+        criteria: 'value',
+      },
+    },
   ];
 
   const strtYear = Number(mngtYmFrom.substring(0, 4));
@@ -306,9 +411,10 @@ async function onChangeMngtYm() {
   const monthCount = ((endYear - strtYear) * 12 + (endMonth - strtMonth)) + 1;
   let yy = Number(searchParams.value.mngtYmFrom.substring(2, 4));
   let mm = strtMonth;
-  let mmCnt = (6 - monthCount);
+  let mmCnt = (12 - monthCount);
 
   colItems.push('ddlvQtySum');
+  debugger;
 
   for (let i = 1; i <= monthCount; i += 1) {
     const headerNm = `${yy}${t('MSG_TXT_YEAR')} ${mm}${t('MSG_TXT_MON')}`;
@@ -398,8 +504,22 @@ const initGrdMain = defineGrid(async (data, view) => {
   ];
 
   const columns = [
-    { fieldName: 'bldCd', header: t('MSG_TXT_BLD_CD'), width: '80', styleName: 'text-center' },
-    { fieldName: 'bldNm', header: t('MSG_TXT_BLD_NM'), width: '120', styleName: 'text-center' },
+    { fieldName: 'bldCd',
+      header: t('MSG_TXT_BLD_CD'),
+      width: '80',
+      styleName: 'text-center',
+      mergeRule: {
+        criteria: 'value',
+      },
+    },
+    { fieldName: 'bldNm',
+      header: t('MSG_TXT_BLD_NM'),
+      width: '120',
+      styleName: 'text-center',
+      mergeRule: {
+        criteria: 'value',
+      },
+    },
     { fieldName: 'sapMatCd', header: t('MSG_TXT_SAP_CD'), width: '100', styleName: 'text-center' },
     { fieldName: 'csmbPdCd', header: t('TXT_MSG_AS_ITM_CD'), width: '120', styleName: 'text-center' },
     { fieldName: 'pdNm', header: t('MSG_TXT_ITM_NM'), width: '200', styleName: 'text-left' },
@@ -407,19 +527,110 @@ const initGrdMain = defineGrid(async (data, view) => {
     { fieldName: 'indv', header: t('MSG_TXT_INDV'), width: '80', styleName: 'text-center' },
     { fieldName: 'bld', header: t('MSG_TXT_BUILDING'), width: '80', styleName: 'text-center' },
     { fieldName: 'ddlvQtySum', header: t('MSG_TXT_AGG'), width: '80', styleName: 'text-right' },
-    { fieldName: 'vstAccSum', header: t('MSG_TXT_AGG'), width: '80', styleName: 'text-right' },
-    { fieldName: 'wrfr', header: t('MSG_TXT_WRFR'), width: '80', styleName: 'text-right' },
-    { fieldName: 'bdtIndv', header: t('MSG_TXT_BDT_INDV'), width: '80', styleName: 'text-right' },
-    { fieldName: 'bdtCrp', header: t('MSG_TXT_BDT_CRP'), width: '80', styleName: 'text-right' },
-    { fieldName: 'arcleIndv', header: t('MSG_TXT_ARCLE_INDV'), width: '120', styleName: 'text-right' },
-    { fieldName: 'arcleCrp', header: t('MSG_TXT_ARCLE_CRP'), width: '120', styleName: 'text-right' },
-    { fieldName: 'wtrSftnr', header: t('MSG_TXT_WTST'), width: '80', styleName: 'text-right' },
-    { fieldName: 'cffMchn', header: t('MSG_TXT_CFF_MCHN'), width: '80', styleName: 'text-right' },
-    { fieldName: 'msgcr', header: t('MSG_TXT_MSGCR'), width: '80', styleName: 'text-right' },
-    { fieldName: 'dryr', header: t('MSG_TXT_DRYER'), width: '80', styleName: 'text-right' },
-    { fieldName: 'wash', header: t('MSG_TXT_WASHER'), width: '80', styleName: 'text-right' },
-    { fieldName: 'ardrssr', header: t('MSG_TXT_ARDRSSR'), width: '80', styleName: 'text-right' },
-    { fieldName: 'sscling', header: t('MSG_TXT_SS_CLING_MCHN'), width: '80', styleName: 'text-right' },
+    { fieldName: 'vstAccSum',
+      header: t('MSG_TXT_AGG'),
+      width: '100',
+      styleName: 'text-right',
+      mergeRule: {
+        criteria: 'value',
+      },
+    },
+    { fieldName: 'wrfr',
+      header: t('MSG_TXT_WRFR'),
+      width: '80',
+      styleName: 'text-right',
+      mergeRule: {
+        criteria: 'value',
+      },
+    },
+    { fieldName: 'bdtIndv',
+      header: t('MSG_TXT_BDT_INDV'),
+      width: '80',
+      styleName: 'text-right',
+      mergeRule: {
+        criteria: 'value',
+      },
+    },
+    { fieldName: 'bdtCrp',
+      header: t('MSG_TXT_BDT_CRP'),
+      width: '80',
+      styleName: 'text-right',
+      mergeRule: {
+        criteria: 'value',
+      },
+    },
+    { fieldName: 'arcleIndv',
+      header: t('MSG_TXT_ARCLE_INDV'),
+      width: '120',
+      styleName: 'text-right',
+      mergeRule: {
+        criteria: 'value',
+      },
+    },
+    { fieldName: 'arcleCrp',
+      header: t('MSG_TXT_ARCLE_CRP'),
+      width: '120',
+      styleName: 'text-right',
+      mergeRule: {
+        criteria: 'value',
+      },
+    },
+    { fieldName: 'wtrSftnr',
+      header: t('MSG_TXT_WTST'),
+      width: '80',
+      styleName: 'text-right',
+      mergeRule: {
+        criteria: 'value',
+      },
+    },
+    { fieldName: 'cffMchn',
+      header: t('MSG_TXT_CFF_MCHN'),
+      width: '80',
+      styleName: 'text-right',
+      mergeRule: {
+        criteria: 'value',
+      },
+    },
+    { fieldName: 'msgcr',
+      header: t('MSG_TXT_MSGCR'),
+      width: '80',
+      styleName: 'text-right',
+      mergeRule: {
+        criteria: 'value',
+      },
+    },
+    { fieldName: 'dryr',
+      header: t('MSG_TXT_DRYER'),
+      width: '80',
+      styleName: 'text-right',
+      mergeRule: {
+        criteria: 'value',
+      },
+    },
+    { fieldName: 'wash',
+      header: t('MSG_TXT_WASHER'),
+      width: '80',
+      styleName: 'text-right',
+      mergeRule: {
+        criteria: 'value',
+      },
+    },
+    { fieldName: 'ardrssr',
+      header: t('MSG_TXT_ARDRSSR'),
+      width: '80',
+      styleName: 'text-right',
+      mergeRule: {
+        criteria: 'value',
+      },
+    },
+    { fieldName: 'sscling',
+      header: t('MSG_TXT_SS_CLING_MCHN'),
+      width: '80',
+      styleName: 'text-right',
+      mergeRule: {
+        criteria: 'value',
+      },
+    },
   ];
 
   const { mngtYmFrom, mngtYmTo } = searchParams.value;
@@ -432,7 +643,7 @@ const initGrdMain = defineGrid(async (data, view) => {
   const monthCount = ((endYear - strtYear) * 12 + (endMonth - strtMonth)) + 1;
   let yy = Number(searchParams.value.mngtYmFrom.substring(2, 4));
   let mm = strtMonth;
-  let mmCnt = (6 - monthCount);
+  let mmCnt = (12 - monthCount);
 
   colItems.push('ddlvQtySum');
 
