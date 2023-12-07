@@ -127,7 +127,7 @@
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
 import { useDataService, getComponentType, useModal, useGlobal, codeUtil, defineGrid, gridUtil } from 'kw-lib';
-import { cloneDeep, isEmpty } from 'lodash-es';
+import { cloneDeep } from 'lodash-es';
 import dayjs from 'dayjs';
 
 const { t } = useI18n();
@@ -225,9 +225,8 @@ watch(() => [searchParams.value.evlOgTpCd], async () => {
 });
 
 watch(() => [searchParams.value.evlDvCd], async () => {
-  if (!isEmpty(searchParams.value.evlDvCd) && (searchParams.value.evlDvCd === 'M01' || searchParams.value.evlDvCd === 'M02')) {
-    searchParams.value.ctstGrpCd = '';
-  }
+  searchParams.value.evlRsbDvCd = '';
+  searchParams.value.ctstGrpCd = '';
   await getContestGroupFetchData();
   await getEvaluationResponsibility();
 });
@@ -254,7 +253,6 @@ const initGrdMain = defineGrid((data, view) => {
   ];
 
   const columns = [
-    { fieldName: 'evlAtcDvNm', header: t('MSG_TXT_EVL_BASE_DV'), width: '100', styleName: 'text-center', editable: false },
     { fieldName: 'evlDvNm', header: t('MSG_TXT_EVL_DV_NM'), width: '100', styleName: 'text-center', editable: false },
     { fieldName: 'ogNm', header: t('MSG_TXT_OG_NM'), width: '100', styleName: 'text-center', editable: false },
     { fieldName: 'ctstGrpCd',
