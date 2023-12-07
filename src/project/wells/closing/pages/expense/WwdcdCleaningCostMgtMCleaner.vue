@@ -154,8 +154,8 @@ async function onClickRegister() {
   });
   if (result) {
     notify(t('MSG_ALT_SAVE_DATA'));
-    await onClickSearch();
   }
+  await onClickSearch();
 }
 
 async function onClickDelete() {
@@ -342,9 +342,7 @@ const initGrdSub = defineGrid((data, view) => {
 
   view.checkBar.visible = true;
   view.rowIndicator.visible = true;
-  view.onCellItemClicked = (grid, { column, itemIndex }) => {
-    // TODO.파일 업로드 개발 완료 되면 수정해야됨
-    // 참고 ZdecRdsAnAccountErrorMgtService > saveAttachFile
+  view.onCellItemClicked = async (grid, { column, itemIndex }) => {
     const { clinrRgno, aplcPrtnrNo, result } = grid.getValues(itemIndex);
 
     if (column === 'cntrwAtthDocId') {
@@ -356,14 +354,14 @@ const initGrdSub = defineGrid((data, view) => {
     } else if (column === 'bnkbAtthDocId') {
       // 통장사본
     } else if (column === 'clinrNm') {
-      modal({
+      await modal({
         component: 'WwdcdCleanerRegistrationMgtP', // W-CL-U-0093P02
         componentProps: { clinrRgno, aplcPrtnrNo },
       });
       if (result) {
         notify(t('MSG_ALT_SAVE_DATA'));
-        onClickSearch();
       }
+      await onClickSearch();
     }
   };
 });
