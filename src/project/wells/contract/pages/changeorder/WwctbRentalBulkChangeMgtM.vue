@@ -105,7 +105,7 @@ const now = dayjs();
 const dataService = useDataService();
 const grdMainRefRental = ref(getComponentType('KwGrid'));
 const grdMainRentalView = computed(() => grdMainRefRental.value?.getView());
-const { modal, alert } = useGlobal();
+const { modal } = useGlobal();
 
 const codes = await codeUtil.getMultiCodes(
   'CNTR_CH_TP_CD', // 계약변경유형코드
@@ -181,16 +181,16 @@ async function onClickSearch() {
 // 일괄변경 등록 버튼 클릭
 async function onClickBatchChangeReg() {
   const procsDv = searchParams.value.cntrChTpCd;
-  const { result } = await modal({
+  const { result, payload } = await modal({
     component: 'WwctbRentalBulkChangeMgtP',
     componentProps: { procsDv },
   });
   if (result) {
-    if (isEmpty(searchParams.value.cntrChTpCd)) {
-      alert(t('MSG_ALT_RECON_INQR_CNDT'));
-      return;
+    if (!isEmpty(payload)) {
+      searchParams.value.cntrChTpCd = payload.cntrChTpCd;
+      searchParams.value.srchDt = now.format('YYYYMM'); // 반영일자
+      await onClickSearch();
     }
-    await onClickSearch();
   }
 }
 
