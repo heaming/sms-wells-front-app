@@ -204,6 +204,13 @@ async function initMaterialGrid(data, view) {
       styleName: 'text-right',
       dataType: 'number',
     },
+    // 정상가액
+    { fieldName: 'pdRelPrpVal01',
+      header: t('MSG_TXT_NOR_PRC_AMO'),
+      width: '107',
+      styleName: 'text-right',
+      dataType: 'number',
+    },
     // 잔액산입
     { fieldName: 'blamInptYn', header: t('MSG_TXT_CHANGE_COUNTING'), width: '87', styleName: 'text-center', editor: { type: 'list' }, options: props.codes?.COD_YN },
   ];

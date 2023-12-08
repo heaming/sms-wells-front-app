@@ -604,6 +604,13 @@ async function initMaterialGrid(data, view) {
       editor: { type: 'number', editFormat: '##0', maxLength: 3, positiveOnly: true },
       dataType: 'number',
     },
+    // 정상가액
+    { fieldName: 'pdRelPrpVal01',
+      header: t('MSG_TXT_NOR_PRC_AMO'),
+      width: '107',
+      styleName: 'text-right',
+      editor: { type: 'number', editFormat: '#,##0.##', maxLength: 12, positiveOnly: true, maxLengthExceptComma: true },
+      dataType: 'number' },
     // 잔액산입
     { fieldName: 'blamInptYn',
       header: t('MSG_TXT_CHANGE_COUNTING'),
