@@ -605,7 +605,7 @@ async function initMaterialGrid(data, view) {
       dataType: 'number',
     },
     // 정상가액
-    { fieldName: 'pdRelPrpVal01',
+    { fieldName: 'basVal',
       header: t('MSG_TXT_NOR_PRC_AMO'),
       width: '107',
       styleName: 'text-right',
