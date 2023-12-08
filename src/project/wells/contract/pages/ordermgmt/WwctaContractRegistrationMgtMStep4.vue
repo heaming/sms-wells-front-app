@@ -182,33 +182,6 @@ ${step4.cntrt.sexDvNm || ''}`
 
       <kw-separator />
 
-      <template
-        v-if="step4.bas?.cntrTpCd === '2' && step4.isUseAttach === 'Y'"
-      >
-        <h3>다자녀 첨부파일</h3>
-
-        <kw-form
-          :cols="2"
-          class="mt20"
-        >
-          <kw-form-row>
-            <kw-form-item label="첨부파일">
-              <zwcm-file-attacher
-                ref="attachFileRef"
-                v-model="fileParams.kidsDocs"
-                attach-group-id="ATG_CTA_CNTR_FILE"
-                :attach-document-id="fileParams.kidsDocId"
-                class="mb10"
-                :name="$t('MSG_TXT_ATTH_FILE')"
-                downloadable
-              />
-            </kw-form-item>
-          </kw-form-row>
-        </kw-form>
-
-        <kw-separator />
-      </template>
-
       <h3>{{ $t('MSG_TXT_PRTNR_INF') }}</h3>
 
       <kw-form
@@ -696,8 +669,6 @@ const cntrTpIs = ref({
 });
 const isReadonly = computed(() => step4.value.bas?.cntrPrgsStatCd > 20);
 const fileParams = ref({
-  kidsDocs: [],
-  kidsDocId: '', // 다자녀
   dcevdnDocs: [],
   dcevdnDocId: '', // 법인할인고객 주소변경
 });
