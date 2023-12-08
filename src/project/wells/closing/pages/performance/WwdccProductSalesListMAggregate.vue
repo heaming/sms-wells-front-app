@@ -336,6 +336,9 @@ const initGrdBasic = defineGrid((data, view) => {
             sellTpCd: searchParams.value.sellTpCd,
             baseDtFrom: searchParams.value.baseDtFrom,
             baseDtTo: searchParams.value.baseDtTo,
+            sellTpDtlCd: searchParams.value.sellTpDtlCd,
+            sellChnlDvCd: searchParams.value.sellChnlDvCd,
+            sapPdDvCd: searchParams.value.sapPdDvCd,
           },
         });
       } else if (column === 'totAmt' && searchParams.value.sellTpCd === '1') {
