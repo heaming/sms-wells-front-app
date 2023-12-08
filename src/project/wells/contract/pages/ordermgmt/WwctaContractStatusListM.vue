@@ -312,7 +312,7 @@
                 @click="onClickConfirm(item)"
               />
               <kw-btn
-                v-if="sessionUserInfo.baseRleCd === 'W8010'"
+                v-if="sessionUserInfo.baseRleCd === 'W8010' || sessionUserInfo.baseRleCd === 'W8020'"
                 :label="$t('MSG_BTN_F2F_PYMNT')"
                 padding="10px"
                 @click="onClickF2fPayment(item)"
