@@ -103,7 +103,6 @@
             v-model="workNotice.mngrDvCd"
             :name="$t('MSG_TXT_MNGT_DV')"
             :options="codes.MNGR_DV_CD"
-            :readonly="!isEmpty(deptMngrDvCd)"
             rules="required"
           />
         </kw-form-item>
@@ -165,7 +164,6 @@ const { t } = useI18n();
 const { cancel, ok } = useModal();
 const { confirm, notify } = useGlobal();
 const dataService = useDataService();
-const userInfo = useStore().getters['meta/getUserInfo'];
 
 const props = defineProps({
   mngtYm: {
@@ -182,15 +180,20 @@ const props = defineProps({
 // -------------------------------------------------------------------------------------------------
 // Function & Event
 // -------------------------------------------------------------------------------------------------
+
+// 공통코드
 const codes = await codeUtil.getMultiCodes(
   'MNGR_DV_CD',
   'PD_GRP_CD',
 );
 
+// 상품코드
 const pdCds = ref([]);
 
+// 입력폼 객체
 const workNoticeFormRef = ref();
 
+// 작업공지사항 객체
 const workNotice = ref({
   mngtYm: '',
   ntcId: '',
@@ -207,27 +210,21 @@ const workNotice = ref({
   vlEnddt: '',
 });
 
+// 필터링된 상품코드
 const filteredPdCds = computed(() => {
   if (isEmpty(workNotice.value.pdGrpCd)) return pdCds.value;
   return pdCds.value.filter((obj) => obj.pdGrpCd === workNotice.value.pdGrpCd);
 });
 
+// 수정 모드인 경우 true
 const isModify = computed(() => !(isEmpty(props.mngtYm) || isEmpty(props.ntcId) || isEmpty(props.ntcSn)));
-// TODO: 부서 코드 정해지면 수정 필요
-const deptMngrDvCd = computed(() => {
-  if (userInfo.departmentId === '영업지원팀') {
-    return '1';
-  }
-  if (userInfo.departmentId === '서비스운영팀') {
-    return '2';
-  }
-  return '';
-});
 
+// 상세 조회 REST API
 async function fetchWorkNoticeDetail(params) {
   return await dataService.get('/sms/wells/service/work-notices/detail', params);
 }
 
+// 상세 조회
 async function getWorkNoticeDetail() {
   const res = await fetchWorkNoticeDetail({
     params: {
@@ -237,33 +234,39 @@ async function getWorkNoticeDetail() {
   workNotice.value = res.data;
 }
 
+// 상품코드 조회 REST API
 async function fetchProductsByProductGroup(pdGrpCd) {
   return await dataService.get('/sms/wells/service/work-notices/products', { params: { pdGrpCd } });
 }
 
+// 상품코드 조회
 async function getProductsByProductGroup(pdGrpCd) {
   const res = await fetchProductsByProductGroup(pdGrpCd);
   pdCds.value = res.data;
 }
 
+// 상품코드 초기 셋팅
 await getProductsByProductGroup('');
 
 if (isModify.value) {
+  // 수정 모드일 때 상세 조회
   await getWorkNoticeDetail();
 } else {
-  workNotice.value.mngrDvCd = deptMngrDvCd.value;
   workNotice.value.vlStrtdt = dayjs().format('YYYYMMDD');
   workNotice.value.vlEnddt = dayjs().format('YYYYMMDD');
 }
 
+// 저장
 async function onClickSave() {
   if (await workNoticeFormRef.value.alertIfIsNotModified()) { return; }
   if (!await workNoticeFormRef.value.validate()) { return; }
   if (!await confirm(t('MSG_ALT_WANT_SAVE'))) { return; }
 
   if (isModify.value) {
+    // 수정
     await dataService.put('/sms/wells/service/work-notices', workNotice.value);
   } else {
+    // 신규등록
     await dataService.post('/sms/wells/service/work-notices', workNotice.value);
   }
   ok();

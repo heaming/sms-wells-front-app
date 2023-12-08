@@ -123,14 +123,18 @@ const dataService = useDataService();
 // -------------------------------------------------------------------------------------------------
 // Function & Event
 // -------------------------------------------------------------------------------------------------
+
+// 그리드 객체
 const grdMainRef = ref(getComponentType('KwGrid'));
 
+// 공통코드
 const codes = await codeUtil.getMultiCodes(
   'COD_PAGE_SIZE_OPTIONS',
   'MNGR_DV_CD',
   'PD_GRP_CD',
 );
 
+// 조회조건
 const searchParams = ref({
   stRgstDt: '',
   edRgstDt: '',
@@ -138,21 +142,26 @@ const searchParams = ref({
   ntccnTitNm: '',
 });
 
+// 페이징 객체
 const pageInfo = ref({
   totalCount: 0,
   pageIndex: 1,
   pageSize: Number(getConfig('CFG_CMZ_DEFAULT_PAGE_SIZE')),
 });
 
+// 조회조건 캐시
 let cachedParams;
 
+// 조회기간 초기 셋팅
 searchParams.value.stRgstDt = dayjs().add(-7, 'day').format('YYYYMMDD');
 searchParams.value.edRgstDt = dayjs().add(7, 'day').format('YYYYMMDD');
 
+// 조회 REST API
 async function fetchWorkNoticePages(params) {
   return await dataService.get('/sms/wells/service/work-notices/paging', params);
 }
 
+// 조회(페이징)
 async function getWorkNoticePages() {
   const res = await fetchWorkNoticePages({ params: { ...cachedParams, ...pageInfo.value } });
   const { list: workNotices, pageInfo: pagingResult } = res.data;
@@ -166,12 +175,14 @@ async function getWorkNoticePages() {
   view.resetCurrent();
 }
 
+// 조회버튼 클릭 이벤트
 async function onClickSearch() {
   pageInfo.value.pageIndex = 1;
   cachedParams = cloneDeep(searchParams.value);
   await getWorkNoticePages();
 }
 
+// 엑셀다운로드
 async function onClickExportView() {
   const view = grdMainRef.value.getView();
   const res = await dataService.get('/sms/wells/service/work-notices', { params: cachedParams });
@@ -183,6 +194,7 @@ async function onClickExportView() {
   });
 }
 
+// 등록버튼 클릭 이벤트
 async function onClickWorkNoticeRegBtn() {
   const { result } = await modal({
     component: 'WwsndWorkNoticeRegP',
@@ -193,7 +205,6 @@ async function onClickWorkNoticeRegBtn() {
 // -------------------------------------------------------------------------------------------------
 // Initialize Grid
 // -------------------------------------------------------------------------------------------------
-
 const initGrdMain = defineGrid((data, view) => {
   const fields = [
     { fieldName: 'mngtYm' },
@@ -302,6 +313,7 @@ const initGrdMain = defineGrid((data, view) => {
 
   view.rowIndicator.visible = true;
 
+  // 그리드 더블클릭 이벤트
   view.onCellDblClicked = async (g, { dataRow }) => {
     const { mngtYm, ntcId, ntcSn } = gridUtil.getRowValue(g, dataRow);
     const { result } = await modal({
