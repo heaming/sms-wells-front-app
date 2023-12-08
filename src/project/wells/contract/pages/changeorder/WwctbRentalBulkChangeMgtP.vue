@@ -280,6 +280,9 @@ async function onClickSave() {
   if (!await gridUtil.validate(view)) { return; }
 
   const changedRows = gridUtil.getChangedRowValues(view);
+  const payload = {
+    cntrChTpCd: saveParams.value.procsDv,
+  };
 
   cachedParams = {
     saveListReqs: changedRows,
@@ -454,8 +457,9 @@ async function onClickSave() {
       return;
     }
   }
+
   await dataService.post('/sms/wells/contract/changeorder/rental-bulk-change', cachedParams);
-  ok();
+  ok(payload);
   notify(t('MSG_ALT_SAVE_DATA'));
 }
 
@@ -638,7 +642,7 @@ async function onSearchItemCheck(payload, dataRow) {
         return;
       }
     } else if (procsDv === '613') {
-      if (res.data.cntrDtlStatCd === '303') { // 취소된 주문 = 303 수정불가
+      if (['301', '302', '303'].includes(res.data.cntrDtlStatCd)) { // 취소된 주문 = 303 수정불가
         view.setValue(dataRow, 'cntrDtlNo', '');
         alert(t('MSG_ALT_CNCL_ORDER')); // 취소된 주문입니다
         return;
