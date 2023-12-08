@@ -52,10 +52,7 @@
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
-import { useDataService, useModal, useMeta } from 'kw-lib';
-
-const { getUserInfo } = useMeta();
-const userInfo = getUserInfo();
+import { useDataService, useModal } from 'kw-lib';
 
 const { ok } = useModal();
 const dataService = useDataService();
@@ -63,44 +60,51 @@ const dataService = useDataService();
 // -------------------------------------------------------------------------------------------------
 // Function & Event
 // -------------------------------------------------------------------------------------------------
-let treeData = ref([]);
 
 const grdTreeRef = ref({});
-async function fetchData() {
-  const cachedParams = {
-    ogTpCd: userInfo.ogTpCd,
-    rsbDvCd: userInfo.baseRleCd,
-  };
-  console.log('userInfo', userInfo);
 
-  return await dataService.get('/sms/wells/competence/business/rulebase/user', { params: cachedParams });
-}
-
-function expandAll() {
+const expandAll = () => {
   grdTreeRef.value.getView().expandAll();
-}
+};
 
-function collapseAll() {
+const collapseAll = () => {
   grdTreeRef.value.getView().collapseAll();
-}
+};
 
-async function init() {
+const init = async () => {
   const view = grdTreeRef.value.getView();
-  const data = view.getDataSource();
-  treeData = ref([]);
   grdTreeRef.value.getData().clearRows();
 
-  const res = await fetchData();
-  const list = res.data;
+  const res = await dataService.get('/sms/wells/competence/rulebase/user');
 
-  treeData.value.push(...list);
-  data.setRows(treeData.value, 'orgPath', false, '');
-  expandAll();
-}
+  const treeData = {};
+  treeData.rows = res.data.filter((obj) => obj.inqrLvTcnt === 1);
 
-async function onClickSave(data) {
+  treeData.rows.forEach((obj) => {
+    const lvl2Rows = [];
+    res.data.forEach((data) => {
+      if (obj.bznsSpptMnalId === data.hgrBznsSpptMnalId && data.inqrLvTcnt === 2) {
+        lvl2Rows.push(data);
+      }
+    });
+    obj.rows = lvl2Rows;
+    obj.rows.forEach((lvl2) => {
+      const lvl3Rows = [];
+      res.data.forEach((lvl3) => {
+        if (lvl2.bznsSpptMnalId === lvl3.hgrBznsSpptMnalId && lvl3.inqrLvTcnt === 3) {
+          lvl3Rows.push(lvl3);
+        }
+      });
+      lvl2.rows = lvl3Rows;
+    });
+  });
+  view.getDataSource().setObjectRows(treeData, 'rows', '', '');
+  view.resetCurrent();
+};
+
+const onClickSave = (data) => {
   ok(data);
-}
+};
 
 onMounted(() => {
   init();
@@ -134,8 +138,6 @@ const initTreeGrid = async (data, view) => {
 
   view.onCellDblClicked = async (g, clickData) => {
     const clickDatas = g.getValues(clickData.itemIndex);
-    console.log(g);
-    console.log(clickData);
     onClickSave(clickDatas);
   };
 };

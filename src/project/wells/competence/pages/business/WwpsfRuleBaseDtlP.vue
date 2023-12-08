@@ -27,6 +27,7 @@
         >
           <kw-input
             v-model="frmMainData.bznsSpptMnalNm"
+            :label="$t('MSG_TIT_CLASSIFICATION_NM')"
             rules="required"
           />
         </kw-form-item>
@@ -247,12 +248,10 @@ async function onClickSave() {
   if (await frmMainRef.value.alertIfIsNotModified()) { return; }
   if (!await frmMainRef.value.validate()) { return; }
 
-  console.log('frmMainData.value.rsbDvCds', frmMainData.value.rsbDvCds);
-  const response = await dataService.post('/sms/wells/competence/business/rulebase', frmMainData.value);
+  const response = await dataService.post('/sms/wells/competence/rulebase', frmMainData.value);
   if (response.data) {
     notify(t('MSG_ALT_SAVE_DATA'));
     ok(frmMainRef.value);
   }
 }
-
 </script>

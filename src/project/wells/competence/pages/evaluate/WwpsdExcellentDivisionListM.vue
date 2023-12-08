@@ -135,7 +135,7 @@
         name="grdMain"
         :page-size="pageInfo.pageSize"
         :total-count="pageInfo.totalCount"
-        :visible-rows="pageInfo.pageSize - 1"
+        :visible-rows="10"
         @init="initGrdMain"
       />
       <kw-pagination
