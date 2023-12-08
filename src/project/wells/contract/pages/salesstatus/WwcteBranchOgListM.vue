@@ -57,7 +57,7 @@
           <kw-select
             v-model="fieldParams.mngerOgAgrgTpCd"
             first-option-value=""
-            :options="commonCodes.MNGER_OG_AGRG_TP_CD"
+            :options="commonCodes.MNGER_OG_AGRG_TP_CD.filter((v) => ['02', '03', '04', '11', '12'].includes(v.codeId))"
           />
         </kw-search-item>
         <!-- 조직레벨 -->
@@ -99,7 +99,7 @@
       <kw-action-top>
         <template #left>
           <kw-paging-info
-            :total-count="pageInfo.totalCount"
+            :total-count="totalCount"
           />
         </template>
         <kw-btn
@@ -108,7 +108,7 @@
           icon="download_on"
           dense
           secondary
-          :disable="!pageInfo.totalCount"
+          :disable="totalCount === 0"
           @click="onClickExcelDownload"
         />
         <kw-separator
@@ -117,19 +117,18 @@
           spaced
         />
         <kw-btn
+          v-show="false"
           v-permission:print
           :label="$t('MSG_BTN_PRINT')"
           icon="report"
           dense
-          :disable="!pageInfo.totalCount"
+          :disable="totalCount === 0"
           @click="onClickPrint"
         />
       </kw-action-top>
       <kw-grid
         ref="grdMainRef"
-        view-classification
-        :page-size="pageInfo.pageSize"
-        :total-count="pageInfo.totalCount"
+        :visible-rows="10"
         @init="initGrid"
       />
     </div>
@@ -152,6 +151,7 @@ const { currentRoute } = useRouter();
 const { getters } = useStore();
 const { userName, employeeIDNumber } = getters['meta/getUserInfo'];
 const grdMainRef = ref(getComponentType('KwGrid'));
+const totalCount = ref(0);
 
 let cachedParams;
 const now = dayjs();
@@ -327,19 +327,14 @@ async function fetchData() {
 
   if (isEmpty(cachedParams)) return;
 
-  res = await dataService.get('/sms/wells/contract/contracts/branch-organization-list/paging', { params: { ...cachedParams, ...pageInfo.value } });
-  const { list: pages, pageInfo: pagingResult } = res.data;
-  if (res.data.length === 0) {
-    await alert(t('MSG_ALT_NO_DATA')); // 데이터가 존재하지 않습니다.
-    return;
-  }
-  pageInfo.value = pagingResult;
+  res = await dataService.get('/sms/wells/contract/contracts/branch-organization-list/paging', { params: { ...cachedParams } });
+  const mainList = res.data;
+  totalCount.value = mainList.length;
 
   const view = grdMainRef.value.getView();
-  const dataSource = view.getDataSource();
-  dataSource.checkRowStates(false);
-  dataSource.addRows(pages);
-  dataSource.checkRowStates(true);
+
+  view.getDataSource().setRows(mainList);
+  view.resetCurrent();
 }
 
 async function onClickSearch() {
@@ -357,7 +352,7 @@ async function onClickReset() {
 
 async function onClickExcelDownload() {
   const view = grdMainRef.value.getView();
-  const res = await dataService.get('/sms/wells/contract/contracts/branch-organization-performance-list/excel-download', { params: cachedParams });
+  const res = await dataService.get('/sms/wells/contract/contracts/branch-organization-list/excel-download', { params: cachedParams });
   await gridUtil.exportView(view, {
     fileName: currentRoute.value.meta.menuName,
     timePostfix: true,
@@ -368,7 +363,7 @@ async function onClickExcelDownload() {
 async function onClickPrint() {
   // OZ 리포트 팝업 파라미터 설정
   const ozParams = {
-    ozrPath: '/kstation-w/acrs/newIntmChngAcrsReport.ozr', // 레포트 파일 경로
+    ozrPath: '/kstation-w/', // 레포트 파일 경로
     odiPath: '',
     args: {},
   };
@@ -381,7 +376,7 @@ async function onClickPrint() {
 
   switch (cachedParams.inqrDv) { // 조회구분 분기처리
     case '4': // 개인
-      ozParams.ozrPath = '/kstation-w/acrs/newIntmChngAcrsPlanerReport.ozr'; // 플래너 레포트 파일
+      ozParams.ozrPath = '/kstation-w/acrs/newxx.ozr'; // 레포트 파일
       inqrDv = t('MSG_TXT_INDV');
       break;
     case '3': // 지점
@@ -411,7 +406,7 @@ async function onClickPrint() {
   // cachedParams.srchRgnDan = srchRgnDan; // 지역단
   // cachedParams.srchOprtDiv = srchOprtDiv; // 가동구분
 
-  const args = { searchApiUrl: '/api/v1/sms/wells/contract/contracts/new-machine-changes/oz', ...cachedParams };
+  const args = { searchApiUrl: '/api/v1/oz', ...cachedParams };
 
   // OZ 레포트 팝업호출
   openReportPopup(
@@ -426,38 +421,44 @@ async function onClickPrint() {
 // -------------------------------------------------------------------------------------------------
 
 const initGrid = defineGrid((data, view) => {
-  const fields = [
-    { fieldName: 'prtnrNm' }, // 성명
-    { fieldName: 'ogCd' }, // 소속
-    { fieldName: 'branchCnt' }, // 지점
-    { fieldName: 'optnPerfCnt' }, // 가동실적
-    { fieldName: 'optnBrnchAvg' }, // 가동지평
-    { fieldName: 'engmPerfCnt' }, // 채용실적 : 채용 건수
-    { fieldName: 'engmBrnchAvg' }, // 채용지평 : 채용 지점 평균 건수
-    { fieldName: 'welsMngerEnrlCnt' }, // 웰스매니저재적
-    { fieldName: 'welsMngerAclActiCnt' }, // 웰스매니저 실활동
-  ];
-
   const columns = [
-    { fieldName: 'prtnrNm', header: t('MSG_TXT_EMPL_NM'), width: '145', styleName: 'text-center' },
-    { fieldName: 'ogCd', header: t('MSG_TXT_BLG_CD'), width: '145', styleName: 'text-center' },
-    { fieldName: 'branchCnt', header: t('MSG_TXT_BRANCH'), width: '145', styleName: 'text-right' },
-    { fieldName: 'optnPerfCnt', header: t('MSG_TXT_OPTN') + t('MSG_TXT_PERF'), width: '145', styleName: 'text-right' }, // 가동실적
-    { fieldName: 'optnBrnchAvg', header: t('MSG_TXT_OPTN') + t('MSG_TXT_BRNCH_OFFC_AVG'), width: '145', styleName: 'text-right' }, // 가동지평
-    { fieldName: 'engmPerfCnt', header: t('MSG_TXT_ENGM') + t('MSG_TXT_PERF'), width: '145', styleName: 'text-right' }, // 채용실적
-    { fieldName: 'engmBrnchAvg', header: t('MSG_TXT_ENGM') + t('MSG_TXT_BRNCH_OFFC_AVG'), width: '145', styleName: 'text-right' }, // 채용지평
-    { fieldName: 'welsMngerEnrlCnt', header: t('MSG_TXT_WELS_MNGER') + t('MSG_TXT_ENRL'), width: '240', styleName: 'text-right' }, // 웰스매니저재적
-    { fieldName: 'welsMngerAclActiCnt', header: t('MSG_TXT_WELS_MNGER') + t('MSG_TXT_ACL_ACTI'), width: '239', styleName: 'text-right' }, // 웰스매니저 실활동
+    { fieldName: 'prtnrNm', header: t('MSG_TXT_EMPL_NM'), width: '145', styleName: 'text-center' }, // 성명
+    { fieldName: 'ogCd', header: t('MSG_TXT_BLG_CD'), width: '145', styleName: 'text-center' }, // 소속
+    { fieldName: 'branchCnt', header: t('MSG_TXT_BRANCH'), width: '145', styleName: 'text-right', dataType: 'number' }, // 지점
+    { fieldName: 'optnPerfCnt', header: t('MSG_TXT_OPTN') + t('MSG_TXT_PERF'), width: '145', styleName: 'text-right', dataType: 'number' }, // 가동실적
+    { fieldName: 'optnBrnchAvg', header: t('MSG_TXT_OPTN') + t('MSG_TXT_BRNCH_OFFC_AVG'), width: '145', styleName: 'text-right', dataType: 'number' }, // 가동지평
+    { fieldName: 'engmPerfCnt', header: t('MSG_TXT_ENGM') + t('MSG_TXT_PERF'), width: '145', styleName: 'text-right', dataType: 'number' }, // 채용실적
+    { fieldName: 'engmBrnchAvg', header: t('MSG_TXT_ENGM') + t('MSG_TXT_BRNCH_OFFC_AVG'), width: '145', styleName: 'text-right', dataType: 'number' }, // 채용지평
+    { fieldName: 'welsMngerEnrlCnt', header: t('MSG_TXT_WELS_MNGER') + t('MSG_TXT_ENRL'), width: '145', styleName: 'text-right', dataType: 'number' }, // 웰스매니저재적
+    { fieldName: 'welsMngerAclActiCnt', header: t('MSG_TXT_WELS_MNGER') + t('MSG_TXT_ACL_ACTI'), width: '145', styleName: 'text-right', dataType: 'number' }, // 웰스매니저 실활동
   ];
 
-  // const fields = columns.map(({ fieldName, dataType }) => (dataType ? { fieldName, dataType } : { fieldName }));
+  const fields = columns.map(({ fieldName, dataType }) => (dataType ? { fieldName, dataType } : { fieldName }));
   data.setFields(fields);
   view.setColumns(columns);
+  view.setHeaderSummaries({
+    visible: true,
+    items: [
+      {
+        height: 42,
+      },
+    ],
+  });
+  view.columnByName('prtnrNm').setHeaderSummaries({ text: t('MSG_TXT_SUM'), styleName: 'text-center' });
+  view.columnByName('branchCnt').setHeaderSummaries({ numberFormat: '#,##0', expression: 'sum' });
+  view.columnByName('optnPerfCnt').setHeaderSummaries({ numberFormat: '#,##0', expression: 'sum' });
+  view.columnByName('optnBrnchAvg').setHeaderSummaries({ numberFormat: '#,##0.#', expression: 'avg' });
+  view.columnByName('engmPerfCnt').setHeaderSummaries({ numberFormat: '#,##0', expression: 'sum' });
+  view.columnByName('engmBrnchAvg').setHeaderSummaries({ numberFormat: '#,##0.#', expression: 'avg' });
+  view.columnByName('welsMngerEnrlCnt').setHeaderSummaries({ numberFormat: '#,##0', expression: 'sum' });
+  view.columnByName('welsMngerAclActiCnt').setHeaderSummaries({ numberFormat: '#,##0', expression: 'sum' });
 
   const layout1 = [
     'prtnrNm', 'ogCd', 'branchCnt', 'optnPerfCnt', 'optnBrnchAvg', 'engmPerfCnt', 'engmBrnchAvg', 'welsMngerEnrlCnt', 'welsMngerAclActiCnt',
   ];
   view.setColumnLayout(layout1);
+  view.layoutByColumn('prtnrNm').summaryUserSpans = [{ colspan: 2 }];
+  view.rowIndicator.visible = true;
 });
 
 </script>

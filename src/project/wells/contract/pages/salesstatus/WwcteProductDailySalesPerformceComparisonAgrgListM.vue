@@ -3,7 +3,7 @@
 * 프로그램 개요
 ****************************************************************************************************
 1. 모듈 : CTA
-2. 프로그램 ID : WwcteProductDailySalesPerformceComparisonAgrgM
+2. 프로그램 ID : WwcteProductDailySalesPerformceComparisonAgrgListM
 3. 작성자 : gs.itsm211 / YS.JEON
 4. 작성일 : 2023.11.10
 ****************************************************************************************************
@@ -160,6 +160,12 @@ codes.OG_CP_CD = [
   { codeId: 'W01', codeName: `P${t('MSG_TXT_OG')}` },
   { codeId: 'W02', codeName: `M${t('MSG_TXT_OG')}` },
 ];
+codes.SELL_TP_CUSTOM_CD = [
+  { codeId: '22', codeName: t('MSG_TXT_RENTAL') },
+  { codeId: '24', codeName: t('MSG_TXT_LEASE') },
+  { codeId: '33', codeName: t('MSG_TXT_MEM') },
+  { codeId: '66', codeName: t('MSG_TXT_REG_DLVR') },
+];
 
 // -------------------------------------------------------------------------------------------------
 // Function & Event
@@ -168,12 +174,17 @@ codes.OG_CP_CD = [
 async function fetchData() {
   if (isEmpty(cachedParams)) return;
 
+  if (searchParams.value.perfStrtDt.substring(0, 6) !== searchParams.value.perfEndDt.substring(0, 6)) {
+    await alert(t('MSG_ALT_SAM_MON')); // 같은 달만 조회 가능합니다.
+    return;
+  }
+
   const { prntTp } = searchParams.value;
   let res;
   if (prntTp === 'PL') {
-    res = await dataService.get('/sms/wells/contract/contracts/product-daily-sales-performce-comparison-agrg/lstmm', { params: { ...cachedParams, ...pageInfo.value } });
+    res = await dataService.get('/sms/wells/contract/contracts/product-daily-sales-performce-comparison-agrg/lstmm', { params: { ...cachedParams } });
   } else if (prntTp === 'PM') {
-    res = await dataService.get('/sms/wells/contract/contracts/product-daily-sales-performce-comparison-agrg/msh', { params: { ...cachedParams, ...pageInfo.value } });
+    res = await dataService.get('/sms/wells/contract/contracts/product-daily-sales-performce-comparison-agrg/msh', { params: { ...cachedParams } });
   }
   console.log(res.data);
   // const productAccountList = res.data.list;
@@ -228,12 +239,12 @@ const initGridLstmm = defineGrid((data, view) => {
     { fieldName: 'pdMclsfNm', header: t('MSG_TXT_PD_MCLSF'), width: '116', styleName: 'text-center' }, // 상품중분류
     { fieldName: 'pdCd', header: t('MSG_TXT_PRDT_CODE'), width: '116', styleName: 'text-center' }, // 상품코드
     { fieldName: 'pdNm', header: t('MSG_TXT_PRDT_NM'), width: '239', styleName: 'text-left' }, // 상품명
-    { fieldName: 'sellTpCd', header: t('MSG_TXT_SEL_TYPE'), width: '120', styleName: 'text-center', options: codes.SELL_TP_CD }, // 판매유형
+    { fieldName: 'sellTpCd', header: t('MSG_TXT_SEL_TYPE'), width: '120', styleName: 'text-center', options: codes.SELL_TP_CUSTOM_CD }, // 판매유형
     { fieldName: 'sellTpDtlCd', header: t('MSG_TXT_SELL_TP_DTL'), width: '116', styleName: 'text-center', options: codes.SELL_TP_DTL_CD }, // 판매유형상세
     // 당월
     { fieldName: 'crdovrCt', header: t('MSG_TXT_CRDOVR'), width: '120', styleName: 'text-right', dataType: 'number' }, // 이월
-    { fieldName: 'inflowCt', header: t('MSG_TXT_INFLW'), width: '120', styleName: 'text-right', dataType: 'number' }, // 유입
-    { fieldName: 'resignCt', header: t('MSG_TXT_EXPIRED'), width: '120', styleName: 'text-right', dataType: 'number' }, // 해지
+    { fieldName: 'inflowCt', header: t('MSG_TXT_SL'), width: '120', styleName: 'text-right', dataType: 'number' }, // 유입=매출
+    { fieldName: 'resignCt', header: t('MSG_TXT_CANCEL'), width: '120', styleName: 'text-right', dataType: 'number' }, // 해지=취소
     { fieldName: 'expirationCt', header: t('MSG_TXT_EXN'), width: '120', styleName: 'text-right', dataType: 'number' }, // 만료
     { fieldName: 'nincCt', header: t('MSG_TXT_NINC'), width: '120', styleName: 'text-right', dataType: 'number' }, // 순증
     { fieldName: 'sumCt', header: t('MSG_TXT_SUM'), width: '120', styleName: 'text-right', dataType: 'number' }, // 합계
@@ -242,8 +253,8 @@ const initGridLstmm = defineGrid((data, view) => {
     { fieldName: 'chdvcCt', header: t('MSG_TXT_CHNG'), width: '120', styleName: 'text-right', dataType: 'number' }, // 기변
     // 전월
     { fieldName: 'lstmmCrdovrCt', header: t('MSG_TXT_CRDOVR'), width: '120', styleName: 'text-right', dataType: 'number' }, // 이월
-    { fieldName: 'lstmmInflowCt', header: t('MSG_TXT_INFLW'), width: '120', styleName: 'text-right', dataType: 'number' }, // 유입
-    { fieldName: 'lstmmResignCt', header: t('MSG_TXT_EXPIRED'), width: '120', styleName: 'text-right', dataType: 'number' }, // 해지
+    { fieldName: 'lstmmInflowCt', header: t('MSG_TXT_SL'), width: '120', styleName: 'text-right', dataType: 'number' }, // 유입=매출
+    { fieldName: 'lstmmResignCt', header: t('MSG_TXT_CANCEL'), width: '120', styleName: 'text-right', dataType: 'number' }, // 해지=취소
     { fieldName: 'lstmmExpirationCt', header: t('MSG_TXT_EXN'), width: '120', styleName: 'text-right', dataType: 'number' }, // 만료
     { fieldName: 'lstmmNincCt', header: t('MSG_TXT_NINC'), width: '120', styleName: 'text-right', dataType: 'number' }, // 순증
     { fieldName: 'lstmmSumCt', header: t('MSG_TXT_SUM'), width: '120', styleName: 'text-right', dataType: 'number' }, // 합계
@@ -253,24 +264,25 @@ const initGridLstmm = defineGrid((data, view) => {
   const fields = columns.map(({ fieldName, dataType }) => (dataType ? { fieldName, dataType } : { fieldName }));
   data.setFields(fields);
   view.setColumns(columns);
-  view.setHeaderSummaries({
-    visible: true,
-    items: [
-      {
-        height: 42,
-      },
-    ],
-  });
-  view.columnByName('pdNm').setHeaderSummaries({ text: t('MSG_TXT_SUM'), styleName: 'text-center' });
-  view.columnByName('crdovrCt').setHeaderSummaries({ numberFormat: '#,##0', expression: 'sum' });
-  view.columnByName('inflowCt').setHeaderSummaries({ numberFormat: '#,##0', expression: 'sum' });
-  view.columnByName('resignCt').setHeaderSummaries({ numberFormat: '#,##0', expression: 'sum' });
-  view.columnByName('expirationCt').setHeaderSummaries({ numberFormat: '#,##0', expression: 'sum' });
-  view.columnByName('nincCt').setHeaderSummaries({ numberFormat: '#,##0', expression: 'sum' });
-  view.columnByName('sumCt').setHeaderSummaries({ numberFormat: '#,##0', expression: 'sum' });
+  // view.setHeaderSummaries({ visible: true, items: [{ height: 42 }] });
+  // view.columnByName('pdNm').setHeaderSummaries({ text: t('MSG_TXT_TOT_SUM'), styleName: 'text-center' });
+  // view.columnByName('crdovrCt').setHeaderSummaries({ numberFormat: '#,##0', expression: 'sum' });
+  // view.columnByName('inflowCt').setHeaderSummaries({ numberFormat: '#,##0', expression: 'sum' });
+  // view.columnByName('resignCt').setHeaderSummaries({ numberFormat: '#,##0', expression: 'sum' });
+  // view.columnByName('expirationCt').setHeaderSummaries({ numberFormat: '#,##0', expression: 'sum' });
+  // view.columnByName('nincCt').setHeaderSummaries({ numberFormat: '#,##0', expression: 'sum' });
+  // view.columnByName('sumCt').setHeaderSummaries({ numberFormat: '#,##0', expression: 'sum' });
+  // view.columnByName('lstmmCprNincCt').setHeaderSummaries({ numberFormat: '#,##0', expression: 'sum' });
+  // view.columnByName('receiptCt').setHeaderSummaries({ numberFormat: '#,##0', expression: 'sum' });
+  // view.columnByName('chdvcCt').setHeaderSummaries({ numberFormat: '#,##0', expression: 'sum' });
 
-  // view.rowIndicator.visible = true;
-  // view.checkBar.visible = false;
+  // view.columnByName('lstmmCrdovrCt').setHeaderSummaries({ numberFormat: '#,##0', expression: 'sum' });
+  // view.columnByName('lstmmInflowCt').setHeaderSummaries({ numberFormat: '#,##0', expression: 'sum' });
+  // view.columnByName('lstmmResignCt').setHeaderSummaries({ numberFormat: '#,##0', expression: 'sum' });
+  // view.columnByName('lstmmExpirationCt').setHeaderSummaries({ numberFormat: '#,##0', expression: 'sum' });
+  // view.columnByName('lstmmNincCt').setHeaderSummaries({ numberFormat: '#,##0', expression: 'sum' });
+  // view.columnByName('lstmmSumCt').setHeaderSummaries({ numberFormat: '#,##0', expression: 'sum' });
+  // view.columnByName('lstmmChdvcCt').setHeaderSummaries({ numberFormat: '#,##0', expression: 'sum' });
 
   // multi row header setting
   const layout1 = [
@@ -291,6 +303,8 @@ const initGridLstmm = defineGrid((data, view) => {
     },
   ];
   view.setColumnLayout(layout1);
+  view.checkBar.visible = false;
+  view.rowIndicator.visible = true;
 });
 
 const initGridMsh = defineGrid((data, view) => {
@@ -299,44 +313,39 @@ const initGridMsh = defineGrid((data, view) => {
     { fieldName: 'pdMclsfNm', header: t('MSG_TXT_PD_MCLSF'), width: '116', styleName: 'text-center' }, // 상품중분류
     { fieldName: 'pdCd', header: t('MSG_TXT_PRDT_CODE'), width: '116', styleName: 'text-center' }, // 상품코드
     { fieldName: 'pdNm', header: t('MSG_TXT_PRDT_NM'), width: '239', styleName: 'text-left' }, // 상품명
-    { fieldName: 'sellTpCd', header: t('MSG_TXT_SEL_TYPE'), width: '120', styleName: 'text-center', options: codes.SELL_TP_CD }, // 판매유형
+    { fieldName: 'sellTpCd', header: t('MSG_TXT_SEL_TYPE'), width: '120', styleName: 'text-center', options: codes.SELL_TP_CUSTOM_CD }, // 판매유형
     { fieldName: 'sellTpDtlCd', header: t('MSG_TXT_SELL_TP_DTL'), width: '116', styleName: 'text-center', options: codes.SELL_TP_DTL_CD }, // 판매유형상세
 
     { fieldName: 'crdovrCt', header: t('MSG_TXT_CRDOVR'), width: '120', styleName: 'text-right', dataType: 'number' }, // 이월
     { fieldName: 'inflowCt', header: t('MSG_TXT_INFLW'), width: '120', styleName: 'text-right', dataType: 'number' }, // 유입
-    { fieldName: 'resignCt', header: t('MSG_TXT_EXPIRED'), width: '120', styleName: 'text-right', dataType: 'number' }, // 해지
-    { fieldName: 'expirationCt', header: t('MSG_TXT_EXN'), width: '120', styleName: 'text-right', dataType: 'number' }, // 만료
-    { fieldName: 'nincCt', header: t('MSG_TXT_NINC'), width: '120', styleName: 'text-right', dataType: 'number' }, // 순증
+    { fieldName: 'resignCt', header: t('MSG_TXT_SEPARATION'), width: '120', styleName: 'text-right', dataType: 'number' }, // 해지=이탈
+    { fieldName: 'expirationCt', header: t('MSG_TXT_EXN'), width: '120', styleName: 'text-right', dataType: 'number' }, // 렌탈 만료
+    { fieldName: 'receiptCt', header: t('MSG_TXT_RCP'), width: '120', styleName: 'text-right', dataType: 'number' }, // 멤버십 접수
+    { fieldName: 'spayCt', header: t('MSG_TIT_SPAY'), width: '120', styleName: 'text-right', dataType: 'number' }, // 일시불
     { fieldName: 'sumCt', header: t('MSG_TXT_SUM'), width: '120', styleName: 'text-right', dataType: 'number' }, // 합계
+    { fieldName: 'nincCt', header: t('MSG_TXT_NINC'), width: '120', styleName: 'text-right', dataType: 'number' }, // 순증
     { fieldName: 'lstmmCprNincCt', header: t('MSG_TXT_NINC_ICRDCR'), width: '120', styleName: 'text-right', dataType: 'number' }, // 전월대비 순증증감
-    { fieldName: 'receiptCt', header: t('MSG_TXT_RCP'), width: '120', styleName: 'text-right', dataType: 'number' }, // 접수
+    { fieldName: 'sellCt', header: t('MSG_TXT_SELL'), width: '120', styleName: 'text-right', dataType: 'number' }, // 판매
     { fieldName: 'chdvcCt', header: t('MSG_TXT_CHNG'), width: '120', styleName: 'text-right', dataType: 'number' }, // 기변
 
-    { fieldName: 'spayCt', header: t('MSG_TIT_SPAY'), width: '120', styleName: 'text-right', dataType: 'number' }, // 일시불
-    { fieldName: 'sellCt', header: t('MSG_TXT_SELL'), width: '120', styleName: 'text-right', dataType: 'number' }, // 판매
   ];
 
   const fields = columns.map(({ fieldName, dataType }) => (dataType ? { fieldName, dataType } : { fieldName }));
   data.setFields(fields);
   view.setColumns(columns);
-  view.setHeaderSummaries({
-    visible: true,
-    items: [
-      {
-        height: 42,
-      },
-    ],
-  });
-  view.columnByName('pdNm').setHeaderSummaries({ text: t('MSG_TXT_SUM'), styleName: 'text-center' });
-  view.columnByName('crdovrCt').setHeaderSummaries({ numberFormat: '#,##0', expression: 'sum' });
-  view.columnByName('inflowCt').setHeaderSummaries({ numberFormat: '#,##0', expression: 'sum' });
-  view.columnByName('resignCt').setHeaderSummaries({ numberFormat: '#,##0', expression: 'sum' });
-  view.columnByName('expirationCt').setHeaderSummaries({ numberFormat: '#,##0', expression: 'sum' });
-  view.columnByName('nincCt').setHeaderSummaries({ numberFormat: '#,##0', expression: 'sum' });
-  view.columnByName('sumCt').setHeaderSummaries({ numberFormat: '#,##0', expression: 'sum' });
-
-  view.rowIndicator.visible = true;
-  view.checkBar.visible = false;
+  // view.setHeaderSummaries({ visible: true, items: [{ height: 42 }] });
+  // view.columnByName('pdNm').setHeaderSummaries({ text: t('MSG_TXT_TOT_SUM'), styleName: 'text-center' });
+  // view.columnByName('crdovrCt').setHeaderSummaries({ numberFormat: '#,##0', expression: 'sum' });
+  // view.columnByName('inflowCt').setHeaderSummaries({ numberFormat: '#,##0', expression: 'sum' });
+  // view.columnByName('resignCt').setHeaderSummaries({ numberFormat: '#,##0', expression: 'sum' });
+  // view.columnByName('expirationCt').setHeaderSummaries({ numberFormat: '#,##0', expression: 'sum' });
+  // view.columnByName('nincCt').setHeaderSummaries({ numberFormat: '#,##0', expression: 'sum' });
+  // view.columnByName('sumCt').setHeaderSummaries({ numberFormat: '#,##0', expression: 'sum' });
+  // view.columnByName('lstmmCprNincCt').setHeaderSummaries({ numberFormat: '#,##0', expression: 'sum' });
+  // view.columnByName('receiptCt').setHeaderSummaries({ numberFormat: '#,##0', expression: 'sum' });
+  // view.columnByName('chdvcCt').setHeaderSummaries({ numberFormat: '#,##0', expression: 'sum' });
+  // view.columnByName('spayCt').setHeaderSummaries({ numberFormat: '#,##0', expression: 'sum' });
+  // view.columnByName('sellCt').setHeaderSummaries({ numberFormat: '#,##0', expression: 'sum' });
 
   // multi row header setting
   const layout1 = [
@@ -368,6 +377,8 @@ const initGridMsh = defineGrid((data, view) => {
     'chdvcCt', // 기변
   ];
   view.setColumnLayout(layout1);
+  view.checkBar.visible = false;
+  view.rowIndicator.visible = true;
 });
 
 </script>
