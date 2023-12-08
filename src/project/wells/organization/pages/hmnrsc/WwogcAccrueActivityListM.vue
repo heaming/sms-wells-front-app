@@ -42,13 +42,24 @@
           :label="$t('MSG_TXT_QLF_DV')"
           required
         >
-          <kw-option-group
-            v-model="searchParams.qlfDvCd"
-            :label="$t('MSG_TXT_QLF_DV')"
-            rules="required"
-            type="radio"
-            :options="codes.QLF_DV_CD"
-          />
+          <template v-if="searchParams.ogTpCd === 'W01'">
+            <kw-select
+              v-model="searchParams.qlfDvCd"
+              :label="$t('MSG_TXT_QLF_DV')"
+              rules="required"
+              type="radio"
+              :options="codes.PQLF_DV_CD"
+            />
+          </template>
+          <template v-else>
+            <kw-select
+              v-model="searchParams.qlfDvCd"
+              :label="$t('MSG_TXT_QLF_DV')"
+              rules="required"
+              type="radio"
+              :options="codes.QLF_DV_CD"
+            />
+          </template>
         </kw-search-item>
       </kw-search-row>
       <kw-search-row>
@@ -145,6 +156,7 @@ const pageInfo = ref({
 const codes = await codeUtil.getMultiCodes(
   'COD_PAGE_SIZE_OPTIONS',
   'QLF_DV_CD',
+  'PQLF_DV_CD',
 );
 
 const ogTp = ref([
@@ -179,6 +191,12 @@ function setGrid(response) {
   const data = grdMainRef.value.getData();
   data.setRows(response);
 }
+
+const searchOgTpCd = computed(() => searchParams.value.ogTpCd);
+
+watch(searchOgTpCd, () => {
+  searchParams.value.qlfDvCd = '2';
+}, { deep: true });
 
 async function fetchData() {
   const res = await dataService.get('/sms/wells/activity/accrue/paging', { params: { ...cacheParams, ...pageInfo.value } });
