@@ -184,7 +184,7 @@
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
 import { codeUtil, gridUtil, getComponentType, defineGrid, useDataService, useMeta, useGlobal, useModal } from 'kw-lib';
-import { cloneDeep, isEmpty } from 'lodash-es';
+import { cloneDeep, isEmpty, isEqual } from 'lodash-es';
 import dayjs from 'dayjs';
 
 const { t } = useI18n();
@@ -289,7 +289,7 @@ async function onClickSave() {
     alert(t('MSG_ALT_NCELL_REQUIRED_ITEM', [t('MSG_TXT_PROCS_DV')]));
     return;
   }
-  if (saveParams.value.procsDv === '612' || saveParams.value.procsDv === '620' /* || saveParams.value.procsDv === '623' */) {
+  if (['612'/* , '620', '623' */].includes(saveParams.value.procsDv)) {
     alert(t('서비스 확인 중 입니다.'));
     return;
   }
@@ -414,7 +414,7 @@ async function onClickSave() {
         alert(t('MSG_TXT_BEFORE_SELECT_IT', [t('MSG_TXT_PD_FEE_FIX')])); // 수수료정액여부(을)를 선택해주세요.
         return;
       }
-    } else if (saveParams.value.procsDv === '620') {
+    } else if (isEqual(saveParams.value.procsDv, '620')) { // 렌탈 전달 취소
       // 렌탈 전월 취소
     } else if (saveParams.value.procsDv === '621') { // (모종)인정실적금액변경
       if (isEmpty(saveParams.value.pdAccRslt)) { // 인정실적 필수 체크
@@ -497,7 +497,7 @@ async function onProcsDvChange() {
     view.columnsByTag('bs').forEach((col) => { col.visible = true; }); // 업체구분
   }
 
-  if (saveParams.value.procsDv === '612' || saveParams.value.procsDv === '620' /* || saveParams.value.procsDv === '623' */) {
+  if (['612'/* , '620', '623' */].includes(saveParams.value.procsDv)) {
     alert(t('서비스 확인 중 입니다.'));
   }
 }
@@ -740,9 +740,9 @@ async function onSearchItemCheck(payload, dataRow) {
       }
     } else if (procsDv === '620') {
       // 취소된 주문(CNTR_DTL_STAT_CD != 303) 수정불가 -> 취소 되지 않은건은 제외! 전달 취소 철회 불가
-      if (res.data.cntrDtlStatCd !== '303') { // 취소된 주문 != 303 수정불가
+      if (!['301', '303'].includes(res.data.cntrDtlStatCd)) { // 취소된 주문 != 303 수정불가
         view.setValue(dataRow, 'cntrDtlNo', '');
-        alert(t('취소 되지 않은건은 제외!') + t('MSG_ALT_CNCL_WDWL_IMP')); // 취소 되지 않은건은 제외! 전달 취소 철회 불가
+        alert(t('MSG_ALT_EXCEPT_NOT_CANC_OBJ', [t('MSG_ALT_CNCL_WDWL_IMP')])); // 취소 되지 않은건은 제외! 전달 취소 철회 불가
         return;
       }
       if (res.data.sellTpDtlCd === '22') { // 판매유형상세코드 = 22:리스 이면
@@ -857,7 +857,7 @@ onMounted(async () => {
     view.columnsByTag('bs').forEach((col) => { col.visible = true; }); // 업체구분
   }
 
-  if (saveParams.value.procsDv === '612' || saveParams.value.procsDv === '620' /* || saveParams.value.procsDv === '623' */) {
+  if (['612'/* , '620', '623' */].includes(saveParams.value.procsDv)) {
     alert(t('서비스 확인 중 입니다.'));
   }
 });
