@@ -80,14 +80,17 @@
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
 import { codeUtil, useDataService, useModal, useGlobal, getComponentType } from 'kw-lib';
+import { isEmpty } from 'lodash-es';
 
 const { notify } = useGlobal();
 const { cancel: onClickCancel, ok } = useModal();
-const rsbDvCd = ref();
 const dataService = useDataService();
 const { t } = useI18n();
+// -------------------------------------------------------------------------------------------------
+// Function & Event
+// -------------------------------------------------------------------------------------------------
+const rsbDvCd = ref();
 const frmMainRef = ref(getComponentType('KwForm'));
-
 const codes = await codeUtil.getMultiCodes(
   'RSB_DV_CD',
 );
@@ -135,8 +138,8 @@ const props = defineProps({
 
 const frmMainData = ref({
   rsbDvCd: props.rsbDvCd,
-  svEducMnalNm: props.svEducMnalNm,
-  svEducMnalCn: props.svEducMnalCn,
+  svEducMnalNm: isEmpty(props.svEducMnalNm) ? '' : props.svEducMnalNm,
+  svEducMnalCn: isEmpty(props.svEducMnalCn) ? '' : props.svEducMnalCn,
 });
 
 async function getSaveParams() {
@@ -160,7 +163,7 @@ async function onClickSave() {
   if (await frmMainRef.value.alertIfIsNotModified()) { return; }
   if (!await frmMainRef.value.validate()) { return; }
   const data = await getSaveParams();
-  const response = await dataService.post('/sms/wells/competence/educations/zoom-counsel', data);
+  const response = await dataService.post('/sms/wells/competence/zoom-counsel', data);
   if (response.data) {
     notify(t('MSG_ALT_SAVE_DATA'));
     ok(frmMainRef.value);
