@@ -161,10 +161,10 @@ codes.OG_CP_CD = [
   { codeId: 'W02', codeName: `M${t('MSG_TXT_OG')}` },
 ];
 codes.SELL_TP_CUSTOM_CD = [
-  { codeId: '2', codeName: t('MSG_TXT_RENTAL') },
-  { codeId: '4', codeName: t('MSG_TXT_LEASE') },
-  { codeId: '3', codeName: t('MSG_TXT_MEM') },
-  { codeId: '6', codeName: t('MSG_TXT_REG_DLVR') },
+  { codeId: '22', codeName: t('MSG_TXT_RENTAL') },
+  { codeId: '24', codeName: t('MSG_TXT_LEASE') },
+  { codeId: '33', codeName: t('MSG_TXT_MEM') },
+  { codeId: '66', codeName: t('MSG_TXT_REG_DLVR') },
 ];
 
 // -------------------------------------------------------------------------------------------------
@@ -173,6 +173,11 @@ codes.SELL_TP_CUSTOM_CD = [
 
 async function fetchData() {
   if (isEmpty(cachedParams)) return;
+
+  if (searchParams.value.perfStrtDt.substring(0, 6) !== searchParams.value.perfEndDt.substring(0, 6)) {
+    await alert(t('MSG_ALT_SAM_MON')); // 같은 달만 조회 가능합니다.
+    return;
+  }
 
   const { prntTp } = searchParams.value;
   let res;
@@ -308,7 +313,7 @@ const initGridMsh = defineGrid((data, view) => {
     { fieldName: 'pdMclsfNm', header: t('MSG_TXT_PD_MCLSF'), width: '116', styleName: 'text-center' }, // 상품중분류
     { fieldName: 'pdCd', header: t('MSG_TXT_PRDT_CODE'), width: '116', styleName: 'text-center' }, // 상품코드
     { fieldName: 'pdNm', header: t('MSG_TXT_PRDT_NM'), width: '239', styleName: 'text-left' }, // 상품명
-    { fieldName: 'sellTpCd', header: t('MSG_TXT_SEL_TYPE'), width: '120', styleName: 'text-center', options: codes.SELL_TP_CD }, // 판매유형
+    { fieldName: 'sellTpCd', header: t('MSG_TXT_SEL_TYPE'), width: '120', styleName: 'text-center', options: codes.SELL_TP_CUSTOM_CD }, // 판매유형
     { fieldName: 'sellTpDtlCd', header: t('MSG_TXT_SELL_TP_DTL'), width: '116', styleName: 'text-center', options: codes.SELL_TP_DTL_CD }, // 판매유형상세
 
     { fieldName: 'crdovrCt', header: t('MSG_TXT_CRDOVR'), width: '120', styleName: 'text-right', dataType: 'number' }, // 이월
