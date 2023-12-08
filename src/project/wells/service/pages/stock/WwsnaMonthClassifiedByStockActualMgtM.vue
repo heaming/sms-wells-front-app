@@ -17,6 +17,7 @@
   <kw-page>
     <kw-search
       :cols="4"
+      :modified-targets="['grdMain']"
       @search="onClickSearch"
     >
       <kw-search-row>
@@ -110,12 +111,6 @@
           vertical
           inset
         />
-        <!-- 확인서 -->
-        <kw-btn
-          dense
-          secondary
-          label="확인서"
-        />
         <!-- 신청취소 -->
         <kw-btn
           v-permission:update
@@ -202,18 +197,12 @@ const grdMainRef = ref(getComponentType('KwGrid'));
 let cachedParams;
 const searchParams = ref({
   baseYm: dayjs().format('YYYYMM'), // 기준년월
-  wareDvCd: '2',
+  wareDvCd: '3',
   hgrWareNo: '',
   wareDtlDvCd: '',
   searchWareNo: '',
   useYn: '',
 });
-
-// const yearMonth = ref({
-//   yyyy: dayjs().format('YYYY'),
-//   mm: dayjs().format('MM'),
-
-// });
 
 const pageInfo = ref({
   totalCount: 0,
