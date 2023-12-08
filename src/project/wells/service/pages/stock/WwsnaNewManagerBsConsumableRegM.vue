@@ -305,7 +305,7 @@ async function reAryGrid() {
     columns.push({
       fieldName: `qty${fxnSapMatCd}`,
       header: fxnSapMatCd,
-      width: '120',
+      width: '200',
       styleName: 'text-center',
       dataType: 'number',
       rules: 'min_value:0|max_value:999999',
@@ -316,7 +316,7 @@ async function reAryGrid() {
     items1.push(
       {
         header: `${fxnPdNm}`,
-        width: '120',
+        width: '200',
         direction: 'horizontal',
         items: [
           {
@@ -336,7 +336,7 @@ async function reAryGrid() {
     columns.push({
       fieldName: `aplcQty${aplcSapMatCd}`,
       header: aplcSapMatCd,
-      width: '120',
+      width: '190',
       styleName: 'text-center',
       dataType: 'number',
       rules: 'min_value:0|max_value:999999',
@@ -347,7 +347,7 @@ async function reAryGrid() {
     items2.push(
       {
         header: `${aplcPdNm}`,
-        width: '120',
+        width: '190',
         direction: 'horizontal',
         items: [
           {
@@ -658,7 +658,7 @@ const initGrdMain = defineGrid(async (data, view) => {
     columns.push({
       fieldName: `qty${fxnSapMatCd}`,
       header: fxnSapMatCd,
-      width: '120',
+      width: '200',
       styleName: 'text-center',
       dataType: 'number',
       editable: isBusinessSupportTeam.value,
@@ -668,7 +668,7 @@ const initGrdMain = defineGrid(async (data, view) => {
     items1.push(
       {
         header: `${fxnPdNm}`,
-        width: '120',
+        width: '200',
         direction: 'horizontal',
         items: [
           {
@@ -689,7 +689,7 @@ const initGrdMain = defineGrid(async (data, view) => {
     columns.push({
       fieldName: `aplcQty${aplcSapMatCd}`,
       header: aplcSapMatCd,
-      width: '120',
+      width: '190',
       styleName: 'text-center',
       dataType: 'number',
       editable: true,
@@ -699,7 +699,7 @@ const initGrdMain = defineGrid(async (data, view) => {
     items2.push(
       {
         header: `${aplcPdNm}`,
-        width: '120',
+        width: '190',
         direction: 'horizontal',
         items: [
           {
