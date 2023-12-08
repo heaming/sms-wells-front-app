@@ -199,7 +199,7 @@ watch(searchOgTpCd, () => {
 }, { deep: true });
 
 async function fetchData() {
-  const res = await dataService.get('/sms/wells/activity/accrue/paging', { params: { ...cacheParams, ...pageInfo.value } });
+  const res = await dataService.get('/sms/wells/activity/accrue/paging', { params: { ...cacheParams, ...pageInfo.value }, timeout: 300000 }); // 타임아웃 5분
 
   const { list, pageInfo: pagingResult } = res.data;
   pageInfo.value = pagingResult;
