@@ -41,7 +41,7 @@
             v-model="searchParams.copnDvCd"
             :label="$t('MSG_TXT_CNTRT_TP')"
             :options="codes.COPN_DV_CD"
-            rules="required"
+            first-option="all"
           />
         </kw-search-item>
       </kw-search-row>
@@ -71,6 +71,7 @@
     <kw-action-top>
       <template #left>
         <kw-paging-info
+          v-if="pageInfo"
           v-model:page-index="pageInfo.pageIndex"
           v-model:page-size="pageInfo.pageSize"
           :total-count="pageInfo.totalCount"
@@ -106,12 +107,13 @@
 // -------------------------------------------------------------------------------------------------
 import useGridDataModel from '~sms-common/contract/composable/useGridDataModel';
 import { codeUtil, defineGrid, getComponentType, gridUtil, useDataService, useMeta, useModal } from 'kw-lib';
+import { CNTR_TP_CD } from '~sms-wells/contract/constants/ctConst';
 
 const props = defineProps({
   cntrTpCd: { type: String, required: true },
-  prtnrNo: { type: String, required: true },
-  ogTpCd: { type: String, required: true },
-  copnDvCd: { type: String, required: true },
+  prtnrNo: { type: String, default: undefined },
+  ogTpCd: { type: String, default: undefined },
+  copnDvCd: { type: String, default: undefined },
 });
 
 const { ok, cancel } = useModal();
@@ -124,12 +126,12 @@ const codes = await codeUtil.getMultiCodes(
 );
 codes.CNTR_TP_CD = [
   {
-    codeId: '1',
+    codeId: CNTR_TP_CD.MEMBERSHIP,
     codeName: t('MSG_TXT_MMBR') /* 멤버쉽 */,
     url: '/sms/wells/contract/membership/customers/paging',
   },
   {
-    codeId: '2',
+    codeId: CNTR_TP_CD.RE_STIPULATION,
     codeName: t('MSG_TXT_RSTL') /* 재약정 */,
     url: '/sms/wells/contract/re-stipulation/customers/paging',
   },
@@ -150,14 +152,17 @@ const pageInfo = ref({
 
 let cachedParams;
 const searchParams = reactive({
-  cntrTpCd: codes.CNTR_TP_CD[0].codeId,
-  copnDvCd: '1',
+  cntrTpCd: props.cntrTpCd ?? codes.CNTR_TP_CD[0].codeId,
+  copnDvCd: props.copnDvCd,
+  ogTpCd: props.ogTpCd,
+  prtnrNo: props.prtnrNo,
   cstKnm: '',
   cralLocaraTno: '',
   mexnoEncr: '',
   cralIdvTno: '',
 });
 
+let initGridData = [];
 async function fetchPage(pageIndex = pageInfo.value.pageIndex, pageSize = pageInfo.value.pageSize) {
   const params = {
     ...cachedParams,
@@ -165,14 +170,21 @@ async function fetchPage(pageIndex = pageInfo.value.pageIndex, pageSize = pageIn
     pageSize,
   };
 
-  const response = await dataService.get(
+  const { data } = await dataService.get(
     codes.CNTR_TP_CD[codes.CNTR_TP_CD.findIndex((code) => code.codeId === params.cntrTpCd)].url,
     { params },
   );
+  const { pageInfo: newPageInfo, list } = data;
+  pageInfo.value = newPageInfo;
 
-  pageInfo.value = response.data.pageInfo;
-  grdData.value.setRows(response.data.list);
-  grdView.value.rowIndicator.indexOffset = gridUtil.getPageIndexOffset(pageInfo);
+  if (grdData.value && grdView.value) {
+    grdData.value.setRows(list);
+    if (pageInfo.value) {
+      grdView.value.rowIndicator.indexOffset = (pageInfo.value.pageIndex - 1) * pageInfo.value.pageSize;
+    }
+  } else {
+    initGridData = list;
+  }
 }
 
 async function onSearch() {
@@ -185,13 +197,7 @@ function onClickClose() {
   cancel();
 }
 
-onMounted(async () => {
-  searchParams.cntrTpCd = props.cntrTpCd;
-  searchParams.prtnrNo = props.prtnrNo;
-  searchParams.ogTpCd = props.ogTpCd;
-  searchParams.copnDvCd = props.copnDvCd;
-  await onSearch();
-});
+await onSearch();
 
 const initGrd = defineGrid((data, view) => {
   useGridDataModel(view, {
@@ -248,5 +254,10 @@ const initGrd = defineGrid((data, view) => {
       return ok(currentRowData);
     }
   };
+
+  data.setRows(initGridData);
+  if (pageInfo.value) {
+    view.rowIndicator.indexOffset = (pageInfo.value.pageIndex - 1) * pageInfo.value.pageSize;
+  }
 });
 </script>
