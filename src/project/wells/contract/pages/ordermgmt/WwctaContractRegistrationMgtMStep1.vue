@@ -803,8 +803,7 @@ async function onClickMembership() {
   const { result, payload } = await modal({
     component: 'WwctaMshRstlOjCstListP',
     componentProps: {
-      copnDvCd: '1',
-      cntrTpCd: '1',
+      cntrTpCd: CNTR_TP_CD.MEMBERSHIP,
       prtnrNo: currentPartner.prtnrNo,
       ogTpCd: currentPartner.ogTpCd,
     },
@@ -832,8 +831,7 @@ async function onClickReStipulation() {
   const { result, payload } = await modal({
     component: 'WwctaMshRstlOjCstListP',
     componentProps: {
-      copnDvCd: '1',
-      cntrTpCd: '2',
+      cntrTpCd: CNTR_TP_CD.RE_STIPULATION,
       prtnrNo: currentPartner.prtnrNo,
       ogTpCd: currentPartner.ogTpCd,
     },
