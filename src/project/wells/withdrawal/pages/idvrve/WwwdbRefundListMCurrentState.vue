@@ -313,12 +313,16 @@ const searchParams = ref({
   blkCrtDv: '', // 일괄생성구분
 });
 
+let summaryParams;
 let cachedParams;
-
 async function fetchData() {
   cachedParams = { ...cachedParams, ...pageInfo.value };
 
   const response = await dataService.get('/sms/wells/withdrawal/idvrve/refund-status/paging', { params: cachedParams });
+  const resGrid1 = await dataService.get('/sms/wells/withdrawal/idvrve/refund-status/sum', { params: cachedParams });
+
+  summaryParams = resGrid1.data;
+
   const { list: refunds, pageInfo: pagingResult } = response.data;
   pageInfo.value = pagingResult;
 
@@ -476,9 +480,40 @@ const initGrdMain1 = defineGrid((data, view) => {
     },
     { fieldName: 'cstKnm', header: t('MSG_TXT_CST_NM'), width: '80' }, // 고객명
     { fieldName: 'sellTpCd', header: t('MSG_TXT_SEL_TYPE'), width: '100', styleName: 'text-center', options: codes.SELL_TP_CD }, // 판매유형
-    { fieldName: 'dpAmt', header: t('MSG_TXT_DP_TAM'), width: '100', styleName: 'text-right' }, // 입금총액
-    { fieldName: 'rveAmt', header: t('MSG_TXT_DSB_AMT'), width: '100', styleName: 'text-right' }, // 지급금액
-    { fieldName: 'rfndDsbAmt', header: t('MSG_TXT_RFND_AMT'), width: '100', styleName: 'text-right' }, // 환불금액
+    { fieldName: 'dpAmt',
+      header: t('MSG_TXT_DP_TAM'),
+      width: '100',
+      styleName: 'text-right',
+      headerSummary: {
+        styleName: 'text-right',
+        numberFormat: '#,###',
+        valueCallback() {
+          return Number(summaryParams.dpAmtSum);
+        },
+      },
+    }, // 입금총액
+    { fieldName: 'rveAmt',
+      header: t('MSG_TXT_DSB_AMT'),
+      width: '100',
+      styleName: 'text-right',
+      headerSummary: {
+        styleName: 'text-right',
+        numberFormat: '#,###',
+        valueCallback() {
+          return Number(summaryParams.rfndDsbAmtSum);
+        },
+      } }, // 지급금액
+    { fieldName: 'rfndDsbAmt',
+      header: t('MSG_TXT_RFND_AMT'),
+      width: '100',
+      styleName: 'text-right',
+      headerSummary: {
+        styleName: 'text-right',
+        numberFormat: '#,###',
+        valueCallback() {
+          return Number(summaryParams.rveAmtSum);
+        },
+      } }, // 환불금액
     { fieldName: 'rfndDsbPspInt', header: t('MSG_TXT_PSP_INT'), width: '100', styleName: 'text-right' }, // 지연이자
     { fieldName: 'rfndDdtnAmt', header: t('MSG_TXT_CARD_DDTN'), width: '100', styleName: 'text-right' }, // 카드공제
     {
@@ -555,12 +590,8 @@ const initGrdMain1 = defineGrid((data, view) => {
     visible: true,
     items: [{ height: 40 }],
   });
+
   view.columnByName('cntrNo').setHeaderSummaries({ text: t('MSG_TXT_SUM'), styleName: 'text-center' });
-  view.columnByName('dpAmt').setHeaderSummaries({ numberFormat: '#,##0', expression: 'sum' });
-  view.columnByName('rveAmt').setHeaderSummaries({ numberFormat: '#,##0', expression: 'sum' });
-  view.columnByName('rfndDsbAmt').setHeaderSummaries({ numberFormat: '#,##0', expression: 'sum' });
-  view.columnByName('rfndDsbPspInt').setHeaderSummaries({ numberFormat: '#,##0', expression: 'sum' });
-  view.columnByName('rfndDdtnAmt').setHeaderSummaries({ numberFormat: '#,##0', expression: 'sum' });
   view.columnByName('cshFnitNm').setHeaderSummaries({ styleName: 'text-center' });
   view.layoutByColumn('cntrNo').summaryUserSpans = [{ colspan: 3 }];
   view.layoutByColumn('cshFnitNm').summaryUserSpans = [{ colspan: 5 }];
