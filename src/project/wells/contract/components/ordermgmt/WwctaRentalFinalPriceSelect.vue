@@ -778,8 +778,7 @@ const normalizedCrpDscrPriceOptions = computed(() => {
       && price.rentalDscDvCd === filteringObject.rentalDscDvCd
       && price.rentalDscTpCd === filteringObject.rentalDscTpCd));
   const normalizedArr = crpDscrPriceOptions.map((price) => {
-    const { ccamBasePrc, rentalCrpDscrCd, asctDscBaseAmt, asctDscLstAmt } = price;
-    const fnlVal = ccamBasePrc; // TODO: REMOVE THIS AFTER 상품 mig update.
+    const { fnlVal, rentalCrpDscrCd, asctDscBaseAmt, asctDscLstAmt } = price;
     return {
       rentalCrpDscrCd,
       max: fnlVal - asctDscBaseAmt,
