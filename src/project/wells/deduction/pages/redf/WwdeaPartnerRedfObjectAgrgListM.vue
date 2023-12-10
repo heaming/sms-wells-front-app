@@ -206,7 +206,7 @@ const searchParams = ref({
   redfAdsbOcYmTo: currentMonth, // 발생년월 to
   perfYmFrom: lastMonth, // 실적년월 from
   perfYmTo: currentMonth, // 실적년월 to
-  redfAdsbTpCd: '0202', // 처리유형
+  redfAdsbTpCd: filterRedfAdsbTpCd.value[0].codeId, // 처리유형
   rsbDvCd: codes.DDTN_RPLC_RSB_DV_CD[0].codeId, // 직책구분코드
   prtnrNo: '', // 파트너번호
   ogCd: '', // 조직코드
