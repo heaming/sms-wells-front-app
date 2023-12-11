@@ -40,24 +40,23 @@
         </kw-search-item>
         <kw-search-item
           :label="$t('MSG_TXT_QLF_DV')"
-          required
         >
           <template v-if="searchParams.ogTpCd === 'W01'">
             <kw-select
               v-model="searchParams.qlfDvCd"
               :label="$t('MSG_TXT_QLF_DV')"
-              rules="required"
               type="radio"
               :options="codes.PQLF_DV_CD"
+              first-option="all"
             />
           </template>
           <template v-else>
             <kw-select
               v-model="searchParams.qlfDvCd"
               :label="$t('MSG_TXT_QLF_DV')"
-              rules="required"
               type="radio"
               :options="codes.QLF_DV_CD"
+              first-option="all"
             />
           </template>
         </kw-search-item>
@@ -178,7 +177,7 @@ const grdMainRef = ref(getComponentType('KwGrid'));
 const searchParams = ref({
   baseYm: now, // 기준년월
   ogTpCd: wkOjOgTpCd === null ? ogTpCd : wkOjOgTpCd, // 조직유형
-  qlfDvCd: '2', // 자격구분
+  qlfDvCd: undefined, // 자격구분 : '2' --> undefined
   ogLevlDvCd1: undefined, // 1차레벨 조직ID
   ogLevlDvCd2: undefined, // 2차레벨 조직ID
   ogLevlDvCd3: undefined, // 3차레벨 조직ID
@@ -195,7 +194,7 @@ function setGrid(response) {
 const searchOgTpCd = computed(() => searchParams.value.ogTpCd);
 
 watch(searchOgTpCd, () => {
-  searchParams.value.qlfDvCd = '2';
+  searchParams.value.qlfDvCd = undefined;
 }, { deep: true });
 
 async function fetchData() {
@@ -253,8 +252,8 @@ const initGrid = defineGrid((data, view) => {
     { fieldName: 'fnlCltnDtP', header: t('MSG_TXT_FNL_CLTN'), width: '136', styleName: 'text-center', datetimeFormat: 'date' },
     { fieldName: 'maxDmtnYmP', header: t('MSG_TXT_DMTN'), width: '136', styleName: 'text-center', datetimeFormat: 'yyyy-MM' },
     { fieldName: 'cltnDtP', header: t('MSG_TXT_CLTN'), width: '136', styleName: 'text-center', datetimeFormat: 'date' },
-    { fieldName: 'rgrPrtnrNo', header: t('MSG_TXT_SEQUENCE_NUMBER'), width: '110', styleName: 'text-center' },
-    { fieldName: 'rgrPrtnrNm', header: t('MSG_TXT_EMPL_NM'), width: '96', styleName: 'text-center' },
+    // { fieldName: 'rgrPrtnrNo', header: t('MSG_TXT_SEQUENCE_NUMBER'), width: '110', styleName: 'text-center' },
+    // { fieldName: 'rgrPrtnrNm', header: t('MSG_TXT_EMPL_NM'), width: '96', styleName: 'text-center' },
     { fieldName: 'totSum', header: t('MSG_TXT_ACU_CT'), width: '128', styleName: 'text-center' },
     { fieldName: 'm03Avg', header: t('MSG_TXT_JBF_MMS3_AV'), width: '158', styleName: 'text-center' },
     { fieldName: 'm03Sum', header: t('MSG_TXT_JBF_MMS3'), width: '120', styleName: 'text-center' },
@@ -302,11 +301,11 @@ const initGrid = defineGrid((data, view) => {
       direction: 'horizontal', // merge type
       items: ['minUpgrYmP', 'fnlCltnDtP', 'maxDmtnYmP', 'cltnDtP'],
     },
-    {
-      header: t('MSG_TXT_TOPMR_PLAR_APLCNS'), // colspan title
-      direction: 'horizontal', // merge type
-      items: ['rgrPrtnrNo', 'rgrPrtnrNm'],
-    },
+    // {
+    //   header: t('MSG_TXT_TOPMR_PLAR_APLCNS'), // colspan title
+    //   direction: 'horizontal', // merge type
+    //   items: ['rgrPrtnrNo', 'rgrPrtnrNm'],
+    // },
     {
       header: t('MSG_TXT_ENVR_ELHM_PERF'), // colspan title
       direction: 'horizontal', // merge type
