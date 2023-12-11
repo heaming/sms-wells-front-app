@@ -1027,11 +1027,11 @@ async function isValidStep() {
   if (copnDvCd === COPN_DV_CD.INDIVIDUAL) {
     if (!cikVal) {
       await alert('본인인증 미완료 상태입니다.\n완료 후 계약자를 재 조회해 주세요.');
-      return false;
+      // return false; // TODO: 전아영 매니저님 요청에 의한 일시 제거
     }
     if (!itgCstNo) {
       await alert('통합고객 약관동의 미완료 상태입니다.\n완료 후 계약자를 재 조회해 주세요.');
-      return false;
+      // return false; // TODO: 전아영 매니저님 요청에 의한 일시 제거
     }
   }
 
