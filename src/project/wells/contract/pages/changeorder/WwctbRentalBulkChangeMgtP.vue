@@ -292,10 +292,10 @@ async function onClickSave() {
     alert(t('MSG_ALT_NCELL_REQUIRED_ITEM', [t('MSG_TXT_PROCS_DV')]));
     return;
   }
-  if (['612'/* , '620', '623' */].includes(saveParams.value.procsDv)) {
-    alert(t('서비스 확인 중 입니다.'));
-    return;
-  }
+  // if (['612', '620', '623'].includes(saveParams.value.procsDv)) {
+  //   alert(t('서비스 확인 중 입니다.'));
+  //   return;
+  // }
 
   for (let i = 0; i < changedRows.length; i += 1) {
     if (isEmpty(changedRows[i].cntrNo)) { // 조회 데이터 체크
@@ -501,9 +501,9 @@ async function onProcsDvChange() {
     view.columnsByTag('bs').forEach((col) => { col.visible = true; }); // 업체구분
   }
 
-  if (['612'/* , '620', '623' */].includes(saveParams.value.procsDv)) {
-    alert(t('서비스 확인 중 입니다.'));
-  }
+  // if (['612', '620', '623'].includes(saveParams.value.procsDv)) {
+  //   alert(t('서비스 확인 중 입니다.'));
+  // }
 }
 
 // 그리드 조회 후 유효성 체크
@@ -601,7 +601,7 @@ async function onSearchItemCheck(payload, dataRow) {
         alert(t('취소불가!정상컨택 건입니다')); // 취소불가!정상컨택 건입니다
         return;
       }
-      if (res.data.cntrDtlStatCd === '303') { // 취소된 주문 = 303 수정불가
+      if (['301', '302', '303'].includes(res.data.cntrDtlStatCd)) { // 취소된 주문 = 303 수정불가
         view.setValue(dataRow, 'cntrDtlNo', '');
         alert(t('MSG_ALT_CNCL_ORDER')); // 취소된 주문입니다
         return;
@@ -609,19 +609,19 @@ async function onSearchItemCheck(payload, dataRow) {
     } else if (procsDv === '608') {
       // 체크
     } else if (procsDv === '609') {
-      if (res.data.cntrDtlStatCd === '303') { // 취소된 주문 = 303 수정불가
+      if (['301', '302', '303'].includes(res.data.cntrDtlStatCd)) { // 취소된 주문 = 303 수정불가
         view.setValue(dataRow, 'cntrDtlNo', '');
         alert(t('MSG_ALT_CNCL_ORDER')); // 취소된 주문입니다
         return;
       }
     } else if (procsDv === '611') {
-      if (res.data.cntrDtlStatCd === '303') { // 취소된 주문 = 303 수정불가
+      if (['301', '302', '303'].includes(res.data.cntrDtlStatCd)) { // 취소된 주문 = 303 수정불가
         view.setValue(dataRow, 'cntrDtlNo', '');
         alert(t('MSG_ALT_CNCL_ORDER')); // 취소된 주문입니다
         return;
       }
     } else if (procsDv === '612') {
-      if (res.data.cntrDtlStatCd === '303') { // 취소된 주문 = 303 수정불가
+      if (['301', '302', '303'].includes(res.data.cntrDtlStatCd)) { // 취소된 주문 = 303 수정불가
         view.setValue(dataRow, 'cntrDtlNo', '');
         alert(t('MSG_ALT_CNCL_ORDER')); // 취소된 주문입니다
         return;
@@ -718,7 +718,7 @@ async function onSearchItemCheck(payload, dataRow) {
       }
       if (res.data.copnDvCd !== '2') { // 법인격구분코드 != 2:법인 이면
         view.setValue(dataRow, 'cntrDtlNo', '');
-        alert(t(t('MSG_ALT_CAN_ONLY_REG_CRP_CST'))); // 법인만 등록 가능합니다
+        alert(t('MSG_ALT_CAN_ONLY_REG_CRP_CST')); // 법인만 등록 가능합니다
         return;
       }
       if (['301', '302', '303'].includes(res.data.cntrDtlStatCd)) { // 취소된 주문 = 301, 302, 303 수정불가
@@ -861,9 +861,9 @@ onMounted(async () => {
     view.columnsByTag('bs').forEach((col) => { col.visible = true; }); // 업체구분
   }
 
-  if (['612'/* , '620', '623' */].includes(saveParams.value.procsDv)) {
-    alert(t('서비스 확인 중 입니다.'));
-  }
+  // if (['612', '620', '623'].includes(saveParams.value.procsDv)) {
+  //   alert(t('서비스 확인 중 입니다.'));
+  // }
 });
 // -------------------------------------------------------------------------------------------------
 // Initialize Grid
