@@ -184,7 +184,6 @@ onMounted(async () => {
 // -------------------------------------------------------------------------------------------------
 // Initialize Grid
 // -------------------------------------------------------------------------------------------------
-console.log(codes.EVL_DV_CD);
 const initTrgGrdMain = defineGrid((data, view) => {
   const fields = [
     { fieldName: 'baseYm' },
