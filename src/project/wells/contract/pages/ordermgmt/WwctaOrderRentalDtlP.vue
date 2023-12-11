@@ -1221,7 +1221,7 @@
           :label="$t('MSG_TXT_PD_ACC_CNT')"
         >
           <kw-input
-            v-model="frmMainData.ackmtPerfCt"
+            v-model="frmMainData.feeAckmtCt"
             align="right"
             placeholder=""
             readonly
@@ -1855,7 +1855,7 @@ const frmMainData = ref({
   exnReqdDt: '', // 만료회수일
   ackmtPerfRt: '', // 인정률(%)
   ackmtPerfAmt: '', // 인정금액
-  ackmtPerfCt: '', // 인정건수
+  feeAckmtCt: '', // 인정건수
   booSellYn: '', // 예약여부
   feeFxamYn: '', // 수수료정액여부
   feeAckmtBaseAmt: '', // 수수료기준금액
@@ -2104,7 +2104,7 @@ async function fetchData() {
     // -------------------------------------------------------------------------------------------------
     frmMainData.value.ackmtPerfRt = pages[0].ackmtPerfRt; // 인정률(%)
     frmMainData.value.ackmtPerfAmt = stringUtil.getNumberWithComma(Number(pages[0].ackmtPerfAmt), 0); // 인정금액
-    frmMainData.value.ackmtPerfCt = pages[0].ackmtPerfCt; // 인정건수
+    frmMainData.value.feeAckmtCt = pages[0].feeAckmtCt; // 인정건수
     frmMainData.value.booSellYn = pages[0].booSellYn; // 예약여부
     frmMainData.value.feeFxamYn = pages[0].feeFxamYn; // 수수료정액여부
     frmMainData.value.feeAckmtBaseAmt = stringUtil.getNumberWithComma(Number(pages[0].feeAckmtBaseAmt), 0); // 수수료기준금액
