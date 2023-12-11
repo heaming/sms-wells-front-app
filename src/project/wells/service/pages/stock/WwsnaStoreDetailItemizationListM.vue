@@ -367,6 +367,7 @@ const onChangeStrWareDvCd = async () => {
   }
 };
 
+// 입고창고구분코드 변경시 watch이벤트
 watch(() => searchParams.value.strWareDvCd, (val) => {
   if (searchParams.value.strWareDvCd !== val) {
     searchParams.value.strWareDvCd = val;
@@ -387,6 +388,7 @@ const onChangeOstrWareDvCd = async () => {
   }
 };
 
+// 출고창고 구분코드 변경시 watch이벤트
 watch(() => searchParams.value.ostrWareDvCd, (val) => {
   if (searchParams.value.ostrWareDvCd !== val) {
     searchParams.value.ostrWareDvCd = val;
@@ -396,6 +398,7 @@ watch(() => searchParams.value.ostrWareDvCd, (val) => {
 
 let cachedParams;
 
+// 조회
 async function fetchData() {
   const res = await dataService.get('/sms/wells/service/store-detail-itemizations/paging', { params: { ...cachedParams, ...pageInfo.value } });
   const { list: store, pageInfo: pagingResult } = res.data;
@@ -406,6 +409,7 @@ async function fetchData() {
   view.rowIndicator.indexOffset = gridUtil.getPageIndexOffset(pageInfo);
 }
 
+// 엑셀다운로드 버튼클릭 이벤트
 async function onClickExcelDownload() {
   const view = grdMainRef.value.getView();
   const res = await dataService.get('/sms/wells/service/store-detail-itemizations/excel-download', { params: cachedParams });
@@ -416,6 +420,7 @@ async function onClickExcelDownload() {
   });
 }
 
+// 조회버튼 클릭 이벤트
 async function onClickSearch() {
   pageInfo.value.needTotalCount = true;
   pageInfo.value.pageIndex = 1;
@@ -460,8 +465,28 @@ const initGrdMain = defineGrid((data, view) => {
     { fieldName: 'strQty', header: t('MSG_TXT_QTY'), dataType: 'number', numberFormat: '#,##0', width: '100', styleName: 'text-right' },
     { fieldName: 'strWareNm', header: t('MSG_TXT_STR_WARE'), width: '150', styleName: 'text-center' },
     { fieldName: 'ostrWareNm', header: t('MSG_TXT_OSTR_WARE'), width: '150', styleName: 'text-center' },
-    { fieldName: 'itmStrNo', header: t('MSG_TXT_STR_MNGT_NO'), width: '200', styleName: 'text-center' },
-    { fieldName: 'itmOstrNo', header: t('MSG_TXT_OSTR_MNGT_NO'), width: '200', styleName: 'text-center' },
+    { fieldName: 'itmStrNo',
+      header: t('MSG_TXT_STR_MNGT_NO'),
+      width: '200',
+      styleName: 'text-center',
+      displayCallback: (g, i, v) => {
+        if (!isEmpty(v)) {
+          const regExp = /^(\d{3})(\d{8})(\d{7}).*/;
+          return v.replace(regExp, '$1-$2-$3');
+        }
+        return v;
+      } },
+    { fieldName: 'itmOstrNo',
+      header: t('MSG_TXT_OSTR_MNGT_NO'),
+      width: '200',
+      styleName: 'text-center',
+      displayCallback: (g, i, v) => {
+        if (!isEmpty(v)) {
+          const regExp = /^(\d{3})(\d{8})(\d{7}).*/;
+          return v.replace(regExp, '$1-$2-$3');
+        }
+        return v;
+      } },
   ];
 
   data.setFields(fields);
