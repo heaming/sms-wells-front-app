@@ -101,6 +101,7 @@
       <h3>옵션영역</h3>
       <kw-pdf-preview
         :pdf="pdf"
+        :page-scale="100"
       />
     </div>
   </kw-page>
