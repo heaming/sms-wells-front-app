@@ -51,7 +51,7 @@
           v-model="prdSearchParams.evlPdDvCd"
           :label="t('MSG_TXT_MNGT_DV')"
           first-option="select"
-          :options="codes.EVL_PD_DV_CD"
+          :options="evlPdDvCdList"
           rules="required"
         />
       </kw-search-item>
@@ -151,6 +151,7 @@ const { currentRoute } = useRouter();
 // Function & Event
 // -------------------------------------------------------------------------------------------------
 const now = dayjs();
+const evlPdDvCdList = ref([]);
 const prdGrdMainRef = ref(getComponentType('KwGrid'));
 const excelUploadFlag = ref(false);
 // 공통코드로딩
@@ -169,6 +170,7 @@ const prdSearchParams = ref({
   baseYm: now.format('YYYYMM'),
   evlPdDvCd: '',
 });
+
 const prdPageInfo = ref({
   totalCount: 0,
   pageIndex: 1,
@@ -262,6 +264,10 @@ const onClickPrdRemove = async () => {
     await prdFetchData();
   }
 };
+
+watch(() => [prdSearchParams.value.evlOgTpCd], async () => {
+  evlPdDvCdList.value = codes.EVL_PD_DV_CD.filter((v) => [prdSearchParams.value.evlOgTpCd].includes(v.prtsCodeId));
+});
 
 // -------------------------------------------------------------------------------------------------
 // Initialize Grid
