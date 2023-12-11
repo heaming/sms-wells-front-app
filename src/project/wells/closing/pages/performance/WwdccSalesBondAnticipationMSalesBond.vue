@@ -114,7 +114,7 @@
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
 import { codeUtil, getComponentType, gridUtil, useDataService, defineGrid, useGlobal } from 'kw-lib';
-import { cloneDeep } from 'lodash-es';
+import { cloneDeep, isEmpty } from 'lodash-es';
 import dayjs from 'dayjs';
 import { getAggregateDivide, getSellTpCd, getSellTpDtlCd } from '~/modules/sms-common/closing/utils/clUtil';
 import ZctzContractDetailNumber from '~sms-common/contract/components/ZctzContractDetailNumber.vue';
@@ -516,6 +516,79 @@ async function onClickSearch() {
   totalCount.value = 0;
   await fetchData();
 }
+// 검색 조건 정보를 가지고오는 함수 해당 함수는 공통의 function setSearchConditionMessage(view) 함수를
+// 따라 정의한 함수임 정상 동작 안하는 경우 공통 함수 참고해서 재 수정 필요
+function getSearchConditionMessage() {
+  let message = '[검색조건]\n';
+  let formItems = document.querySelectorAll('.kw-popup .kw-search .kw-form-item');
+  if (formItems.length === 0) {
+    formItems = document.querySelectorAll('.kw-search .kw-form-item');
+  }
+  if (formItems.length === 0) {
+    return '';
+  }
+  formItems.forEach((formItem) => {
+    let label;
+    // label이 있는경우
+    if (formItem.querySelector('.kw-label-content__label')) {
+      label = formItem.querySelector('.kw-label-content__label').innerHTML;
+    }
+
+    const values = formItem.querySelectorAll('input:not(.hidden)');
+    let value = '';
+    values.forEach((v, i) => {
+      if (i === 0) {
+        value += v.value;
+      } else {
+        value += ` | ${v.value}`;
+      }
+    });
+    // radio 인경우
+    const radios = formItem.querySelectorAll('.q-radio');
+    radios.forEach((radio) => {
+      if (radio.getAttribute('aria-checked') === 'true') {
+        if (isEmpty(value)) value = radio.getAttribute('aria-label');
+        else value += ` | ${radio.getAttribute('aria-label')}`;
+      }
+    });
+
+    // checkBox 인경우
+    const checkboxes = formItem.querySelectorAll('.q-checkbox');
+    checkboxes.forEach((checkbox, i) => {
+      if (checkbox.getAttribute('aria-checked') === 'true') {
+        if (i === 0) {
+          if (isEmpty(value)) value = checkbox.getAttribute('aria-label');
+          else value += ` | ${checkbox.getAttribute('aria-label')}`;
+        } else {
+          value += ` | ${checkbox.getAttribute('aria-label')}`;
+        }
+      }
+    });
+
+    // value가 없는경우 disable (혹은 readonly)된 콤보 필드일수도 있다.
+    if (value === '') {
+      let disableField = formItem.querySelector('.q-field--disabled');
+      if (!disableField) disableField = formItem.querySelector('.q-field--readonly');
+      if (disableField) {
+        const spans = disableField.querySelectorAll('.q-field__native span');
+        spans.forEach((v, i) => {
+          if (i === 0) {
+            value += v.innerText;
+          } else {
+            value += ` | ${v.innerText}`;
+          }
+        });
+      }
+    }
+    if (label) {
+      message += `${label} : ${value}  \n`;
+    } else {
+      message += `${value}  \n`;
+    }
+  });
+  return message;
+}
+
 // 엑셀다운로드(그리드 기능사용)
 async function onClickExcelDownload() {
   const view = grdSalesBondRef.value.getView();
@@ -652,13 +725,13 @@ async function onClickBulkExcelDownload() {
   const bulkExcelCachedParams = cloneDeep(searchParams.value);
   const view = grdSalesBondRef.value.getView();
   // 주문별의 경우 대용량 엑셀 다운로드 형식 사용
-  console.log(getColumnsBySellTpCd(bulkExcelCachedParams.sellTpCd));
   gridUtil.exportBulkView(view, {
     url: '/sms/wells/closing/performance/sales-bond/bulk-excel-download',
     columns: getColumnsBySellTpCd(bulkExcelCachedParams.sellTpCd),
     parameter: {
       ...bulkExcelCachedParams,
     },
+    searchCondition: getSearchConditionMessage(),
   });
 }
 
