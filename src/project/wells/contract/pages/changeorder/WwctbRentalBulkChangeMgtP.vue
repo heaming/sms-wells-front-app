@@ -713,15 +713,15 @@ async function onSearchItemCheck(payload, dataRow) {
     } else if (procsDv === '617') {
       if (res.data.sellTpDtlCd === '22') { // 판매유형상세코드 = 22:리스 이면
         view.setValue(dataRow, 'cntrDtlNo', '');
-        alert(`${t('MSG_TXT_FNN_LEASE')}! ${t('MSG_TXT_RENTAL')}${t('MSG_TXT_STP')} ${t('MSG_TXT_IMPOSSIBLE')}!`); // 금융리스！렌탈중지 불가！
+        alert(t('MSG_ALT_CANNOT_CANC_FNN_LEASE_RENTAL')); // 금융리스！렌탈중지 불가！
         return;
       }
       if (res.data.copnDvCd !== '2') { // 법인격구분코드 != 2:법인 이면
         view.setValue(dataRow, 'cntrDtlNo', '');
-        alert(t('법인만 등록 가능합니다')); // 법인만 등록 가능합니다
+        alert(t(t('MSG_ALT_CAN_ONLY_REG_CRP_CST'))); // 법인만 등록 가능합니다
         return;
       }
-      if (res.data.cntrDtlStatCd === '303') { // 취소된 주문 = 303 수정불가
+      if (['301', '302', '303'].includes(res.data.cntrDtlStatCd)) { // 취소된 주문 = 301, 302, 303 수정불가
         view.setValue(dataRow, 'cntrDtlNo', '');
         alert(t('MSG_ALT_CNCL_ORDER')); // 취소된 주문입니다
         return;
