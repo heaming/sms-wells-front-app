@@ -70,7 +70,7 @@
           <kw-select
             v-model="searchParams.cntrTpCd"
             :label="$t('MSG_TXT_CONTR_TYPE')"
-            :options="codes.CNTR_TP_CD"
+            :options="codes.AVAILABLE_CNTR_TP_CD"
             rules="required"
             :disable="isReadonly"
             @change="onChangeCntrTpCd"
@@ -216,7 +216,6 @@
         </kw-search-item>
       </kw-search-row>
     </kw-search>
-
     <template
       v-if="cntrTpIs.quot"
     >
@@ -342,7 +341,9 @@
               :label="$t('MSG_TXT_MPNO')"
             >
               <p>
-                {{ step1.cntrt?.cralLocaraTno }}-{{ step1.cntrt?.mexnoEncr }}-{{ step1.cntrt?.cralIdvTno }}
+                {{ step1.cntrt?.cralLocaraTno }}-{{
+                  step1.cntrt?.mexnoEncr
+                }}-{{ step1.cntrt?.cralIdvTno }}
               </p>
             </kw-form-item>
           </kw-form-row>
@@ -387,7 +388,9 @@
               :label="$t('MSG_TXT_MPNO')"
             >
               <p>
-                {{ step1.cntrt?.cralLocaraTno }}-{{ step1.cntrt?.mexnoEncr }}-{{ step1.cntrt?.cralIdvTno }}
+                {{ step1.cntrt?.cralLocaraTno }}-{{
+                  step1.cntrt?.mexnoEncr
+                }}-{{ step1.cntrt?.cralIdvTno }}
               </p>
             </kw-form-item>
             <kw-form-item
@@ -442,9 +445,11 @@ import { alert, stringUtil, useDataService, useGlobal } from 'kw-lib';
 import { cloneDeep, isEmpty } from 'lodash-es';
 import { useCtCode } from '~sms-common/contract/composable';
 import { CNTR_TP_CD, COPN_DV_CD } from '~sms-wells/contract/constants/ctConst';
+import { warn } from 'vue';
 
 const props = defineProps({
   contract: { type: Object, default: undefined },
+  cntrTpCd: { type: String, default: undefined },
   cntrCstNo: { type: String, default: undefined },
   pspcCstId: { type: String, default: undefined },
 });
@@ -479,19 +484,17 @@ const { codes, getCodeName, addCode, getCode } = await useCtCode(
   'BYR_DV_CD',
   'ALNCMP_EMP_PRCHS_ALNC_BZS_ACD', // 제휴사 직원 구매 제휴 업체 앱코드
   'COPN_DV_CD',
+  'CNTR_TP_CD',
   'SEX_DV_CD',
 );
 
 // -------------------------------------------------------------------------------------------------
 // Function & Event
 // -------------------------------------------------------------------------------------------------
-const membershipCntrTpCd = '07';
-const reStipulationCntrTpCd = '08';
 
 let cntrNo;
 let rstlCntrNo;
 let rstlCntrSn;
-let cntrTpCd;
 let step1;
 const ogStep1 = ref({});
 
@@ -499,16 +502,14 @@ function connectReactivity() {
   cntrNo = toRef(props.contract, 'cntrNo');
   rstlCntrNo = toRef(props.contract, 'rstlCntrNo');
   rstlCntrSn = toRef(props.contract, 'rstlCntrSn');
-  cntrTpCd = toRef(props.contract, 'cntrTpCd');
   step1 = toRef(props.contract, 'step1', { bas: {} });
 }
 
-watch(() => props.contract, connectReactivity, { immediate: true });
+watchEffect(connectReactivity);
 
 const searchParams = ref({
-  cntrNo: '',
-  cntrTpCd: '',
-  copnDvCd: '1',
+  cntrTpCd: props.cntrTpCd,
+  copnDvCd: props.cntrTpCd === CNTR_TP_CD.COOPERATION ? COPN_DV_CD.COOPERATION : COPN_DV_CD.INDIVIDUAL,
   cstKnm: '',
   bzrno: '',
   cntrtTno: '',
@@ -523,34 +524,35 @@ const searchParams = ref({
 });
 
 async function setupAvailableCntrTpCd() {
-  await addCode('CNTR_TP_CD', (code) => {
+  await addCode('AVAILABLE_CNTR_TP_CD', () => {
     const isCustomerCenterService = currentPartner.baseRleCd === 'W8010';
     const isBusinessDepartment = currentPartner.ogTpCd === 'HR1';
     const isPspcCstCntr = !!step1.value.pspcCstBas;
+    let availableCodeIds = [];
 
     if (isBusinessDepartment && !isCustomerCenterService) {
-      return code.codeId === CNTR_TP_CD.EMPLOYEE && code;
+      availableCodeIds = [CNTR_TP_CD.EMPLOYEE];
+      return codes.CNTR_TP_CD.filter(({ codeId }) => availableCodeIds.includes(codeId));
     }
     if (isPspcCstCntr) {
-      return [
+      availableCodeIds = [
         CNTR_TP_CD.INDIVIDUAL,
         CNTR_TP_CD.COOPERATION,
         CNTR_TP_CD.QUOTE,
-      ].includes(code.codeId) && code;
+      ];
+      return codes.CNTR_TP_CD.filter(({ codeId }) => availableCodeIds.includes(codeId));
     }
-    return [
+    availableCodeIds = [
       CNTR_TP_CD.INDIVIDUAL,
       CNTR_TP_CD.COOPERATION,
       CNTR_TP_CD.MEMBERSHIP,
       CNTR_TP_CD.RE_STIPULATION,
       CNTR_TP_CD.QUOTE,
-    ].includes(code.codeId) && code;
+    ];
+    return codes.CNTR_TP_CD.filter(({ codeId }) => availableCodeIds.includes(codeId));
   });
-  searchParams.value.cntrTpCd = codes.CNTR_TP_CD[0]?.codeId;
-
-  if (searchParams.value.cntrTpCd === CNTR_TP_CD.EMPLOYEE) {
+  if (!codes.AVAILABLE_CNTR_TP_CD.find(({ codeId }) => (codeId === CNTR_TP_CD.MEMBERSHIP))) {
     const { data } = await dataService.get('sms/wells/contract/contracts/aliance-partner-codes');
-    // console.log(JSON.stringify(data, null, '\t'));
     codes.BYR_DV_CD = data;
   }
 }
@@ -560,7 +562,7 @@ const ableToReStipulation = !!await getCode('CNTR_TP_CD', '07');
 const ableToMembership = !!await getCode('CNTR_TP_CD', '08');
 
 function setupSearchParams(newParams) {
-  searchParams.value.cntrTpCd = newParams?.cntrTpCd || codes.CNTR_TP_CD[0]?.codeId;
+  searchParams.value.cntrTpCd = newParams?.cntrTpCd || codes.AVAILABLE_CNTR_TP_CD[0]?.codeId;
   searchParams.value.copnDvCd = newParams?.copnDvCd || '1';
   searchParams.value.cstKnm = newParams?.cstKnm || '';
   searchParams.value.bzrno = newParams?.bzrno || '';
@@ -593,13 +595,30 @@ const popupRequiredCstInfos = computed(() => [
   CNTR_TP_CD.EMPLOYEE,
 ].includes(searchParams.value.cntrTpCd));
 const cstKnmLabel = computed(() => (searchParams.value.copnDvCd === COPN_DV_CD.COOPERATION ? t('MSG_TXT_CRP_NM') : t('MSG_TXT_NAME')));
-let initFlag = false;
+
+function setupCntrTpCd(value) {
+  if (!value) {
+    return false;
+  }
+  const newCntrTpCd = value;
+  if (!codes.AVAILABLE_CNTR_TP_CD.find(({ codeId }) => (codeId === newCntrTpCd))) {
+    alert(`${getCodeName('CNTR_TP_CD', newCntrTpCd)} 계약 유형은 선택 할 수 없습니다.`);
+    return false;
+  }
+  if (newCntrTpCd === CNTR_TP_CD.INDIVIDUAL) {
+    searchParams.value.copnDvCd = COPN_DV_CD.INDIVIDUAL;
+  }
+  if (newCntrTpCd === CNTR_TP_CD.COOPERATION) {
+    searchParams.value.copnDvCd = COPN_DV_CD.COOPERATION;
+  }
+  step1.value.bas.cntrTpCd = newCntrTpCd; // 콜백 트리거 안하려면 먼저 세팅해준다.
+  searchParams.value.cntrTpCd = newCntrTpCd;
+}
 
 function setupNewContract() {
   step1.value ??= {};
   step1.value.bas ??= {};
-  step1.value.bas.cntrTpCd = codes.CNTR_TP_CD[0].codeId;
-  cntrTpCd.value = step1.value.bas.cntrTpCd;
+  setupCntrTpCd(codes.AVAILABLE_CNTR_TP_CD[0].codeId);
 }
 
 async function getCntrInfo() {
@@ -607,7 +626,6 @@ async function getCntrInfo() {
     return;
   }
 
-  searchParams.cntrNo = cntrNo.value;
   const { data } = await dataService.get('sms/wells/contract/contracts/cntr-info', {
     params: {
       cntrNo: cntrNo.value,
@@ -623,11 +641,6 @@ async function getCntrInfo() {
     prtnr,
   } = step1.value;
 
-  /* 계약유형코드 변경 콜백 동작 방지.
-  컴포넌트에 수정을 넘기고, 변경사항에 대한 콜백 처리도 있는 필드에 값을 때려 박는 경우.
-  좋지 못한 패턴이니 좋은 생각이 나면 수정하도록 하자.
-  */
-  initFlag = true;
   searchParams.value.cntrTpCd = bas.cntrTpCd;
   searchParams.value.copnDvCd = bas.copnDvCd;
 
@@ -756,14 +769,15 @@ async function fetchCntrtByCstNo(cstNo) {
     params: {
       cstNo,
     },
-  }).catch(setupSearchParams);
+  })
+    .catch(setupSearchParams);
   step1.value.cntrt = data;
 }
 
 async function selectContractor() {
   if (searchParams.value.cntrTpCd !== CNTR_TP_CD.MEMBERSHIP
-      && searchParams.value.cntrTpCd !== CNTR_TP_CD.RE_STIPULATION
-      && !await checkExistContractor()) {
+    && searchParams.value.cntrTpCd !== CNTR_TP_CD.RE_STIPULATION
+    && !await checkExistContractor()) {
     return;
   }
 
@@ -818,12 +832,12 @@ async function onClickMembership() {
   step1.value.mshCntrNo = payload.cntrNo;
   step1.value.mshCntrSn = payload.cntrSn;
   step1.value.prtnr = currentPartner;
+  step1.value.bas.cntrTpCd = CNTR_TP_CD.MEMBERSHIP;
 
   await fetchCntrtByCstNo(payload.cntrCstNo);
-  cntrTpCd.value = membershipCntrTpCd;
   setupSearchParams({
     ...step1.value.cntrt,
-    cntrTpCd: membershipCntrTpCd,
+    cntrTpCd: CNTR_TP_CD.MEMBERSHIP,
   });
 }
 
@@ -847,12 +861,12 @@ async function onClickReStipulation() {
   rstlCntrNo.value = payload.cntrNo;
   rstlCntrSn.value = payload.cntrSn;
   step1.value.prtnr = currentPartner;
+  step1.value.bas.cntrTpCd = CNTR_TP_CD.RE_STIPULATION;
 
   await fetchCntrtByCstNo(payload.cntrCstNo);
-  cntrTpCd.value = reStipulationCntrTpCd;
   setupSearchParams({
     ...step1.value.cntrt,
-    cntrTpCd: reStipulationCntrTpCd,
+    cntrTpCd: CNTR_TP_CD.RE_STIPULATION,
   });
 }
 
@@ -861,10 +875,10 @@ async function onClickSearch() {
     if (!isValidAlncPrtnr()) {
       return;
     }
-  } else if (searchParams.value.cntrTpCd === membershipCntrTpCd) {
+  } else if (searchParams.value.cntrTpCd === CNTR_TP_CD.MEMBERSHIP) {
     await onClickMembership();
     return;
-  } else if (searchParams.value.cntrTpCd === reStipulationCntrTpCd) {
+  } else if (searchParams.value.cntrTpCd === CNTR_TP_CD.RE_STIPULATION) {
     await onClickReStipulation();
     return;
   }
@@ -874,11 +888,11 @@ async function onClickSearch() {
 }
 
 async function onChangeCntrTpCd(value) {
-  if (initFlag) {
-    initFlag = false;
+  if (!step1.value?.bas) {
+    warn('계약 기본 객체 세팅이 안되었습니다.');
     return;
   }
-  if (cntrTpCd.value === value) {
+  if (step1.value.bas.cntrTpCd === value) {
     return;
   }
   clearSelected();
@@ -903,7 +917,7 @@ async function onChangeCntrTpCd(value) {
     return;
   }
 
-  cntrTpCd.value = value;
+  step1.value.bas.cntrTpCd = value;
 }
 
 // 임직원 계약, 제휴파트너구분 변경시 처리
@@ -1049,7 +1063,7 @@ async function saveStep() {
   step1.value.bas.cntrTpCd = searchParams.value.cntrTpCd;
   step1.value.bas.copnDvCd = searchParams.value.copnDvCd;
 
-  if (cntrTpCd.value === reStipulationCntrTpCd) {
+  if (step1.value?.bas.cntrTpCd === CNTR_TP_CD.RE_STIPULATION) {
     return rstlCntrNo.value;
   }
 
@@ -1066,8 +1080,16 @@ async function getCounts() {
     await alert('휴업중인 파트너로 계약이 불가합니다');
   } else {
     const [res, res2] = await Promise.all([
-      dataService.get('/sms/wells/contract/re-stipulation/customers/counts', { params: { copnDvCd: '1', cntrCstNo: props.cntrCstNo } }),
-      dataService.get('/sms/wells/contract/membership/customers/counts', { params: { copnDvCd: '1', cntrCstNo: props.cntrCstNo } }),
+      dataService.get('/sms/wells/contract/re-stipulation/customers/counts', {
+        params: {
+          cntrCstNo: props.cntrCstNo,
+        },
+      }),
+      dataService.get('/sms/wells/contract/membership/customers/counts', {
+        params: {
+          cntrCstNo: props.cntrCstNo,
+        },
+      }),
     ]);
     dashboardCounts.value.restipulationCnt = res.data;
     dashboardCounts.value.membershipCnt = res2.data;
@@ -1085,7 +1107,9 @@ async function fetchProspectContract() {
     pspcCstId,
     cntrTpCd: CNTR_TP_CD.INDIVIDUAL,
   };
-  if (cntrt) { step1.value.cntrt = cntrt; }
+  if (cntrt) {
+    step1.value.cntrt = cntrt;
+  }
   step1.value.prtnr = prtnr;
   step1.value.bas.sellInflwChnlDtlCd = prtnr?.sellInflwChnlDtlCd;
   const { pspcCstKnm, cralLocaraTno, mexnoEncr, cralIdvTno } = pspcCstBas;
@@ -1113,7 +1137,7 @@ async function initStep(forced = false) {
 
   setupNewContract();
 
-  const { pspcCstId, cntrCstNo } = props;
+  const { pspcCstId, cntrCstNo, cntrTpCd } = props;
 
   if (pspcCstId) {
     await fetchProspectContract();
@@ -1124,6 +1148,10 @@ async function initStep(forced = false) {
   if (cntrCstNo) {
     await fetchCntrtByCstNo(cntrCstNo);
     await selectPartner();
+  }
+
+  if (cntrTpCd) {
+    setupCntrTpCd(cntrTpCd);
   }
 }
 
