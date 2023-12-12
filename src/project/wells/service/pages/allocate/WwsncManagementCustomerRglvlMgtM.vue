@@ -355,7 +355,7 @@ const grdMainRef = ref(getComponentType('KwGrid'));
 
 async function fetchData() {
   // if (isEmpty(searchParams.value.localGroupCd)) {
-  //   await alert(`${t('MSG_ALT_NOT_FOUND_OG_INF')}111`); // 조직정보를 찾을 수 없습니다.
+  //   await alert(`${t('MSG_ALT_NOT_FOUND_OG_INF')}`); // 조직정보를 찾을 수 없습니다.
   //   return;
   // }
   const res = await dataService.get('/sms/wells/service/manage-customer-rglvl', { params: cachedParams, timeout: 300000 });
