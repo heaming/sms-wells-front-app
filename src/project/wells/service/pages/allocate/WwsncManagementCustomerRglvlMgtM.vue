@@ -376,7 +376,7 @@ const prtnrOgTpOptions = ref([]);
 
 async function onClickSearch() {
   // if (!searchParams.value.executiveGroup) {
-  //   await alert(`${t('MSG_ALT_NOT_FOUND_OG_INF')}222`); // 조직정보를 찾을 수 없습니다.
+  //   await alert(`${t('MSG_ALT_NOT_FOUND_OG_INF')}`); // 조직정보를 찾을 수 없습니다.
   //   return;
   // }
   if (searchParams.value.branchOffice === 'ALL' || !searchParams.value.branchOffice) {
