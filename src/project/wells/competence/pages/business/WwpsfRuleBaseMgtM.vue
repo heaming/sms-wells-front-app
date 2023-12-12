@@ -312,17 +312,8 @@ const onClickDetail = async () => {
     component: 'WwpsfRuleBaseDtlP',
     componentProps: {
       bznsSpptMnalId: selectedRowValue.value.bznsSpptMnalId,
-      bznsSpptMnalNm: selectedRowValue.value.bznsSpptMnalNm,
       hgrBznsSpptMnalId: selectedRowValue.value.hgrBznsSpptMnalId,
-      vlStrtDtm: selectedRowValue.value.vlStrtDtm,
-      vlEndDtm: selectedRowValue.value.vlEndDtm,
-      bznsSpptMnalChCn: selectedRowValue.value.bznsSpptMnalChCn,
-      bznsSpptMnalRgstCd: selectedRowValue.value.bznsSpptMnalRgstCd,
-      mnalRghRelId: selectedRowValue.value.mnalRghRelId,
       apnFileDocId: selectedRowValue.value.apnFileDocId,
-      inqrLvTcnt: selectedRowValue.value.inqrLvTcnt,
-      expsrOdr: selectedRowValue.value.expsrOdr,
-      bznsSpptMnalMpblDvCd: selectedRowValue.value.bznsSpptMnalMpblDvCd,
     },
   });
 
