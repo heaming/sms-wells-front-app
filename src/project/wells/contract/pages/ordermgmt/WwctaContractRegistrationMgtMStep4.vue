@@ -633,24 +633,19 @@ codes.DP_TP_CD_AFTN = [
 ];
 
 const sessionUserId = getters['meta/getUserInfo'];
-const cntrNo = computed(() => props.contract.rstlCntrNo || props.contract.cntrNo);
-const cntrTpCd = toRef(props.contract, 'cntrTpCd');
-const rstlCntrNo = computed(() => props.contract.rstlCntrNo);
-const rstlCntrSn = computed(() => props.contract.rstlCntrSn);
-const step4 = toRef(props.contract, 'step4');
-step4.value = {
+const step4 = toRef(props.contract, 'step4', {
   bas: {},
   cntrt: {},
   prtnr: {},
   cntrDtls: [{}],
   stlmDtls: [{}],
-};
+});
 const ogStep4 = ref({});
 const isRestipulation = ref(false);
-const isCorpDscAdrChg = ref(false);
-// const restipulationCntrSn = ref(0);
-const stplTpCdOptions = ref([]);
 const restipulationBasInfo = ref({});
+const isCorpDscAdrChg = ref(false);
+const stplTpCdOptions = ref([]);
+
 const { t } = useI18n();
 const grdMainRef = ref(getComponentType('KwGrid'));
 const grdStlmRef = ref(getComponentType('KwGrid'));
@@ -738,14 +733,16 @@ async function calcRestipulation() {
 }
 
 async function getCntrInfo() {
-  if (!cntrNo.value) {
+  const { cntrNo, rstlCntrNo } = props.contract;
+  if (!rstlCntrNo && !cntrNo) {
     await alert('잘못된 접근입니다.');
     return;
   }
   const { data } = await dataService.get('sms/wells/contract/contracts/cntr-info', {
     params: {
-      cntrNo: cntrNo.value,
+      cntrNo: rstlCntrNo || cntrNo,
       step: 4,
+      rstlYn: rstlCntrNo ? 'Y' : 'N',
     },
   });
 
@@ -760,37 +757,39 @@ async function getCntrInfo() {
 }
 
 async function fetchStplTpCdOptions() {
-  const params = { cntrNo: rstlCntrNo.value, cntrSn: rstlCntrSn.value };
+  const { rstlCntrNo: cntrNo, rstlCntrSn: cntrSn } = props.contract;
   const { data } = await dataService.get(
     'sms/wells/contract/re-stipulation/standard-info',
-    { params },
+    { params: { cntrNo, cntrSn } },
   );
   stplTpCdOptions.value = data;
 }
 
 async function fetchInitialStplTpCd() {
-  const params = { cntrNo: rstlCntrNo.value, cntrSn: rstlCntrSn.value };
+  const { rstlCntrNo: cntrNo, rstlCntrSn: cntrSn } = props.contract;
   const response = await dataService.get(
     'sms/wells/contract/re-stipulation/contract',
-    { params },
+    { params: { cntrNo, cntrSn } },
   );
-  restipulationBasInfo.value.cntrNo = rstlCntrNo.value;
-  restipulationBasInfo.value.cntrSn = rstlCntrSn.value;
+  restipulationBasInfo.value.cntrNo = cntrNo;
+  restipulationBasInfo.value.cntrSn = cntrSn;
   restipulationBasInfo.value.stplTpCd = response.data.stplTpCd;
 }
 
 async function getCntrInfoWithRstl() {
-  if (!rstlCntrNo.value || !rstlCntrSn.value) {
+  const { rstlCntrNo, rstlCntrSn } = props.contract;
+  if (!rstlCntrNo || !rstlCntrSn) {
     await alert('잘못된 접근입니다.');
     return;
   }
 
   await getCntrInfo();
 
+  step4.value.bas.cntrTpCd = CNTR_TP_CD.RE_STIPULATION; // notify 계약서 유형을 재약정은 덮어씁니다.!
+
   await fetchStplTpCdOptions();
   await fetchInitialStplTpCd();
 
-  step4.value.isRestipulation = true;
   isRestipulation.value = true;
 }
 
@@ -808,7 +807,7 @@ async function isValidStep() {
     }
   }
 
-  if (step4.value.isRestipulation) {
+  if (isRestipulation.value) {
     if (!restipulationBasInfo.value.stplTpCd) {
       await alert('재약정유형을 선택해주세요.');
       return false;
@@ -818,7 +817,7 @@ async function isValidStep() {
 }
 
 async function saveStep(isTemp) {
-  if (step4.value.isRestipulation) {
+  if (isRestipulation.value) {
     const savedCntr = await dataService.post('sms/wells/contract/re-stipulation/save-contract', restipulationBasInfo.value);
     return savedCntr?.data?.key;
   }
@@ -867,20 +866,20 @@ const loaded = ref(false);
 async function initStep(forced = false) {
   if (!forced && loaded.value) { return; }
 
-  if (cntrNo.value) {
-    if (cntrTpCd.value === CNTR_TP_CD.RE_STIPULATION) {
-      await getCntrInfoWithRstl();
-    } else {
-      await getCntrInfo();
-    }
-    loaded.value = true;
+  const { cntrNo, rstlCntrNo } = props.contract;
+  if (rstlCntrNo) {
+    await getCntrInfoWithRstl();
+  } else if (cntrNo) {
+    await getCntrInfo();
   }
+
+  loaded.value = true;
 
   // 법인할인고객 주소변경 확인
   if (step4.value?.bas.copnDvCd === COPN_DV_CD.COOPERATION) {
     const { data } = await dataService.get('sms/wells/contract/contracts/is-change-corp-address', {
       params: {
-        cntrNo: cntrNo.value,
+        cntrNo,
       },
     });
     isCorpDscAdrChg.value = data;

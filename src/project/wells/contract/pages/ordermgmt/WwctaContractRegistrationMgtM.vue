@@ -77,17 +77,15 @@
             @click="onClickPrevious"
           />
         </div>
-        <div class="button-set--bottom-right">
+        <div class="button-set--bottom-right flex gap-xs">
           <template v-if="currentStepIndex === 0">
             <kw-btn
               v-if="summary?.cntrBas?.cntrTpCd !== CNTR_TP_CD.QUOTE"
               :label="$t('MSG_BTN_TEMP_SAVE')"
-              class="ml8"
               @click="onClickTempSave"
             />
             <kw-btn
               :label="$t('MSG_BTN_NEXT')"
-              class="ml8"
               primary
               @click="onClickNext"
             />
@@ -96,13 +94,11 @@
             <kw-btn
               v-if="summary?.cntrBas?.cntrTpCd !== CNTR_TP_CD.QUOTE"
               :label="$t('MSG_BTN_TEMP_SAVE')"
-              class="ml8"
               @click="onClickTempSave"
             />
             <kw-btn
               v-if="!isCnfmPds"
               :label="$t('MSG_BTN_PD_CNFM')"
-              class="ml8"
               primary
               @click="onClickPdCnfm"
             />
@@ -110,14 +106,12 @@
               <kw-btn
                 v-if="summary?.cntrBas?.cntrTpCd === CNTR_TP_CD.QUOTE"
                 :label="$t('MSG_BTN_QUOT_CMPL')"
-                class="ml8"
                 primary
                 @click="onClickConfirmQuote"
               />
               <kw-btn
                 v-else
                 :label="$t('MSG_BTN_NEXT')"
-                class="ml8"
                 primary
                 @click="onClickNext"
               />
@@ -126,12 +120,10 @@
           <template v-if="currentStepIndex === 2">
             <kw-btn
               :label="$t('MSG_BTN_TEMP_SAVE')"
-              class="ml8"
               @click="onClickTempSave"
             />
             <kw-btn
               :label="$t('MSG_BTN_NEXT')"
-              class="ml8"
               primary
               @click="onClickNext"
             />
@@ -139,7 +131,6 @@
           <template v-if="currentStepIndex === 3">
             <kw-btn
               :label="$t('MSG_BTN_TEMP_SAVE')"
-              class="ml8"
               @click="onClickTempSave"
             />
             <kw-btn
