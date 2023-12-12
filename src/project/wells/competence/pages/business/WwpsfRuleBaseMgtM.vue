@@ -314,6 +314,7 @@ const onClickDetail = async () => {
       bznsSpptMnalId: selectedRowValue.value.bznsSpptMnalId,
       hgrBznsSpptMnalId: selectedRowValue.value.hgrBznsSpptMnalId,
       apnFileDocId: selectedRowValue.value.apnFileDocId,
+      vlStrtDtm: selectedRowValue.value.vlStrtDtm,
     },
   });
 

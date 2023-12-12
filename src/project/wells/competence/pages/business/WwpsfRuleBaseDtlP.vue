@@ -29,6 +29,7 @@
             v-model="frmMainData.bznsSpptMnalNm"
             :label="$t('MSG_TIT_CLASSIFICATION_NM')"
             rules="required"
+            :disable="frmMainData.psbYn === 'N'"
           />
         </kw-form-item>
         <kw-form-item
@@ -40,6 +41,7 @@
             :options="codes.BZNS_SPPT_MNAL_RGST_CD"
             rules="required"
             :label="$t('MSG_TXT_RGST_DV')"
+            :disable="frmMainData.psbYn === 'N'"
           />
         </kw-form-item>
       </kw-form-row>
@@ -54,6 +56,7 @@
             type="radio"
             :options="codes.BZNS_SPPT_MNAL_MPBL_DV_CD"
             :label="$t('MSG_TXT_MPBL_RNG')"
+            :disable="frmMainData.psbYn === 'N'"
           />
           <!-- ['전체공개', '일부공개'] -->
         </kw-form-item>
@@ -71,6 +74,7 @@
             rules="required"
             :first-option="all"
             :options="codes.OG_TP_CD.filter((v) => ['W01', 'W02'].includes(v.codeId))"
+            :disable="frmMainData.psbYn === 'N'"
             multiple
           />
         </kw-form-item>
@@ -85,6 +89,7 @@
             option-value="codeId"
             option-label="rsbDvNm"
             :options="rsbDvCd"
+            :disable="frmMainData.psbYn === 'N'"
             multiple
           />
         </kw-form-item>
@@ -102,6 +107,7 @@
             rules="required"
             :first-option="sel"
             :options="codes.COD_YN"
+            :disable="frmMainData.psbYn === 'N'"
           />
         </kw-form-item>
       </kw-form-row>
@@ -115,6 +121,7 @@
             v-model="frmMainData.bznsSpptMnalChCn"
             rules="required"
             :label="$t('MSG_TXT_RFM_CH_CN')"
+            :disable="frmMainData.psbYn === 'N'"
           />
         </kw-form-item>
       </kw-form-row>
@@ -129,6 +136,7 @@
             v-model="attachFiles"
             attach-group-id="ATG_PSF_RUL_BASE"
             :attach-document-id="frmMainData.apnFileDocId"
+            :disable="frmMainData.psbYn === 'N'"
           />
         </kw-form-item>
       </kw-form-row>
@@ -145,6 +153,7 @@
         v-permission:update
         :label="$t('MSG_BTN_SAVE')"
         primary
+        :disable="frmMainData.psbYn === 'N'"
         @click="onClickSave"
       />
     </template>
@@ -184,6 +193,10 @@ const props = defineProps({
     type: String,
     required: true,
   },
+  vlStrtDtm: {
+    type: String,
+    required: true,
+  },
 });
 
 const frmMainData = ref({
@@ -196,7 +209,7 @@ const frmMainData = ref({
   bznsSpptMnalMpblDvCd: '',
   bznsSpptMnalChCn: '',
   mnalRghRelId: '',
-  vlStrtDtm: '',
+  vlStrtDtm: props.vlStrtDtm,
   vlEndDtm: '',
   attachFiles: [],
   apnFileDocId: '',
@@ -215,7 +228,7 @@ const onClickSave = async () => {
 };
 
 const initDetail = async () => {
-  const res = await dataService.get(`/sms/wells/competence/rulebase/${props.bznsSpptMnalId}`);
+  const res = await dataService.get('/sms/wells/competence/rulebase/detail', { params: { ...frmMainData.value } });
   if (!isEmpty(res.data)) {
     frmMainData.value = res.data;
     if (!isEmpty(res.data.ogTpCd)) {
