@@ -89,7 +89,7 @@
     <kw-grid
       ref="grdQuoteSendList"
       name="grdQuoteSendList"
-      :page-size="pageInfo.pageSize"
+      :visible-rows="6"
       :total-count="pageInfo.totalCount"
       @init="initQuoteSendList"
     />
@@ -176,10 +176,7 @@ async function fetchData() {
 
 async function onClickSend() {
   if (searchParams.value.fwTpCd === '01') {
-    if (isEmpty(searchParams.value.sendTelNo1)
-    || isEmpty(searchParams.value.sendTelNo2)
-    || isEmpty(searchParams.value.sendTelNo3)
-    || isEmpty(searchParams.value.recpTelNo1)
+    if (isEmpty(searchParams.value.recpTelNo1)
     || isEmpty(searchParams.value.recpTelNo2)
     || isEmpty(searchParams.value.recpTelNo3)) {
       notify(t('MSG_ALT_CHK_NCSR', [t('MSG_TXT_TEL_NO')]));
