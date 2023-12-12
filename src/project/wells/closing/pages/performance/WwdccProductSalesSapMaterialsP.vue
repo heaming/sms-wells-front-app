@@ -58,15 +58,6 @@
               {{ info.svdtSlSumVat }}
             </td>
           </tr>
-          <tr>
-            <td>{{ t('MSG_TXT_ETC') }}</td>
-            <td class="text-right">
-              {{ info.etcSlSumAmt }}
-            </td>
-            <td class="text-right">
-              {{ info.etcSlSumVat }}
-            </td>
-          </tr>
         </tbody>
       </table>
     </div>
