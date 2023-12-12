@@ -319,7 +319,7 @@ async function onClickDelete() {
     return;
   }
   const rows = checkedRows.map((row) => (
-    { cntrNo: row.cntrNo, adnSvSn: row.adnSvSn }));
+    { cntrNo: row.cntrNo, cntrSn: row.cntrSn, adnSvSn: row.adnSvSn }));
 
   const isOk = await confirm(t('MSG_ALT_CNFM_STAT_CAN'));
 
@@ -358,6 +358,7 @@ async function onClickSave() {
       fnlVstFshDt: obj.fnlVstFshDt,
       svBizHclsfCd: obj.svBizHclsfCd,
       pdctPdCd: obj.pdctPdCd,
+      adnSvSn: obj.adnSvSn,
     });
   });
 
@@ -454,7 +455,7 @@ const initGridConfirm = defineGrid((data, view) => {
     { fieldName: 'svMcn', header: t('MSG_TXT_SV_PTRM'), width: '80', styleName: 'text-center' }, // 서비스기간
     { fieldName: 'dutyUseMcn', header: t('MSG_TXT_DUTY_PTRM'), width: '80', styleName: 'text-center' }, // 의무기간
     { fieldName: 'fnlVstFshDt', header: t('MSG_TXT_WK_DT'), width: '100', styleName: 'text-center', datetimeFormat: 'date' }, // 작업일자
-    { fieldName: 'rcpdt', header: t('MSG_TXT_RCPDT'), width: '100', styleName: 'text-center', datetimeFormat: 'date' }, // 접수일자
+    { fieldName: 'rcpdt', header: t('MSG_TXT_CNTR_DATE'), width: '100', styleName: 'text-center', datetimeFormat: 'date' }, // 계약일자
     { fieldName: 'istDt', header: t('MSG_TXT_IST_DT'), width: '100', styleName: 'text-center', datetimeFormat: 'date' }, // 설치일자
     { fieldName: 'reqdDt', header: t('MSG_TXT_DEM_DT'), width: '100', styleName: 'text-center', datetimeFormat: 'date' }, // 철거일자
     { fieldName: 'rsgDt', header: t('MSG_TXT_CLTN_DT'), width: '100', styleName: 'text-center', datetimeFormat: 'date' }, // 해약일자

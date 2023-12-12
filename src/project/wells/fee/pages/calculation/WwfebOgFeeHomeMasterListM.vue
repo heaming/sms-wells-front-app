@@ -906,8 +906,10 @@ const initGrd1Main = defineGrid((data, view) => {
       styleName: 'text-right',
       numberFormat: '###0.##',
       headerSummary: {
-        numberFormat: '#,##0',
-        expression: 'sum',
+        numberFormat: '#,##0.##',
+        valueCallback(grid) {
+          return (grid.getSummary('sercnt', 'sum') / grid.getSummary('rLccnt1', 'sum')) * 100;
+        },
       } },
     { fieldName: 'aksd01',
       header: t('MSG_TXT_PRPN'),

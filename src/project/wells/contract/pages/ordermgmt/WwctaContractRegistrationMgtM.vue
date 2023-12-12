@@ -26,6 +26,7 @@
                 v-if="step.name === 'step1'"
                 :ref="(el) => step.ref.value = el"
                 :contract="contract"
+                :cntr-tp-cd="cntrTpCd"
                 :cntr-cst-no="cntrCstNo"
                 :pspc-cst-id="pspcCstId"
                 @activated="onChildActivated"
@@ -76,18 +77,15 @@
             @click="onClickPrevious"
           />
         </div>
-        <div class="button-set--bottom-right">
+        <div class="button-set--bottom-right flex gap-xs">
           <template v-if="currentStepIndex === 0">
             <kw-btn
-              v-if="currentStepIndex === 0 && contract?.cntrTpCd !== '09'"
+              v-if="summary?.cntrBas?.cntrTpCd !== CNTR_TP_CD.QUOTE"
               :label="$t('MSG_BTN_TEMP_SAVE')"
-              class="ml8"
               @click="onClickTempSave"
             />
             <kw-btn
-              v-if="currentStepIndex === 0"
               :label="$t('MSG_BTN_NEXT')"
-              class="ml8"
               primary
               @click="onClickNext"
             />
@@ -96,13 +94,11 @@
             <kw-btn
               v-if="summary?.cntrBas?.cntrTpCd !== CNTR_TP_CD.QUOTE"
               :label="$t('MSG_BTN_TEMP_SAVE')"
-              class="ml8"
               @click="onClickTempSave"
             />
             <kw-btn
               v-if="!isCnfmPds"
               :label="$t('MSG_BTN_PD_CNFM')"
-              class="ml8"
               primary
               @click="onClickPdCnfm"
             />
@@ -110,14 +106,12 @@
               <kw-btn
                 v-if="summary?.cntrBas?.cntrTpCd === CNTR_TP_CD.QUOTE"
                 :label="$t('MSG_BTN_QUOT_CMPL')"
-                class="ml8"
                 primary
                 @click="onClickConfirmQuote"
               />
               <kw-btn
                 v-else
                 :label="$t('MSG_BTN_NEXT')"
-                class="ml8"
                 primary
                 @click="onClickNext"
               />
@@ -126,12 +120,10 @@
           <template v-if="currentStepIndex === 2">
             <kw-btn
               :label="$t('MSG_BTN_TEMP_SAVE')"
-              class="ml8"
               @click="onClickTempSave"
             />
             <kw-btn
               :label="$t('MSG_BTN_NEXT')"
-              class="ml8"
               primary
               @click="onClickNext"
             />
@@ -139,13 +131,11 @@
           <template v-if="currentStepIndex === 3">
             <kw-btn
               :label="$t('MSG_BTN_TEMP_SAVE')"
-              class="ml8"
               @click="onClickTempSave"
             />
             <kw-btn
               v-if="currentStepIndex === 3"
               :label="$t('MSG_BTN_WRTE_FSH')"
-              class="ml8"
               primary
               @click="onClickNext"
             />
@@ -176,6 +166,7 @@ const props = defineProps({
   cntrPrgsStatCd: { type: String, default: undefined },
   pspcCstId: { type: String, default: undefined },
   cntrCstNo: { type: String, default: undefined },
+  cntrTpCd: { type: String, default: undefined },
 });
 
 const { t } = useI18n();
@@ -183,13 +174,17 @@ const { alert } = useGlobal();
 const router = useRouter();
 
 async function validateProps() {
-  const { cntrNo, cntrPrgsStatCd, pspcCstId, resultDiv, cntrSn } = props;
+  const { cntrNo, cntrPrgsStatCd, pspcCstId, resultDiv, cntrSn, cntrTpCd } = props;
   if (pspcCstId && (cntrNo || cntrPrgsStatCd)) {
     await alert('가망고객 대상 계약은 계약번호를 먼저 가질 수 없습니다.');
     return false;
   }
   if (resultDiv === '2' && !cntrSn) {
     await alert('재계약 대상 계약은 계약일련번호가 필요합니다.');
+    return false;
+  }
+  if (cntrTpCd && (cntrPrgsStatCd || cntrNo)) {
+    await alert('생성시에만 계약 유형을 선택할 수 있습니다.');
     return false;
   }
   return true;
@@ -228,8 +223,8 @@ const updateSummary = () => {
     ...step3?.bas,
     ...step4?.bas,
   };
-  if (props.cntrTpCd === '09') {
-    smr.cntrBas.cntrTpCd = '09'; // 이전계약정보 확인 이후 재설정
+  if (props.cntrTpCd === CNTR_TP_CD.QUOTE) {
+    smr.cntrBas.cntrTpCd = CNTR_TP_CD.QUOTE; // 이전계약정보 확인 이후 재설정
   }
   if (step2?.dtls?.length) {
     smr.cntrDtls = step2.dtls;
@@ -265,7 +260,6 @@ function setupContract() {
     cntrNo: props.cntrNo ?? '', /* 기존 계약을 불러오는 경우 이를 바탕으로 갑니다. */
     rstlCntrNo: props.cntrNo ?? '', /* 재계약의 경우 이를 사용하여 기 계약을 불러옵니다. */
     rstlCntrSn: props.cntrSn ?? '', /* 재계약의 경우 이를 사용하여 기 계약을 불러옵니다. */
-    cntrTpCd: '',
     step1: {},
     step2: {},
     step3: {},
@@ -283,7 +277,6 @@ const isCnfmPds = ref(false); // step2 상품확정여부
 // -------------------------------------------------------------------------------------------------
 // Function & Event
 // -------------------------------------------------------------------------------------------------
-
 function showStep(step) {
   [0, 1, 2].forEach((n) => {
     if (n < step - 1) {
@@ -387,7 +380,7 @@ async function onClickNext() {
     await router.push({ path: '/contract/wwcta-contract-status-list' });
     return;
   }
-  if (contract.value.cntrTpCd === '08') {
+  if (summary.value?.cntrBas?.cntrTpCd === CNTR_TP_CD.RE_STIPULATION) {
     steps[0].done.value = true;
     steps[1].done.value = true;
     steps[2].done.value = true;

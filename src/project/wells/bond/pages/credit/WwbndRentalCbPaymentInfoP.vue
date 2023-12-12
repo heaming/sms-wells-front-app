@@ -82,6 +82,10 @@ const props = defineProps({
     type: String,
     required: true,
   },
+  baseYm: {
+    type: String,
+    required: true,
+  },
 });
 // -------------------------------------------------------------------------------------------------
 // Function & Event
@@ -92,7 +96,7 @@ const codes = await codeUtil.getMultiCodes(
 );
 
 async function fetchData() {
-  const res = await dataService.get(`${baseUrl}/${props.cstNo}/paging`, { params: { ...pageInfo.value } });
+  const res = await dataService.get(`${baseUrl}/${props.cstNo}/paging`, { params: { baseYm: props.baseYm, ...pageInfo.value } });
   const { list: data, pageInfo: pagingResult } = res.data;
   pageInfo.value = pagingResult;
 
@@ -106,7 +110,7 @@ async function fetchData() {
 const popupRef = ref();
 async function onClickExcelDownload() {
   const view = grdMainRef.value.getView();
-  const res = await dataService.get(`${baseUrl}/${props.cstNo}/excel-download`);
+  const res = await dataService.get(`${baseUrl}/${props.cstNo}/excel-download`, { params: { baseYm: props.baseYm } });
 
   await gridUtil.exportView(view, {
     fileName: popupRef.value.pageCtxTitle,

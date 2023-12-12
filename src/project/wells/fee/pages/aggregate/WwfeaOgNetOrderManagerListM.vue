@@ -514,6 +514,165 @@ const searchParams = ref({
   // feeBatWkId: 'WSM_FE_OA0003', /* 수수료배치작업ID= 조직별실적집계 */
 });
 
+function getGridColumns() {
+  const columns = [];
+
+  columns.push(
+    { fieldName: 'ogCd', header: t('MSG_TXT_BLG'), width: '120', styleName: 'text-center' }, // 소속
+    { fieldName: 'prtnrNo', header: t('MSG_TXT_SEQUENCE_NUMBER'), width: '120', styleName: 'text-center' }, // 번호
+    { fieldName: 'prtnrKnm', header: t('MSG_TXT_EMPL_NM'), width: '120', styleName: 'text-center' }, // 성명
+    { fieldName: 'sellTpCd', header: t('MSG_TXT_SEL_TYPE'), width: '130', styleName: 'text-center', options: codes.AGRG_SELL_TP_CD.filter((v) => ['01', '02', '03', '04', '05'].includes(v.codeId)) }, // 판매유형
+    { fieldName: 'feePdctTpCd', header: t('MSG_TXT_PDCT_TP'), width: '120', styleName: 'text-center', options: codes.FEE_PDCT_TP_CD }, // 제품유형
+    { fieldName: 'rglrSppPrcDvCd', header: t('MSG_TXT_PRC_TP'), width: '120', styleName: 'text-center', options: codes.RGLR_SPP_PRC_DV_CD }, // 가격유형
+    { fieldName: 'mchnChTpCd', header: t('MSG_TXT_CHDVC_TP'), width: '120', styleName: 'text-center', options: codes.MCHN_CH_TP_CD }, // 기변유형
+    { fieldName: 'feePerfTpCd', header: t('MSG_TXT_FEE_PERF_TP'), width: '120', styleName: 'text-center', options: codes.FEE_PERF_TP_CD }, // 수수료실적유형
+    { fieldName: 'cntrNo', header: t('MSG_TXT_CNTR_DTL_NO'), width: '200', styleName: 'text-center' }, // 계약상세번호
+    { fieldName: 'copnDvCd', header: t('MSG_TXT_CST_DV'), width: '120', styleName: 'text-center', options: codes.COPN_DV_CD }, // 고객구분
+    { fieldName: 'pdNm', header: t('MSG_TXT_PRDT_NM'), width: '180', styleName: 'text-left' }, // 상품명
+    { fieldName: 'basePdCd', header: t('MSG_TXT_PRDT_CODE'), width: '140', styleName: 'text-center' }, // 상품코드
+    { fieldName: 'sellDscDvCd', header: t('MSG_TXT_PD_DC_CLASS'), width: '140', styleName: 'text-center' }, // 할인구분
+    { fieldName: 'sellDscrCd', header: t('MSG_TXT_DISC_CODE'), width: '140', styleName: 'text-center', options: codes.SELL_DSCR_CD }, // 할인유형
+    { fieldName: 'sellDscTpCd', header: t('MSG_TXT_DSC_SYST'), width: '140', styleName: 'text-center', options: codes.SELL_DSC_TP_CD }, // 할인제도
+    { fieldName: 'combiDv', header: t('MSG_TXT_COMBI_DV'), width: '100', styleName: 'text-center' }, // 결합구분
+    { fieldName: 'cntrPtrm', header: t('MSG_TXT_ISTM'), width: '120', styleName: 'text-right' }, // 할부
+    { fieldName: 'stplPtrm', header: t('MSG_TXT_STPL_MCNT'), width: '120', styleName: 'text-right' }, // 약정개월
+    { fieldName: 'svPrd', header: t('MSG_TXT_MNGT_PRD'), width: '100', styleName: 'text-right' }, // 관리주기
+    { fieldName: 'ackmtPerfAmt', header: t('MSG_TXT_PD_ACC_RSLT'), width: '140', styleName: 'text-right', numberFormat: '#,##0', dataType: 'number' }, // 인정실적
+    { fieldName: 'feeAckmtBaseAmt', header: t('MSG_TXT_BASE_PRC'), width: '140', styleName: 'text-right', numberFormat: '#,##0', dataType: 'number' }, // 기준가격
+    { fieldName: 'hcr', header: t('MSG_TXT_HOME_CARE'), width: '120', styleName: 'text-right' }, // 홈케어
+    { fieldName: 'hcrMshY3', header: t('MSG_TXT_HCR_MSH_Y3'), width: '120', styleName: 'text-right' }, // 홈케어멤버십3년
+    { fieldName: 'feeFxamYn', header: t('MSG_TXT_FXAM_YN'), width: '120', styleName: 'text-right' }, // 정액여부
+    { fieldName: 'fnnLease', header: t('MSG_TXT_FNN_LEASE'), width: '120', styleName: 'text-right' }, // 금융리스
+    { fieldName: 'feeAckmtCt', header: t('MSG_TXT_PD_ACC_CNT'), width: '120', styleName: 'text-right' }, // 인정건수
+  );
+
+  if (searchParams.value.dvCd === '04') {
+    columns.push(
+      { fieldName: 'bsFeeAckmtCt', header: `BS${t('MSG_TXT_PD_ACC_CNT')}`, width: '120', styleName: 'text-right' }, // BS인정건수
+    );
+  }
+
+  columns.push(
+    { fieldName: 'nwSellCt', header: t('MSG_TXT_NW_SELL_CT'), width: '120', styleName: 'text-right' }, // 신규판매건수
+    { fieldName: 'bfsvcOjYn', header: t('MSG_TXT_OBJ'), width: '120', styleName: 'text-right' }, // BS대상
+    { fieldName: 'rstlYn', header: t('MSG_TXT_RECOMMITMENT'), width: '120', styleName: 'text-right' }, // 재약정여부
+    { fieldName: 'cntrCnfmDtm', header: t('MSG_TXT_CNTR_DATE'), width: '120', styleName: 'text-center', datetimeFormat: 'yyyy-MM-dd' }, // 계약일자
+    { fieldName: 'slDt', header: t('MSG_TXT_SL_DT'), width: '120', styleName: 'text-center', datetimeFormat: 'yyyy-MM-dd' }, // 매출일자
+    { fieldName: 'canDt', header: t('MSG_TXT_CANC_DT'), width: '120', styleName: 'text-center', datetimeFormat: 'yyyy-MM-dd' }, // 취소일자
+    { fieldName: 'reqdDt', header: t('MSG_TXT_DEM_DT'), width: '120', styleName: 'text-center', datetimeFormat: 'yyyy-MM-dd' }, // 철거일자
+    { fieldName: 'dgr3LevlDgPrtnrNo', header: t('MSG_TXT_BRMGR_NO'), width: '120', styleName: 'text-center' }, // 지점장번호
+    { fieldName: 'dgr3LevlDgPrtnrNm', header: t('MSG_TXT_BRMGR_FNM'), width: '120', styleName: 'text-center' }, // 지점장성명
+    { fieldName: 'sellAmt', header: t('MSG_TXT_RTLFE'), width: '140', styleName: 'text-right', numberFormat: '#,##0', dataType: 'number' }, // 렌탈료
+    { fieldName: 'pmotNo', header: t('MSG_TXT_PMOT_NO'), width: '120', styleName: 'text-center' }, // 프로모션번호
+    { fieldName: 'pkgCd', header: t('MSG_TXT_PKG_PD_NO'), width: '120', styleName: 'text-center' }, // 패키지상품번호
+    { fieldName: 'pkgSn', header: t('MSG_TXT_PKG_SN'), width: '120', styleName: 'text-center' }, // 패키지 일련번호
+    { fieldName: 'mchnSstCd', header: t('MSG_TXT_MCHN') + t('MSG_TXT_CST_CD'), width: '120', styleName: 'text-center' }, // 기기 고객코드
+    { fieldName: 'mchnPdCd', header: t('MSG_TXT_MCHN') + t('MSG_TXT_PRDT_CODE'), width: '120', styleName: 'text-center' }, // 기기 상품코드
+    { fieldName: 'perfExcdRgstYn', header: t('MSG_TXT_PERF_EXCD') + t('MSG_TXT_RGST_YN'), width: '120', styleName: 'text-center' }, // 실적제외 등록여부
+  );
+
+  return columns;
+}
+
+function getGridAggrColumns() {
+  const columns = [];
+
+  columns.push(
+    { fieldName: 'ogCd', header: t('MSG_TXT_BLG'), width: '120', styleName: 'text-center' }, // 소속
+    { fieldName: 'prtnrNo', header: t('MSG_TXT_SEQUENCE_NUMBER'), width: '120', styleName: 'text-center' }, // 번호
+    { fieldName: 'prtnrKnm', header: t('MSG_TXT_EMPL_NM'), width: '120', styleName: 'text-center' }, // 성명
+    { fieldName: 'pstnDvCd', header: t('MSG_TXT_CRLV'), width: '120', styleName: 'text-center', numberFormat: '#,##0', dataType: 'number' }, // 직급
+    { fieldName: 'ehCnt', header: t('MSG_TXT_ELHM'), width: '120', styleName: 'text-right', numberFormat: '#,##0', dataType: 'number' }, // 가전
+    { fieldName: 'exCnt', header: t('MSG_TXT_ELHM') + t('MSG_TXT_EXCP'), width: '120', styleName: 'text-right', numberFormat: '#,##0', dataType: 'number' }, // 가전 외
+    { fieldName: 'etCnt', header: t('MSG_TXT_ETC'), width: '120', styleName: 'text-right', numberFormat: '#,##0', dataType: 'number' }, // 기타
+    { fieldName: 'upCnt', header: t('MSG_TXT_NPAID'), width: '120', styleName: 'text-right', numberFormat: '#,##0', dataType: 'number' }, // 미지급
+    { fieldName: 'totCnt', header: t('MSG_TXT_AGG'), width: '120', styleName: 'text-right', numberFormat: '#,##0', dataType: 'number' }, // 계
+    { fieldName: 'ehAmt', header: t('MSG_TXT_ELHM'), width: '120', styleName: 'text-right', numberFormat: '#,##0', dataType: 'number' }, // 가전
+    { fieldName: 'exAmt', header: t('MSG_TXT_ELHM') + t('MSG_TXT_EXCP'), width: '120', styleName: 'text-right', numberFormat: '#,##0', dataType: 'number' }, // 가전 외
+    { fieldName: 'etAmt', header: t('MSG_TXT_ETC'), width: '120', styleName: 'text-right', numberFormat: '#,##0', dataType: 'number' }, // 기타
+    { fieldName: 'upAmt', header: t('MSG_TXT_NPAID'), width: '120', styleName: 'text-right', numberFormat: '#,##0', dataType: 'number' }, // 미지급
+    { fieldName: 'totAmt', header: t('MSG_TXT_AGG'), width: '120', styleName: 'text-right', numberFormat: '#,##0', dataType: 'number' }, // 계
+    { fieldName: 'elhmAckmtCt', header: t('MSG_TXT_PD_ACC_CNT'), width: '120', styleName: 'text-right', numberFormat: '#,##0', dataType: 'number' }, // 인정건수
+    { fieldName: 'rentalBasePrc', header: t('MSG_TXT_RENTAL_BASE_PRC'), width: '120', styleName: 'text-right', numberFormat: '#,##0', dataType: 'number' }, // 렌탈기준가
+    { fieldName: 'snglPmntBasePrc', header: t('MSG_TXT_SNGL_PMNT_BASE_PRC'), width: '120', styleName: 'text-right', numberFormat: '#,##0', dataType: 'number' }, // 일시불기준가
+    { fieldName: 'chng', header: t('MSG_TXT_CHNG'), width: '120', styleName: 'text-right', numberFormat: '#,##0', dataType: 'number' }, // 기변
+    { fieldName: 'fxamCt', header: `${t('MSG_TXT_ELHM')}+${t('MSG_TXT_ELHM_EXCP')} ${t('MSG_TXT_FXAM')}`, width: '150', styleName: 'text-right', numberFormat: '#,##0', dataType: 'number' }, // 가전+가전외 정액
+    { fieldName: 'rstlCt', header: t('MSG_TXT_RSTL_AMT'), width: '120', styleName: 'text-right', numberFormat: '#,##0', dataType: 'number' }, // 재약정금액
+    { fieldName: 'livePakg', header: t('MSG_TXT_LIVE_PAKG') + t('MSG_TXT_COUNT'), width: '120', styleName: 'text-right', numberFormat: '#,##0', dataType: 'number' }, // 라이브팩
+  );
+
+  if (searchParams.value.perfYm.replace('-', '') >= 202401) {
+    columns.push(
+      { fieldName: 'mmbr', header: t('MSG_TXT_MMBR'), width: '120', styleName: 'text-right', numberFormat: '#,##0', dataType: 'number' }, // 멤버십
+    );
+  }
+
+  return columns;
+}
+
+function getGridAggrColumnLayout() {
+  const columnLayout = [];
+
+  // multi row header setting
+  if (searchParams.value.perfYm.replace('-', '') >= 202401) {
+    columnLayout.push(
+      'ogCd',
+      'prtnrNo',
+      'prtnrKnm',
+      'pstnDvCd',
+      {
+        header: t('MSG_TXT_FEE') + t('MSG_TXT_PERF_CT'), // 수수료 실적건수
+        direction: 'horizontal',
+        items: ['ehCnt', 'exCnt', 'etCnt', 'upCnt', 'totCnt'],
+      },
+      {
+        header: t('MSG_TXT_PD_ACC_RSLT'), // 인정실적
+        direction: 'horizontal',
+        items: ['ehAmt', 'exAmt', 'etAmt', 'upAmt', 'totAmt'],
+      },
+      {
+        header: t('MSG_TXT_ELHM'), // 가전
+        direction: 'horizontal',
+        items: ['elhmAckmtCt', 'rentalBasePrc', 'snglPmntBasePrc', 'chng'],
+      },
+      {
+        header: t('MSG_TXT_ETC'), // 기타
+        direction: 'horizontal',
+        items: ['fxamCt', 'rstlCt', 'livePakg', 'mmbr'],
+      },
+    );
+  } else {
+    columnLayout.push(
+      'ogCd',
+      'prtnrNo',
+      'prtnrKnm',
+      'pstnDvCd',
+      {
+        header: t('MSG_TXT_FEE') + t('MSG_TXT_PERF_CT'), // 수수료 실적건수
+        direction: 'horizontal',
+        items: ['ehCnt', 'exCnt', 'etCnt', 'upCnt', 'totCnt'],
+      },
+      {
+        header: t('MSG_TXT_PD_ACC_RSLT'), // 인정실적
+        direction: 'horizontal',
+        items: ['ehAmt', 'exAmt', 'etAmt', 'upAmt', 'totAmt'],
+      },
+      {
+        header: t('MSG_TXT_ELHM'), // 가전
+        direction: 'horizontal',
+        items: ['elhmAckmtCt', 'rentalBasePrc', 'snglPmntBasePrc', 'chng'],
+      },
+      {
+        header: t('MSG_TXT_ETC'), // 기타
+        direction: 'horizontal',
+        items: ['fxamCt', 'rstlCt', 'livePakg'],
+      },
+    );
+  }
+
+  return columnLayout;
+}
+
 let cachedParams;
 
 async function excelDownload(url) {
@@ -678,6 +837,18 @@ async function onChangedDvcd() {
     isAggrVisible.value = false;
     isGridDtlVisible.value = true;
     isGridAggrVisible.value = false;
+
+    const data = grdDtlRef.value.getData();
+    const view = grdDtlRef.value.getView();
+
+    const columns = getGridColumns();
+    const fields = columns.map(({ fieldName, dataType }) => (dataType ? { fieldName, dataType } : { fieldName }));
+
+    data.setFields(fields);
+    view.setColumns(columns);
+
+    view.checkBar.visible = false;
+    view.rowIndicator.visible = true;
   } else if (searchParams.value.inqrDvCd === '02') { /* 집계선택 */
     isGridDtlVisible.value = false;
     isGridAggrVisible.value = true;
@@ -687,6 +858,20 @@ async function onChangedDvcd() {
     isPerfBtnVisible.value = false;
     isDtlExcelDown.value = false;
     isAggrExcelDown.value = false;
+
+    const data = grdAggrRef.value.getData();
+    const view = grdAggrRef.value.getView();
+
+    const columns = getGridAggrColumns();
+    const fields = columns.map(({ fieldName, dataType }) => (dataType ? { fieldName, dataType } : { fieldName }));
+    const columnLayout = getGridAggrColumnLayout();
+
+    data.setFields(fields);
+    view.setColumns(columns);
+    view.checkBar.visible = false;
+    view.rowIndicator.visible = true;
+
+    view.setColumnLayout(columnLayout);
   }
 
   totalCount.value = 0;
@@ -881,51 +1066,7 @@ onMounted(async () => {
 // -------------------------------------------------------------------------------------------------
 
 const initGrdDtl = defineGrid((data, view) => {
-  const columns = [
-    { fieldName: 'ogCd', header: t('MSG_TXT_BLG'), width: '120', styleName: 'text-center' }, // 소속
-    { fieldName: 'prtnrNo', header: t('MSG_TXT_SEQUENCE_NUMBER'), width: '120', styleName: 'text-center' }, // 번호
-    { fieldName: 'prtnrKnm', header: t('MSG_TXT_EMPL_NM'), width: '120', styleName: 'text-center' }, // 성명
-    { fieldName: 'sellTpCd', header: t('MSG_TXT_SEL_TYPE'), width: '130', styleName: 'text-center', options: codes.AGRG_SELL_TP_CD.filter((v) => ['01', '02', '03', '04', '05'].includes(v.codeId)) }, // 판매유형
-    { fieldName: 'feePdctTpCd', header: t('MSG_TXT_PDCT_TP'), width: '120', styleName: 'text-center', options: codes.FEE_PDCT_TP_CD }, // 제품유형
-    { fieldName: 'rglrSppPrcDvCd', header: t('MSG_TXT_PRC_TP'), width: '120', styleName: 'text-center', options: codes.RGLR_SPP_PRC_DV_CD }, // 가격유형
-    { fieldName: 'mchnChTpCd', header: t('MSG_TXT_CHDVC_TP'), width: '120', styleName: 'text-center', options: codes.MCHN_CH_TP_CD }, // 기변유형
-    { fieldName: 'feePerfTpCd', header: t('MSG_TXT_FEE_PERF_TP'), width: '120', styleName: 'text-center', options: codes.FEE_PERF_TP_CD }, // 수수료실적유형
-    { fieldName: 'cntrNo', header: t('MSG_TXT_CNTR_DTL_NO'), width: '200', styleName: 'text-center' }, // 계약상세번호
-    { fieldName: 'copnDvCd', header: t('MSG_TXT_CST_DV'), width: '120', styleName: 'text-center', options: codes.COPN_DV_CD }, // 고객구분
-    { fieldName: 'pdNm', header: t('MSG_TXT_PRDT_NM'), width: '180', styleName: 'text-left' }, // 상품명
-    { fieldName: 'basePdCd', header: t('MSG_TXT_PRDT_CODE'), width: '140', styleName: 'text-center' }, // 상품코드
-    { fieldName: 'sellDscDvCd', header: t('MSG_TXT_PD_DC_CLASS'), width: '140', styleName: 'text-center' }, // 할인구분
-    { fieldName: 'sellDscrCd', header: t('MSG_TXT_DISC_CODE'), width: '140', styleName: 'text-center', options: codes.SELL_DSCR_CD }, // 할인유형
-    { fieldName: 'sellDscTpCd', header: t('MSG_TXT_DSC_SYST'), width: '140', styleName: 'text-center', options: codes.SELL_DSC_TP_CD }, // 할인제도
-    { fieldName: 'combiDv', header: t('MSG_TXT_COMBI_DV'), width: '100', styleName: 'text-center' }, // 결합구분
-    { fieldName: 'cntrPtrm', header: t('MSG_TXT_ISTM'), width: '120', styleName: 'text-right' }, // 할부
-    { fieldName: 'stplPtrm', header: t('MSG_TXT_STPL_MCNT'), width: '120', styleName: 'text-right' }, // 약정개월
-    { fieldName: 'svPrd', header: t('MSG_TXT_MNGT_PRD'), width: '100', styleName: 'text-right' }, // 관리주기
-    { fieldName: 'ackmtPerfAmt', header: t('MSG_TXT_PD_ACC_RSLT'), width: '140', styleName: 'text-right', numberFormat: '#,##0', dataType: 'number' }, // 인정실적
-    { fieldName: 'feeAckmtBaseAmt', header: t('MSG_TXT_BASE_PRC'), width: '140', styleName: 'text-right', numberFormat: '#,##0', dataType: 'number' }, // 기준가격
-    { fieldName: 'hcr', header: t('MSG_TXT_HOME_CARE'), width: '120', styleName: 'text-right' }, // 홈케어
-    { fieldName: 'hcrMshY3', header: t('MSG_TXT_HCR_MSH_Y3'), width: '120', styleName: 'text-right' }, // 홈케어멤버십3년
-    { fieldName: 'feeFxamYn', header: t('MSG_TXT_FXAM_YN'), width: '120', styleName: 'text-right' }, // 정액여부
-    { fieldName: 'fnnLease', header: t('MSG_TXT_FNN_LEASE'), width: '120', styleName: 'text-right' }, // 금융리스
-    { fieldName: 'feeAckmtCt', header: t('MSG_TXT_PD_ACC_CNT'), width: '120', styleName: 'text-right' }, // 인정건수
-    { fieldName: 'nwSellCt', header: t('MSG_TXT_NW_SELL_CT'), width: '120', styleName: 'text-right' }, // 신규판매건수
-    { fieldName: 'bfsvcOjYn', header: t('MSG_TXT_OBJ'), width: '120', styleName: 'text-right' }, // BS대상
-    { fieldName: 'rstlYn', header: t('MSG_TXT_RECOMMITMENT'), width: '120', styleName: 'text-right' }, // 재약정여부
-    { fieldName: 'cntrCnfmDtm', header: t('MSG_TXT_CNTR_DATE'), width: '120', styleName: 'text-center', datetimeFormat: 'yyyy-MM-dd' }, // 계약일자
-    { fieldName: 'slDt', header: t('MSG_TXT_SL_DT'), width: '120', styleName: 'text-center', datetimeFormat: 'yyyy-MM-dd' }, // 매출일자
-    { fieldName: 'canDt', header: t('MSG_TXT_CANC_DT'), width: '120', styleName: 'text-center', datetimeFormat: 'yyyy-MM-dd' }, // 취소일자
-    { fieldName: 'reqdDt', header: t('MSG_TXT_DEM_DT'), width: '120', styleName: 'text-center', datetimeFormat: 'yyyy-MM-dd' }, // 철거일자
-    { fieldName: 'dgr3LevlDgPrtnrNo', header: t('MSG_TXT_BRMGR_NO'), width: '120', styleName: 'text-center' }, // 지점장번호
-    { fieldName: 'dgr3LevlDgPrtnrNm', header: t('MSG_TXT_BRMGR_FNM'), width: '120', styleName: 'text-center' }, // 지점장성명
-    { fieldName: 'sellAmt', header: t('MSG_TXT_RTLFE'), width: '140', styleName: 'text-right', numberFormat: '#,##0', dataType: 'number' }, // 렌탈료
-    { fieldName: 'pmotNo', header: t('MSG_TXT_PMOT_NO'), width: '120', styleName: 'text-center' }, // 프로모션번호
-    { fieldName: 'pkgCd', header: t('MSG_TXT_PKG_PD_NO'), width: '120', styleName: 'text-center' }, // 패키지상품번호
-    { fieldName: 'pkgSn', header: t('MSG_TXT_PKG_SN'), width: '120', styleName: 'text-center' }, // 패키지 일련번호
-    { fieldName: 'mchnSstCd', header: t('MSG_TXT_MCHN') + t('MSG_TXT_CST_CD'), width: '120', styleName: 'text-center' }, // 기기 고객코드
-    { fieldName: 'mchnPdCd', header: t('MSG_TXT_MCHN') + t('MSG_TXT_PRDT_CODE'), width: '120', styleName: 'text-center' }, // 기기 상품코드
-    { fieldName: 'perfExcdRgstYn', header: t('MSG_TXT_PERF_EXCD') + t('MSG_TXT_RGST_YN'), width: '120', styleName: 'text-center' }, // 실적제외 등록여부
-  ];
-
+  const columns = getGridColumns();
   const fields = columns.map(({ fieldName, dataType }) => (dataType ? { fieldName, dataType } : { fieldName }));
 
   data.setFields(fields);
@@ -936,62 +1077,16 @@ const initGrdDtl = defineGrid((data, view) => {
 });
 
 const initGrdAggr = defineGrid((data, view) => {
-  const columns = [
-    { fieldName: 'ogCd', header: t('MSG_TXT_BLG'), width: '120', styleName: 'text-center' }, // 소속
-    { fieldName: 'prtnrNo', header: t('MSG_TXT_SEQUENCE_NUMBER'), width: '120', styleName: 'text-center' }, // 번호
-    { fieldName: 'prtnrKnm', header: t('MSG_TXT_EMPL_NM'), width: '120', styleName: 'text-center' }, // 성명
-    { fieldName: 'pstnDvCd', header: t('MSG_TXT_CRLV'), width: '120', styleName: 'text-center', numberFormat: '#,##0', dataType: 'number' }, // 직급
-    { fieldName: 'ehCnt', header: t('MSG_TXT_ELHM'), width: '120', styleName: 'text-right', numberFormat: '#,##0', dataType: 'number' }, // 가전
-    { fieldName: 'exCnt', header: t('MSG_TXT_ELHM') + t('MSG_TXT_EXCP'), width: '120', styleName: 'text-right', numberFormat: '#,##0', dataType: 'number' }, // 가전 외
-    { fieldName: 'etCnt', header: t('MSG_TXT_ETC'), width: '120', styleName: 'text-right', numberFormat: '#,##0', dataType: 'number' }, // 기타
-    { fieldName: 'upCnt', header: t('MSG_TXT_NPAID'), width: '120', styleName: 'text-right', numberFormat: '#,##0', dataType: 'number' }, // 미지급
-    { fieldName: 'totCnt', header: t('MSG_TXT_AGG'), width: '120', styleName: 'text-right', numberFormat: '#,##0', dataType: 'number' }, // 계
-    { fieldName: 'ehAmt', header: t('MSG_TXT_ELHM'), width: '120', styleName: 'text-right', numberFormat: '#,##0', dataType: 'number' }, // 가전
-    { fieldName: 'exAmt', header: t('MSG_TXT_ELHM') + t('MSG_TXT_EXCP'), width: '120', styleName: 'text-right', numberFormat: '#,##0', dataType: 'number' }, // 가전 외
-    { fieldName: 'etAmt', header: t('MSG_TXT_ETC'), width: '120', styleName: 'text-right', numberFormat: '#,##0', dataType: 'number' }, // 기타
-    { fieldName: 'upAmt', header: t('MSG_TXT_NPAID'), width: '120', styleName: 'text-right', numberFormat: '#,##0', dataType: 'number' }, // 미지급
-    { fieldName: 'totAmt', header: t('MSG_TXT_AGG'), width: '120', styleName: 'text-right', numberFormat: '#,##0', dataType: 'number' }, // 계
-    { fieldName: 'elhmAckmtCt', header: t('MSG_TXT_PD_ACC_CNT'), width: '120', styleName: 'text-right', numberFormat: '#,##0', dataType: 'number' }, // 인정건수
-    { fieldName: 'rentalBasePrc', header: t('MSG_TXT_RENTAL_BASE_PRC'), width: '120', styleName: 'text-right', numberFormat: '#,##0', dataType: 'number' }, // 렌탈기준가
-    { fieldName: 'snglPmntBasePrc', header: t('MSG_TXT_SNGL_PMNT_BASE_PRC'), width: '120', styleName: 'text-right', numberFormat: '#,##0', dataType: 'number' }, // 일시불기준가
-    { fieldName: 'chng', header: t('MSG_TXT_CHNG'), width: '120', styleName: 'text-right', numberFormat: '#,##0', dataType: 'number' }, // 기변
-    { fieldName: 'fxamCt', header: `${t('MSG_TXT_ELHM')}+${t('MSG_TXT_ELHM_EXCP')} ${t('MSG_TXT_FXAM')}`, width: '150', styleName: 'text-right', numberFormat: '#,##0', dataType: 'number' }, // 가전+가전외 정액
-    { fieldName: 'rstlCt', header: t('MSG_TXT_RSTL_AMT'), width: '120', styleName: 'text-right', numberFormat: '#,##0', dataType: 'number' }, // 재약정금액
-    { fieldName: 'livePakg', header: t('MSG_TXT_LIVE_PAKG') + t('MSG_TXT_COUNT'), width: '120', styleName: 'text-right', numberFormat: '#,##0', dataType: 'number' }, // 라이브팩
-    { fieldName: 'mmbr', header: t('MSG_TXT_MMBR'), width: '120', styleName: 'text-right', numberFormat: '#,##0', dataType: 'number' }, // 멤버십
-  ];
-
+  const columns = getGridAggrColumns();
   const fields = columns.map(({ fieldName, dataType }) => (dataType ? { fieldName, dataType } : { fieldName }));
+  const columnLayout = getGridAggrColumnLayout();
 
   data.setFields(fields);
   view.setColumns(columns);
   view.checkBar.visible = false;
   view.rowIndicator.visible = true;
 
-  // multi row header setting
-  view.setColumnLayout([
-    'ogCd', 'prtnrNo', 'prtnrKnm', 'pstnDvCd',
-    {
-      header: t('MSG_TXT_FEE') + t('MSG_TXT_PERF_CT'), // 수수료 실적건수
-      direction: 'horizontal',
-      items: ['ehCnt', 'exCnt', 'etCnt', 'upCnt', 'totCnt'],
-    },
-    {
-      header: t('MSG_TXT_PD_ACC_RSLT'), // 인정실적
-      direction: 'horizontal',
-      items: ['ehAmt', 'exAmt', 'etAmt', 'upAmt', 'totAmt'],
-    },
-    {
-      header: t('MSG_TXT_ELHM'), // 가전
-      direction: 'horizontal',
-      items: ['elhmAckmtCt', 'rentalBasePrc', 'snglPmntBasePrc', 'chng'],
-    },
-    {
-      header: t('MSG_TXT_ETC'), // 기타
-      direction: 'horizontal',
-      items: ['fxamCt', 'rstlCt', 'livePakg', 'mmbr'],
-    },
-  ]);
+  view.setColumnLayout(columnLayout);
 });
 
 </script>

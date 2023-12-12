@@ -115,13 +115,6 @@
           <span class="ml8">{{ $t('MSG_TXT_UNIT_COLON_WON') }}</span>
         </template>
         <kw-btn
-          v-if="isReportVisible"
-          :label="$t('MSG_BTN_DSB_SPCSH_PRNT')"
-          icon="report"
-          dense
-          @click="openFeeReportPopup"
-        />
-        <kw-btn
           v-permission:download
           dense
           secondary
@@ -140,6 +133,13 @@
           :label="$t('MSG_BTN_FEE_INQR_PTRM_SE')"
           dense
           @click="onClickFeeDsbSpcsh"
+        />
+        <kw-btn
+          v-if="isReportVisible"
+          :label="$t('MSG_BTN_DSB_SPCSH_PRNT')"
+          icon="report"
+          dense
+          @click="openFeeReportPopup"
         />
       </kw-action-top>
       <kw-grid
@@ -206,6 +206,8 @@ const searchParams = ref({
   ogLevl3: '',
   prtnrNo: '',
   feeDsbYn: '',
+  ddlnDvId: '',
+  ddlnId: '',
 });
 
 const saveParams = ref({
@@ -298,38 +300,25 @@ async function fetchData() {
   const view = grdMainRef.value.getView();
   view.getDataSource().setRows(dataList);
 
-  let ddlnDvId = '';
-  let ddlnId = '';
-  if (searchParams.value.ogTpCd === 'W01') { /* P조직 */
-    if (searchParams.value.rsbDvCd === 'W0104') {
-      ddlnDvId = 'DLD_W01_FEE_DSB_SPCSH1';
-      ddlnId = 'DLN_00081';
-    } else if (searchParams.value.rsbDvCd === 'W0105') {
-      ddlnDvId = 'DLD_W01_FEE_DSB_SPCSH2';
-      ddlnId = 'DLN_00082';
-    }
-  } else if (searchParams.value.ogTpCd === 'W02') { /* M조직 */
-    if (searchParams.value.rsbDvCd === 'W0204') {
-      ddlnDvId = 'DLD_W02_FEE_DSB_SPCSH1';
-      ddlnId = 'DLN_00083';
-    } else if (searchParams.value.rsbDvCd === 'W0205') {
-      ddlnDvId = 'DLD_W02_FEE_DSB_SPCSH2';
-      ddlnId = 'DLN_00084';
-    }
-  } else if (searchParams.value.ogTpCd === 'W03') { /* 홈마스터 */
-    if (searchParams.value.rsbDvCd === 'W0301') {
-      ddlnDvId = 'DLD_W03_FEE_DSB_SPCSH1';
-      ddlnId = 'DLN_00085';
-    } else if (searchParams.value.rsbDvCd === 'W0302') {
-      ddlnDvId = 'DLD_W03_FEE_DSB_SPCSH2';
-      ddlnId = 'DLN_00086';
-    }
-  }
-
-  const resDeadLine = await dataService.get('/sms/common/fee/fee-deadline', { params: { ddlnDvId, ddlnId } });
+  const resDeadLine = await dataService.get('/sms/common/fee/fee-deadline', { params: { ddlnDvId: searchParams.value.ddlnDvId, ddlnId: searchParams.value.ddlnId } });
   const getDate = dayjs().format('YYYYMMDD');
 
-  if (roleNickNames.includes('ROL_W1580') || (getDate >= resDeadLine.data.startDt && getDate <= resDeadLine.data.finsDt)) { // wells영업지원팀 이거나 수수료조회기간일때 해당 버튼을 표시한다.
+  isReportVisible.value = false;
+
+  if (searchParams.value.ogTpCd === 'W01' && roleNickNames.includes('ROL_W1580')) { // P조직 + wells영업지원팀
+    isReportVisible.value = true;
+  } else if (searchParams.value.ogTpCd === 'W02' && roleNickNames.includes('ROL_W1580')) { // M조직 + wells영업지원팀
+    isReportVisible.value = true;
+  } else if (searchParams.value.ogTpCd === 'W03' && roleNickNames.includes('ROL_W1560')) { // 홈마스터 + wellsCS운영팀
+    isReportVisible.value = true;
+  } else if (searchParams.value.ogTpCd === 'W04' && roleNickNames.includes('ROL_W1520')) { // B2B + wellsB2B사업팀
+    isReportVisible.value = true;
+  } else if (searchParams.value.ogTpCd === 'W05' && roleNickNames.includes('ROL_W1510')) { // 온라인총판 + wells신채널영업팀
+    isReportVisible.value = true;
+  } else if (searchParams.value.ogTpCd === 'W06' && roleNickNames.includes('ROL_W1560')) { // 엔지니어 + wellsCS운영팀
+    isReportVisible.value = true;
+  } else if (getDate >= resDeadLine.data.startDt + resDeadLine.data.startHm
+  && getDate <= resDeadLine.data.finsDt + resDeadLine.data.finsHm) { // 수수료조회기간일때 해당 버튼을 표시한다.
     isReportVisible.value = true;
   }
 }
@@ -351,6 +340,32 @@ async function onClickExcelDownload() {
 }
 
 async function onClickSearch() {
+  if (searchParams.value.ogTpCd === 'W01') { /* P조직 */
+    if (searchParams.value.rsbDvCd === 'W0104') {
+      searchParams.value.ddlnDvId = 'DLD_W01_FEE_DSB_SPCSH1';
+      searchParams.value.ddlnId = 'DLN_00081';
+    } else if (searchParams.value.rsbDvCd === 'W0105') {
+      searchParams.value.ddlnDvId = 'DLD_W01_FEE_DSB_SPCSH2';
+      searchParams.value.ddlnId = 'DLN_00082';
+    }
+  } else if (searchParams.value.ogTpCd === 'W02') { /* M조직 */
+    if (searchParams.value.rsbDvCd === 'W0204') {
+      searchParams.value.ddlnDvId = 'DLD_W02_FEE_DSB_SPCSH1';
+      searchParams.value.ddlnId = 'DLN_00083';
+    } else if (searchParams.value.rsbDvCd === 'W0205') {
+      searchParams.value.ddlnDvId = 'DLD_W02_FEE_DSB_SPCSH2';
+      searchParams.value.ddlnId = 'DLN_00084';
+    }
+  } else if (searchParams.value.ogTpCd === 'W03') { /* 홈마스터 */
+    if (searchParams.value.rsbDvCd === 'W0301') {
+      searchParams.value.ddlnDvId = 'DLD_W03_FEE_DSB_SPCSH1';
+      searchParams.value.ddlnId = 'DLN_00085';
+    } else if (searchParams.value.rsbDvCd === 'W0302') {
+      searchParams.value.ddlnDvId = 'DLD_W03_FEE_DSB_SPCSH2';
+      searchParams.value.ddlnId = 'DLN_00086';
+    }
+  }
+
   cachedParams = cloneDeep(searchParams.value);
 
   await fetchData();

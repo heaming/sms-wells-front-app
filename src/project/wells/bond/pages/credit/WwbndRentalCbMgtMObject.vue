@@ -83,6 +83,7 @@
         v-permission:update
         :label="$t('MSG_TXT_SAVE')"
         grid-action
+        :disable="cachedParams?.baseYm !== now.format('YYYYMM')"
         @click="onClickSave"
       />
       <kw-separator
@@ -146,8 +147,9 @@ const isCustomer = ref(true);
 // Function & Event
 // -------------------------------------------------------------------------------------------------
 const baseUrl = '/sms/wells/bond/rental-cb-mgt/objects';
+const now = dayjs();
 const searchParams = ref({
-  baseYm: dayjs().format('YYYYMM'),
+  baseYm: now.format('YYYYMM'),
   selGbn: '1',
   cstNo: '',
   cstKnm: '',
@@ -266,11 +268,12 @@ const initCustomerGrid = defineGrid((data, view) => {
   // 렌탈CB 납입정보 팝업 open
   view.onCellItemClicked = async (grid, { itemIndex, column }) => {
     const { cstNo } = grid.getValues(itemIndex);
-    if (column === 'dlqBlam' && !isEmpty(cstNo)) {
+    if (column === 'dlqBlam' && !isEmpty(cstNo) && !isEmpty(cachedParams?.baseYm)) {
       await modal({
         component: 'WwbndRentalCbPaymentInfoP',
         componentProps: {
           cstNo,
+          baseYm: cachedParams.baseYm,
         },
       });
     }

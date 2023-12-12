@@ -151,7 +151,7 @@ const initGrd = defineGrid((data, view) => {
       classes: 'text-center',
     },
     copnDvCd: { label: t('개인법인구분'), width: 146, options: codes.COPN_DV_CD, required: true },
-    cstNo: { label: t('고객번호'), width: 146, classes: 'text-center', required: true },
+    cstNo: { label: t('고객번호'), width: 146, classes: 'text-center' },
     alncmpDgPrtnrMapngCd: {
       label: t('대표파트너번호'),
       width: 146,
@@ -227,8 +227,9 @@ const initGrd = defineGrid((data, view) => {
     zip: { label: t('MSG_TXT_ZIP'), width: 128, classes: 'text-center' },
     adr1: { label: `${t('MSG_TXT_ADDR')}1`, width: 275, classes: 'text-left' },
     adr2: { label: `${t('MSG_TXT_ADDR')}2`, width: 275, classes: 'text-left' },
-    gift1: { label: t('사은품1'), width: 275, classes: 'text-left' }, /* 안써요. bg-error */
-    gift2: { label: t('사은품2'), width: 275, classes: 'text-left' }, /* 안써요. bg-error */
+    fgptPdCd1: { label: t('사은품1'), width: 275, classes: 'text-left' },
+    fgptPdCd2: { label: t('사은품2'), width: 275, classes: 'text-left' },
+    fgptPdCd3: { label: t('사은품3'), width: 275, classes: 'text-left' },
     alncmpSuscOrdNo: { label: t('구독주문번호'), width: 146 },
 
     /* 이하 서버 다녀와서 채워지는 정보들 */

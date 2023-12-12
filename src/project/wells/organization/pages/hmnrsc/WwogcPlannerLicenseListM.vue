@@ -67,7 +67,7 @@
       <kw-action-top>
         <template #left>
           <kw-paging-info
-            :total-count="grdMain1PageInfo.totalCount"
+            :total-count="grdMain1Datas.length"
           />
         </template>
         <kw-btn
@@ -86,7 +86,7 @@
           dense
           secondary
           :label="$t('MSG_BTN_EXCEL_DOWN')"
-          :disable="grdMain1PageInfo.totalCount === 0"
+          :disable="grdMain1Datas.length === 0"
           @click="onClickExcelDownload"
         />
       </kw-action-top>
@@ -95,8 +95,6 @@
         ref="grdMain1Ref"
         name="grdMain1"
         :visible-rows="10"
-        :page-size="grdMain1PageInfo.pageSize"
-        :total-count="grdMain1PageInfo.totalCount"
         @init="initGrid1"
       />
 
@@ -227,12 +225,6 @@ const grdMain1Datas = ref([]);
 const grdMain2Datas = ref([]);
 const selectedCurrentRow = ref({});
 
-const grdMain1PageInfo = ref({
-  totalCount: 0,
-  pageIndex: 1,
-  pageSize: 11,
-});
-
 const grdMain2PageInfo = ref({
   totalCount: 0,
   pageIndex: 1,
@@ -247,11 +239,12 @@ const searchParams = ref({
   qlfDvCd: codes.QLF_DV_CD.map((item) => item.codeId),
 });
 
+let cachedParams;
+
 // 인사정보 목록 데이터 조회
 async function fetchData() {
-  const res = await dataService.get(`${SMS_WELLS_URI}/partner/planner-license/paging`, { params: { ...searchParams.value, ...grdMain1PageInfo.value } });
-  const { list, pageInfo: pagingResult } = res.data;
-  grdMain1PageInfo.value = pagingResult;
+  const res = await dataService.get(`${SMS_WELLS_URI}/partner/planner-license`, { params: { ...cachedParams } });
+  const list = res.data;
   grdMain1Datas.value = list;
   grdMain1Datas.value.forEach((item) => {
     if (item.bizUseLocaraTno && item.bizUseExnoEncr && item.bizUseIdvTno) {
@@ -261,6 +254,9 @@ async function fetchData() {
     }
     return item;
   });
+
+  const view = grdMain1Ref.value.getView();
+  view.getDataSource().setRows(list);
   return grdMain1Datas.value;
 }
 
@@ -271,16 +267,6 @@ async function fetchDetailData(prtnrNo) {
   grdMain2PageInfo.value = pagingResult;
   grdMain2Datas.value = list;
   return grdMain2Datas.value;
-}
-
-// 인사정보 그리드 데이터 설정
-function setGrdMain1(response) {
-  const data = grdMain1Ref.value.getData();
-  if (grdMain1PageInfo.value.pageIndex > 1) {
-    data.addRows(response);
-  } else {
-    data.setRows(response);
-  }
 }
 
 // 상세현황 그리드 데이터 설정
@@ -347,20 +333,13 @@ async function currentRowDetail(currentRow) {
 
 // 초기 데이터 호출
 async function init() {
-  const response = await fetchData();
-  setGrdMain1(response);
+  await fetchData();
   grdMain2Ref.value.getView().getDataSource().clearRows();
 }
 
 // 조회
 async function onclickSearch() {
-  grdMain1PageInfo.value.pageIndex = 1;
-  await init();
-}
-
-// 인사정보 - 그리드 스크롤 페이징(스크롤을 끝까지 내렸을 때)
-async function onGrdMain1ScrollToBottom() {
-  grdMain1PageInfo.value.pageIndex += 1;
+  cachedParams = { ...searchParams.value };
   await init();
 }
 
@@ -377,7 +356,7 @@ const { currentRoute } = useRouter();
 async function onClickExcelDownload() {
   const view = grdMain1Ref.value.getView();
 
-  const res = await dataService.get(`${SMS_WELLS_URI}/partner/planner-license/excel-download`, { params: searchParams.value });
+  const res = await dataService.get(`${SMS_WELLS_URI}/partner/planner-license/excel-download`, { params: cachedParams });
   await gridUtil.exportView(view, {
     fileName: currentRoute.value.meta.menuName,
     timePostfix: true,
@@ -769,13 +748,6 @@ const initGrid1 = defineGrid((data, view) => {
     },
     'qlfDvNm',
   ]);
-
-  /* 스크롤 페이징 */
-  view.onScrollToBottom = async (g) => {
-    if (grdMain1PageInfo.value.pageIndex * grdMain1PageInfo.value.pageSize <= g.getItemCount()) {
-      await onGrdMain1ScrollToBottom();
-    }
-  };
 
   /* 인사정보 그리드의 행을 클릭했을때 */
   view.onCurrentRowChanged = async (grid, oldRow, newRow) => {

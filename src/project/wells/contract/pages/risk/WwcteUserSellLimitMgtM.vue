@@ -215,6 +215,8 @@ async function fetchData() {
   pageInfo.value.totalCount = view.getItemCount();
 
   view.rowIndicator.indexOffset = gridUtil.getPageIndexOffset(pageInfo);
+
+  view.resetCurrent();
 }
 
 // 조회 버튼 클릭
@@ -251,7 +253,7 @@ async function onClickDelete() {
 // 행 추가 버튼 클릭
 async function onClickRowAdd() {
   const view = gridMainRef.value.getView();
-  const row = view.getCurrent().dataRow < 0 ? '0' : view.getCurrent().dataRow;
+  const row = view.getCurrent().dataRow < 0 ? 0 : view.getCurrent().dataRow;
   await gridUtil.insertRowAndFocus(view, row, {});
 
   const data = view.getDataSource();

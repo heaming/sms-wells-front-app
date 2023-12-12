@@ -299,7 +299,7 @@ const initGrid = defineGrid((data, view) => {
     { fieldName: 'cvDt', header: t('MSG_TXT_REREG_MN'), width: '120', styleName: 'text-center', datetimeFormat: 'date' }, // 재등록월
     { fieldName: 'enddt', header: t('MSG_TXT_CLTN_MM'), width: '120', styleName: 'text-center', datetimeFormat: 'date' }, // 해약월
     { fieldName: 'mQlfDvNm', header: t('MSG_TXT_CLTN_MM_QLF'), width: '120', styleName: 'text-center' }, // 해약월자격
-    { fieldName: 'mTotCnt', header: t('MSG_TXT_ACU_ACKMT_CT'), width: '120', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' }, // 누적인정건수
+    { fieldName: 'mTotCnt', header: t('MSG_TXT_ACU_ACKMT_CT'), width: '120', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0.##' }, // 누적인정건수
     { fieldName: 'btnYn', visible: false }, // 자격생성여부 (자격조정 버튼의 유무 결정)
     { fieldName: 'mngtYm', visible: false }, // 관리년월
     { fieldName: 'ogTpCd', visible: false }, // 조직유형코드

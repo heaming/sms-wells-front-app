@@ -57,9 +57,8 @@
         <kw-btn
           v-permission:create
           primary
-          등록
           :label="$t('MSG_BTN_RGST')"
-          @click="onClickCntr"
+          @click="onClickCntr('')"
         />
       </kw-action-top>
       <div class="row q-gutter-sm">
@@ -247,7 +246,8 @@ async function onClickCntr(item) {
   router.push({
     path: '/contract/wwcta-contract-registration-mgt',
     query: {
-      value1: item.cntrNo,
+      cntrNo: isEmpty(item) ? '' : item.cntrNo,
+      cntrTpCd: isEmpty(item) ? '09' : '',
     },
   });
 }

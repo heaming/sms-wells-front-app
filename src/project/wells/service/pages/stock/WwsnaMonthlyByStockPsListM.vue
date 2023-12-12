@@ -703,6 +703,10 @@ const initGrdMain = defineGrid((data, view) => {
 
   view.checkBar.visible = false;
   view.rowIndicator.visible = true;
+
+  view.setFixedOptions({
+    colCount: 3,
+  });
 });
 
 </script>

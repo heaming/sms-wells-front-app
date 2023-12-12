@@ -15,8 +15,7 @@
 <template>
   <kw-page>
     <kw-search
-      :cols="2"
-      :default-visible-rows="3"
+      :cols="3"
       @search="onClickSearch"
     >
       <kw-search-row>
@@ -39,29 +38,37 @@
             :options="ogTp"
           />
         </kw-search-item>
-      </kw-search-row>
-      <kw-search-row>
         <kw-search-item
           :label="$t('MSG_TXT_QLF_DV')"
-          required
         >
-          <kw-option-group
-            v-model="searchParams.rsbDvCd"
-            :label="$t('MSG_TXT_QLF_DV')"
-            rules="required"
-            type="radio"
-            :options="codes.QLF_DV_CD"
-          />
+          <template v-if="searchParams.ogTpCd === 'W01'">
+            <kw-select
+              v-model="searchParams.qlfDvCd"
+              :label="$t('MSG_TXT_QLF_DV')"
+              type="radio"
+              :options="codes.PQLF_DV_CD"
+              first-option="all"
+            />
+          </template>
+          <template v-else>
+            <kw-select
+              v-model="searchParams.qlfDvCd"
+              :label="$t('MSG_TXT_QLF_DV')"
+              type="radio"
+              :options="codes.QLF_DV_CD"
+              first-option="all"
+            />
+          </template>
         </kw-search-item>
+      </kw-search-row>
+      <kw-search-row>
         <kw-search-item :label="$t('MSG_TXT_PERF_DV')">
           <kw-option-group
-            v-model="searchParams.perfDv"
+            v-model="searchParams.perfCd"
             type="radio"
             :options="perfDv"
           />
         </kw-search-item>
-      </kw-search-row>
-      <kw-search-row>
         <kw-search-item :label="$t('MSG_TXT_PRTNR_NUM_EMPL_NM')">
           <zwog-partner-search
             v-model:prtnrNo="searchParams.prtnrNo"
@@ -100,7 +107,7 @@
           dense
           secondary
           :label="$t('MSG_TXT_EXCEL_DOWNLOAD')"
-          :disable="pageInfo.totalCount===0"
+          :disable="pageInfo.totalCount === 0"
           @click="onClickExcelDownload"
         />
       </kw-action-top>
@@ -148,6 +155,7 @@ const pageInfo = ref({
 const codes = await codeUtil.getMultiCodes(
   'COD_PAGE_SIZE_OPTIONS',
   'QLF_DV_CD',
+  'PQLF_DV_CD',
 );
 
 const ogTp = ref([
@@ -167,14 +175,15 @@ const grdMainRef = ref(getComponentType('KwGrid'));
 // Function & Event
 // -------------------------------------------------------------------------------------------------
 const searchParams = ref({
-  baseYm: now,
-  ogTpCd: wkOjOgTpCd === null ? ogTpCd : wkOjOgTpCd,
-  ogLevlDvCd1: undefined,
-  ogLevlDvCd2: undefined,
-  ogLevlDvCd3: undefined,
-  rsbDvCd: '2',
-  prtnrNo: undefined,
-  perfDv: '',
+  baseYm: now, // 기준년월
+  ogTpCd: wkOjOgTpCd === null ? ogTpCd : wkOjOgTpCd, // 조직유형
+  qlfDvCd: undefined, // 자격구분 : '2' --> undefined
+  ogLevlDvCd1: undefined, // 1차레벨 조직ID
+  ogLevlDvCd2: undefined, // 2차레벨 조직ID
+  ogLevlDvCd3: undefined, // 3차레벨 조직ID
+  prtnrNo: undefined, // 파트너번호
+  prtnrKnm: undefined, // 파트너이름
+  perfCd: '', // 실적구분
 });
 
 function setGrid(response) {
@@ -182,8 +191,14 @@ function setGrid(response) {
   data.setRows(response);
 }
 
+const searchOgTpCd = computed(() => searchParams.value.ogTpCd);
+
+watch(searchOgTpCd, () => {
+  searchParams.value.qlfDvCd = undefined;
+}, { deep: true });
+
 async function fetchData() {
-  const res = await dataService.get('/sms/wells/activity/accrue/paging', { params: { ...cacheParams, ...pageInfo.value } });
+  const res = await dataService.get('/sms/wells/activity/accrue/paging', { params: { ...cacheParams, ...pageInfo.value }, timeout: 300000 }); // 타임아웃 5분
 
   const { list, pageInfo: pagingResult } = res.data;
   pageInfo.value = pagingResult;
@@ -217,38 +232,39 @@ async function onClickExcelDownload() {
 // -------------------------------------------------------------------------------------------------
 const initGrid = defineGrid((data, view) => {
   const columns = [
-    { fieldName: 'col1', header: t('MSG_TXT_MANAGEMENT_DEPARTMENT'), width: '92', styleName: 'text-center' },
-    { fieldName: 'col2', header: t('MSG_TXT_RGNL_GRP'), width: '106', styleName: 'text-center' },
-    { fieldName: 'col3', header: t('MSG_TXT_BLG'), width: '110', styleName: 'text-center' },
-    { fieldName: 'col4', header: t('MSG_TXT_BLD_NM'), width: '148', styleName: 'text-center' },
-    { fieldName: 'col5', header: t('MSG_TXT_EMPL_NM'), width: '96', styleName: 'text-center' },
-    { fieldName: 'col6', header: t('MSG_TXT_SEQUENCE_NUMBER'), width: '122', styleName: 'text-center' },
-    { fieldName: 'col7', header: t('MSG_TXT_QLF'), width: '122', styleName: 'text-center' },
+    { fieldName: 'dgr1LevlOgNm', header: t('MSG_TXT_MANAGEMENT_DEPARTMENT'), width: '92', styleName: 'text-center' },
+    { fieldName: 'dgr2LevlOgNm', header: t('MSG_TXT_RGNL_GRP'), width: '106', styleName: 'text-center' },
+    { fieldName: 'ogCd', header: t('MSG_TXT_BLG'), width: '110', styleName: 'text-center' },
+    { fieldName: 'bldNm', header: t('MSG_TXT_BLD_NM'), width: '148', styleName: 'text-center' },
+    { fieldName: 'prtnrKnm', header: t('MSG_TXT_EMPL_NM'), width: '96', styleName: 'text-center' },
+    { fieldName: 'prtnrNo', header: t('MSG_TXT_SEQUENCE_NUMBER'), width: '122', styleName: 'text-center' },
+    { fieldName: 'qlfDvNm', header: t('MSG_TXT_QLF'), width: '122', styleName: 'text-center' },
 
-    { fieldName: 'col8', header: t('MSG_TXT_INIT_REG'), width: '136', styleName: 'text-center' },
-    { fieldName: 'col9', header: t('MSG_TXT_FNL_CLTN'), width: '136', styleName: 'text-center' },
-    { fieldName: 'col10', header: t('MSG_TXT_RETR'), width: '136', styleName: 'text-center' },
-    { fieldName: 'col11', header: t('MSG_TXT_FST_OPNG'), width: '136', styleName: 'text-center' },
-    { fieldName: 'col12', header: t('MSG_TXT_FNL_CLTN'), width: '134', styleName: 'text-center' },
+    { fieldName: 'fstCntrDt', header: t('MSG_TXT_INIT_REG'), width: '136', styleName: 'text-center', datetimeFormat: 'date' },
+    { fieldName: 'fnlCltnDt', header: t('MSG_TXT_FNL_CLTN'), width: '136', styleName: 'text-center', datetimeFormat: 'date' },
+    { fieldName: 'rcntrDt', header: t('MSG_TXT_RETR'), width: '136', styleName: 'text-center', datetimeFormat: 'date' },
 
-    { fieldName: 'col13', header: t('MSG_TXT_RE_OPNG'), width: '136', styleName: 'text-center' },
-    { fieldName: 'col14', header: t('MSG_TXT_FST_OPNG'), width: '136', styleName: 'text-center' },
-    { fieldName: 'col15', header: t('MSG_TXT_FNL_CLTN'), width: '136', styleName: 'text-center' },
-    { fieldName: 'col16', header: t('MSG_TXT_DMTN'), width: '136', styleName: 'text-center' },
-    { fieldName: 'col17', header: t('MSG_TXT_CLTN'), width: '136', styleName: 'text-center' },
-    { fieldName: 'col18', header: t('MSG_TXT_SEQUENCE_NUMBER'), width: '110', styleName: 'text-center' },
-    { fieldName: 'col19', header: t('MSG_TXT_EMPL_NM'), width: '96', styleName: 'text-center' },
-    { fieldName: 'col20', header: t('MSG_TXT_ACU_CT'), width: '128', styleName: 'text-center' },
-    { fieldName: 'col21', header: t('MSG_TXT_JBF_MMS3_AV'), width: '158', styleName: 'text-center' },
-    { fieldName: 'col22', header: t('MSG_TXT_JBF_MMS3'), width: '120', styleName: 'text-center' },
-    { fieldName: 'col23', header: t('MSG_TXT_THM'), width: '128', styleName: 'text-center' },
-    { fieldName: 'col24', header: t('MSG_TXT_UPGR_CT'), width: '120', styleName: 'text-center' },
+    { fieldName: 'minStrtdtM', header: t('MSG_TXT_FST_OPNG'), width: '136', styleName: 'text-center', datetimeFormat: 'date' },
+    { fieldName: 'maxEnddtM', header: t('MSG_TXT_FNL_CLTN'), width: '134', styleName: 'text-center', datetimeFormat: 'date' },
+    { fieldName: 'maxStrtdtM', header: t('MSG_TXT_RE_OPNG'), width: '136', styleName: 'text-center', datetimeFormat: 'date' },
 
-    { fieldName: 'col25', header: t('MSG_TXT_SRTUP'), width: '136', styleName: 'text-center' },
-    { fieldName: 'col26', header: t('MSG_TXT_PLAR_SRTUP'), width: '154', styleName: 'text-center' },
-    { fieldName: 'col27', header: t('MSG_TXT_PERSONS'), width: '78', styleName: 'text-center' },
-    { fieldName: 'col28', header: t('MSG_TXT_LSTMM_ACL_ACTI'), width: '106', styleName: 'text-center' },
-    { fieldName: 'col29', header: t('MSG_TXT_THM_ACL_ACTI'), width: '106', styleName: 'text-center' },
+    { fieldName: 'minUpgrYmP', header: t('MSG_TXT_FST_OPNG'), width: '136', styleName: 'text-center', datetimeFormat: 'yyyy-MM' },
+    { fieldName: 'fnlCltnDtP', header: t('MSG_TXT_FNL_CLTN'), width: '136', styleName: 'text-center', datetimeFormat: 'date' },
+    { fieldName: 'maxDmtnYmP', header: t('MSG_TXT_DMTN'), width: '136', styleName: 'text-center', datetimeFormat: 'yyyy-MM' },
+    { fieldName: 'cltnDtP', header: t('MSG_TXT_CLTN'), width: '136', styleName: 'text-center', datetimeFormat: 'date' },
+    // { fieldName: 'rgrPrtnrNo', header: t('MSG_TXT_SEQUENCE_NUMBER'), width: '110', styleName: 'text-center' },
+    // { fieldName: 'rgrPrtnrNm', header: t('MSG_TXT_EMPL_NM'), width: '96', styleName: 'text-center' },
+    { fieldName: 'totSum', header: t('MSG_TXT_ACU_CT'), width: '128', styleName: 'text-center' },
+    { fieldName: 'm03Avg', header: t('MSG_TXT_JBF_MMS3_AV'), width: '158', styleName: 'text-center' },
+    { fieldName: 'm03Sum', header: t('MSG_TXT_JBF_MMS3'), width: '120', styleName: 'text-center' },
+    { fieldName: 'curSum', header: t('MSG_TXT_THM'), width: '128', styleName: 'text-center' },
+    { fieldName: 'ablSum', header: t('MSG_TXT_UPGR_CT'), width: '120', styleName: 'text-center' },
+
+    { fieldName: 'edu96', header: t('MSG_TXT_SRTUP'), width: '136', styleName: 'text-center', datetimeFormat: 'date' },
+    { fieldName: 'edu14', header: t('MSG_TXT_PLAR_SRTUP'), width: '154', styleName: 'text-center', datetimeFormat: 'date' },
+    { fieldName: 'rcmdrCnt', header: t('MSG_TXT_PERSONS'), width: '78', styleName: 'text-center' },
+    { fieldName: 'preCnt', header: t('MSG_TXT_LSTMM_ACL_ACTI'), width: '106', styleName: 'text-center' },
+    { fieldName: 'curCnt', header: t('MSG_TXT_THM_ACL_ACTI'), width: '106', styleName: 'text-center' },
   ];
 
   data.setFields(columns.map(({ fieldName, dataType }) => (dataType ? { fieldName, dataType } : { fieldName })));
@@ -258,53 +274,52 @@ const initGrid = defineGrid((data, view) => {
   view.rowIndicator.visible = true;
 
   view.setColumnLayout([
-
-    'col1',
-    'col2',
-    'col3',
-    'col4',
-    'col5',
-    'col6',
-    'col7',
+    'dgr1LevlOgNm',
+    'dgr2LevlOgNm',
+    'ogCd',
+    'bldNm',
+    'prtnrKnm',
+    'prtnrNo',
+    'qlfDvNm',
     {
       header: t('MSG_TXT_BIZ_RGST_PS'), // colspan title
       direction: 'horizontal', // merge type
-      items: ['col8', 'col9', 'col10'],
+      items: ['fstCntrDt', 'fnlCltnDt', 'rcntrDt'],
     },
     {
       header: t('MSG_TXT_WELS_MNGER_PS'), // colspan title
       direction: 'horizontal', // merge type
-      items: ['col11', 'col12'],
+      items: ['minStrtdtM', 'maxEnddtM', 'maxStrtdtM'],
     },
-    {
-      header: t('MSG_TXT_WELS_MNGER_PS'), // colspan title
-      direction: 'horizontal', // merge type
-      items: ['col13'],
-    },
+    // {
+    //   header: t('MSG_TXT_WELS_MNGER_PS'), // colspan title
+    //   direction: 'horizontal', // merge type
+    //   items: ['col13'],
+    // },
     {
       header: t('MSG_TXT_TOPMR_PLAR_PS'), // colspan title
       direction: 'horizontal', // merge type
-      items: ['col14', 'col15', 'col16', 'col17'],
+      items: ['minUpgrYmP', 'fnlCltnDtP', 'maxDmtnYmP', 'cltnDtP'],
     },
-    {
-      header: t('MSG_TXT_TOPMR_PLAR_APLCNS'), // colspan title
-      direction: 'horizontal', // merge type
-      items: ['col18', 'col19'],
-    },
+    // {
+    //   header: t('MSG_TXT_TOPMR_PLAR_APLCNS'), // colspan title
+    //   direction: 'horizontal', // merge type
+    //   items: ['rgrPrtnrNo', 'rgrPrtnrNm'],
+    // },
     {
       header: t('MSG_TXT_ENVR_ELHM_PERF'), // colspan title
       direction: 'horizontal', // merge type
-      items: ['col20', 'col21', 'col22', 'col23', 'col24'],
+      items: ['totSum', 'm03Avg', 'm03Sum', 'curSum', 'ablSum'],
     },
     {
       header: t('MSG_TXT_EDUC_PS'), // colspan title
       direction: 'horizontal', // merge type
-      items: ['col25', 'col26'],
+      items: ['edu96', 'edu14'],
     },
     {
       header: t('MSG_TXT_ENGM_PS'), // colspan title
       direction: 'horizontal', // merge type
-      items: ['col27', 'col28', 'col29'],
+      items: ['rcmdrCnt', 'preCnt', 'curCnt'],
     },
   ]);
 });

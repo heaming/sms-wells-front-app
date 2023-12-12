@@ -55,7 +55,7 @@
       </kw-form-row>
       <kw-form-row>
         <kw-form-item :label="$t('MSG_TXT_MM_SSPCS')">
-          <p>{{ stringUtil.getNumberWithComma(toInteger(membershipDetail.rentalRgstCost)) }}</p>
+          <p>{{ stringUtil.getNumberWithComma(toInteger(membershipDetail.rentalAmt)) }}</p>
         </kw-form-item>
         <kw-form-item :label="$t('MSG_TXT_DSC_AMT')">
           <p>{{ stringUtil.getNumberWithComma(toInteger(membershipDetail.dscAmt)) }}</p>

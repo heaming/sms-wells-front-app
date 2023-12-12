@@ -312,7 +312,7 @@
                 @click="onClickConfirm(item)"
               />
               <kw-btn
-                v-if="sessionUserInfo.baseRleCd === 'W8010'"
+                v-if="sessionUserInfo.baseRleCd === 'W8010' || sessionUserInfo.baseRleCd === 'W8020'"
                 :label="$t('MSG_BTN_F2F_PYMNT')"
                 padding="10px"
                 @click="onClickF2fPayment(item)"
@@ -384,6 +384,11 @@
               vertical
               inset
               spaced="0px"
+            />
+            <kw-btn
+              :label="$t('MSG_BTN_F2F_PYMNT')"
+              padding="10px"
+              @click="onClickF2fPayment(item)"
             />
             <template v-if="searchParams.isBrmgr === 'Y'">
               <kw-btn
@@ -777,7 +782,7 @@ async function onClickNonFcfPayment(item) {
 
 // CARD > BUTTON > 대면결제
 async function onClickF2fPayment(item) {
-  if (item.viewCntrPrgsStatCd === '20' || item.viewCntrPrgsStatCd === '40') {
+  if (item.viewCntrPrgsStatCd === '20' || item.viewCntrPrgsStatCd === '40' || item.viewCntrPrgsStatCd === '50') {
     // 계약진행상태코드 재확인
     if (!await getPrgsStatCd(item)) { return; }
 

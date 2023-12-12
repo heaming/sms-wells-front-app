@@ -154,8 +154,8 @@ async function onClickRegister() {
   });
   if (result) {
     notify(t('MSG_ALT_SAVE_DATA'));
-    await onClickSearch();
   }
+  await onClickSearch();
 }
 
 async function onClickDelete() {
@@ -217,7 +217,7 @@ const initGrdSub = defineGrid((data, view) => {
     { fieldName: 'clinrNm', header: t('MSG_TXT_CLINR'), width: '200', styleName: 'rg-button-link', renderer: { type: 'button' } }, // 청소원
     { fieldName: 'bldCd', visible: false }, // 빌딩 // CD
     { fieldName: 'bldNm', header: t('MSG_TXT_BUILDING'), width: '200', styleName: 'text-left' }, // 빌딩 //NM
-    { fieldName: 'aplcDt', header: t('MSG_TXT_APPL_DATE'), width: '200', styleName: 'text-center', dataType: 'date', datetimeFormat: 'datetime' }, // 신청일
+    { fieldName: 'aplcDt', header: t('MSG_TXT_APPL_DATE'), width: '200', styleName: 'text-center', dataType: 'date', datetimeFormat: 'date' }, // 신청일
     { fieldName: 'aplcnsNm', header: t('MSG_TXT_APPL_USER'), width: '200', styleName: 'text-center' }, // 신청자
     { fieldName: 'aplcPrtnrNo', visible: false }, // 신청자 사번
     { fieldName: 'cntrwAtthDocId',
@@ -342,9 +342,7 @@ const initGrdSub = defineGrid((data, view) => {
 
   view.checkBar.visible = true;
   view.rowIndicator.visible = true;
-  view.onCellItemClicked = (grid, { column, itemIndex }) => {
-    // TODO.파일 업로드 개발 완료 되면 수정해야됨
-    // 참고 ZdecRdsAnAccountErrorMgtService > saveAttachFile
+  view.onCellItemClicked = async (grid, { column, itemIndex }) => {
     const { clinrRgno, aplcPrtnrNo, result } = grid.getValues(itemIndex);
 
     if (column === 'cntrwAtthDocId') {
@@ -356,14 +354,14 @@ const initGrdSub = defineGrid((data, view) => {
     } else if (column === 'bnkbAtthDocId') {
       // 통장사본
     } else if (column === 'clinrNm') {
-      modal({
+      await modal({
         component: 'WwdcdCleanerRegistrationMgtP', // W-CL-U-0093P02
         componentProps: { clinrRgno, aplcPrtnrNo },
       });
       if (result) {
         notify(t('MSG_ALT_SAVE_DATA'));
-        onClickSearch();
       }
+      await onClickSearch();
     }
   };
 });

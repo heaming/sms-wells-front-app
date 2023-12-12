@@ -30,60 +30,66 @@
           />
         </kw-form-item>
       </kw-form-row>
-      <kw-form-row>
+      <slot v-if="searchParams.fwTpCd==='01'">
+        <kw-form-row>
+          <!--수신번호-->
+          <kw-form-item
+            :label="$t('MSG_TXT_RECP_NO')"
+            required
+          >
+            <zwcm-telephone-number
+              v-model:tel-no1="searchParams.recpTelNo1"
+              v-model:tel-no2="searchParams.recpTelNo2"
+              v-model:tel-no3="searchParams.recpTelNo3"
+            />
+          </kw-form-item>
+        </kw-form-row>
         <!--발신번호-->
-        <kw-form-item
-          v-if="searchParams.fwTpCd==='01'"
-          :label="$t('MSG_TXT_DSPH_NO')"
-          required
-        >
-          <zwcm-telephone-number
-            v-model:tel-no1="searchParams.sendTelNo1"
-            v-model:tel-no2="searchParams.sendTelNo2"
-            v-model:tel-no3="searchParams.sendTelNo3"
-          />
-        </kw-form-item>
-        <!--발신메일-->
-        <kw-form-item
-          v-if="searchParams.fwTpCd==='02'"
-          :label="$t('MSG_TXT_DSPTR_EML')"
-          required
-        >
-          <zwcm-email-address
-            v-model="searchParams.sendMail"
-          />
-        </kw-form-item>
-      </kw-form-row>
-      <kw-form-row>
-        <!--수신번호-->
-        <kw-form-item
-          v-if="searchParams.fwTpCd==='01'"
-          :label="$t('MSG_TXT_RECP_NO')"
-          required
-        >
-          <zwcm-telephone-number
-            v-model:tel-no1="searchParams.recpTelNo1"
-            v-model:tel-no2="searchParams.recpTelNo2"
-            v-model:tel-no3="searchParams.recpTelNo3"
-          />
-        </kw-form-item>
-        <!--수신메일-->
-        <kw-form-item
-          v-if="searchParams.fwTpCd==='02'"
-          :label="$t('MSG_TXT_RCVR_EML')"
-          required
-        >
-          <zwcm-email-address
-            v-model="searchParams.recpMail"
-          />
-        </kw-form-item>
-      </kw-form-row>
+        <!--
+        <kw-form-row>
+          <kw-form-item
+            :label="$t('MSG_TXT_DSPH_NO')"
+            required
+          >
+            <zwcm-telephone-number
+              v-model:tel-no1="searchParams.sendTelNo1"
+              v-model:tel-no2="searchParams.sendTelNo2"
+              v-model:tel-no3="searchParams.sendTelNo3"
+            />
+          </kw-form-item>
+        </kw-form-row>
+        -->
+      </slot>
+      <slot v-else>
+        <kw-form-row>
+          <!--수신메일-->
+          <kw-form-item
+            :label="$t('MSG_TXT_RCVR_EML')"
+            required
+          >
+            <zwcm-email-address
+              v-model="searchParams.recpMail"
+            />
+          </kw-form-item>
+        </kw-form-row>
+        <kw-form-row>
+          <!--발신메일-->
+          <kw-form-item
+            :label="$t('MSG_TXT_DSPTR_EML')"
+            required
+          >
+            <zwcm-email-address
+              v-model="searchParams.sendMail"
+            />
+          </kw-form-item>
+        </kw-form-row>
+      </slot>
     </kw-form>
     <kw-separator />
     <kw-grid
       ref="grdQuoteSendList"
       name="grdQuoteSendList"
-      :page-size="pageInfo.pageSize"
+      :visible-rows="6"
       :total-count="pageInfo.totalCount"
       @init="initQuoteSendList"
     />
@@ -170,10 +176,7 @@ async function fetchData() {
 
 async function onClickSend() {
   if (searchParams.value.fwTpCd === '01') {
-    if (isEmpty(searchParams.value.sendTelNo1)
-    || isEmpty(searchParams.value.sendTelNo2)
-    || isEmpty(searchParams.value.sendTelNo3)
-    || isEmpty(searchParams.value.recpTelNo1)
+    if (isEmpty(searchParams.value.recpTelNo1)
     || isEmpty(searchParams.value.recpTelNo2)
     || isEmpty(searchParams.value.recpTelNo3)) {
       notify(t('MSG_ALT_CHK_NCSR', [t('MSG_TXT_TEL_NO')]));

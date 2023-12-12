@@ -1426,7 +1426,7 @@ async function onClickContractDetail() {
 // TODO: 계약자정보변경
 async function onClickContractorInformationChange() {
   const { cstNo, copnDvCd, bzrno } = customer.value;
-  await popupUtil.open(`/popup/#/customer/zwcsa-customer-mgt/zwcsa-indv-customer-mod?cstNo=${cstNo}&copnDvCd=${copnDvCd}&bzrno=${bzrno}`, { width: 1292, height: 1100 }, { cstNo, copnDvCd, bzrno }, false);
+  await popupUtil.open(`/popup/#/customer/zwcsa-customer-mgt?cstNo=${cstNo}&copnDvCd=${copnDvCd}&bzrno=${bzrno}`, { width: 1292, height: 1100 }, { cstNo, copnDvCd, bzrno }, false);
 }
 
 // TODO: 부담통보

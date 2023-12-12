@@ -980,8 +980,8 @@ const initGridState = defineGrid((data, view) => {
       width: '100',
       styleName: 'text-center',
       styleCallback(grid, dataCell) {
-        const { procStus, prtnrNo, ogNm, svBizDclsfCd } = grid.getValues(dataCell.index.itemIndex);
-        if (prtnrNo === '99992' || ogNm === '71321' || ['1112', '1113', '3460'].includes(svBizDclsfCd)) {
+        const { procStus, prtnrNo } = grid.getValues(dataCell.index.itemIndex);
+        if (prtnrNo === '99992') {
           return { renderer: { type: 'text' } };
         }
         return (procStus === '00' || procStus === '10' || procStus === '20') ? { styleName: 'rg-button-link', renderer: { type: 'button' } } : { renderer: { type: 'text' } };

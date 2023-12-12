@@ -147,7 +147,7 @@
           :label="$t('MSG_BTN_CONF')"
           primary
           dense
-          :disable="isNotActivated
+          :disable="(cachedParams?.baseYm !== now.format('YYYYMM'))
             || totalCount === 0"
           @click="onClickConfirm"
         />
@@ -244,7 +244,6 @@ const { getConfig } = useMeta();
 
 const grdResultRef = ref(getComponentType('kw-grid'));
 const grdDetailRef = ref(getComponentType('kw-grid'));
-const isNotActivated = ref(false);
 const pageDetailInfo = ref({
   totalCount: 0,
   pageIndex: 1,
@@ -261,8 +260,6 @@ const codes = await codeUtil.getMultiCodes(
   'CLCTAM_DV_CD', // 집금구분코드
   'BND_NW_DV_CD', // 채권신규구분코드
   'COD_PAGE_SIZE_OPTIONS',
-  'LWM_TP_CD', // 법조치유형코드
-  'LWM_DTL_TP_CD', // 법조치상세유형코드
   'BND_BIZ_DV_CD', // 채권업무구분코드
 );
 const filteredCodes = ref({ BND_NW_DV_CD: codes.BND_NW_DV_CD.filter((obj) => (obj.codeId !== '01')) });
@@ -456,14 +453,6 @@ const onClickExcelUpload = async () => {
   }
 };
 
-// 현재년월 제외 수정 불가
-watch(() => cachedParams?.baseYm, async (baseYm) => {
-  if (baseYm !== now.format('YYYYMM')) {
-    isNotActivated.value = true;
-  } else {
-    isNotActivated.value = false;
-  }
-});
 // -------------------------------------------------------------------------------------------------
 // Initialize Grid
 // -------------------------------------------------------------------------------------------------

@@ -250,7 +250,7 @@ const initGridRentalContractorNoList = defineGrid((data, view) => {
     { fieldName: 'mchnCpsApyr' }, // 기변실적율
     { fieldName: 'ackmtPerfAmt', dataType: 'number' }, // 인정실적액
     { fieldName: 'ackmtPerfRt' }, // 인정실적률(%)
-    { fieldName: 'ackmtPerfCt' }, // 인정건수
+    { fieldName: 'feeAckmtCt' }, // 인정건수
     { fieldName: 'feeAckmtBaseAmt', dataType: 'number' }, // 수수료기준금액
     { fieldName: 'feeFxamYn' }, // 수수료정액여부
     { fieldName: 'sellDscDvCd' }, // 할인구분
@@ -411,7 +411,7 @@ const initGridRentalContractorNoList = defineGrid((data, view) => {
     { fieldName: 'mchnCpsApyr', header: t('MSG_TXT_CHNG_PFR_RAT'), width: '136', styleName: 'text-right' }, // 기변실적율
     { fieldName: 'ackmtPerfAmt', header: t('MSG_TXT_ACKMT_PERF_AMT'), width: '136', styleName: 'text-right' }, // 인정실적액
     { fieldName: 'ackmtPerfRt', header: t('MSG_TXT_ACKMT_PERF_RAT'), width: '136', styleName: 'text-right' }, // 인정실적률(%)
-    { fieldName: 'ackmtPerfCt', header: t('MSG_TXT_PD_ACC_CNT'), width: '136', styleName: 'text-right' }, // 인정건수
+    { fieldName: 'feeAckmtCt', header: t('MSG_TXT_PD_ACC_CNT'), width: '136', styleName: 'text-right' }, // 인정건수
     { fieldName: 'feeAckmtBaseAmt', header: t('MSG_TXT_FEE_BASE_AMT'), width: '136', styleName: 'text-right' }, // 수수료기준금액
     { fieldName: 'feeFxamYn', header: t('MSG_TXT_PD_FEE_FIX'), width: '136', styleName: 'text-center' }, // 수수료정액여부
     { fieldName: 'sellDscDvNm', header: t('MSG_TXT_PD_DC_CLASS'), width: '136', styleName: 'text-center' }, // 할인구분명
@@ -541,7 +541,7 @@ const initGridRentalContractorNoList = defineGrid((data, view) => {
       direction: 'horizontal', // merge type
       items: ['pdClsfNm', 'basePdCd', 'pdNm', 'pdTpNm', 'svPrd', 'svTpCd', 'svTpNm'],
     },
-    'cntrRcpFshDt', 'sppDuedt', 'istDt', 'slDt', 'cntrPtrm', 'cntrPdEnddt', 'canDt', 'reqdDt', 'exnReqdDt', 'recapDutyPtrmN', 'cntrAmt', 'cntrCtrAmt', 'rentalAmt1', 'rentalDscAmt1', 'rentalAmt2', 'rentalDscAmt2', 'rentalDscDfam', 'booSellYn', 'mchnChYn', 'mchnCpsApyr', 'ackmtPerfAmt', 'ackmtPerfRt', 'ackmtPerfCt', 'feeAckmtBaseAmt', 'feeFxamYn', 'sellDscDvNm', 'sellDscTpNm', 'mchnChTpNm', 'ojCntrDtlNo', 'ojBasePdCd', 'ojPdNm', 'bogoCd', 'bogoPdCd', 'bogoPdNm',
+    'cntrRcpFshDt', 'sppDuedt', 'istDt', 'slDt', 'cntrPtrm', 'cntrPdEnddt', 'canDt', 'reqdDt', 'exnReqdDt', 'recapDutyPtrmN', 'cntrAmt', 'cntrCtrAmt', 'rentalAmt1', 'rentalDscAmt1', 'rentalAmt2', 'rentalDscAmt2', 'rentalDscDfam', 'booSellYn', 'mchnChYn', 'mchnCpsApyr', 'ackmtPerfAmt', 'ackmtPerfRt', 'feeAckmtCt', 'feeAckmtBaseAmt', 'feeFxamYn', 'sellDscDvNm', 'sellDscTpNm', 'mchnChTpNm', 'ojCntrDtlNo', 'ojBasePdCd', 'ojPdNm', 'bogoCd', 'bogoPdCd', 'bogoPdNm',
     {
       header: `${t('MSG_TXT_AC')}${t('MSG_TXT_INF')}`, // 계좌정보
       direction: 'horizontal', // merge type
