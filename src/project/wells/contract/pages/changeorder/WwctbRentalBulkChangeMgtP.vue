@@ -318,7 +318,7 @@ async function onClickSave() {
         return;
       }
       if (saveParams.value.yrInstallation !== changedRows[i].istDt.substring(0, 6)) {
-        alert(t('MSG_ALT_CHK_CONFIRM', [t('MSG_TXT_YR_INSTALLATION')])); // 설치년월 을(를) 확인하세요.
+        alert(t('MSG_ALT_IST_YM_MUST_SAME_EXMP_YM', [saveParams.value.yrInstallation, changedRows[i].istDt.substring(0, 6)])); // 설치년월은 면제년월과 같아야 합니다.
         return;
       }
     } else if (saveParams.value.procsDv === '605') { // 의무기간
@@ -561,7 +561,7 @@ async function onSearchItemCheck(payload, dataRow) {
     } else if (procsDv === '604') {
       if (isEmpty(res.data.istDt)) { // 설치일자가 없으면
         view.setValue(dataRow, 'cntrDtlNo', '');
-        alert(t('설치 전 주문입니다')); // 설치 전 주문입니다.
+        alert(t('MSG_ALT_UNINSTALL_CUSTOMER')); // 설치 전 주문입니다.
         return;
       }
       if (res.data.exmtYn === 'Y') { // 매출조정 정보 체크 = Y
@@ -569,19 +569,19 @@ async function onSearchItemCheck(payload, dataRow) {
         alert(t('MSG_ALT_ALREADY_RGST_MT')); // 이미 등록된 자료입니다
         return;
       }
-      if (res.data.istMmBilMthdTpCd === 'Y') { // 설치월면제 기등록 여부
+      if (res.data.istMmBilMthdTpCd === '2') { // 설치월면제 기등록 여부
         view.setValue(dataRow, 'cntrDtlNo', '');
         alert(t('MSG_ALT_ALREADY_RGST_MT')); // 이미 등록된 자료입니다
         return;
       }
       if (res.data.sellTpDtlCd === '22') { // 판매유형상세코드 = 22:리스 이면
         view.setValue(dataRow, 'cntrDtlNo', '');
-        alert(`${t('MSG_TXT_FNN_LEASE')}! ${t('MSG_TXT_INST_MON_EXMP')}${t('MSG_TXT_IMPOSSIBLE')}!`); // 금융리스! 설치월면제 불가!
+        alert(t('MSG_ALT_CANNOT_EXMP_FNN_IST_YM', [`${cntrNo}-${cntrSn}`])); // 금융리스! 설치월면제 불가!
         return;
       }
       if (res.data.clCrtYn === 'Y') { // 매출실적 검사
         view.setValue(dataRow, 'cntrDtlNo', '');
-        alert(t('매출실적 마감된 자료입니다.')); // 매출실적 마감된 자료입니다.
+        alert(t('MSG_ALT_CL_SL_PERF_MTR', [`${cntrNo}-${cntrSn}`])); // 매출실적 마감된 자료입니다.
         return;
       }
     } else if (procsDv === '605') {
@@ -593,17 +593,17 @@ async function onSearchItemCheck(payload, dataRow) {
     } else if (procsDv === '607') {
       if (!isEmpty(res.data.istDt)) { // 설치일자가 존재하면
         view.setValue(dataRow, 'cntrDtlNo', '');
-        alert(t('취소불가!설치 된 주문입니다')); // 취소불가!설치 된 주문입니다
+        alert(t('MSG_ALT_NOT_MODIFY_IST_COMPLETE', [`${cntrNo}-${cntrSn}`])); // 취소불가!설치 된 주문입니다
         return;
       }
       if (res.data.cttRsCd === '01') { // 컨택코드=01 이면 불가
         view.setValue(dataRow, 'cntrDtlNo', '');
-        alert(t('취소불가!정상컨택 건입니다')); // 취소불가!정상컨택 건입니다
+        alert(t('MSG_ALT_NORMAL_CONTACT_CANNOT_CANC', [`${cntrNo}-${cntrSn}`])); // 취소불가!정상컨택 건입니다
         return;
       }
       if (['301', '302', '303'].includes(res.data.cntrDtlStatCd)) { // 취소된 주문 = 303 수정불가
         view.setValue(dataRow, 'cntrDtlNo', '');
-        alert(t('MSG_ALT_CNCL_ORDER')); // 취소된 주문입니다
+        alert(t('MSG_ALT_CNCL_ORDER', [`${cntrNo}-${cntrSn}`])); // 취소된 주문입니다
         return;
       }// 체크
     } else if (procsDv === '608') {
@@ -611,19 +611,19 @@ async function onSearchItemCheck(payload, dataRow) {
     } else if (procsDv === '609') {
       if (['301', '302', '303'].includes(res.data.cntrDtlStatCd)) { // 취소된 주문 = 303 수정불가
         view.setValue(dataRow, 'cntrDtlNo', '');
-        alert(t('MSG_ALT_CNCL_ORDER')); // 취소된 주문입니다
+        alert(t('MSG_ALT_CNCL_ORDER', [`${cntrNo}-${cntrSn}`])); // 취소된 주문입니다
         return;
       }
     } else if (procsDv === '611') {
       if (['301', '302', '303'].includes(res.data.cntrDtlStatCd)) { // 취소된 주문 = 303 수정불가
         view.setValue(dataRow, 'cntrDtlNo', '');
-        alert(t('MSG_ALT_CNCL_ORDER')); // 취소된 주문입니다
+        alert(t('MSG_ALT_CNCL_ORDER', [`${cntrNo}-${cntrSn}`])); // 취소된 주문입니다
         return;
       }
     } else if (procsDv === '612') {
       if (['301', '302', '303'].includes(res.data.cntrDtlStatCd)) { // 취소된 주문 = 303 수정불가
         view.setValue(dataRow, 'cntrDtlNo', '');
-        alert(t('MSG_ALT_CNCL_ORDER')); // 취소된 주문입니다
+        alert(t('MSG_ALT_CNCL_ORDER', [`${cntrNo}-${cntrSn}`])); // 취소된 주문입니다
         return;
       }
       if (res.data.sellTpDtlCd === '22') { // 판매유형상세코드 = 22:리스 이면
@@ -644,7 +644,7 @@ async function onSearchItemCheck(payload, dataRow) {
     } else if (procsDv === '613') {
       if (['301', '302', '303'].includes(res.data.cntrDtlStatCd)) { // 취소된 주문 = 303 수정불가
         view.setValue(dataRow, 'cntrDtlNo', '');
-        alert(t('MSG_ALT_CNCL_ORDER')); // 취소된 주문입니다
+        alert(t('MSG_ALT_CNCL_ORDER', [`${cntrNo}-${cntrSn}`])); // 취소된 주문입니다
         return;
       }
       // 컨택코드!=01 or null 아니면 불가 -> 컨택코드 이상으로 변경 불가
@@ -692,7 +692,7 @@ async function onSearchItemCheck(payload, dataRow) {
       }
       if (res.data.cntrDtlStatCd === '303') { // 취소된 주문 = 303 수정불가
         view.setValue(dataRow, 'cntrDtlNo', '');
-        alert(t('MSG_ALT_CNCL_ORDER')); // 취소된 주문입니다
+        alert(t('MSG_ALT_CNCL_ORDER', [`${cntrNo}-${cntrSn}`])); // 취소된 주문입니다
         return;
       }
       if (isEmpty(res.data.cntrEndDt)) { // 계산한만료일이 없으면
@@ -723,7 +723,7 @@ async function onSearchItemCheck(payload, dataRow) {
       }
       if (['301', '302', '303'].includes(res.data.cntrDtlStatCd)) { // 취소된 주문 = 301, 302, 303 수정불가
         view.setValue(dataRow, 'cntrDtlNo', '');
-        alert(t('MSG_ALT_CNCL_ORDER')); // 취소된 주문입니다
+        alert(t('MSG_ALT_CNCL_ORDER', [`${cntrNo}-${cntrSn}`])); // 취소된 주문입니다
         return;
       }
       if (isEmpty(res.data.cntrEndDt)) { // 계산한만료일이 없으면
@@ -739,7 +739,7 @@ async function onSearchItemCheck(payload, dataRow) {
     } else if (procsDv === '618') {
       if (res.data.cntrDtlStatCd === '303') { // 취소된 주문 = 303 수정불가
         view.setValue(dataRow, 'cntrDtlNo', '');
-        alert(t('MSG_ALT_CNCL_ORDER')); // 취소된 주문입니다
+        alert(t('MSG_ALT_CNCL_ORDER', [`${cntrNo}-${cntrSn}`])); // 취소된 주문입니다
         return;
       }
     } else if (procsDv === '620') {
@@ -797,7 +797,7 @@ async function onSearchItemCheck(payload, dataRow) {
     } else if (procsDv === '626') {
       if (res.data.cntrDtlStatCd === '303') { // 취소된 주문 = 303 수정불가
         view.setValue(dataRow, 'cntrDtlNo', '');
-        alert(t('MSG_ALT_CNCL_ORDER')); // 취소된 주문입니다
+        alert(t('MSG_ALT_CNCL_ORDER', [`${cntrNo}-${cntrSn}`])); // 취소된 주문입니다
         return;
       }
     } else if (procsDv === '711') {
