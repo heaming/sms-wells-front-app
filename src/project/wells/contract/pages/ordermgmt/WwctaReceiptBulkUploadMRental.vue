@@ -128,7 +128,7 @@ async function onClickExcelUpload() {
       headerRows: 2,
       validationBtn: false,
       serverSideValidation: validate,
-      serverSideValidateOption: { sideEffect: true },
+      serverSideValidateOption: { sideEffect: true, oneByOne: true },
     },
   });
   if (result) {
