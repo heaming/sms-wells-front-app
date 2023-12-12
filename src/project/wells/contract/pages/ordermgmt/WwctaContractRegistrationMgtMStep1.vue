@@ -525,7 +525,7 @@ const searchParams = ref({
 
 async function setupAvailableCntrTpCd() {
   await addCode('AVAILABLE_CNTR_TP_CD', () => {
-    const isCustomerCenterService = currentPartner.baseRleCd === 'W8010';
+    const isCustomerCenterService = currentPartner.baseRleCd === 'W8010' || currentPartner.baseRleCd === 'W8020';
     const isBusinessDepartment = currentPartner.ogTpCd === 'HR1';
     const isPspcCstCntr = !!step1.value.pspcCstBas;
     let availableCodeIds = [];
