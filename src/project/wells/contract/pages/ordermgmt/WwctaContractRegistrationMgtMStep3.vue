@@ -543,7 +543,7 @@ const showAllAdrs = ref(false);
 const showAdrCount = computed(() => (showAllAdrs.value ? 10 : 5));
 const isPsbBlkApy = ref(true);
 const isSodbt = computed(() => (step3.value?.bas.sellOgTpCd === 'W05'));
-const isCcs = computed(() => baseRleCd === 'W8010');
+const isCcs = computed(() => (baseRleCd === 'W8010' || baseRleCd === 'W8010'));
 const mpyBsdtOptions = ref([]);
 // -------------------------------------------------------------------------------------------------
 // Function & Event
