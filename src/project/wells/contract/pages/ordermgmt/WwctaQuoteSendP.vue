@@ -89,7 +89,7 @@
     <kw-grid
       ref="grdQuoteSendList"
       name="grdQuoteSendList"
-      :page-size="pageInfo.pageSize"
+      :visible-rows="6"
       :total-count="pageInfo.totalCount"
       @init="initQuoteSendList"
     />
