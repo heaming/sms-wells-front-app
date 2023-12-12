@@ -576,6 +576,42 @@ function getGridColumns() {
   return columns;
 }
 
+function getGridAggrColumns() {
+  const columns = [];
+
+  columns.push(
+    { fieldName: 'ogCd', header: t('MSG_TXT_BLG'), width: '120', styleName: 'text-center' }, // 소속
+    { fieldName: 'prtnrNo', header: t('MSG_TXT_SEQUENCE_NUMBER'), width: '120', styleName: 'text-center' }, // 번호
+    { fieldName: 'prtnrKnm', header: t('MSG_TXT_EMPL_NM'), width: '120', styleName: 'text-center' }, // 성명
+    { fieldName: 'pstnDvCd', header: t('MSG_TXT_CRLV'), width: '120', styleName: 'text-center', numberFormat: '#,##0', dataType: 'number' }, // 직급
+    { fieldName: 'ehCnt', header: t('MSG_TXT_ELHM'), width: '120', styleName: 'text-right', numberFormat: '#,##0', dataType: 'number' }, // 가전
+    { fieldName: 'exCnt', header: t('MSG_TXT_ELHM') + t('MSG_TXT_EXCP'), width: '120', styleName: 'text-right', numberFormat: '#,##0', dataType: 'number' }, // 가전 외
+    { fieldName: 'etCnt', header: t('MSG_TXT_ETC'), width: '120', styleName: 'text-right', numberFormat: '#,##0', dataType: 'number' }, // 기타
+    { fieldName: 'upCnt', header: t('MSG_TXT_NPAID'), width: '120', styleName: 'text-right', numberFormat: '#,##0', dataType: 'number' }, // 미지급
+    { fieldName: 'totCnt', header: t('MSG_TXT_AGG'), width: '120', styleName: 'text-right', numberFormat: '#,##0', dataType: 'number' }, // 계
+    { fieldName: 'ehAmt', header: t('MSG_TXT_ELHM'), width: '120', styleName: 'text-right', numberFormat: '#,##0', dataType: 'number' }, // 가전
+    { fieldName: 'exAmt', header: t('MSG_TXT_ELHM') + t('MSG_TXT_EXCP'), width: '120', styleName: 'text-right', numberFormat: '#,##0', dataType: 'number' }, // 가전 외
+    { fieldName: 'etAmt', header: t('MSG_TXT_ETC'), width: '120', styleName: 'text-right', numberFormat: '#,##0', dataType: 'number' }, // 기타
+    { fieldName: 'upAmt', header: t('MSG_TXT_NPAID'), width: '120', styleName: 'text-right', numberFormat: '#,##0', dataType: 'number' }, // 미지급
+    { fieldName: 'totAmt', header: t('MSG_TXT_AGG'), width: '120', styleName: 'text-right', numberFormat: '#,##0', dataType: 'number' }, // 계
+    { fieldName: 'elhmAckmtCt', header: t('MSG_TXT_PD_ACC_CNT'), width: '120', styleName: 'text-right', numberFormat: '#,##0', dataType: 'number' }, // 인정건수
+    { fieldName: 'rentalBasePrc', header: t('MSG_TXT_RENTAL_BASE_PRC'), width: '120', styleName: 'text-right', numberFormat: '#,##0', dataType: 'number' }, // 렌탈기준가
+    { fieldName: 'snglPmntBasePrc', header: t('MSG_TXT_SNGL_PMNT_BASE_PRC'), width: '120', styleName: 'text-right', numberFormat: '#,##0', dataType: 'number' }, // 일시불기준가
+    { fieldName: 'chng', header: t('MSG_TXT_CHNG'), width: '120', styleName: 'text-right', numberFormat: '#,##0', dataType: 'number' }, // 기변
+    { fieldName: 'fxamCt', header: `${t('MSG_TXT_ELHM')}+${t('MSG_TXT_ELHM_EXCP')} ${t('MSG_TXT_FXAM')}`, width: '150', styleName: 'text-right', numberFormat: '#,##0', dataType: 'number' }, // 가전+가전외 정액
+    { fieldName: 'rstlCt', header: t('MSG_TXT_RSTL_AMT'), width: '120', styleName: 'text-right', numberFormat: '#,##0', dataType: 'number' }, // 재약정금액
+    { fieldName: 'livePakg', header: t('MSG_TXT_LIVE_PAKG') + t('MSG_TXT_COUNT'), width: '120', styleName: 'text-right', numberFormat: '#,##0', dataType: 'number' }, // 라이브팩
+  );
+
+  if (searchParams.value.baseYm.replace('-', '') >= 202401) {
+    columns.push(
+      { fieldName: 'mmbr', header: t('MSG_TXT_MMBR'), width: '120', styleName: 'text-right', numberFormat: '#,##0', dataType: 'number' }, // 멤버십
+    );
+  }
+
+  return columns;
+}
+
 let cachedParams;
 
 async function excelDownload(url) {
@@ -966,31 +1002,7 @@ const initGrdDtl = defineGrid((data, view) => {
 });
 
 const initGrdAggr = defineGrid((data, view) => {
-  const columns = [
-    { fieldName: 'ogCd', header: t('MSG_TXT_BLG'), width: '120', styleName: 'text-center' }, // 소속
-    { fieldName: 'prtnrNo', header: t('MSG_TXT_SEQUENCE_NUMBER'), width: '120', styleName: 'text-center' }, // 번호
-    { fieldName: 'prtnrKnm', header: t('MSG_TXT_EMPL_NM'), width: '120', styleName: 'text-center' }, // 성명
-    { fieldName: 'pstnDvCd', header: t('MSG_TXT_CRLV'), width: '120', styleName: 'text-center', numberFormat: '#,##0', dataType: 'number' }, // 직급
-    { fieldName: 'ehCnt', header: t('MSG_TXT_ELHM'), width: '120', styleName: 'text-right', numberFormat: '#,##0', dataType: 'number' }, // 가전
-    { fieldName: 'exCnt', header: t('MSG_TXT_ELHM') + t('MSG_TXT_EXCP'), width: '120', styleName: 'text-right', numberFormat: '#,##0', dataType: 'number' }, // 가전 외
-    { fieldName: 'etCnt', header: t('MSG_TXT_ETC'), width: '120', styleName: 'text-right', numberFormat: '#,##0', dataType: 'number' }, // 기타
-    { fieldName: 'upCnt', header: t('MSG_TXT_NPAID'), width: '120', styleName: 'text-right', numberFormat: '#,##0', dataType: 'number' }, // 미지급
-    { fieldName: 'totCnt', header: t('MSG_TXT_AGG'), width: '120', styleName: 'text-right', numberFormat: '#,##0', dataType: 'number' }, // 계
-    { fieldName: 'ehAmt', header: t('MSG_TXT_ELHM'), width: '120', styleName: 'text-right', numberFormat: '#,##0', dataType: 'number' }, // 가전
-    { fieldName: 'exAmt', header: t('MSG_TXT_ELHM') + t('MSG_TXT_EXCP'), width: '120', styleName: 'text-right', numberFormat: '#,##0', dataType: 'number' }, // 가전 외
-    { fieldName: 'etAmt', header: t('MSG_TXT_ETC'), width: '120', styleName: 'text-right', numberFormat: '#,##0', dataType: 'number' }, // 기타
-    { fieldName: 'upAmt', header: t('MSG_TXT_NPAID'), width: '120', styleName: 'text-right', numberFormat: '#,##0', dataType: 'number' }, // 미지급
-    { fieldName: 'totAmt', header: t('MSG_TXT_AGG'), width: '120', styleName: 'text-right', numberFormat: '#,##0', dataType: 'number' }, // 계
-    { fieldName: 'elhmAckmtCt', header: t('MSG_TXT_PD_ACC_CNT'), width: '120', styleName: 'text-right', numberFormat: '#,##0', dataType: 'number' }, // 인정건수
-    { fieldName: 'rentalBasePrc', header: t('MSG_TXT_RENTAL_BASE_PRC'), width: '120', styleName: 'text-right', numberFormat: '#,##0', dataType: 'number' }, // 렌탈기준가
-    { fieldName: 'snglPmntBasePrc', header: t('MSG_TXT_SNGL_PMNT_BASE_PRC'), width: '120', styleName: 'text-right', numberFormat: '#,##0', dataType: 'number' }, // 일시불기준가
-    { fieldName: 'chng', header: t('MSG_TXT_CHNG'), width: '120', styleName: 'text-right', numberFormat: '#,##0', dataType: 'number' }, // 기변
-    { fieldName: 'fxamCt', header: `${t('MSG_TXT_ELHM')}+${t('MSG_TXT_ELHM_EXCP')} ${t('MSG_TXT_FXAM')}`, width: '150', styleName: 'text-right', numberFormat: '#,##0', dataType: 'number' }, // 가전+가전외 정액
-    { fieldName: 'rstlCt', header: t('MSG_TXT_RSTL_AMT'), width: '120', styleName: 'text-right', numberFormat: '#,##0', dataType: 'number' }, // 재약정금액
-    { fieldName: 'livePakg', header: t('MSG_TXT_LIVE_PAKG') + t('MSG_TXT_COUNT'), width: '120', styleName: 'text-right', numberFormat: '#,##0', dataType: 'number' }, // 라이브팩
-    { fieldName: 'mmbr', header: t('MSG_TXT_MMBR'), width: '120', styleName: 'text-right', numberFormat: '#,##0', dataType: 'number' }, // 멤버십
-  ];
-
+  const columns = getGridAggrColumns();
   const fields = columns.map(({ fieldName, dataType }) => (dataType ? { fieldName, dataType } : { fieldName }));
 
   data.setFields(fields);
@@ -999,29 +1011,55 @@ const initGrdAggr = defineGrid((data, view) => {
   view.rowIndicator.visible = true;
 
   // multi row header setting
-  view.setColumnLayout([
-    'ogCd', 'prtnrNo', 'prtnrKnm', 'pstnDvCd',
-    {
-      header: t('MSG_TXT_FEE') + t('MSG_TXT_PERF_CT'), // 수수료 실적건수
-      direction: 'horizontal',
-      items: ['ehCnt', 'exCnt', 'etCnt', 'upCnt', 'totCnt'],
-    },
-    {
-      header: t('MSG_TXT_PD_ACC_RSLT'), // 인정실적
-      direction: 'horizontal',
-      items: ['ehAmt', 'exAmt', 'etAmt', 'upAmt', 'totAmt'],
-    },
-    {
-      header: t('MSG_TXT_ELHM'), // 가전
-      direction: 'horizontal',
-      items: ['elhmAckmtCt', 'rentalBasePrc', 'snglPmntBasePrc', 'chng'],
-    },
-    {
-      header: t('MSG_TXT_ETC'), // 기타
-      direction: 'horizontal',
-      items: ['fxamCt', 'rstlCt', 'livePakg', 'mmbr'],
-    },
-  ]);
+  if (searchParams.value.baseYm.replace('-', '') >= 202401) {
+    view.setColumnLayout([
+      'ogCd', 'prtnrNo', 'prtnrKnm', 'pstnDvCd',
+      {
+        header: t('MSG_TXT_FEE') + t('MSG_TXT_PERF_CT'), // 수수료 실적건수
+        direction: 'horizontal',
+        items: ['ehCnt', 'exCnt', 'etCnt', 'upCnt', 'totCnt'],
+      },
+      {
+        header: t('MSG_TXT_PD_ACC_RSLT'), // 인정실적
+        direction: 'horizontal',
+        items: ['ehAmt', 'exAmt', 'etAmt', 'upAmt', 'totAmt'],
+      },
+      {
+        header: t('MSG_TXT_ELHM'), // 가전
+        direction: 'horizontal',
+        items: ['elhmAckmtCt', 'rentalBasePrc', 'snglPmntBasePrc', 'chng'],
+      },
+      {
+        header: t('MSG_TXT_ETC'), // 기타
+        direction: 'horizontal',
+        items: ['fxamCt', 'rstlCt', 'livePakg', 'mmbr'],
+      },
+    ]);
+  } else {
+    view.setColumnLayout([
+      'ogCd', 'prtnrNo', 'prtnrKnm', 'pstnDvCd',
+      {
+        header: t('MSG_TXT_FEE') + t('MSG_TXT_PERF_CT'), // 수수료 실적건수
+        direction: 'horizontal',
+        items: ['ehCnt', 'exCnt', 'etCnt', 'upCnt', 'totCnt'],
+      },
+      {
+        header: t('MSG_TXT_PD_ACC_RSLT'), // 인정실적
+        direction: 'horizontal',
+        items: ['ehAmt', 'exAmt', 'etAmt', 'upAmt', 'totAmt'],
+      },
+      {
+        header: t('MSG_TXT_ELHM'), // 가전
+        direction: 'horizontal',
+        items: ['elhmAckmtCt', 'rentalBasePrc', 'snglPmntBasePrc', 'chng'],
+      },
+      {
+        header: t('MSG_TXT_ETC'), // 기타
+        direction: 'horizontal',
+        items: ['fxamCt', 'rstlCt', 'livePakg'],
+      },
+    ]);
+  }
 });
 
 </script>
