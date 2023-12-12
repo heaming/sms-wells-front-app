@@ -704,7 +704,7 @@ function initGrdMain(data, view) {
     // { fieldName: 'pdctPdCd' }, // 품목코드
     { fieldName: 'svpdNmAbbr1' }, // 상품명
     // { fieldName: 'sellTpCd,' }, // 판매유형코드
-    { fieldName: 'sellTpCdNm,' }, // 판매유형코드명
+    { fieldName: 'sellTpCdNm' }, // 판매유형코드명
     { fieldName: 'istDt' }, // 설치일자
     { fieldName: 'newAdrZip' }, // 우편번호
     { fieldName: 'adr' }, // 주소
@@ -750,8 +750,8 @@ function initGrdMain(data, view) {
     { fieldName: 'rcgvpKnm', header: t('MSG_TXT_CST_NM'), width: '100', styleName: 'text-center' }, // 고객명
     // { fieldName: 'svpdSapCd', header: t('MSG_TXT_SAP_CD'), width: '180', styleName: 'text-center' }, // SAP 코드
     // { fieldName: 'pdctPdCd', header: t('MSG_TXT_ITM_CD'), width: '110', styleName: 'text-center' }, // 품목코드
-    { fieldName: 'svpdNmAbbr1', header: t('MSG_TXT_PRDT_NM'), width: '110', styleName: 'text-center' }, // 상품명
-    { fieldName: 'sellTpCdNm', header: t('MSG_TXT_SELL_TP_CD'), width: '110', styleName: 'text-center' }, // 판매유형코드명
+    { fieldName: 'svpdNmAbbr1', header: t('MSG_TXT_PRDT_NM'), width: '180', styleName: 'text-center' }, // 상품명
+    { fieldName: 'sellTpCdNm', header: t('MSG_TXT_SEL_TYPE'), width: '100', styleName: 'text-center' }, // 판매유형코드명
     { fieldName: 'istDt', header: t('MSG_TXT_IST_DT'), width: '100', datetimeFormat: 'yyyy-MM-dd', styleName: 'text-center' }, // 설치일자
     { fieldName: 'newAdrZip', header: t('MSG_TXT_ZIP'), width: '70', styleName: 'text-center' }, // 우편번호
     { fieldName: 'adr', header: t('MSG_TXT_ADDR'), width: '400' }, // 주소
