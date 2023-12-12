@@ -546,8 +546,6 @@ function getGridColumns() {
     { fieldName: 'feeAckmtCt', header: t('MSG_TXT_PD_ACC_CNT'), width: '120', styleName: 'text-right' }, // 인정건수
   );
 
-  console.log(searchParams.value.dvCd);
-
   if (searchParams.value.dvCd === '04') {
     columns.push(
       { fieldName: 'bsFeeAckmtCt', header: `BS${t('MSG_TXT_PD_ACC_CNT')}`, width: '120', styleName: 'text-right' }, // BS인정건수
@@ -603,13 +601,76 @@ function getGridAggrColumns() {
     { fieldName: 'livePakg', header: t('MSG_TXT_LIVE_PAKG') + t('MSG_TXT_COUNT'), width: '120', styleName: 'text-right', numberFormat: '#,##0', dataType: 'number' }, // 라이브팩
   );
 
-  if (searchParams.value.baseYm.replace('-', '') >= 202401) {
+  if (searchParams.value.perfYm.replace('-', '') >= 202401) {
     columns.push(
       { fieldName: 'mmbr', header: t('MSG_TXT_MMBR'), width: '120', styleName: 'text-right', numberFormat: '#,##0', dataType: 'number' }, // 멤버십
     );
   }
 
   return columns;
+}
+
+function getGridAggrColumnLayout() {
+  const columnLayout = [];
+
+  // multi row header setting
+  if (searchParams.value.perfYm.replace('-', '') >= 202401) {
+    columnLayout.push(
+      'ogCd',
+      'prtnrNo',
+      'prtnrKnm',
+      'pstnDvCd',
+      {
+        header: t('MSG_TXT_FEE') + t('MSG_TXT_PERF_CT'), // 수수료 실적건수
+        direction: 'horizontal',
+        items: ['ehCnt', 'exCnt', 'etCnt', 'upCnt', 'totCnt'],
+      },
+      {
+        header: t('MSG_TXT_PD_ACC_RSLT'), // 인정실적
+        direction: 'horizontal',
+        items: ['ehAmt', 'exAmt', 'etAmt', 'upAmt', 'totAmt'],
+      },
+      {
+        header: t('MSG_TXT_ELHM'), // 가전
+        direction: 'horizontal',
+        items: ['elhmAckmtCt', 'rentalBasePrc', 'snglPmntBasePrc', 'chng'],
+      },
+      {
+        header: t('MSG_TXT_ETC'), // 기타
+        direction: 'horizontal',
+        items: ['fxamCt', 'rstlCt', 'livePakg', 'mmbr'],
+      },
+    );
+  } else {
+    columnLayout.push(
+      'ogCd',
+      'prtnrNo',
+      'prtnrKnm',
+      'pstnDvCd',
+      {
+        header: t('MSG_TXT_FEE') + t('MSG_TXT_PERF_CT'), // 수수료 실적건수
+        direction: 'horizontal',
+        items: ['ehCnt', 'exCnt', 'etCnt', 'upCnt', 'totCnt'],
+      },
+      {
+        header: t('MSG_TXT_PD_ACC_RSLT'), // 인정실적
+        direction: 'horizontal',
+        items: ['ehAmt', 'exAmt', 'etAmt', 'upAmt', 'totAmt'],
+      },
+      {
+        header: t('MSG_TXT_ELHM'), // 가전
+        direction: 'horizontal',
+        items: ['elhmAckmtCt', 'rentalBasePrc', 'snglPmntBasePrc', 'chng'],
+      },
+      {
+        header: t('MSG_TXT_ETC'), // 기타
+        direction: 'horizontal',
+        items: ['fxamCt', 'rstlCt', 'livePakg'],
+      },
+    );
+  }
+
+  return columnLayout;
 }
 
 let cachedParams;
@@ -797,6 +858,20 @@ async function onChangedDvcd() {
     isPerfBtnVisible.value = false;
     isDtlExcelDown.value = false;
     isAggrExcelDown.value = false;
+
+    const data = grdAggrRef.value.getData();
+    const view = grdAggrRef.value.getView();
+
+    const columns = getGridAggrColumns();
+    const fields = columns.map(({ fieldName, dataType }) => (dataType ? { fieldName, dataType } : { fieldName }));
+    const columnLayout = getGridAggrColumnLayout();
+
+    data.setFields(fields);
+    view.setColumns(columns);
+    view.checkBar.visible = false;
+    view.rowIndicator.visible = true;
+
+    view.setColumnLayout(columnLayout);
   }
 
   totalCount.value = 0;
@@ -1004,62 +1079,14 @@ const initGrdDtl = defineGrid((data, view) => {
 const initGrdAggr = defineGrid((data, view) => {
   const columns = getGridAggrColumns();
   const fields = columns.map(({ fieldName, dataType }) => (dataType ? { fieldName, dataType } : { fieldName }));
+  const columnLayout = getGridAggrColumnLayout();
 
   data.setFields(fields);
   view.setColumns(columns);
   view.checkBar.visible = false;
   view.rowIndicator.visible = true;
 
-  // multi row header setting
-  if (searchParams.value.baseYm.replace('-', '') >= 202401) {
-    view.setColumnLayout([
-      'ogCd', 'prtnrNo', 'prtnrKnm', 'pstnDvCd',
-      {
-        header: t('MSG_TXT_FEE') + t('MSG_TXT_PERF_CT'), // 수수료 실적건수
-        direction: 'horizontal',
-        items: ['ehCnt', 'exCnt', 'etCnt', 'upCnt', 'totCnt'],
-      },
-      {
-        header: t('MSG_TXT_PD_ACC_RSLT'), // 인정실적
-        direction: 'horizontal',
-        items: ['ehAmt', 'exAmt', 'etAmt', 'upAmt', 'totAmt'],
-      },
-      {
-        header: t('MSG_TXT_ELHM'), // 가전
-        direction: 'horizontal',
-        items: ['elhmAckmtCt', 'rentalBasePrc', 'snglPmntBasePrc', 'chng'],
-      },
-      {
-        header: t('MSG_TXT_ETC'), // 기타
-        direction: 'horizontal',
-        items: ['fxamCt', 'rstlCt', 'livePakg', 'mmbr'],
-      },
-    ]);
-  } else {
-    view.setColumnLayout([
-      'ogCd', 'prtnrNo', 'prtnrKnm', 'pstnDvCd',
-      {
-        header: t('MSG_TXT_FEE') + t('MSG_TXT_PERF_CT'), // 수수료 실적건수
-        direction: 'horizontal',
-        items: ['ehCnt', 'exCnt', 'etCnt', 'upCnt', 'totCnt'],
-      },
-      {
-        header: t('MSG_TXT_PD_ACC_RSLT'), // 인정실적
-        direction: 'horizontal',
-        items: ['ehAmt', 'exAmt', 'etAmt', 'upAmt', 'totAmt'],
-      },
-      {
-        header: t('MSG_TXT_ELHM'), // 가전
-        direction: 'horizontal',
-        items: ['elhmAckmtCt', 'rentalBasePrc', 'snglPmntBasePrc', 'chng'],
-      },
-      {
-        header: t('MSG_TXT_ETC'), // 기타
-        direction: 'horizontal',
-        items: ['fxamCt', 'rstlCt', 'livePakg'],
-      },
-    ]);
-  }
+  view.setColumnLayout(columnLayout);
 });
 
 </script>
