@@ -83,7 +83,6 @@
             v-model:prtnr-no="searchParams.prtnrNo"
             use-og-level="1"
             use-partner
-            dgr1-levl-og-required
             dgr1-levl-og-first-option="all"
             dgr1-levl-og-label="ogCdNm"
             partner-first-option="all"
