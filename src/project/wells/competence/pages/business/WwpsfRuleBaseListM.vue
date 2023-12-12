@@ -97,7 +97,9 @@
       <h3 class="inline-block">
         개정(변경)내용
       </h3>
-      <p class="inline-block kw-font-pt14 pl50" />
+      <p class="inline-block kw-font-pt14 pl50">
+        {{ content }}
+      </p>
       <h3>옵션영역</h3>
       <kw-pdf-preview
         :pdf="pdf"
@@ -136,6 +138,7 @@ const lvl1Depth = ref([]);
 const lvl2Depth = ref([]);
 const lvl3Depth = ref([]);
 const vlStrtDtms = ref([]);
+const content = ref('');
 
 const init = async () => {
   const res = await dataService.get('/sms/wells/competence/rulebase/user', { params: cachedParams });
@@ -214,6 +217,8 @@ const fetchData = async () => {
       responseType: 'arraybuffer',
     });
     pdf.value = res.data;
+    console.log(row.bznsSpptMnalChCn);
+    content.value = row.bznsSpptMnalChCn;
   } else {
     await alert(t('MSG_ALT_APN_FILE_RGST'));
   }
