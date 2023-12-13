@@ -258,8 +258,8 @@ watchEffect(updateSummary);
 function setupContract() {
   contract.value = {
     cntrNo: props.cntrNo ?? '', /* 기존 계약을 불러오는 경우 이를 바탕으로 갑니다. */
-    rstlCntrNo: props.cntrNo ?? '', /* 재계약의 경우 이를 사용하여 기 계약을 불러옵니다. */
-    rstlCntrSn: props.cntrSn ?? '', /* 재계약의 경우 이를 사용하여 기 계약을 불러옵니다. */
+    rstlCntrNo: props.resultDiv !== '2' ? undefined : props.cntrNo ?? '', /* 재계약의 경우 이를 사용하여 기 계약을 불러옵니다. */
+    rstlCntrSn: props.resultDiv !== '2' ? undefined : props.cntrSn ?? '', /* 재계약의 경우 이를 사용하여 기 계약을 불러옵니다. */
     step1: {},
     step2: {},
     step3: {},
