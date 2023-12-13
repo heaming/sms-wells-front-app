@@ -125,13 +125,10 @@ async function fetchData() {
 // 엑셀다운로드
 async function onClickExcelDownload() {
   const view = grdMainRef.value.getView();
-
-  const res = await dataService.get('/sms/wells/service/receipts-and-payments/date/excel-download', { params: cachedParams });
-
   await gridUtil.exportView(view, {
     fileName: popupRef.value.pageCtxTitle,
     timePostfix: true,
-    exportData: res.data,
+    exportData: gridUtil.getAllRowValues(view),
   });
 }
 
