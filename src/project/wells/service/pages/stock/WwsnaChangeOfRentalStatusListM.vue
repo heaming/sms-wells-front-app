@@ -117,7 +117,7 @@
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
 
-import { codeUtil, useMeta, getComponentType, defineGrid, gridUtil, useDataService } from 'kw-lib';
+import { codeUtil, useMeta, getComponentType, defineGrid, gridUtil, useDataService, popupUtil } from 'kw-lib';
 import dayjs from 'dayjs';
 import { cloneDeep } from 'lodash-es';
 
@@ -240,7 +240,7 @@ const initGrdMain = defineGrid((data, view) => {
     { fieldName: 'fnlItmGdCd' }, // 등급
     { fieldName: 'deptNm' }, // 담당센터
     { fieldName: 'useQty' }, // 수량
-    { fieldName: 'cntrDtlNo' }, // 고객번호
+    { fieldName: 'cntrDtlNo' }, // 계약상세번호
     { fieldName: 'rcgvpKnm' }, // 고객명
     { fieldName: 'ostrConfDt' }, // 확인일자
     { fieldName: 'ostrDt' }, // 전산반품
@@ -265,7 +265,7 @@ const initGrdMain = defineGrid((data, view) => {
     { fieldName: 'fnlItmGdCd', header: t('MSG_TXT_GD'), width: '100', styleName: 'text-center' },
     { fieldName: 'deptNm', header: t('MSG_TXT_ICHR_CNR'), width: '150', styleName: 'text-left' },
     { fieldName: 'useQty', header: t('MSG_TXT_QTY'), width: '100', styleName: 'text-right' },
-    { fieldName: 'cntrDtlNo', header: t('MSG_TXT_CST_NO'), width: '130', styleName: 'text-center' },
+    { fieldName: 'cntrDtlNo', header: t('MSG_TXT_CNTR_DTL_NO'), width: '130', styleName: 'rg-button-link text-center', renderer: { type: 'button' }, preventCellItemFocus: false },
     { fieldName: 'rcgvpKnm', header: t('MSG_TXT_CST_NM'), width: '100', styleName: 'text-center' },
     { fieldName: 'ostrConfDt', header: t('MSG_TXT_CONF_DT'), width: '100', styleName: 'text-center', datetimeFormat: 'date' },
     { fieldName: 'ostrDt', header: t('MSG_TXT_EDP_RTNGD'), width: '100', styleName: 'text-center', datetimeFormat: 'date' },
@@ -281,6 +281,15 @@ const initGrdMain = defineGrid((data, view) => {
 
   view.checkBar.visible = false;
   view.rowIndicator.visible = true;
+
+  view.onCellItemClicked = async (g, { column, itemIndex }) => {
+    if (column === 'cntrDtlNo') {
+      const cntrNo = g.getValue(itemIndex, 'cntrNo');
+      const cntrSn = g.getValue(itemIndex, 'cntrSn');
+
+      await popupUtil.open(`/popup#/service/wwsnb-individual-service-list?cntrNo=${cntrNo}&cntrSn=${cntrSn}`, { width: 2000, height: 1100 }, false);
+    }
+  };
 });
 
 </script>
