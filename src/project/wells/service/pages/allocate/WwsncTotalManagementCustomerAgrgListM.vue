@@ -51,7 +51,6 @@
             option-value="cd"
             :disable="searchParams.pdGrpCd === '' "
             :label="$t('MSG_TXT_PRDT_NM')"
-            :rules="searchParams.pdGrpCd !== '' ? 'required' : '' "
           />
         </kw-search-item>
       </kw-search-row>
