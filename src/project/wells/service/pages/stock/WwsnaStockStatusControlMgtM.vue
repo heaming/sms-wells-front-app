@@ -446,6 +446,9 @@ async function onClickDeleteRow() {
       await fetchData();
     }
   }
+  if (pageInfo.value.totalCount === 0) {
+    isAddRow.value = false;
+  }
 }
 
 // 저장버튼 클릭 이벤트
