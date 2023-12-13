@@ -765,6 +765,7 @@ const initGrd1Main = defineGrid((data, view) => {
     { fieldName: 'aksd05', dataType: 'number' },
     { fieldName: 'aksd20', dataType: 'number' },
     { fieldName: 'aksd30', dataType: 'number' },
+    { fieldName: 'aksd26', dataType: 'number' },
     { fieldName: 'aksd99', dataType: 'number' },
 
   ];
@@ -991,6 +992,15 @@ const initGrd1Main = defineGrid((data, view) => {
         numberFormat: '#,##0',
         expression: 'sum',
       } },
+    { fieldName: 'aksd26',
+      header: t('MSG_TXT_BS_MGMT_FEE'),
+      width: '122.7',
+      styleName: 'text-right',
+      numberFormat: '#,###,##0',
+      headerSummary: {
+        numberFormat: '#,##0',
+        expression: 'sum',
+      } },
     { fieldName: 'aksd99',
       header: t('MSG_TXT_ASESS_STD_TX_BASE') + t('MSG_TXT_SUM'),
       width: '122.7',
@@ -1035,7 +1045,7 @@ const initGrd1Main = defineGrid((data, view) => {
       direction: 'horizontal',
       items: ['akcda3', 'akcda4'],
     },
-    'akdeq5', 'ec5amt', 'mproduct', 'aksd23', 'aksd24', 'aksd25', 'aksd01', 'aksd02', 'aksd03', 'aksd21', 'aksd04', 'aksd05', 'aksd20', 'aksd30', 'aksd99',
+    'akdeq5', 'ec5amt', 'mproduct', 'aksd23', 'aksd24', 'aksd25', 'aksd01', 'aksd02', 'aksd03', 'aksd21', 'aksd04', 'aksd05', 'aksd20', 'aksd30', 'aksd26', 'aksd99',
   ]);
 
   view.setHeaderSummaries({
@@ -1098,6 +1108,7 @@ const initGrd2Main = defineGrid((data, view) => {
     { fieldName: 'aksd21', dataType: 'number' },
     { fieldName: 'aksd22', dataType: 'number' },
     { fieldName: 'aksd30', dataType: 'number' },
+    { fieldName: 'aksd26', dataType: 'number' },
     { fieldName: 'aksd99', dataType: 'number' },
 
   ];
@@ -1414,6 +1425,15 @@ const initGrd2Main = defineGrid((data, view) => {
         numberFormat: '#,##0',
         expression: 'sum',
       } },
+    { fieldName: 'aksd26',
+      header: t('MSG_TXT_BS_MGMT_FEE'),
+      width: '122.7',
+      styleName: 'text-right',
+      numberFormat: '#,###,##0',
+      headerSummary: {
+        numberFormat: '#,##0',
+        expression: 'sum',
+      } },
     { fieldName: 'aksd99',
       header: t('MSG_TXT_ASESS_STD_TX_BASE') + t('MSG_TXT_SUM'),
       width: '122.7',
@@ -1465,7 +1485,7 @@ const initGrd2Main = defineGrid((data, view) => {
       direction: 'horizontal',
       items: ['akcda3', 'akcda4'],
     },
-    'akdeq5', 'ec5amt', 'mproduct', 'aksd23', 'aksd24', 'aksd25', 'aksd01', 'aksd02', 'aksd03', 'aksd11', 'aksd12', 'aksd13', 'aksd05', 'aksd16', 'aksd17', 'aksd15', 'aksd18', 'aksd20', 'aksd21', 'aksd22', 'aksd30', 'aksd99',
+    'akdeq5', 'ec5amt', 'mproduct', 'aksd23', 'aksd24', 'aksd25', 'aksd01', 'aksd02', 'aksd03', 'aksd11', 'aksd12', 'aksd13', 'aksd05', 'aksd16', 'aksd17', 'aksd15', 'aksd18', 'aksd20', 'aksd21', 'aksd22', 'aksd30', 'aksd26', 'aksd99',
 
   ]);
 
@@ -1533,6 +1553,7 @@ const initGrd3Main = defineGrid((data, view) => {
     { fieldName: 'aksd18', dataType: 'number' },
     { fieldName: 'aksd20', dataType: 'number' },
     { fieldName: 'aksd30', dataType: 'number' },
+    { fieldName: 'aksd26', dataType: 'number' },
     { fieldName: 'aksd99', dataType: 'number' },
     { fieldName: 'ddctam', dataType: 'number' },
     { fieldName: 'dsbOjAmt', dataType: 'number' },
@@ -1863,6 +1884,15 @@ const initGrd3Main = defineGrid((data, view) => {
         numberFormat: '#,##0',
         expression: 'sum',
       } },
+    { fieldName: 'aksd26',
+      header: t('MSG_TXT_BS_MGMT_FEE'),
+      width: '122.7',
+      styleName: 'text-right',
+      numberFormat: '#,###,##0',
+      headerSummary: {
+        numberFormat: '#,##0',
+        expression: 'sum',
+      } },
     { fieldName: 'aksd99',
       header: t('MSG_TXT_ASESS_STD_TX_BASE') + t('MSG_TXT_SUM'),
       width: '122.7',
@@ -1936,7 +1966,7 @@ const initGrd3Main = defineGrid((data, view) => {
       direction: 'horizontal',
       items: ['aksd11', 'aksd12', 'aksd13', 'aksd22'],
     },
-    'aksd04', 'aksd05', 'aksd16', 'aksd17', 'aksd15', 'aksd18', 'aksd20', 'aksd30', 'aksd99', 'ddctam', 'dsbOjAmt',
+    'aksd04', 'aksd05', 'aksd16', 'aksd17', 'aksd15', 'aksd18', 'aksd20', 'aksd30', 'aksd26', 'aksd99', 'ddctam', 'dsbOjAmt',
   ]);
 
   view.setHeaderSummaries({
