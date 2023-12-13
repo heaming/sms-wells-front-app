@@ -53,7 +53,7 @@
           <kw-select
             v-model="warehouseInfo.wareDvCd"
             :label="$t('MSG_TXT_WARE_DV')"
-            :options="codes.WARE_DV_CD.filter((v) => v.codeId !== '1')"
+            :options="codes.WARE_DV_CD"
             first-option="select"
             :rules="`required|one_of:${wareDvCdRule}`"
             :readonly="hasProps()"
@@ -381,15 +381,16 @@ watch(() => warehouseInfo.value.wareDvCd, async (val) => {
     resetWarehouseInfo();
   }
 
-  if (val === WARE_DV_SERVICE) {
+  if (val === '1') {
     wareDtlDvCds.value = codes.WARE_DTL_DV_CD
-      .filter((v) => v.codeId.charAt(0) === WARE_DV_SERVICE)
-      .map((v) => ({ codeId: v.codeId, codeName: v.codeName.split(' ')[1] }));
-  } else if (val === WARE_DV_BUSINESS) {
+      .filter((v) => v.codeId.charAt(0) === val)
+      .map((v) => ({ codeId: v.codeId, codeName: v.codeName }));
+  } else {
     wareDtlDvCds.value = codes.WARE_DTL_DV_CD
-      .filter((v) => v.codeId.charAt(0) === WARE_DV_BUSINESS)
+      .filter((v) => v.codeId.charAt(0) === val)
       .map((v) => ({ codeId: v.codeId, codeName: v.codeName.split(' ')[1] }));
   }
+
   wareDtlDvCdRule.value = wareDtlDvCds.value.map((v) => (v.codeId)).join(',');
 });
 
