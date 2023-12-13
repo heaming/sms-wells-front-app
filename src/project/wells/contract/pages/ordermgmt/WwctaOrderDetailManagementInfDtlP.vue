@@ -256,7 +256,7 @@
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
 import { useDataService, useGlobal, stringUtil } from 'kw-lib';
-import { cloneDeep } from 'lodash-es';
+import { cloneDeep, isEmpty } from 'lodash-es';
 
 const dataService = useDataService();
 // const { t } = useI18n();
@@ -416,8 +416,8 @@ async function fetchData() {
     frmMainData.value.sellPrtnrNm = res.data[0].sellPrtnrNm; // 판매자성명
     frmMainData.value.sellPrtnrNo = res.data[0].sellPrtnrNo; // 판매파트너번호
     frmMainData.value.chdvcDt = res.data[0].chdvcDt; // 기변일자
-    console.log(`ptyCd : ${res.data[0].ptyCd}`);
-    if (res.data[0].ptyCd === '-') {
+    // console.log(`ptyCd : ${res.data[0].ptyCd}`);
+    if (isEmpty(res.data[0].ptyCd) || res.data[0].ptyCd === '-') {
       frmMainData.value.ptyCd = ''; // 상대코드
       frmMainData.value.cntrRelDtlNm = ''; // 계약관계상세코드명
       frmMainData.value.ptyCntrRelDtlNm = '-'; // [계약관계상세코드명]상대코드
