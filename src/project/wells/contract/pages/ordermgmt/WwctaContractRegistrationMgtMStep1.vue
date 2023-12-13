@@ -444,7 +444,7 @@
 import { alert, stringUtil, useDataService, useGlobal } from 'kw-lib';
 import { cloneDeep, isEmpty } from 'lodash-es';
 import { useCtCode } from '~sms-common/contract/composable';
-import { CNTR_TP_CD, COPN_DV_CD } from '~sms-wells/contract/constants/ctConst';
+import { CCS_BASE_RLE_CDS, CNTR_TP_CD, COPN_DV_CD } from '~sms-wells/contract/constants/ctConst';
 import { warn } from 'vue';
 
 const props = defineProps({
@@ -525,7 +525,7 @@ const searchParams = ref({
 
 async function setupAvailableCntrTpCd() {
   await addCode('AVAILABLE_CNTR_TP_CD', () => {
-    const isCustomerCenterService = currentPartner.baseRleCd === 'W8010' || currentPartner.baseRleCd === 'W8020';
+    const isCustomerCenterService = CCS_BASE_RLE_CDS.includes(currentPartner.baseRleCd);
     const isBusinessDepartment = currentPartner.ogTpCd === 'HR1';
     const isPspcCstCntr = !!step1.value.pspcCstBas;
     let availableCodeIds = [];

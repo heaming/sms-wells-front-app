@@ -1,3 +1,5 @@
+export const CCS_BASE_RLE_CDS = ['W8010', 'W8020', 'G8000', 'G8005'];
+
 export const COPN_DV_CD = {
   INDIVIDUAL: '1', // "개인"
   COOPERATION: '2', // "법인"

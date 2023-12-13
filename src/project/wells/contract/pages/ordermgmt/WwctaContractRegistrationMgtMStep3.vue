@@ -480,7 +480,13 @@ import ZwcmPostCode from '~common/components/ZwcmPostCode.vue';
 import { alert, notify, useDataService } from 'kw-lib';
 import { cloneDeep } from 'lodash-es';
 import { getNumberWithComma } from '~sms-common/contract/util';
-import { COPN_DV_CD, DP_TP_CD, SELL_TP_CD, SELL_TP_DTL_CD } from '~sms-wells/contract/constants/ctConst';
+import {
+  CCS_BASE_RLE_CDS,
+  COPN_DV_CD,
+  DP_TP_CD,
+  SELL_TP_CD,
+  SELL_TP_DTL_CD,
+} from '~sms-wells/contract/constants/ctConst';
 import { getDisplayPriceByCntrDtl } from '~sms-wells/contract/utils/CtPriceUtil';
 import { useCtCode } from '~sms-common/contract/composable';
 
@@ -543,7 +549,7 @@ const showAllAdrs = ref(false);
 const showAdrCount = computed(() => (showAllAdrs.value ? 10 : 5));
 const isPsbBlkApy = ref(true);
 const isSodbt = computed(() => (step3.value?.bas.sellOgTpCd === 'W05'));
-const isCcs = computed(() => (baseRleCd === 'W8010' || baseRleCd === 'W8010'));
+const isCcs = computed(() => CCS_BASE_RLE_CDS.includes(baseRleCd));
 const mpyBsdtOptions = ref([]);
 // -------------------------------------------------------------------------------------------------
 // Function & Event

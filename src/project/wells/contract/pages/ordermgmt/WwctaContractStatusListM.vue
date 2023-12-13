@@ -312,7 +312,7 @@
                 @click="onClickConfirm(item)"
               />
               <kw-btn
-                v-if="sessionUserInfo.baseRleCd === 'W8010' || sessionUserInfo.baseRleCd === 'W8020'"
+                v-if="CCS_BASE_RLE_CDS.includes(sessionUserInfo.baseRleCd)"
                 :label="$t('MSG_BTN_F2F_PYMNT')"
                 padding="10px"
                 @click="onClickF2fPayment(item)"
@@ -493,6 +493,7 @@ import { codeUtil, popupUtil, router, stringUtil, useDataService, useGlobal, use
 import { cloneDeep, isEmpty } from 'lodash-es';
 import dayjs from 'dayjs';
 import { buildUrlForNoSession, getSystemOrigin } from '~sms-common/contract/util';
+import { CCS_BASE_RLE_CDS } from '~sms-wells/contract/constants/ctConst';
 
 const { alert, modal, confirm } = useGlobal();
 const dataService = useDataService();
