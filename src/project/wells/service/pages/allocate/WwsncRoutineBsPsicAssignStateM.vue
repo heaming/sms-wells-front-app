@@ -22,14 +22,14 @@
     >
       <kw-search-row>
         <kw-search-item
-          :label="$t('MSG_TXT_ASGN_BASE_YM')"
+          :label="$t('MSG_TXT_ASN_YM')"
           :colspan="1"
           required
         >
           <kw-date-picker
             v-model="searchParams.baseYm"
             type="month"
-            :label="$t('MSG_TXT_ASGN_BASE_YM')"
+            :label="$t('MSG_TXT_ASN_YM')"
             rules="required"
           />
         </kw-search-item>
@@ -323,7 +323,7 @@ const searchParams = ref({
   pdCd: '',
   ogId: '',
   dgr1LevlOgId: '',
-  dgr2LevlOgId: '',
+  dgr2LevlOgId: 'OG00053616', // 디폴트 마포지역단
   dgr3LevlOgId: '',
   prtnrNo: '',
   svTpCd: '',
@@ -357,7 +357,7 @@ const isEngineerSelected = computed(() => searchParams.value.mngrDvCd === '2');
 /*  관리구분 변경시 초기화 */
 async function onChangeMngrDvCd() {
   searchParams.value.dgr1LevlOgId = '';
-  searchParams.value.dgr2LevlOgId = '';
+  searchParams.value.dgr2LevlOgId = 'OG00053616';
   searchParams.value.ogId = '';
   searchParams.value.prtnrNo = '';
 }
