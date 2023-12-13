@@ -616,7 +616,7 @@ const initGrdSub = defineGrid((data, view) => {
       width: '211',
       styleName: 'text-right',
       dataType: 'number',
-    }, // 금액
+    }, // 필드번호 26번 금액
   ];
 
   const fields = columns.map(({ fieldName, dataType }) => (dataType ? { fieldName, dataType } : { fieldName }));
@@ -634,18 +634,28 @@ const initGrdSub = defineGrid((data, view) => {
   // oldValue - 편집전 셀의 데이터 값
   // newValue - 편집후 셀의 데이터 값
   view.onEditRowChanged = async (subView, itemIndex, rowData, field, oldValue) => { // 직접편집했을때만
-    const dstAmt = subView.getValue(itemIndex, 'dstAmt');
-    const fieldValue = subView.getValue(itemIndex, field);
-    if (fieldValue !== dstAmt || fieldValue === null || fieldValue === undefined || fieldValue === '') { // lodash 의 isEmpty 는 숫자를 넣으면 비어있는 것으로 판단함.(lodash 버그)
+    if (field.toString() !== '26') { // dstAmt 컬럼의 순서 19
       return;
     }
-
+    const currentValue = subView.getValue(itemIndex, 'dstAmt');
+    const dstAmt = (currentValue === undefined || currentValue === null || currentValue === '' || Number.isNaN(currentValue)) ? 0 : currentValue; // isEmpty 사용시 숫자일경우 적용 안됨
+    const oldDstAmt = (oldValue === undefined || oldValue === null || oldValue === '' || Number.isNaN(oldValue)) ? 0 : oldValue;
+    if (dstAmt.toString().length > 10) { // 10억단위 까지만 입력
+      subView.setValue(itemIndex, 'dstAmt', oldDstAmt);
+      return;
+    }
+    if (oldDstAmt.toString().length > 10) {
+      return;
+    }
+    if (dstAmt === 0) {
+      subView.setValue(itemIndex, 'dstAmt', 0);
+    }
     if (subView.isCheckedItem(itemIndex)) {
       const mainView = grdMainRef.value.getView();
       const adjCnfmAmt = mainView.getValue(0, 'adjCnfmAmt');
       let mainDstAmt = mainView.getValue(0, 'dstAmt');
 
-      mainDstAmt += dstAmt - oldValue;
+      mainDstAmt += dstAmt - oldDstAmt;
       mainView.setValue(0, 'dstAmt', mainDstAmt); // 등록금액
       mainView.setValue(0, 'amt', (adjCnfmAmt - mainDstAmt)); // 미등록금액(정산대상금액합계 - 등록금액합계)
     }
