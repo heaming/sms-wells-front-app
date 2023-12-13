@@ -355,7 +355,7 @@ const grdMainRef = ref(getComponentType('KwGrid'));
 
 async function fetchData() {
   // if (isEmpty(searchParams.value.localGroupCd)) {
-  //   await alert(`${t('MSG_ALT_NOT_FOUND_OG_INF')}111`); // 조직정보를 찾을 수 없습니다.
+  //   await alert(`${t('MSG_ALT_NOT_FOUND_OG_INF')}`); // 조직정보를 찾을 수 없습니다.
   //   return;
   // }
   const res = await dataService.get('/sms/wells/service/manage-customer-rglvl', { params: cachedParams, timeout: 300000 });
@@ -376,7 +376,7 @@ const prtnrOgTpOptions = ref([]);
 
 async function onClickSearch() {
   // if (!searchParams.value.executiveGroup) {
-  //   await alert(`${t('MSG_ALT_NOT_FOUND_OG_INF')}222`); // 조직정보를 찾을 수 없습니다.
+  //   await alert(`${t('MSG_ALT_NOT_FOUND_OG_INF')}`); // 조직정보를 찾을 수 없습니다.
   //   return;
   // }
   if (searchParams.value.branchOffice === 'ALL' || !searchParams.value.branchOffice) {
@@ -703,6 +703,8 @@ function initGrdMain(data, view) {
     // { fieldName: 'svpdSapCd' }, // SAP코드
     // { fieldName: 'pdctPdCd' }, // 품목코드
     { fieldName: 'svpdNmAbbr1' }, // 상품명
+    // { fieldName: 'sellTpCd,' }, // 판매유형코드
+    { fieldName: 'sellTpCdNm' }, // 판매유형코드명
     { fieldName: 'istDt' }, // 설치일자
     { fieldName: 'newAdrZip' }, // 우편번호
     { fieldName: 'adr' }, // 주소
@@ -748,7 +750,8 @@ function initGrdMain(data, view) {
     { fieldName: 'rcgvpKnm', header: t('MSG_TXT_CST_NM'), width: '100', styleName: 'text-center' }, // 고객명
     // { fieldName: 'svpdSapCd', header: t('MSG_TXT_SAP_CD'), width: '180', styleName: 'text-center' }, // SAP 코드
     // { fieldName: 'pdctPdCd', header: t('MSG_TXT_ITM_CD'), width: '110', styleName: 'text-center' }, // 품목코드
-    { fieldName: 'svpdNmAbbr1', header: t('MSG_TXT_PRDT_NM'), width: '110', styleName: 'text-center' }, // 상품명
+    { fieldName: 'svpdNmAbbr1', header: t('MSG_TXT_PRDT_NM'), width: '180', styleName: 'text-center' }, // 상품명
+    { fieldName: 'sellTpCdNm', header: t('MSG_TXT_SEL_TYPE'), width: '100', styleName: 'text-center' }, // 판매유형코드명
     { fieldName: 'istDt', header: t('MSG_TXT_IST_DT'), width: '100', datetimeFormat: 'yyyy-MM-dd', styleName: 'text-center' }, // 설치일자
     { fieldName: 'newAdrZip', header: t('MSG_TXT_ZIP'), width: '70', styleName: 'text-center' }, // 우편번호
     { fieldName: 'adr', header: t('MSG_TXT_ADDR'), width: '400' }, // 주소
@@ -796,7 +799,7 @@ function initGrdMain(data, view) {
   view.setColumns(columns);
   view.checkBar.visible = true; // create checkbox column
   view.rowIndicator.visible = true; // create number indicator column
-  view.fixedOptions.colCount = 2;
+  view.fixedOptions.colCount = 3;
 
   view.setColumnLayout([
     'cntr',
@@ -804,6 +807,8 @@ function initGrdMain(data, view) {
     // 'svpdSapCd',
     // 'pdctPdCd',
     'svpdNmAbbr1',
+    // 'sellTpCd',
+    'sellTpCdNm',
     'istDt',
     'newAdrZip',
     'adr',
