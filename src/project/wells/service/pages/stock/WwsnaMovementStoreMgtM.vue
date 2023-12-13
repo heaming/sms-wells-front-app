@@ -243,7 +243,7 @@ const initGrdMain = defineGrid((data, view) => {
         const regExp = /^(\d{3})(\d{8})(\d{7}).*/;
         return v.replace(regExp, '$1-$2-$3');
       } }, // 품목입고번호
-    { fieldName: 'wareNm', header: t('MSG_TXT_STR_WARE'), width: '150', styleName: 'text-center' }, // 창고번호
+    { fieldName: 'ostrWareNm', header: t('MSG_TXT_OSTR_WARE'), width: '150', styleName: 'text-center' }, // 출고창고
     { fieldName: 'itmPdNm', header: t('MSG_TXT_STR_ITM'), width: '250', styleName: 'text-left' }, // 품목상품명
     { fieldName: 'strSn',
       header: t('MSG_TXT_NOTE'),
@@ -261,7 +261,7 @@ const initGrdMain = defineGrid((data, view) => {
     { fieldName: 'strWareNo' }, // 입고창고번호
     { fieldName: 'itmPdNo' }, // 품목상품번호
     { fieldName: 'ostrWareNo' }, // 출고창고번호
-    { fieldName: 'ostrWareNm' }, // 출고창고명
+    { fieldName: 'wareNm' }, // 입고창고명
     { fieldName: 'wareDtlDvCd' }, // 입고창고상세구분
   ];
 
