@@ -410,13 +410,19 @@ function validateWareDvCd() {
 
 // 창고명 가져오기
 function getWareNm(payload) {
+  const { dgr1LevlOgNm, prtnrKnm } = payload;
+  const { bldNm, wareDvCd } = warehouseInfo.value;
   let wareNm = '';
   if (isOrgWarehouse.value) {
-    wareNm = `${warehouseInfo.value.bldNm}`;
-  } else if (warehouseInfo.value.wareDvCd === WARE_DV_SERVICE) { // 서비스센터일 경우
-    wareNm = `${payload.dgr1LevlOgNm?.split('서비스센터')[0]} (${payload.prtnrKnm})`;
+    wareNm = bldNm;
+  } else if (wareDvCd === WARE_DV_SERVICE) { // 서비스센터일 경우
+    if (isEmpty(dgr1LevlOgNm)) {
+      wareNm = `(${prtnrKnm})`;
+    } else {
+      wareNm = `${dgr1LevlOgNm?.split(t('MSG_TXT_SV_CNR'))[0]} (${prtnrKnm})`;
+    }
   } else {
-    wareNm = `${warehouseInfo.value.bldNm} (${payload.prtnrKnm})`;
+    wareNm = `${bldNm} (${prtnrKnm})`;
   }
   return wareNm;
 }
@@ -425,10 +431,12 @@ function getWareNm(payload) {
 async function onClickOpenHumanResourcesPopup() {
   if (!validateWareDvCd()) return;
 
+  const { wareDvCd, prtnrKnm } = warehouseInfo.value;
+
   let mngrDvCd = '';
-  if (warehouseInfo.value.wareDvCd === WARE_DV_SERVICE) { // 서비스센터일 경우 '엔지니어'
+  if (wareDvCd === WARE_DV_SERVICE) { // 서비스센터일 경우 '엔지니어'
     mngrDvCd = '2';
-  } else if (warehouseInfo.value.wareDvCd === WARE_DV_BUSINESS) { // 영업센터일 경우 '매니저'
+  } else if (wareDvCd === WARE_DV_BUSINESS) { // 영업센터일 경우 '매니저'
     mngrDvCd = '1';
   }
 
@@ -436,7 +444,7 @@ async function onClickOpenHumanResourcesPopup() {
     component: 'WwsndHumanResourcesListP',
     componentProps: {
       mngrDvCd,
-      searchText: warehouseInfo.value.prtnrKnm,
+      searchText: prtnrKnm,
     },
   });
 
