@@ -966,6 +966,7 @@ const initGridState = defineGrid((data, view) => {
     { fieldName: 'procStus' }, // 작업진행상태코드
     { fieldName: 'cntrNo' }, // 계약번호
     { fieldName: 'cntrSn' }, // 계약일련번호
+    { fieldName: 'taikYn' }, // 배송여부
 
   ];
 
@@ -980,8 +981,8 @@ const initGridState = defineGrid((data, view) => {
       width: '100',
       styleName: 'text-center',
       styleCallback(grid, dataCell) {
-        const { procStus, prtnrNo } = grid.getValues(dataCell.index.itemIndex);
-        if (prtnrNo === '99992') {
+        const { procStus, taikYn } = grid.getValues(dataCell.index.itemIndex);
+        if (taikYn === 'Y') {
           return { renderer: { type: 'text' } };
         }
         return (procStus === '00' || procStus === '10' || procStus === '20') ? { styleName: 'rg-button-link', renderer: { type: 'button' } } : { renderer: { type: 'text' } };
