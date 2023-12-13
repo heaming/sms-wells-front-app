@@ -849,7 +849,7 @@ const dlqPrColumnLayout = [
   {
     header: t('MSG_TXT_DLQ_REDF_PERF'),
     direction: 'horizontal',
-    items: ['dlqRedfPerfExcp', 'dlqRedfPerfTot', 'dlqRedfPerfRental'],
+    items: ['dlqRedfPerfRental', 'dlqRedfPerfExcp', 'dlqRedfPerfTot'],
   },
 ];
 
@@ -1363,9 +1363,9 @@ function initGrid(data, view) {
     { fieldName: 'wpFxamRedfBrch', header: t('MSG_TXT_FXAM'), width: '120', styleName: 'text-right', numberFormat: '#,##0' }, // 지점장 이상
     { fieldName: 'redfPerfRental', header: t('MSG_TXT_RENTAL'), width: '120', styleName: 'text-right', numberFormat: '#,##0' }, // 되물림실적.렌탈
     { fieldName: 'redfPerfExcp', header: t('MSG_TXT_ELHM_EXCP_SPAY_PERF'), width: '120', styleName: 'text-right', numberFormat: '#,##0' }, // 되물림실적.가전외 일시불 실적
-    { fieldName: 'dlqRedfPerfRental', header: t('MSG_TXT_AGG'), width: '120', styleName: 'text-right', numberFormat: '#,##0' }, // 연체되물림실적.렌탈
-    { fieldName: 'dlqRedfPerfExcp', header: t('MSG_TXT_RENTAL'), width: '120', styleName: 'text-right', numberFormat: '#,##0' }, // 연체되물림실적.가전외일시불
-    { fieldName: 'dlqRedfPerfTot', header: t('MSG_TXT_ELHM_EXCP_SPAY_PERF'), width: '120', styleName: 'text-right', numberFormat: '#,##0' }, // 연체되물림실적.계
+    { fieldName: 'dlqRedfPerfRental', header: t('MSG_TXT_RENTAL'), width: '120', styleName: 'text-right', numberFormat: '#,##0' }, // 연체되물림실적.렌탈
+    { fieldName: 'dlqRedfPerfExcp', header: t('MSG_TXT_ELHM_EXCP_SPAY_PERF'), width: '120', styleName: 'text-right', numberFormat: '#,##0' }, // 연체되물림실적.가전외일시불
+    { fieldName: 'dlqRedfPerfTot', header: t('MSG_TXT_AGG'), width: '120', styleName: 'text-right', numberFormat: '#,##0' }, // 연체되물림실적.계
     { fieldName: 'sumPerfLast201903RedfDstrc', header: t('MSG_TXT_REDF_SUM_AMT'), width: '120', styleName: 'text-right', numberFormat: '#,##0' }, // 2019년 3월 이전 + 지구장 이하 되물림합계
     { fieldName: 'sumPerf201904Between202012RedfDstrc', header: t('MSG_TXT_REDF_SUM_AMT'), width: '120', styleName: 'text-right', numberFormat: '#,##0' }, // 실적년월 2019년 04월 ~ 2020년 12월 + 지구장 이하 되물림합계
     { fieldName: 'sumPerf202101RedfDstrc', header: t('MSG_TXT_REDF_SUM_AMT'), width: '120', styleName: 'text-right', numberFormat: '#,##0' }, // 실적년월 2021년 1월 이후 + 지구장 이하 되물림합계
