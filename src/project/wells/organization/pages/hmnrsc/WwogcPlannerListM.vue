@@ -26,15 +26,17 @@
             v-model:og-tp-cd="searchParams.ogTpCd"
           />
         </kw-search-item>
-        <kw-search-item :label="t('MSG_TXT_CRLV')">
+        <kw-search-item
+          :label="t('MSG_TXT_CRLV')"
+        >
           <kw-select
             v-model="searchParams.rsbDvCd"
-            :options="codes.RSB_DV_CD"
+            :options="rsbDvCds"
             first-option="all"
             first-option-value="ALL"
             placeholder="전체"
           />
-
+          <span />
           <kw-checkbox
             v-model="searchParams.actiYn"
             :label="[t('MSG_TXT_ACTI') ]"
@@ -68,7 +70,6 @@
         </kw-search-item>
         <kw-search-item
           :label="$t('MSG_TXT_CONTACT')"
-          :hint="$t('MSG_ALT_ONLY_ONE_PHONENUM_OR_CSTNO')"
         >
           <kw-input
             v-model="searchParams.tno"
@@ -146,6 +147,8 @@ const codes = await codeUtil.getMultiCodes(
   'WM_ACTI_CD',
   'COD_PAGE_SIZE_OPTIONS',
 );
+
+const rsbDvCds = codes.RSB_DV_CD.filter((v) => [wkOjOgTpCd].includes(v.prtsCodeId));
 
 const grdMain1Ref = ref(getComponentType('KwGrid'));
 const grdMain1Datas = ref([]);
@@ -289,7 +292,7 @@ const initGrid1 = defineGrid((data, view) => {
       width: '156',
       styleName: 'text-center',
       displayCallback(g, index, value) { return isEmpty(value) ? '-' : value; },
-      editable: true,
+      editable: false,
       editor: {
         maxLength: 11,
         inputCharacters: '0-9',
