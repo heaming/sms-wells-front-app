@@ -382,7 +382,7 @@ async function onClickCreate() {
     const { data } = await dataService.get(`${baseUrl}/check-object`, { params: { ...checkParams } });
     if (data.ojTotalCount !== 0 && data.cnfmYn === 'N') {
       if (await confirm(t('MSG_ALT_EXIST_DATA_RECREATION'))) { // 이미 생성된 자료가 있습니다. 재생성 하시겠습니까?
-        await dataService.post(`${baseUrl}/object`, objectParams);
+        await dataService.post(`${baseUrl}/object`, objectParams, { timeout: 3 * 60 * 1000 });
 
         notify(t('MSG_ALT_CRT_FSH')); // 생성 되었습니다.
         await onClickSearch();
@@ -391,7 +391,7 @@ async function onClickCreate() {
       await alert(t('MSG_ALT_BF_CNFM_CONF_DATA')); // 자료가 확정되어 생성할 수 없습니다
     } else if (data.ojTotalCount === 0) {
       if (await confirm(t('MSG_ALT_WANT_CONTINUE_CREATE_DATA'))) { // 자료를 생성합니다. 계속 진행하시겠습니까?
-        await dataService.post(`${baseUrl}/object`, objectParams);
+        await dataService.post(`${baseUrl}/object`, objectParams, { timeout: 3 * 60 * 1000 });
 
         notify(t('MSG_ALT_CRT_FSH')); // 생성 되었습니다.
         await onClickSearch();
@@ -429,7 +429,7 @@ async function onClickCreate() {
     }
 
     if (await confirm(t('MSG_ALT_WANT_CREATE_CST_NO_BASE_DATA'))) { // 고객번호기준 자료를 생성합니다. 게속 진행 하시겠습니까?
-      await dataService.post(`${baseUrl}/customer`, cstNoParams);
+      await dataService.post(`${baseUrl}/customer`, cstNoParams, { timeout: 3 * 60 * 1000 });
 
       notify(t('MSG_ALT_CRT_FSH')); // 생성 되었습니다.
       await onClickSearch();
