@@ -592,14 +592,12 @@ const initGrdSub = defineGrid((data, view) => {
     { fieldName: 'rsbDvCd', visible: false },
     { fieldName: 'cardUseAmt', visible: false }, // 카드사용금액
     { fieldName: 'perfRate', visible: false }, // 실적비율
-
     { fieldName: 'dstWhtx', visible: false }, // 원천세
     { fieldName: 'erntx', visible: false }, // 소득세
     { fieldName: 'rsdntx', visible: false }, // 주민세
     { fieldName: 'mscrYn', visible: false }, // 정산여부
     { fieldName: 'resAmt', visible: false }, // 잔여금액
     { fieldName: 'pdstOpt', visible: false },
-
     { fieldName: 'dgr1LevlOgNm', header: t('MSG_TXT_MANAGEMENT_DEPARTMENT'), width: '96', styleName: 'text-center', editable: false }, // 총괄단
     { fieldName: 'dgr2LevlOgNm', header: t('MSG_TXT_RGNL_GRP'), width: '117', styleName: 'text-center', editable: false }, // 지역단
     { fieldName: 'bldNm', header: t('MSG_TXT_BLD_NM'), width: '195', styleName: 'text-center', editable: false }, // 빌딩명
@@ -634,7 +632,7 @@ const initGrdSub = defineGrid((data, view) => {
   // oldValue - 편집전 셀의 데이터 값
   // newValue - 편집후 셀의 데이터 값
   view.onEditRowChanged = async (subView, itemIndex, rowData, field, oldValue) => { // 직접편집했을때만
-    if (field.toString() !== '26') { // dstAmt 컬럼의 순서 19
+    if (field.toString() !== '26') { // dstAmt 컬럼의 순서 26
       return;
     }
     const currentValue = subView.getValue(itemIndex, 'dstAmt');
