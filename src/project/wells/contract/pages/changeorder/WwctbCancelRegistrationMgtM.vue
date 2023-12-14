@@ -304,7 +304,7 @@ function setBulkParam(firstOne) {
     // element.lsnt = firstOne.lsnt; // [분실손료] //입력되는 값이지만 조회해오는 값이기도 함
     element.dscDdctam = firstOne.dscDdctam; // [할인공제금액]
     element.filtDdctam = firstOne.filtDdctam; // [필터공제(위약금)]
-    element.rtngdQty = firstOne.rtngdQty; // [반품수량]
+    element.rtngdQty = firstOne.rtngdQty; // [반품수량] // >> 정기배송
 
     // 코드값에 따라서 입력 활성화 되는 항목 설정
     if (element.ccamExmptDvCd === '4') {
