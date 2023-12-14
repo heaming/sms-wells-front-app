@@ -65,7 +65,7 @@
           <kw-item-section class="pt20">
             <zwcm-file-attacher
               v-model="files.cmsChApf"
-              attach-group-id="ATG_CTA_RCP_FILE"
+              :attach-group-id="ATTACH_GROUP_ID.RCP_FILE"
               :attach-document-id="`${cntrChRcpKey}-CMS_CH_APF`"
             />
             <kw-image-preview
@@ -83,7 +83,7 @@
           <kw-item-section class="pt20">
             <zwcm-file-attacher
               v-model="files.idfCy"
-              attach-group-id="ATG_CTA_RCP_FILE"
+              :attach-group-id="ATTACH_GROUP_ID.RCP_FILE"
               :attach-document-id="`${cntrChRcpKey}-IDF_CY`"
             />
             <kw-image-preview
@@ -101,7 +101,7 @@
           <kw-item-section class="pt20">
             <zwcm-file-attacher
               v-model="files.bnkbCy"
-              attach-group-id="ATG_CTA_RCP_FILE"
+              :attach-group-id="ATTACH_GROUP_ID.RCP_FILE"
               :attach-document-id="`${cntrChRcpKey}-BNKB_CY`"
             />
             <kw-image-preview
@@ -119,7 +119,7 @@
           <kw-item-section class="pt20">
             <zwcm-file-attacher
               v-model="files.fmlRelCrtfd"
-              attach-group-id="ATG_CTA_RCP_FILE"
+              :attach-group-id="ATTACH_GROUP_ID.RCP_FILE"
               :attach-document-id="`${cntrChRcpKey}-FML_REL_CRTFD`"
             />
             <kw-image-preview
@@ -137,13 +137,31 @@
           <kw-item-section class="pt20">
             <zwcm-file-attacher
               v-model="files.bzrc"
-              attach-group-id="ATG_CTA_RCP_FILE"
+              :attach-group-id="ATTACH_GROUP_ID.RCP_FILE"
               :attach-document-id="`${cntrChRcpKey}-BZRC`"
             />
             <kw-image-preview
               v-if="previews.bzrc"
               class="scoped-image-preview"
               :images="previews.bzrc"
+              :curr-idx="1"
+            />
+          </kw-item-section>
+        </wwcta-contract-settlement-agree-item>
+        <wwcta-contract-settlement-agree-item
+          :title="'기타'"
+          default-opened
+        >
+          <kw-item-section class="pt20">
+            <zwcm-file-attacher
+              v-model="files.etc"
+              :attach-group-id="ATTACH_GROUP_ID.RCP_FILE"
+              :attach-document-id="`${cntrChRcpKey}-ETC`"
+            />
+            <kw-image-preview
+              v-if="previews.etc"
+              class="scoped-image-preview"
+              :images="previews.etc"
               :curr-idx="1"
             />
           </kw-item-section>
@@ -174,6 +192,7 @@ import WwctaContractSettlementAgreeItem
   from '~sms-wells/contract/components/ordermgmt/WwctaContractSettlementAgreeItem.vue';
 import ZwcmFileAttacher from '~common/components/ZwcmFileAttacher.vue';
 import { useCtCode } from '~sms-common/contract/composable';
+import { ATTACH_GROUP_ID } from '~sms-wells/contract/constants/ctConst';
 
 const props = defineProps({
   cntrBasis: { type: Array, default: undefined },
@@ -191,6 +210,7 @@ const params = decryptEncryptedParam(props.encryptedParam, {
   cntrBasis: props.cntrBasis,
   cntrChTpCd: props.cntrChTpCd,
 });
+
 const cntrChRcpKey = (params.cntrChRcpId && params.dcmtRcpSn)
   ? `${params.cntrChRcpId}-${params.dcmtRcpSn}`
   : 'new';
@@ -247,6 +267,7 @@ const files = reactive({
   bnkbCy: undefined, // 통장사본
   fmlRelCrtfd: undefined, // 가족관계증명서류
   bzrc: undefined, // 사업자등록증(법인)
+  etc: undefined, // 기타
 });
 const previews = reactive({
   cmsChApf: undefined,
@@ -254,6 +275,7 @@ const previews = reactive({
   bnkbCy: undefined,
   fmlRelCrtfd: undefined,
   bzrc: undefined,
+  etc: undefined,
 });
 watchEffect(() => {
   previews.cmsChApf = files.cmsChApf ? [files.cmsChApf] : undefined;
@@ -261,6 +283,7 @@ watchEffect(() => {
   previews.bnkbCy = files.bnkbCy ? [files.bnkbCy] : undefined;
   previews.fmlRelCrtfd = files.fmlRelCrtfd ? [files.fmlRelCrtfd] : undefined;
   previews.bzrc = files.bzrc ? [files.bzrc] : undefined;
+  previews.etc = files.etc ? [files.etc] : undefined;
 });
 
 function onConfirmAgrees(agreedInfos) {

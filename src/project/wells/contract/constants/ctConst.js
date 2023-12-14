@@ -181,3 +181,7 @@ export const RVE_DV_CD = {
   ATAM: '97', // "영업선수"
   ETC_ATAM: '98', // "기타선수"
 };
+
+export const ATTACH_GROUP_ID = {
+  RCP_FILE: 'ATG_CTA_RCP_FILE',
+};
