@@ -155,15 +155,13 @@ async function fetchData() {
 
 // 엑셀 다운로드
 async function onClickExcelDownload() {
-  const { itmOstrNo } = props;
-
   const view = grdMainRef.value.getView();
-  const res = await dataService.get('/sms/wells/service/qom-asn-items', { params: { itmOstrNo } });
+
   await gridUtil.exportView(view, {
     fileName: popupRef.value.pageCtxTitle,
     timePostfix: true,
     searchCondition: false,
-    exportData: res.data,
+    exportData: gridUtil.getAllRowValues(view),
   });
 }
 

@@ -193,24 +193,22 @@ async function onClickSearch() {
 // 엑셀 다운로드
 async function onClickExcelDownload1() {
   const view = grdMainRef1.value.getView();
-  const res = await dataService.get('/sms/wells/service/seeding-package-qty-ctrs/exclusion-qtys', { params: { ...cachedParams } });
 
   gridUtil.exportView(view, {
     fileName: `${currentRoute.value.meta.menuName} ${t('MSG_TXT_EXCD')} ${t('MSG_TXT_QTY')}`,
     timePostfix: true,
-    exportData: res.data,
+    exportData: gridUtil.getAllRowValues(view),
   });
 }
 
 // 엑셀 다운로드
 async function onClickExcelDownload2() {
   const view = grdMainRef2.value.getView();
-  const res = await dataService.get('/sms/wells/service/seeding-package-qty-ctrs/addition-qtys', { params: { ...cachedParams } });
 
   gridUtil.exportView(view, {
     fileName: `${currentRoute.value.meta.menuName} ${t('MSG_TXT_ADD')} ${t('MSG_TXT_QTY')}`,
     timePostfix: true,
-    exportData: res.data,
+    exportData: gridUtil.getAllRowValues(view),
   });
 }
 
