@@ -32,8 +32,8 @@
           :contract="contract"
         />
         <TaxInvoice
+          v-if="contractor?.copnDvCd === COPN_DV_CD.COOPERATION"
           v-model="txinvRcpBaseIz"
-          @checked="onReportChecked"
         />
         <partner-info
           :prtnr="contract.prtnr"
@@ -80,7 +80,7 @@ import WwctaContractSettlementSignItem
   from '~sms-wells/contract/components/ordermgmt/WwctaContractSettlementSignItem.vue';
 import { alert, useDataService } from 'kw-lib';
 import { decryptEncryptedParam, postMessage } from '~sms-common/contract/util';
-import { DP_TP_CD } from '~sms-wells/contract/constants/ctConst';
+import { COPN_DV_CD, DP_TP_CD } from '~sms-wells/contract/constants/ctConst';
 import { warn } from 'vue';
 import { openOzReport } from '~sms-common/contract/util/CtPopupUtil';
 import Agrees from './WwctaContractSettlementAgreeAprMgtMAgrees.vue';
@@ -106,6 +106,7 @@ if (!params.cntrNo) {
 }
 
 const contract = ref({}); /* in */
+const contractor = computed(() => contract.value?.cntrCstInfo);
 const stlmsUpdateRequestBody = reactive({
   cntrNo: params.cntrNo,
   agIzs: undefined,
