@@ -477,7 +477,7 @@ const initGrdMain = defineGrid((data, view) => {
       width: '100',
       styleName: 'text-right',
       editable: true,
-      rules: 'required',
+      rules: 'required|max_value:999999',
 
     },
     // 입고사유
