@@ -322,16 +322,16 @@
     <kw-form-row>
       <!-- row5 연체가산금 (mapping : 기말연체가산금액?eotDlqAddAmt)-->
       <kw-form-item :label="$t('MSG_TXT_DLQ_ADAMT')">
-        <p>{{ stringUtil.getNumberWithComma(searchDetail.eotDlqAddAmt??'') }}</p>
+        <p>{{ stringUtil.getNumberWithComma(searchDetail.btdDlqAddAmt??'') }}</p>
       </kw-form-item>
       <!-- row3 가산입금 (mapping : null)-->
       <kw-form-item :label="$t('MSG_TXT_ADD_DP_AMT')">
-        <p>{{ stringUtil.getNumberWithComma(searchDetail.null??'') }}</p>
+        <p>{{ stringUtil.getNumberWithComma(searchDetail.thmDlqAddDpSumAmt??'') }}</p>
       </kw-form-item>
       <!-- row3 가산조정 (mapping : null)-->
       <kw-form-item :label="$t('MSG_TXT_ADD_CTR')">
         <kw-input
-          v-model="searchDetail.null"
+          v-model="searchDetail.adCtrAmt"
           regex="num"
           maxlength="10"
         />
