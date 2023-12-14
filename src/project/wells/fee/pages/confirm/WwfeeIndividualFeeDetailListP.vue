@@ -118,7 +118,7 @@ async function onClickExcelDownload() {
   const view = grdMainRef.value.getView();
   const exportLayout = view.getColumns();
   const response = await dataService.get(`/sms/wells/fee/individual-fees/${type}-details`, { params: cachedParams });
-  console.log(response.data);
+
   await gridUtil.exportView(view, {
     fileName: currentRoute.value.meta.menuName,
     timePostfix: true,
@@ -155,7 +155,7 @@ function getGridColumns() {
       { fieldName: 'cntrNo', header: t('MSG_TXT_CNTR_DTL_NO'), width: '129', styleName: 'text-center' }, // 계약상세번호
       { fieldName: 'pdNm', header: t('MSG_TXT_PD_IZ'), width: '239', styleName: 'text-left' }, // 상품명
       { fieldName: 'cstKnm', header: t('MSG_TXT_CST_NM'), width: '119', styleName: 'text-center' }, // 고객명
-      { fieldName: 'saleDiv', header: t('MSG_TXT_CHDVC_TP'), width: '119', styleName: 'text-center' }, // 기변유형
+      { fieldName: 'saleDiv', header: t('MSG_TXT_SLS_CAT'), width: '119', styleName: 'text-center' }, // 판매구분
       { fieldName: 'perfElhm',
         header: t('MSG_TXT_ELHM_ACKMT_PERF'),
         width: '119',
@@ -193,7 +193,17 @@ function getGridColumns() {
       { fieldName: 'cntrNo', header: t('MSG_TXT_CNTR_DTL_NO'), width: '129', styleName: 'text-center' }, // 계약상세번호
       { fieldName: 'pdNm', header: t('MSG_TXT_PD_IZ'), width: '239', styleName: 'text-left' }, // 상품명
       { fieldName: 'cstKnm', header: t('MSG_TXT_CST_NM'), width: '119', styleName: 'text-center' }, // 고객명
-      { fieldName: 'saleDiv', header: t('MSG_TXT_CHDVC_TP'), width: '119', styleName: 'text-center' }, // 기변유형
+      { fieldName: 'saleDiv', header: t('MSG_TXT_SLS_CAT'), width: '119', styleName: 'text-center' }, // 판매구분
+      { fieldName: 'nincCnt',
+        header: t('MSG_TXT_NINC') + t('MSG_TXT_COUNT'),
+        width: '119',
+        styleName: 'text-right',
+        dataType: 'number',
+        numberFormat: '#,##0',
+        headerSummary: {
+          numberFormat: '#,##0',
+          expression: 'sum',
+        } }, // 순증건수
       { fieldName: 'perfRental',
         header: t('MSG_TXT_ELHM_BASE_PRC'),
         width: '119',
@@ -214,6 +224,26 @@ function getGridColumns() {
           numberFormat: '#,##0',
           expression: 'sum',
         } }, // 가전인정건수
+      { fieldName: 'perfSnglPmnt',
+        header: t('MSG_TXT_ELHM_SPAY'),
+        width: '119',
+        styleName: 'text-right',
+        dataType: 'number',
+        numberFormat: '#,##0',
+        headerSummary: {
+          numberFormat: '#,##0',
+          expression: 'sum',
+        } }, // 가전일시불
+      { fieldName: 'perfFxam',
+        header: t('MSG_TXT_ELHM') + t('MSG_TXT_FXAM'),
+        width: '119',
+        styleName: 'text-right',
+        dataType: 'number',
+        numberFormat: '#,##0',
+        headerSummary: {
+          numberFormat: '#,##0',
+          expression: 'sum',
+        } }, // 가전정액
       { fieldName: 'perfElhmExcpAckmt',
         header: t('MSG_TXT_ELHM_EXCP_ACKMT_PERF'),
         width: '119',
@@ -224,6 +254,16 @@ function getGridColumns() {
           numberFormat: '#,##0',
           expression: 'sum',
         } }, // 가전외인정실적
+      { fieldName: 'perfElhmExcpFxam',
+        header: t('MSG_TXT_ELHM_EXCP') + t('MSG_TXT_FXAM'),
+        width: '119',
+        styleName: 'text-right',
+        dataType: 'number',
+        numberFormat: '#,##0',
+        headerSummary: {
+          numberFormat: '#,##0',
+          expression: 'sum',
+        } }, // 가전외정액
     );
   } else if (ogTpCd === 'W03') { // 홈마스터
     columns.push(
