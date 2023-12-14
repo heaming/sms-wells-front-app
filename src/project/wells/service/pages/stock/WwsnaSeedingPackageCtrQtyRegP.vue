@@ -238,11 +238,10 @@ async function onClickSave() {
 async function onClickExcelDownload() {
   const view = grdMainRef.value.getView();
 
-  const res = await dataService.get('/sms/wells/service/seeding-package-ctr-qtys-reg', { params: cachedParams });
   await gridUtil.exportView(view, {
     fileName: popupRef.value.pageCtxTitle,
     timePostfix: true,
-    exportData: res.data,
+    exportData: gridUtil.getAllRowValues(view),
   });
 }
 
