@@ -357,7 +357,11 @@ const isEngineerSelected = computed(() => searchParams.value.mngrDvCd === '2');
 /*  관리구분 변경시 초기화 */
 async function onChangeMngrDvCd() {
   searchParams.value.dgr1LevlOgId = '';
-  searchParams.value.dgr2LevlOgId = '';
+  if (searchParams.value.mngrDvCd === '1') {
+    searchParams.value.dgr2LevlOgId = 'OG00053616';
+  } else {
+    searchParams.value.dgr2LevlOgId = '';
+  }
   searchParams.value.ogId = '';
   searchParams.value.prtnrNo = '';
 }
