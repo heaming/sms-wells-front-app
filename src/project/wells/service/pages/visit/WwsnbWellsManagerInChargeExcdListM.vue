@@ -115,7 +115,7 @@
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
-import { useDataService, useMeta, codeUtil, gridUtil } from 'kw-lib';
+import { codeUtil, gridUtil, useDataService, useMeta } from 'kw-lib';
 import { cloneDeep } from 'lodash-es';
 import dayjs from 'dayjs';
 
@@ -264,7 +264,7 @@ async function initGrdMain(data, view) {
       editor: {
         type: 'dropdown',
       } }, // 진행상태
-    { fieldName: 'newAdrZip', header: t('MSG_TXT_ZIP'), styleName: 'text-center', width: '80' }, // 우편번호
+    // { fieldName: 'newAdrZip', header: t('MSG_TXT_ZIP'), styleName: 'text-center', width: '80' }, // 우편번호
     { fieldName: 'adr', header: t('MSG_TXT_ADDR'), styleName: 'text-left', width: '400' }, // 주소
     { fieldName: 'emd', header: t('MSG_TXT_EMD'), styleName: 'text-left', width: '200' }, // 읍명동
     { fieldName: 'ogNm', header: t('센터명'), styleName: 'text-center', width: '90' }, // 지역단
