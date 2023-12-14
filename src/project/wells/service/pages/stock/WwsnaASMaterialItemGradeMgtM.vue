@@ -183,7 +183,7 @@ import dayjs from 'dayjs';
 import { cloneDeep, isEmpty } from 'lodash-es';
 
 const { t } = useI18n();
-const { getConfig } = useMeta();
+const { getConfig, hasPermission } = useMeta();
 const { notify, alert } = useGlobal();
 const { currentRoute } = useRouter();
 const dataService = useDataService();
@@ -287,7 +287,10 @@ async function fetchData() {
   pagingResult.needTotalCount = false;
   pageInfo.value = pagingResult;
 
-  if (isEmpty(itmGd)) {
+  // 업데이트 권한 체크
+  const isPermission = hasPermission('update');
+
+  if (isEmpty(itmGd) && isPermission) {
     const { baseYm, itmKndCd } = cachedParams;
 
     const validRes = await dataService.get('/sms/wells/service/as-material-item-grades/duplication-check', { params: { ...cachedParams } });
