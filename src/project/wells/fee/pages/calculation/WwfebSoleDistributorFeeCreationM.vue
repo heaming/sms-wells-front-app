@@ -253,7 +253,7 @@ async function onClickExcelDownload() {
 async function onClickHistory() {
   // Z-CO-U-0034P09 아래 팝업 호출시 에러남ㅋ;
   const param = {
-    feeHistSrnCd: '01',
+    feeHistSrnCd: 'W05',
   };
   await modal({
     component: 'ZwfebFeeHistoryMgtP',

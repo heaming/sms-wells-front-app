@@ -505,7 +505,7 @@ async function onClickSearchNo() {
 // 이력관리 버튼 클릭 이벤트
 async function onClickHisMgt() {
   const param = {
-    feeHistSrnCd: '01',
+    feeHistSrnCd: 'W06',
   };
   await modal({
     component: 'ZwfebFeeHistoryMgtP',
