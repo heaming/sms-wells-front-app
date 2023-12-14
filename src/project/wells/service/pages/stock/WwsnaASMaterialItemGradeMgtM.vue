@@ -194,6 +194,9 @@ const dataService = useDataService();
 
 const grdMainRef = ref(getComponentType('KwGrid'));
 
+// 업데이트 권한 체크
+const isPermission = hasPermission('update');
+
 let cachedParams;
 const searchParams = ref({
   baseYm: dayjs().format('YYYYMM'), // 기준년월
@@ -287,9 +290,7 @@ async function fetchData() {
   pagingResult.needTotalCount = false;
   pageInfo.value = pagingResult;
 
-  // 업데이트 권한 체크
-  const isPermission = hasPermission('update');
-
+  // 데이터가 없을 경우 생성하는 로직으로 인해 업데이트 권한 체크 로직 추가
   if (isEmpty(itmGd) && isPermission) {
     const { baseYm, itmKndCd } = cachedParams;
 
