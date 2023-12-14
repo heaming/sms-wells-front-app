@@ -92,15 +92,18 @@ async function validateProps() {
     return;
   }
   let contractAlert;
-  params.cntrBasis.forEach(({ cntrNo, cntrSn }) => {
+  const invalid = params.cntrBasis.some(({ cntrNo, cntrSn }) => {
     if (!cntrNo) {
       contractAlert = alert('계약번호가 없는 계약정보가 있습니다.');
+      return true;
     }
     if (!cntrSn) {
       contractAlert = alert('계약일련번호가 없는 계약정보가 있습니다.');
+      return true;
     }
+    return false;
   });
-  if (contractAlert) {
+  if (invalid) {
     await contractAlert;
     close('Some props is wrong!');
     return;
