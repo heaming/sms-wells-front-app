@@ -212,15 +212,13 @@ const chgApyDt = ref({
 
 /* 조회조건 */
 const searchParams = ref({
-  hgrPdCd: '', // '4',
-  pdCd: '', // 'WM03100193',
+  hgrPdCd: '',
+  pdCd: '',
   pdNm: '',
   cmnPartChk: 'N',
   apyMtrChk: 'N',
   applyDate: now.format('YYYYMMDD'),
 });
-
-// const isDisableEBtn = watch(() => searchParams.value.hgrPdCd || searchParams.value.pdCd);
 
 let cachedParams;
 
@@ -248,6 +246,7 @@ changePdGrpCd();
 
 const isHgrPdCd = ref(false);
 
+// 상품그룹에 따른 상품명 셀렉트박스 변경
 watch(() => searchParams.value.pdGrpCd, (val) => {
   if (!isEmpty(val) && Number(val) > 9) {
     isHgrPdCd.value = true;
@@ -322,8 +321,11 @@ async function onClickSave() {
     return;
   }
 
+  // check항목이 없을 경우 return
   if (!(await gridUtil.validate(view, { isCheckedOnly: true }))) { return; }
+  // 변경사항이 없을 경우 알림 및 return
   if (await gridUtil.alertIfIsNotModified(view)) { return; }
+  // 입력데이터 값 검증
   if (!await gridUtil.validate(view)) { return; }
 
   await dataService.post('sms/wells/service/paid-as-costs', chkRows);
@@ -373,7 +375,6 @@ const initGrdMain = defineGrid((data, view) => {
       editor: {
         type: 'number',
         maxLength: 8,
-        // textFormat: '/^[0-9]*$/i',
         inputCharacters: ['0-9'],
       },
       styleName: 'text-right',
@@ -416,10 +417,6 @@ const initGrdMain = defineGrid((data, view) => {
       width: '200',
       styleName: 'text-right',
       editable: false,
-      // displayCallback(grid, index, val) {
-      //   const { csmrUprcAmt, tcfeeAmt } = grid.getValues(index.itemIndex);
-      //   if (csmrUprcAmt + tcfeeAmt) { return val; }
-      // },
     }, // 합계(소비자가+기술료)
   ];
 
@@ -429,6 +426,7 @@ const initGrdMain = defineGrid((data, view) => {
   view.checkBar.visible = true;
   view.rowIndicator.visible = true;
 
+  // 소비자가, 도매단가, 내부단가, 기술료, 적용시작일/종료일 수정로직
   view.onCellEditable = (grid, itemIndex) => {
     const { izSn, pdctPdCd, useMatPdCd } = gridUtil.getRowValue(grid, itemIndex.dataRow);
     if ((isEmpty(izSn) || isEmpty(pdctPdCd) || isEmpty(useMatPdCd))
@@ -437,6 +435,7 @@ const initGrdMain = defineGrid((data, view) => {
     }
   };
 
+  // 합계(소비자가 + 기술료) 컬럼 계산 및 값 자동 반영 로직
   view.onGetEditValue = (grd, idx, editResult) => {
     if (idx.fieldName === 'csmrUprcAmt' || idx.fieldName === 'tcfeeAmt') {
       grd.checkItem(idx.itemIndex, true);
@@ -452,6 +451,7 @@ const initGrdMain = defineGrid((data, view) => {
     }
   };
 
+  // 일련번호, 품목코드, 상품자재코드가 없는 데이터 check_box false
   view.setCheckableCallback((dataSource, item) => {
     const { izSn, pdctPdCd, useMatPdCd } = gridUtil.getRowValue(view, item.dataRow);
 
