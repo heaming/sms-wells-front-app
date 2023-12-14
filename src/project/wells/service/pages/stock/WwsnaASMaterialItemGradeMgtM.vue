@@ -183,7 +183,7 @@ import dayjs from 'dayjs';
 import { cloneDeep, isEmpty } from 'lodash-es';
 
 const { t } = useI18n();
-const { getConfig } = useMeta();
+const { getConfig, hasPermission } = useMeta();
 const { notify, alert } = useGlobal();
 const { currentRoute } = useRouter();
 const dataService = useDataService();
@@ -193,6 +193,9 @@ const dataService = useDataService();
 // -------------------------------------------------------------------------------------------------
 
 const grdMainRef = ref(getComponentType('KwGrid'));
+
+// 업데이트 권한 체크
+const isPermission = hasPermission('update');
 
 let cachedParams;
 const searchParams = ref({
@@ -287,7 +290,8 @@ async function fetchData() {
   pagingResult.needTotalCount = false;
   pageInfo.value = pagingResult;
 
-  if (isEmpty(itmGd)) {
+  // 데이터가 없을 경우 생성하는 로직으로 인해 업데이트 권한 체크 로직 추가
+  if (isEmpty(itmGd) && isPermission) {
     const { baseYm, itmKndCd } = cachedParams;
 
     const validRes = await dataService.get('/sms/wells/service/as-material-item-grades/duplication-check', { params: { ...cachedParams } });
@@ -389,7 +393,7 @@ const initGrdMain = defineGrid((data, view) => {
     { fieldName: 'sapCd', header: t('MSG_TXT_SAPCD'), width: '95', styleName: 'text-center' },
     { fieldName: 'itmPdCd', header: t('MSG_TXT_ITM_CD'), width: '110', styleName: 'text-center' },
     { fieldName: 'itmPdNm', header: t('MSG_TXT_PRDT_NM'), width: '300', styleName: 'text-left' },
-    { fieldName: 'jbfMms3OstrQty', header: t('MSG_TXT_JBF_MMS3_OSTR_SUM'), width: '120', styleName: 'text-right' },
+    { fieldName: 'jbfMms3OstrQty', header: t('MSG_TXT_JBF_MMS3_OSTR_SUM'), width: '150', styleName: 'text-right' },
     { fieldName: 'mlmnOstrQty', header: t('MSG_TXT_MM_AV'), width: '100', styleName: 'text-right', numberFormat: '#,##0.0' },
     { fieldName: 'dAvOstrQty', header: t('MSG_TXT_D_AV'), width: '100', styleName: 'text-right', numberFormat: '#,##0.0' },
     { fieldName: 'itmMngtGdCd', header: t('MSG_TXT_ITM_MNGT_GD'), width: '100', styleName: 'text-center' },
@@ -403,7 +407,7 @@ const initGrdMain = defineGrid((data, view) => {
     },
     { fieldName: 'rmkCn',
       header: t('MSG_TXT_CTR_RSON'),
-      width: '348',
+      width: '318',
       styleName: 'text-left',
       rules: 'max:4000',
       editor: {
