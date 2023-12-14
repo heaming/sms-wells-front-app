@@ -231,11 +231,12 @@ async function onClickSave() {
     return;
   }
 
-  await dataService.post('/sms/wells/service/as-consumables-stores', checkedRows);
-
-  notify(t('MSG_ALT_SAVE_DATA'));
-
-  await fetchData();
+  const res = await dataService.post('/sms/wells/service/as-consumables-stores', checkedRows);
+  const { processCount } = res.data;
+  if (processCount > 0) {
+    notify(t('MSG_ALT_SAVE_DATA'));
+    await fetchData();
+  }
 }
 
 // 행 삭제
@@ -252,10 +253,8 @@ async function onClickDeleteRow() {
   if (deletedRows.length > 0) {
     const result = await dataService.delete('/sms/wells/service/as-consumables-stores', { data: deletedRows });
     if (result.data > 0) {
-      notify(t('MSG_ALT_SAVE_COMP'));
+      notify(t('MSG_ALT_DELETED'));
       await fetchData();
-    } else {
-      notify(t('MSG_ALT_PROC_FAIL'));
     }
   }
 }
@@ -298,8 +297,9 @@ async function onClickExcelDownload() {
 // 그리드의 입력된 창고번호로 창고명 조회
 async function findWareNm(strWareNo, itemIndex, grid) {
   if (!isEmpty(strWareNo)) {
+    const { strRgstDt } = cachedParams;
     try {
-      const res = await dataService.get(`/sms/wells/service/as-consumables-stores/${searchParams.value.strRgstDt}-${strWareNo}/warehouse`);
+      const res = await dataService.get(`/sms/wells/service/as-consumables-stores/${strRgstDt}-${strWareNo}/warehouse`);
       const { strWareNm } = res.data;
       grid.setValue(itemIndex, 'wareNm', strWareNm);
     } catch (e) {
@@ -396,7 +396,7 @@ const initGrdMain = defineGrid((data, view) => {
       },
       width: '200',
       styleName: 'text-left',
-      editable: true,
+      editable: false,
       rules: 'required',
     },
     // 입고등록일자
@@ -446,7 +446,7 @@ const initGrdMain = defineGrid((data, view) => {
       },
       width: '250',
       styleName: 'text-left',
-      editable: true,
+      editable: false,
       rules: 'required',
     },
     // 등급
@@ -477,7 +477,7 @@ const initGrdMain = defineGrid((data, view) => {
       width: '100',
       styleName: 'text-right',
       editable: true,
-      rules: 'required',
+      rules: 'required|max_value:999999',
 
     },
     // 입고사유
