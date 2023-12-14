@@ -261,7 +261,7 @@ async function onClickExcelDownload() {
 // 이력관리 버튼 클릭
 async function onClickHistory() {
   const param = {
-    feeHistSrnCd: '01',
+    feeHistSrnCd: 'W04',
   };
   await modal({
     component: 'ZwfebFeeHistoryMgtP',
