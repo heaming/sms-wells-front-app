@@ -174,8 +174,7 @@ const pageInfo = ref({
   pageIndex: 1,
   pageSize: Number(getConfig('CFG_CMZ_DEFAULT_PAGE_SIZE')),
 });
-// const pdNm = ref([]);
-// const pdtNm = ref([]);
+
 /* 조회조건 */
 const searchParams = ref({
   pdNm: '',
@@ -184,10 +183,13 @@ const searchParams = ref({
   apyMtrChk: 'N',
   pdGrpCd: '1',
 });
+
+// 상품그룹 없을 경우 버튼 disable
 const isDisable = computed(() => (isEmpty(searchParams.value.pdGr)));
 
 const pdsAll = ref([]);
 const pds = ref([]);
+// 상품그룹에 따른 상품명 셀렉트박스 변경
 async function changePdGrpCd() {
   if (searchParams.value.pdGrpCd) {
     pds.value = await getPartMaster(
@@ -262,9 +264,7 @@ async function onClickDelete() {
 
   if (deleteRows.length <= 0) { return; }
 
-  // if (await confirm(t('MSG_ALT_WANT_DEL'))) {
   await dataService.delete('/sms/wells/service/installation-separation-costs', { data: [...deleteRows] });
-  // }
   if (isEmpty(pageInfo)) {
     await fetchData();
   }

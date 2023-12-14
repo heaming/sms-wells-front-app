@@ -1065,8 +1065,8 @@ const initGridState = defineGrid((data, view) => {
 
         const param = `cstSvAsnNo=${cstSvAsnNo}&bypassPrtnrNo=${bypassPrtnrNo}&svHshdNo=${svHshdNo}&svHshdNoCnt=${svHshdNoCnt}&svBizHclsfCd=${svBizHclsfCd}&svBizDclsfCd=${svBizDclsfCd}&wkPrgsStatCd=${wkPrgsStatCd}&cntrNo=${cntrNo}&cntrSn=${cntrSn}`;
         const redirectUrl = encodeURIComponent(`/popup/mobile/wmsnb-as-work-list?${param}`);
-        // const queryString = new URLSearchParams(param);
 
+        // 접속서버에 따른 모바일 url
         let url = '';
         if (import.meta.env.MODE === 'dev') {
           url = 'https://d-m-wpm.kyowon.co.kr';
@@ -1075,7 +1075,6 @@ const initGridState = defineGrid((data, view) => {
         } else {
           url = 'https://m-wpm.kyowon.co.kr';
         }
-        // window.open(`${url}/certification/sso/login?redirectUrl=${redirectUrl}`);
         popupUtil.open(`${url}/certification/sso/login?redirectUrl=${redirectUrl}`, { width: 400, height: 844 });
       }
     }
