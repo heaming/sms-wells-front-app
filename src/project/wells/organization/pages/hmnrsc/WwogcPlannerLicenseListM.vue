@@ -383,7 +383,7 @@ function getTargetQualification(item, details, type) {
 
     if (type === 'THIS_OPENING') {
       result.cvdt = dayjs().format('YYYYMMDD'); // 전환일자
-    } else {
+    } else if (type !== 'HOLDING') {
       result.cvdt = result.strtdt;
     }
   }
@@ -487,12 +487,14 @@ async function onClickUpgrades(type) {
       notify(message);
       // await currentRowDetail(selectedCurrentRow.value);
 
-      const view = grdMain1Ref.value.getView();
+      // const view = grdMain1Ref.value.getView();
       searchParams.value.prtnrNo = currentRowPrtnrNo;
       searchParams.value.prtnrKnm = currentRowPrtnrKnm;
       // searchParams.value.qlfDvCd = [qualification.targetQlfDvCd];
-      await init();
-      gridUtil.focusCellInput(view, 0);
+      await onclickSearch();
+      const view = grdMain1Ref.value.getView();
+      view.resetCurrent();
+      // gridUtil.focusCellInput(view, 0);
     }
   }
 }
