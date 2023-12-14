@@ -393,7 +393,7 @@ const initGrdMain = defineGrid((data, view) => {
     { fieldName: 'sapCd', header: t('MSG_TXT_SAPCD'), width: '95', styleName: 'text-center' },
     { fieldName: 'itmPdCd', header: t('MSG_TXT_ITM_CD'), width: '110', styleName: 'text-center' },
     { fieldName: 'itmPdNm', header: t('MSG_TXT_PRDT_NM'), width: '300', styleName: 'text-left' },
-    { fieldName: 'jbfMms3OstrQty', header: t('MSG_TXT_JBF_MMS3_OSTR_SUM'), width: '120', styleName: 'text-right' },
+    { fieldName: 'jbfMms3OstrQty', header: t('MSG_TXT_JBF_MMS3_OSTR_SUM'), width: '150', styleName: 'text-right' },
     { fieldName: 'mlmnOstrQty', header: t('MSG_TXT_MM_AV'), width: '100', styleName: 'text-right', numberFormat: '#,##0.0' },
     { fieldName: 'dAvOstrQty', header: t('MSG_TXT_D_AV'), width: '100', styleName: 'text-right', numberFormat: '#,##0.0' },
     { fieldName: 'itmMngtGdCd', header: t('MSG_TXT_ITM_MNGT_GD'), width: '100', styleName: 'text-center' },
@@ -407,7 +407,7 @@ const initGrdMain = defineGrid((data, view) => {
     },
     { fieldName: 'rmkCn',
       header: t('MSG_TXT_CTR_RSON'),
-      width: '348',
+      width: '318',
       styleName: 'text-left',
       rules: 'max:4000',
       editor: {
