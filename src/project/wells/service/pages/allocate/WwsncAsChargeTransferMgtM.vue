@@ -265,7 +265,7 @@ const codes = await codeUtil.getMultiCodes(
 const vstTms = [];
 for (let i = 9; i <= 18; i += 1) {
   const value = i.toString();
-  vstTms.push({ codeId: `${value.padStart(2, '0')}00`, codeName: `${value.padStart(2, '0')}:00` });
+  vstTms.push({ codeId: `${value.padStart(2, '0')}0000`, codeName: `${value.padStart(2, '0')}:00` });
 }
 let cachedParams;
 
