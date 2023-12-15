@@ -95,6 +95,7 @@
             <!-- 4.등록정보 확인 -->
             <kw-step-panel :name="pdConst.W_MATERIAL_STEP_CHECK.name">
               <wwpdc-material-dtl-m-contents
+                ref="contentsRef"
                 v-model:pd-cd="currentPdCd"
                 v-model:init-data="prevStepData"
                 :is-history-tab="false"
@@ -193,6 +194,7 @@ const router = useRouter();
 const baseUrl = '/sms/wells/product/materials';
 const pdTpDtlCd = ref(pdConst.PD_TP_DTL_CD_MATERIAL);
 const exceptPrpGrpCd = ref('PART');
+const contentsRef = ref();
 
 const bas = pdConst.TBL_PD_BAS;
 const dtl = pdConst.TBL_PD_DTL;
@@ -474,8 +476,17 @@ async function initProps() {
   prevProps.value = cloneDeep({ pdCd, newRegYn, reloadYn, copyPdCd, propWatch });
 }
 
+// 컴포넌트 초기화
+async function initCmpt() {
+  await Promise.all(cmpStepRefs.value.map(async (item) => {
+    if (item.value?.init) await item.value?.init();
+  }));
+  await contentsRef.value.resetData?.();
+}
+
 onMounted(async () => {
   await initProps();
+  await initCmpt();
 });
 
 // 팝업 후처리

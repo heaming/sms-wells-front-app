@@ -58,6 +58,7 @@
             <!-- 2.등록정보 확인 -->
             <kw-step-panel :name="pdConst.W_AS_PART_STEP_CHECK.name">
               <wwpdc-as-part-dtl-m-contents
+                ref="contentsRef"
                 v-model:pd-cd="currentPdCd"
                 v-model:init-data="prevStepData"
                 :is-history-tab="false"
@@ -172,6 +173,7 @@ const currentCopyPdCd = ref();
 const isCreate = ref(false);
 const obsMainRef = ref();
 const subTitle = ref();
+const contentsRef = ref();
 
 // 중복검사
 async function duplicationCheck(validationType, sourceData) {
@@ -431,8 +433,17 @@ async function initProps() {
   prevProps.value = cloneDeep({ pdCd, newRegYn, reloadYn, copyPdCd, propWatch });
 }
 
+// 컴포넌트 초기화
+async function initCmpt() {
+  await Promise.all(cmpStepRefs.value.map(async (item) => {
+    if (item.value?.init) await item.value?.init();
+  }));
+  await contentsRef.value.resetData?.();
+}
+
 onMounted(async () => {
   await initProps();
+  await initCmpt();
 });
 
 watch(() => props, async ({ pdCd, newRegYn, reloadYn, copyPdCd, propWatch }) => {
