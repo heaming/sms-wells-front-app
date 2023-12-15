@@ -361,7 +361,6 @@ async function onClickExcelDownload() {
 }
 
 async function onClickCreate() {
-  if (isEmpty(cachedParams)) return;
   const checkParams = {
     ucAmtFwTpCd: searchParams.value.ucAmtFwTpCd,
     ojWkDt: searchParams.value.ojWkDt,
