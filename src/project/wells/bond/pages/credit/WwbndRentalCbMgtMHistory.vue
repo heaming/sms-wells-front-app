@@ -340,11 +340,12 @@ const initGrid = defineGrid((data, view) => {
   // 렌탈CB 납입정보 팝업 open
   view.onCellItemClicked = async (grid, { itemIndex, column }) => {
     const { cstNo } = grid.getValues(itemIndex);
-    if (column === 'dlqBlam' && !isEmpty(cstNo)) {
+    if (column === 'dlqBlam' && !isEmpty(cstNo) && !isEmpty(cachedParams.baseYm)) {
       await modal({
         component: 'WwbndRentalCbPaymentInfoP',
         componentProps: {
           cstNo,
+          baseYm: cachedParams.baseYm,
         },
       });
     }
