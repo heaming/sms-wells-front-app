@@ -41,12 +41,12 @@
             v-model="searchParams.actiYn"
             :label="[t('MSG_TXT_ACTI') ]"
             :true-value="Y"
-            :false-value="N"
+            :false-value="ALL"
           />
 
           <kw-checkbox
             v-model="searchParams.wmYn"
-            :label="[t('WM') ]"
+            :label="['WM']"
             :true-value="3"
             :false-value="N"
           />
@@ -86,9 +86,9 @@
       <kw-action-top>
         <template #left>
           <kw-paging-info
-            v-model:page-index="grdMain1PageInfo.pageIndex"
-            v-model:page-size="grdMain1PageInfo.pageSize"
-            :total-count="grdMain1PageInfo.totalCount"
+            v-model:page-index="pageInfo.pageIndex"
+            v-model:page-size="pageInfo.pageSize"
+            :total-count="pageInfo.totalCount"
             :page-size-options="codes.COD_PAGE_SIZE_OPTIONS"
             @change="fetchData"
           />
@@ -98,25 +98,24 @@
           dense
           secondary
           :label="$t('MSG_BTN_EXCEL_DOWN')"
-          :disable="grdMain1PageInfo.totalCount === 0"
+          :disable="pageInfo.totalCount === 0"
           @click="onClickExcelDownload"
         />
       </kw-action-top>
 
       <kw-grid
-        ref="grdMain1Ref"
-        name="grdMain1"
-        :visible-rows="10"
-        :page-size="grdMain1PageInfo.pageSize"
-        :total-count="grdMain1PageInfo.totalCount"
-        @init="initGrid1"
+        ref="grdMainRef"
+        name="grdMain"
+        :page-size="pageInfo.pageSize"
+        :total-count="pageInfo.totalCount"
+        @init="initGrid"
       />
 
       <kw-pagination
-        v-model:page-index="grdMain1PageInfo.pageIndex"
-        v-model:page-size="grdMain1PageInfo.pageSize"
-        :total-count="grdMain1PageInfo.totalCount"
-        @change="onChangePageInfo"
+        v-model:page-index="pageInfo.pageIndex"
+        v-model:page-size="pageInfo.pageSize"
+        :total-count="pageInfo.totalCount"
+        @change="fetchData"
       />
     </div>
   </kw-page>
@@ -129,7 +128,6 @@
 import { defineGrid, getComponentType, useDataService, useMeta, gridUtil, codeUtil } from 'kw-lib';
 import { isEmpty, cloneDeep } from 'lodash-es';
 import dayjs from 'dayjs';
-
 import { SMS_WELLS_URI } from '~sms-wells/organization/constants/ogConst';
 import ZwogPartnerSearch from '~sms-common/organization/components/ZwogPartnerSearch.vue';
 
@@ -138,22 +136,18 @@ const dataService = useDataService();
 const { getUserInfo } = useMeta();
 const { wkOjOgTpCd, ogTpCd } = getUserInfo();
 
-// -------------------------------------------------------------------------------------------------
-// Function & Event
-// -------------------------------------------------------------------------------------------------
 const codes = await codeUtil.getMultiCodes(
   'RSB_DV_CD',
   'QLF_DV_CD',
-  'WM_ACTI_CD',
   'COD_PAGE_SIZE_OPTIONS',
 );
 
 const rsbDvCds = codes.RSB_DV_CD.filter((v) => [wkOjOgTpCd].includes(v.prtsCodeId));
 
-const grdMain1Ref = ref(getComponentType('KwGrid'));
-const grdMain1Datas = ref([]);
+const grdMainRef = ref(getComponentType('KwGrid'));
+const grdMainDatas = ref([]);
 
-const grdMain1PageInfo = ref({
+const pageInfo = ref({
   totalCount: 0,
   pageIndex: 1,
   pageSize: 30,
@@ -168,15 +162,20 @@ const searchParams = ref({
   mexnoEncr: undefined,
   cralIdvTno: undefined,
   qlfDvCd: codes.QLF_DV_CD.map((item) => item.codeId),
-  wmActiCd: codes.WM_ACTI_CD.map((item) => item.codeId),
   actiYn: 'Y',
   wmYn: 'N',
 });
-
 let cachedParams;
+
+// -------------------------------------------------------------------------------------------------
+// Function & Event
+// -------------------------------------------------------------------------------------------------
 
 // 인사정보 목록 데이터 조회
 async function fetchData() {
+  if (cachedParams.actiYn === 'N') {
+    cachedParams.actiYn = 'ALL';
+  }
   if (cachedParams.rsbDvCd === 'ALL') {
     cachedParams.rsbDvCd = undefined;
   }
@@ -198,20 +197,21 @@ async function fetchData() {
       cachedParams.cralIdvTno = cachedParams.tno;
     }
   }
-  const res = await dataService.get(`${SMS_WELLS_URI}/partner/wells-planner-paging`, { params: { ...cachedParams, ...grdMain1PageInfo.value } });
+  const res = await dataService.get(`${SMS_WELLS_URI}/partner/wells-planner-paging`, { params: { ...cachedParams, ...pageInfo.value } });
   const { list, pageInfo: pagingResult } = res.data;
-  grdMain1PageInfo.value = pagingResult;
-  grdMain1Datas.value = list;
+  pageInfo.value = pagingResult;
+  grdMainDatas.value = list;
 
-  const view = grdMain1Ref.value.getView();
+  const view = grdMainRef.value.getView();
   view.getDataSource().setRows(list);
-  return grdMain1Datas.value;
+  view.rowIndicator.indexOffset = gridUtil.getPageIndexOffset(pageInfo);
+  return grdMainDatas.value;
 }
 // 페이징처리
-async function onChangePageInfo() {
-  if (isEmpty(cachedParams)) return;
-  await fetchData();
-}
+// async function onChangePageInfo() {
+//   if (isEmpty(cachedParams)) return;
+//   await fetchData();
+// }
 // 초기 데이터 호출
 async function init() {
   await fetchData();
@@ -226,7 +226,7 @@ async function onclickSearch() {
 // 엑셀 다운로드
 const { currentRoute } = useRouter();
 async function onClickExcelDownload() {
-  const view = grdMain1Ref.value.getView();
+  const view = grdMainRef.value.getView();
 
   const res = await dataService.get(`${SMS_WELLS_URI}/partner/wells-planner/excel-download`, { params: cachedParams });
   await gridUtil.exportView(view, {
@@ -239,10 +239,10 @@ async function onClickExcelDownload() {
 // -------------------------------------------------------------------------------------------------
 // Initialize Grid
 // -------------------------------------------------------------------------------------------------
-const initGrid1 = defineGrid((data, view) => {
+const initGrid = defineGrid((data, view) => {
   const columns = [
     {
-      fieldName: 'dgr2LevlOgNm', // 지역단
+      fieldName: 'dgr2LevlOgCd', // 지역단
       header: t('MSG_TXT_RGNL_GRP'),
       width: '106',
       styleName: 'text-center',
@@ -250,13 +250,13 @@ const initGrid1 = defineGrid((data, view) => {
       editable: false,
     },
     {
-      fieldName: 'ogNm', // 현재소속
+      fieldName: 'ogCd', // 현재소속
       header: t('MSG_TXT_CRTL_BLG'),
       width: '106',
       styleName: 'text-center',
       editable: false },
     {
-      fieldName: 'preOgNm', // 전월소속
+      fieldName: 'preOgCd', // 전월소속
       header: t('전월소속'),
       width: '106',
       styleName: 'text-center',
@@ -418,7 +418,7 @@ const initGrid1 = defineGrid((data, view) => {
     {
       header: t('MSG_TXT_BLG'), // 소속
       direction: 'horizontal',
-      items: ['dgr2LevlOgNm', 'ogNm', 'preOgNm', 'bldNm'],
+      items: ['dgr2LevlOgCd', 'ogCd', 'preOgCd', 'bldNm'],
     },
     'prtnrNo',
     'prtnrKnm',
