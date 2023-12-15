@@ -412,6 +412,8 @@ async function onClickSave(tempSaveYn) {
 
   notify(t('MSG_ALT_SAVE_DATA'));
   await init();
+  // eslint-disable-next-line no-use-before-define
+  await initCmpt();
 
   if (tempSaveYn === 'N') {
     // 목록으로 이동
