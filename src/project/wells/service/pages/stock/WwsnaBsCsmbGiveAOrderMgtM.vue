@@ -318,7 +318,7 @@ function onChangeEndItmCd() {
   const { csmbPdCdFrom, csmbPdCdTo } = searchParams.value;
 
   if (!isEmpty(csmbPdCdFrom) && !isEmpty(csmbPdCdTo) && csmbPdCdFrom > csmbPdCdTo) {
-    searchParams.value.csmbPdCdStrt = csmbPdCdTo;
+    searchParams.value.csmbPdCdFrom = csmbPdCdTo;
     searchParams.value.csmbPdCdTo = csmbPdCdTo;
   }
 }
