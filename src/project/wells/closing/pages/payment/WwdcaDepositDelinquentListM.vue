@@ -249,7 +249,7 @@ const initGrdMain = defineGrid((data, view) => {
       styleName: 'text-center',
       groupFooter: {
         valueCallback(grid, column, groupFooterIndex, group) {
-          return `${group.groupValue} ${t('MSG_TXT_SBSUM')}`;
+          return group.groupValue ? `${group.groupValue} ${t('MSG_TXT_SBSUM')}` : `${t('MSG_TXT_SBSUM')}`;
         },
         styleName: 'text-center',
       },
