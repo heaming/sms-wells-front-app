@@ -108,7 +108,7 @@
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
-import { useDataService, stringUtil } from 'kw-lib';
+import { useDataService, stringUtil, useGlobal } from 'kw-lib';
 import { cloneDeep, toInteger } from 'lodash-es';
 import dayjs from 'dayjs';
 
@@ -123,6 +123,7 @@ const props = defineProps({
 });
 
 const { t } = useI18n();
+const { alert } = useGlobal();
 // -------------------------------------------------------------------------------------------------
 // Function & Event
 // -------------------------------------------------------------------------------------------------
@@ -160,6 +161,11 @@ function countMonth() {
 }
 
 async function onClickSearch() {
+  const { slClYmFrom, slClYmTo } = searchParams.value;
+  if (slClYmFrom > slClYmTo) {
+    alert(t('MSG_ALT_STRT_YM_END_YMD_CONF'));
+    return;
+  }
   cachedParams = cloneDeep(searchParams.value);
   await fetchData();
   countMonth();
