@@ -74,6 +74,7 @@
             upper-case
             :label="$t('MSG_TXT_ITM_CD')"
             rules="alpha_num|max:10"
+            @change="onChangeStrtItmCd"
           />
           <span>~</span>
           <kw-input
@@ -81,6 +82,7 @@
             upper-case
             :label="$t('MSG_TXT_ITM_CD')"
             rules="alpha_num|max:10"
+            @change="onChangeEndItmCd"
           />
         </kw-search-item>
         <!-- SAP 코드 -->
@@ -298,6 +300,26 @@ async function onChangeItmKndCd() {
     const res = await dataService.get(`/sms/wells/service/bs-consumables/${itmKndCd}/product-codes`);
 
     productCodes.value = res.data;
+  }
+}
+
+// 품목 시작코드 변경 시
+function onChangeStrtItmCd() {
+  const { csmbPdCdFrom, csmbPdCdTo } = searchParams.value;
+
+  if (!isEmpty(csmbPdCdFrom) && !isEmpty(csmbPdCdTo) && csmbPdCdFrom > csmbPdCdTo) {
+    searchParams.value.csmbPdCdFrom = csmbPdCdFrom;
+    searchParams.value.csmbPdCdTo = csmbPdCdFrom;
+  }
+}
+
+// 품목 종료코드 변경 시
+function onChangeEndItmCd() {
+  const { csmbPdCdFrom, csmbPdCdTo } = searchParams.value;
+
+  if (!isEmpty(csmbPdCdFrom) && !isEmpty(csmbPdCdTo) && csmbPdCdFrom > csmbPdCdTo) {
+    searchParams.value.csmbPdCdFrom = csmbPdCdTo;
+    searchParams.value.csmbPdCdTo = csmbPdCdTo;
   }
 }
 
