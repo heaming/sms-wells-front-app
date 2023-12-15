@@ -56,6 +56,7 @@
             type="text"
             rules="alpha_num|max:10"
             :label="$t('MSG_TXT_ITM_CD')"
+            @change="onChangeStrtItmCd"
           />
           <span>~</span>
           <kw-input
@@ -64,6 +65,7 @@
             type="text"
             rules="alpha_num|max:10"
             :label="$t('MSG_TXT_ITM_CD')"
+            @change="onChangeEndItmCd"
           />
         </kw-search-item>
         <!-- SAP코드 -->
@@ -216,6 +218,26 @@ const carriedOverParams = ref({
   carriedOverFrom: '',
   carriedOverTo: '',
 });
+
+// 품목 시작코드 변경 시
+function onChangeStrtItmCd() {
+  const { csmbPdCdStrt, csmbPdCdEnd } = searchParams.value;
+
+  if (!isEmpty(csmbPdCdStrt) && !isEmpty(csmbPdCdEnd) && csmbPdCdStrt > csmbPdCdEnd) {
+    searchParams.value.csmbPdCdStrt = csmbPdCdStrt;
+    searchParams.value.csmbPdCdEnd = csmbPdCdStrt;
+  }
+}
+
+// 품목 종료코드 변경 시
+function onChangeEndItmCd() {
+  const { csmbPdCdStrt, csmbPdCdEnd } = searchParams.value;
+
+  if (!isEmpty(csmbPdCdStrt) && !isEmpty(csmbPdCdEnd) && csmbPdCdStrt > csmbPdCdEnd) {
+    searchParams.value.csmbPdCdStrt = csmbPdCdEnd;
+    searchParams.value.csmbPdCdEnd = csmbPdCdEnd;
+  }
+}
 
 // SAP 시작코드 변경 시
 function onChangeStrtSapCd() {
