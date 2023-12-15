@@ -603,7 +603,7 @@ const initGrid1 = defineGrid((data, view) => {
       },
       width: '100',
       rules: 'required',
-      editor: { type: 'dropdown' },
+      editor: { type: 'dropdown', textReadOnly: true },
       options: codes.SL_CTR_MTR_DV_CD,
       styleCallback(grid, dataCell) {
         const mdfyYn = grid.getValue(dataCell.index.itemIndex, 'mdfyYn');
@@ -612,7 +612,7 @@ const initGrid1 = defineGrid((data, view) => {
           ret.editable = false;
         } else {
           ret = {
-            editor: { type: 'dropdown' },
+            editor: { type: 'dropdown', textReadOnly: true },
           };
         }
         return ret;
@@ -627,7 +627,7 @@ const initGrid1 = defineGrid((data, view) => {
       lookupDisplay: true,
       width: '100',
       rules: 'required',
-      editor: { type: 'dropdown' },
+      editor: { type: 'dropdown', textReadOnly: true },
       options: codes.SELL_TP_CD,
       editable: false,
     },
@@ -641,7 +641,7 @@ const initGrid1 = defineGrid((data, view) => {
       options: codes.SELL_TP_DTL_CD,
       width: '100',
       rules: 'required',
-      editor: { type: 'dropdown',
+      editor: { type: 'dropdown', textReadOnly: true,
       },
       // editable: true,
       // options: codes.SELL_TP_DTL_CD,
@@ -800,7 +800,7 @@ const initGrid1 = defineGrid((data, view) => {
       },
       width: '100',
       rules: 'required',
-      editor: { type: 'dropdown' },
+      editor: { type: 'dropdown', textReadOnly: true },
       options: codes.SL_CTR_DV_CD,
       styleCallback(grid, dataCell) {
         const mdfyYn = grid.getValue(dataCell.index.itemIndex, 'mdfyYn');
@@ -809,7 +809,7 @@ const initGrid1 = defineGrid((data, view) => {
           ret.editable = false;
         } else {
           ret = {
-            editor: { type: 'dropdown' },
+            editor: { type: 'dropdown', textReadOnly: true },
           };
         }
         return ret;
@@ -823,7 +823,7 @@ const initGrid1 = defineGrid((data, view) => {
       },
       width: '100',
       rules: 'required',
-      editor: { type: 'dropdown' },
+      editor: { type: 'dropdown', textReadOnly: true },
       options: codes.SL_CTR_MTR_TP_CD,
       styleCallback(grid, dataCell) {
         const mdfyYn = grid.getValue(dataCell.index.itemIndex, 'mdfyYn');
@@ -832,7 +832,7 @@ const initGrid1 = defineGrid((data, view) => {
           ret.editable = false;
         } else {
           ret = {
-            editor: { type: 'dropdown' },
+            editor: { type: 'dropdown', textReadOnly: true },
           };
         }
         return ret;
@@ -846,7 +846,7 @@ const initGrid1 = defineGrid((data, view) => {
       },
       rules: 'required',
       width: '100',
-      editor: { type: 'dropdown' },
+      editor: { type: 'dropdown', textReadOnly: true },
       editable: true,
       options: codes.SL_CTR_TP_CD,
       styleCallback(grid, dataCell) {
@@ -856,7 +856,7 @@ const initGrid1 = defineGrid((data, view) => {
           ret.editable = false;
         } else {
           ret = {
-            editor: { type: 'dropdown' },
+            editor: { type: 'dropdown', textReadOnly: true },
           };
         }
         return ret;
@@ -879,7 +879,7 @@ const initGrid1 = defineGrid((data, view) => {
           ret.editable = false;
         } else {
           ret = {
-            editor: { type: 'dropdown' },
+            editor: { type: 'dropdown', textReadOnly: true },
           };
         }
         return ret;
@@ -888,7 +888,7 @@ const initGrid1 = defineGrid((data, view) => {
     { fieldName: 'canAfOjYn',
       header: t('MSG_TXT_CAN_AFT_APY'), // 취소 후 적용
       width: '100',
-      editor: { type: 'dropdown' },
+      editor: { type: 'dropdown', textReadOnly: true },
       editable: true,
       styleCallback(grid, dataCell) {
         const mdfyYn = grid.getValue(dataCell.index.itemIndex, 'mdfyYn');
@@ -897,7 +897,7 @@ const initGrid1 = defineGrid((data, view) => {
           ret.editable = false;
         } else {
           ret = {
-            editor: { type: 'dropdown' },
+            editor: { type: 'dropdown', textReadOnly: true },
           };
         }
         return ret;
@@ -1017,7 +1017,7 @@ const initGrid1 = defineGrid((data, view) => {
       });
       if (result) {
         // const cntrDtlNo = payload.cntrNo + payload.cntrSn;
-        const { cntrNo, cntrSn, sellTpCd, cntrCstKnm, pdNm, pdCd } = payload;
+        const { cntrNo, cntrSn, sellTpCd, cntrCstKnm, pdNm, pdCd, sellTpDtlCd } = payload;
         console.log(payload);
         view.setValue(itemIndex, 'cntrNo', cntrNo);
         view.setValue(itemIndex, 'cntrSn', cntrSn);
@@ -1026,6 +1026,7 @@ const initGrid1 = defineGrid((data, view) => {
         view.setValue(itemIndex, 'cstKnm', cntrCstKnm);
         view.setValue(itemIndex, 'pdNm', pdNm);
         view.setValue(itemIndex, 'pdCd', pdCd);
+        view.setValue(itemIndex, 'sellTpDtlCd', sellTpDtlCd);
 
         const searchDtl = ref({
           cntrNo: payload.cntrNo, // 판매유형
@@ -1198,7 +1199,7 @@ const initGrid2 = defineGrid((data, view) => {
     },
     { fieldName: 'slCtrSellTpCd',
       header: t('TXT_MSG_SELL_TP_CD'), // 판매유형
-      editor: { type: 'dropdown' },
+      editor: { type: 'dropdown', textReadOnly: true },
       width: '160',
       styleName: 'text-center',
       editable: true,
@@ -1210,7 +1211,7 @@ const initGrid2 = defineGrid((data, view) => {
         text: t('MSG_TXT_SELL_TP_DTL'), // 판매유형상세
       },
       width: '100',
-      editor: { type: 'dropdown' },
+      editor: { type: 'dropdown', textReadOnly: true },
       options: codes.SELL_TP_DTL_CD,
       editable: false,
       // styleCallback(grid, dataCell) {
@@ -1337,7 +1338,7 @@ const initGrid2 = defineGrid((data, view) => {
       });
       if (result) {
         // const cntrDtlNo = payload.cntrNo + payload.cntrSn;
-        const { cntrNo, cntrSn, sellTpCd, cntrCstKnm, pdNm, pdCd } = payload;
+        const { cntrNo, cntrSn, sellTpCd, cntrCstKnm, pdNm, pdCd, sellTpDtlCd } = payload;
         console.log(payload);
         view.setValue(itemIndex, 'cntrNo', cntrNo);
         view.setValue(itemIndex, 'cntrSn', cntrSn);
@@ -1346,6 +1347,7 @@ const initGrid2 = defineGrid((data, view) => {
         view.setValue(itemIndex, 'cstKnm', cntrCstKnm);
         view.setValue(itemIndex, 'pdNm', pdNm);
         view.setValue(itemIndex, 'pdCd', pdCd);
+        view.setValue(itemIndex, 'sellTpDtlCd', sellTpDtlCd);
       }
     }
   };
