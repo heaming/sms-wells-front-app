@@ -291,8 +291,18 @@
         </li>
       </ul>
       <ul
-        v-else-if="data.sellDate === nextDay && (toInteger(currentTime) < 800 ||
-          toInteger(currentTime) > 1800)"
+        v-else-if="degNm[degNm.length-1] <= instCnt + asCnt + bsCnt"
+      >
+        <kw-separator />
+        <li>
+          <kw-separator />
+          <font size="4px">
+            [{{ $t('MSG_BTN_RECEIPT') + $t('MSG_TXT_DDLN') /*접수마감*/ }}]<br>해당 날짜 접수는 마감되었습니다.<br> 다른 날짜에 방문 예약 바랍니다.
+          </font>
+        </li>
+      </ul>
+      <ul
+        v-else-if="data.sellDate === nextDay && (toInteger(currentTime) < 800 || toInteger(currentTime) > 1800)"
       >
         <kw-separator />
         <li>
@@ -589,6 +599,11 @@ function getCurrentDate() {
   return dayjs(`${searchParams.value.baseYm}01`).format(DATE_FORMAT_YM);
 }
 
+let degNm = '';
+let instCnt = 0;
+let asCnt = 0;
+let bsCnt = 0;
+
 async function getTimeTables() {
   cachedParams = cloneDeep(searchParams.value);
   const res = await dataService.get('/sms/wells/service/time-tables/time-assign', { params:
@@ -601,6 +616,11 @@ async function getTimeTables() {
   // timeConstMsg.value = [];
   clickedBtn.value = '';
   data.value.sellTime = '';
+
+  degNm = (data.value.psic.degNm).split('-');
+  instCnt = toInteger(data.value.psic.instCnt);
+  asCnt = toInteger(data.value.psic.asCnt);
+  bsCnt = toInteger(data.value.psic.bsCnt);
 
   // 모종이라면
   if (data.value.sidingYn === 'Y') {
@@ -878,6 +898,11 @@ async function onClickSave() {
   // 일시불 모종
   if (data.value.spayYn === 'Y') {
     data.value.sellTime = '0100';
+  }
+
+  if ((data.value.sellTime === '') && (degNm[degNm.length - 1] <= instCnt + asCnt + bsCnt)) {
+    notify(t('MSG_ALT_DATE_CL_ANOTHER_DATE')); /* 접수마감 */
+    return;
   }
 
   if (data.value.sellTime === '') {
