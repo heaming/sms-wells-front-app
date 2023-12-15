@@ -165,7 +165,7 @@
         />
         <!-- 재생성 -->
         <kw-btn
-          v-permission:update
+          v-permission:create
           :label="$t('MSG_TXT_RECREATION')"
           dense
           primary
@@ -200,7 +200,7 @@ import { isEmpty, cloneDeep } from 'lodash-es';
 import dayjs from 'dayjs';
 
 const { t } = useI18n();
-const { getConfig } = useMeta();
+const { getConfig, hasPermission } = useMeta();
 const { notify, confirm, alert, modal } = useGlobal();
 const { currentRoute } = useRouter();
 
@@ -211,6 +211,9 @@ const dataService = useDataService();
 // -------------------------------------------------------------------------------------------------
 
 const grdMainRef = ref(getComponentType('KwGrid'));
+
+// 쓰기 권한 체크
+const isPermission = hasPermission('create');
 
 const codes = await codeUtil.getMultiCodes(
   'ITM_KND_CD',
@@ -348,8 +351,8 @@ async function onClickSearch() {
   let res = await dataService.get('/sms/wells/service/qom-asn/exist-check', { params: { ...cachedParams } });
   const existYn = res.data;
 
-  // 출고창고가 파주일 경우만 데이터를 생성
-  if (existYn === 'N' && ostrWareNo === '100002') {
+  // 출고창고가 파주일 경우만 데이터를 생성, 쓰기 권한 체크 로직 추가
+  if (existYn === 'N' && ostrWareNo === '100002' && isPermission) {
     const { asnOjYm, cnt } = cachedParams;
     // {0} 물량배정 데이터를 생성하시겠습니까?
     const msg = `${asnOjYm.substring(0, 4)}-${asnOjYm.substring(4, 6)} ${cnt}`;
