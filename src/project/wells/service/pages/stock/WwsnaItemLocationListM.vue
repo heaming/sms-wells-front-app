@@ -444,7 +444,7 @@ const initGrdMain = defineGrid((data, view) => {
     { fieldName: 'sapMatCd', header: t('MSG_TXT_SAPCD'), width: '150', styleName: 'text-center' },
     { fieldName: 'itmPdCd', header: t('TXT_MSG_AS_ITM_CD'), width: '146', styleName: 'text-center' },
     { fieldName: 'pdAbbrNm', header: t('MSG_TXT_ITM_NM'), width: '320', styleName: 'text-left' },
-    { fieldName: 'pitmStocAGdQty', header: t('MSG_TXT_STOC'), width: '80', styleName: 'text-center' },
+    { fieldName: 'pitmStocAGdQty', header: t('MSG_TXT_STOC'), width: '80', styleName: 'text-right' },
     { fieldName: 'wareTpCd',
       header: t('MSG_TXT_WARE'),
       width: '80',

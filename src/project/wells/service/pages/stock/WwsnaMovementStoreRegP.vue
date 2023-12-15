@@ -83,6 +83,7 @@
         >
           <kw-date-picker
             v-model="searchParams.strRgstDt"
+            :max-date="maxDate"
             :readonly="propsParams.flagChk === 1"
           />
         </kw-form-item>
@@ -263,10 +264,12 @@ const codes = ref(await codeUtil.getMultiCodes(
   'COD_PAGE_SIZE_OPTIONS',
 ));
 
-const today = dayjs().format('YYYYMMDD');
+const now = dayjs();
+const today = now.format('YYYYMMDD');
+const maxDate = now.format('YYYY-MM-DD');
 
 const propsParams = ref({
-  strRgstDt: props.strRgstDt,
+  strRgstDt: props.flagChk === 0 ? today : props.strRgstDt,
   strTpCd: props.strTpCd,
   strTpNm: props.strTpNm,
   itmStrNo: props.itmStrNo,
@@ -285,7 +288,7 @@ const propsParams = ref({
 
 const searchParams = ref({
   baseYm: dayjs().format('YYYYMM'),
-  strRgstDt: isEmpty(props.strRgstDt) ? today : props.strRgstDt,
+  strRgstDt: props.flagChk === 0 ? today : props.strRgstDt,
   strTpCd: props.strTpCd,
   itmStrNo: props.itmStrNo,
   strWareNo: props.strWareNo,
@@ -307,11 +310,20 @@ const pageInfo = ref({
 
 // 표준창고등록 조회
 async function stckStdGbFetchData() {
-  const apyYm = searchParams.value.strRgstDt.substring(0, 6);
-  const wareNo = searchParams.value.strWareNo;
-  const res = await dataService.get(stdWareUri, { params: { apyYm, wareNo } });
-  const { stckStdGb } = res.data;
-  searchParams.value.stckNoStdGb = stckStdGb === 'Y' ? 'N' : 'Y';
+  const { strRgstDt, strWareNo } = searchParams.value;
+
+  let strDt = strRgstDt;
+  // 이동입고현황에서 호출할 경우
+  if (props.flagChk === 1 && isEmpty(strDt)) {
+    strDt = today;
+  }
+
+  if (!isEmpty(strDt) && !isEmpty(strWareNo)) {
+    const apyYm = strDt.substring(0, 6);
+    const res = await dataService.get(stdWareUri, { params: { apyYm, wareNo: strWareNo } });
+    const { stckStdGb } = res.data;
+    searchParams.value.stckNoStdGb = stckStdGb === 'Y' ? 'N' : 'Y';
+  }
 }
 
 // 조회
@@ -336,12 +348,10 @@ async function fetchData() {
 
 // 표준미적용 클릭이벤트
 async function onCheckedStckNoStdGb() {
-  const { stckNoStdGb, baseYm, ostrWareNo } = searchParams.value;
+  const { stckNoStdGb, baseYm, strWareNo } = searchParams.value;
   const stckStdGb = stckNoStdGb === 'N' ? 'Y' : 'N';
-  const apyYm = baseYm;
-  const wareNo = ostrWareNo;
 
-  const res = await dataService.put(stdWareUri, { apyYm, stckStdGb, wareNo });
+  const res = await dataService.put(stdWareUri, { apyYm: baseYm, stckStdGb, wareNo: strWareNo });
   if (res.data > 0) {
     notify(t('MSG_ALT_CHG_DATA'));
     await fetchData();
@@ -350,14 +360,20 @@ async function onCheckedStckNoStdGb() {
 
 // 입고창고의 마감여부 체크
 async function strWareMonthlyClosed() {
-  const apyYm = searchParams.value.strRgstDt.substring(0, 6);
-  const wareNo = searchParams.value.strWareNo;
-  const closedParams = {
-    apyYm,
-    wareNo,
-  };
+  const { strRgstDt, strWareNo } = searchParams.value;
+  let strDt = strRgstDt;
+  // 이동입고현황에서 호출할 경우
+  if (props.flagChk === 1 && isEmpty(strDt)) {
+    strDt = today;
+  }
 
-  const res = await dataService.get(colsedUri, { params: closedParams });
+  if (isEmpty(strDt)) {
+    // {0}은(는) 필수 항목입니다.
+    await alert(`${t('MSG_TXT_STR_DT')} ${t('MSG_ALT_NCELL_REQUIRED_ITEM')}`);
+    return;
+  }
+
+  const res = await dataService.get(colsedUri, { params: { apyYm: strDt.substring(0, 6), wareNo: strWareNo } });
 
   return res.data > 0;
 }
@@ -637,8 +653,14 @@ const initGrdMain = defineGrid((data, view) => {
   view.onCellClicked = () => false;
 
   view.onCellDblClicked = async (g, c) => {
-    const { strWareDtlDvCd } = propsParams.value;
-    const { itmPdCd, strRgstDt } = g.getValues(g.getCurrent().itemIndex);
+    const { strWareNo, strWareDtlDvCd, strRgstDt } = propsParams.value;
+    const { itmPdCd } = g.getValues(g.getCurrent().itemIndex);
+
+    let strDt = strRgstDt;
+    // 이동입고현황에서 호출할 경우
+    if (props.flagChk === 1 && isEmpty(strDt)) {
+      strDt = today;
+    }
 
     if (c.column === 'itemLoc') {
       if (strWareDtlDvCd !== '20') {
@@ -649,9 +671,9 @@ const initGrdMain = defineGrid((data, view) => {
       await modal({
         component: 'WwsnaItemLocationMgtP',
         componentProps: {
-          wareNo: searchParams.value.strWareNo,
+          wareNo: strWareNo,
           itmPdCd,
-          apyYm: strRgstDt.substring(0, 6),
+          apyYm: strDt.substring(0, 6),
         },
       });
 
