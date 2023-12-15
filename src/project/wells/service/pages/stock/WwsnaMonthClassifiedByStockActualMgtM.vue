@@ -336,7 +336,8 @@ async function onClickSave() {
       }
     }
   }
-  await dataService.post('/sms/wells/service/stock-acinp-rgst', checkedRows);
+  params = searchParams.value;
+  await dataService.post('/sms/wells/service/stock-acinp-rgst', checkedRows.map((v) => ({ ...v, ...params })));
 
   notify(t('MSG_ALT_SAVE_DATA'));
 
