@@ -270,6 +270,7 @@ async function onClickSearch() {
 async function onClickSelect() {
   const view = grdMainRef.value.getView();
   const checked = gridUtil.getCheckedRowValues(view);
+  // 선택한 row가 1 이상이면 리턴
   if (checked.length === 0) {
     await alert(t('MSG_ALT_NOT_SEL_ITEM'));
   } else {
