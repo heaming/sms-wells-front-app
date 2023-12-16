@@ -24,7 +24,6 @@
           required
         >
           <kw-select
-            ref="cbMngrDvCdRef"
             v-model="searchParams.mngrDvCd"
             :options="codes.MNGR_DV_CD"
             :readonly="!isEmpty(props.mngrDvCd)"
@@ -143,11 +142,17 @@ const { cancel: onClickCancel, ok } = useModal();
 const dataService = useDataService();
 
 const props = defineProps({
+  // 매니저구분(1:매니저, 2:엔지니어)
   mngrDvCd: { type: String, default: '' },
+  // 1차레벨조직ID
   dgr1LevlOgId: { type: String, default: '' },
+  // 2차레벨조직ID
   dgr2LevlOgId: { type: String, default: '' },
+  // 3차레벨조직ID
   dgr3LevlOgId: { type: String, default: '' },
+  // 검색어
   searchText: { type: String, default: '' },
+  // 그리드 선택타입(checkbox, radio)
   checkType: { type: String, default: 'radio' },
   // auth
   authYn: { type: String, default: 'N' },
@@ -156,9 +161,11 @@ const props = defineProps({
 // -------------------------------------------------------------------------------------------------
 // Function & Event
 // -------------------------------------------------------------------------------------------------
-const grdMainRef = ref(getComponentType('KwGrid'));
-const cbMngrDvCdRef = ref(getComponentType('KwSelect'));
 
+// 그리드 객체
+const grdMainRef = ref(getComponentType('KwGrid'));
+
+// 공통코드
 const codes = await codeUtil.getMultiCodes(
   'COD_PAGE_SIZE_OPTIONS',
   'MNGR_DV_CD',
@@ -166,12 +173,14 @@ const codes = await codeUtil.getMultiCodes(
   'EGER_ROL_CD',
 );
 
+// 페이징 객체
 const pageInfo = ref({
   totalCount: 0,
   pageIndex: 1,
   pageSize: Number(getConfig('CFG_CMZ_DEFAULT_PAGE_SIZE')),
 });
 
+// 조회조건
 const searchParams = ref({
   mngrDvCd: isEmpty(props.mngrDvCd) ? '1' : props.mngrDvCd,
   dgr1LevlOgId: props.dgr1LevlOgId,
@@ -184,11 +193,15 @@ const searchParams = ref({
   dgr3LevlOg: undefined,
 });
 
+// 조회조건 캐시
 let cachedParams;
 
+// 매니저 선택여부
 const isManagerSelected = computed(() => searchParams.value.mngrDvCd === '1');
+// 그리드 체크박스/라디오 구분
 const isCheckbox = props.checkType === 'checkbox';
 
+// 그리드 레이아웃
 const layouts = computed(() => {
   if (isManagerSelected.value) {
     return [
@@ -218,10 +231,12 @@ const layouts = computed(() => {
   ];
 });
 
+// 인사기본정보 조회 REST API
 async function fetchHumanResourcesPages(params) {
   return await dataService.get('/sms/wells/service/human-resources/paging', params);
 }
 
+// 인사기본정보 조회
 async function getHumanResourcesPages() {
   const res = await fetchHumanResourcesPages({ params: { ...cachedParams, ...pageInfo.value } });
   const { list: humanResources, pageInfo: pagingResult } = res.data;
@@ -236,6 +251,7 @@ async function getHumanResourcesPages() {
   view.resetCurrent();
 }
 
+// 매니저구분 콤보 변경 이벤트
 function onChangeMngrDvCd() {
   searchParams.value.dgr1LevlOgId = '';
   searchParams.value.dgr2LevlOgId = '';
@@ -243,15 +259,18 @@ function onChangeMngrDvCd() {
   searchParams.value.searchText = '';
 }
 
+// 조회버튼 클릭 이벤트
 async function onClickSearch() {
   pageInfo.value.pageIndex = 1;
   cachedParams = cloneDeep(searchParams.value);
   await getHumanResourcesPages();
 }
 
+// 그리드 클릭 이벤트
 async function onClickSelect() {
   const view = grdMainRef.value.getView();
   const checked = gridUtil.getCheckedRowValues(view);
+  // 선택한 row가 1 이상이면 리턴
   if (checked.length === 0) {
     await alert(t('MSG_ALT_NOT_SEL_ITEM'));
   } else {
@@ -262,7 +281,6 @@ async function onClickSelect() {
 // -------------------------------------------------------------------------------------------------
 // Initialize Grid
 // -------------------------------------------------------------------------------------------------
-// TODO: 조직쪽 테이블 및 로직 확정되면 수정 필요
 const initGrdMain = defineGrid((data, view) => {
   const fields = [
     { fieldName: 'baseYm' }, // 기준년월
