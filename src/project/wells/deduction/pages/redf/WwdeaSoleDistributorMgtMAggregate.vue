@@ -25,11 +25,10 @@
         :label="t('MSG_TXT_MGT_YNM')"
         required
       >
-        <kw-date-range-picker
-          v-model:from="searchParams.redfAdsbOcYmFrom"
-          v-model:to="searchParams.redfAdsbOcYmTo"
+        <kw-date-picker
+          v-model="searchParams.redfAdsbOcYm"
           :label="t('MSG_TXT_MGT_YNM')"
-          rules="date_range_required"
+          rules="required"
           type="month"
         />
       </kw-search-item>
@@ -132,8 +131,7 @@ let cachedParams;
 
 const searchParams = ref({
   ogTpCd: filterOgTpCd.value[0].codeId,
-  redfAdsbOcYmFrom: defalutMonth,
-  redfAdsbOcYmTo: defalutMonth,
+  redfAdsbOcYm: defalutMonth,
 });
 
 async function fetchData() {
