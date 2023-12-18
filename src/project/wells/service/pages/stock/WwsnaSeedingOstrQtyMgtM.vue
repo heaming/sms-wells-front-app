@@ -121,7 +121,7 @@ import dayjs from 'dayjs';
 import { cloneDeep } from 'lodash-es';
 
 const { t } = useI18n();
-const { getConfig } = useMeta();
+const { getConfig, hasPermission } = useMeta();
 const { notify, modal } = useGlobal();
 const { currentRoute } = useRouter();
 
@@ -132,6 +132,9 @@ const dataService = useDataService();
 // -------------------------------------------------------------------------------------------------
 
 const grdMainRef = ref(getComponentType('KwGrid'));
+
+// 업데이트 권한 체크
+const isPermission = hasPermission('update');
 
 let cachedParams;
 const searchParams = ref({
@@ -275,7 +278,7 @@ const initGrdMain = defineGrid((data, view) => {
 
   view.onCellEditable = (grid, index) => {
     // 수량만 입력 가능
-    if (index.column === 'limQty') {
+    if (index.column === 'limQty' && isPermission) {
       return true;
     }
 

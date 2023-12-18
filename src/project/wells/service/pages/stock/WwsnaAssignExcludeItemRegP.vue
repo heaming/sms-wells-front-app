@@ -135,7 +135,7 @@ import { codeUtil, getComponentType, useDataService, useMeta, defineGrid, gridUt
 import { cloneDeep, isEmpty } from 'lodash-es';
 
 const { notify } = useGlobal();
-const { getConfig } = useMeta();
+const { getConfig, hasPermission } = useMeta();
 const { t } = useI18n();
 
 const dataService = useDataService();
@@ -145,6 +145,9 @@ const dataService = useDataService();
 // -------------------------------------------------------------------------------------------------
 
 const grdMainRef = ref(getComponentType('KwGrid'));
+
+// 업데이트 권한 체크
+const isPermission = hasPermission('update');
 
 const codes = await codeUtil.getMultiCodes(
   'COD_PAGE_SIZE_OPTIONS',
@@ -323,6 +326,8 @@ const initGrdMain = defineGrid((data, view) => {
   view.checkBar.fieldName = 'chk';
   view.checkBar.visible = true;
   view.rowIndicator.visible = true;
+
+  view.setCheckableCallback(() => isPermission, true);
 });
 </script>
 <style scoped>
