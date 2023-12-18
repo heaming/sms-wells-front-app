@@ -443,19 +443,41 @@
                 inset
                 spaced="0px"
               />
-              <!--설치배정 -->
-              <kw-btn
-                v-if="item.sellTpCd!=='3' && item.installYn ==='Y'"
-                :label="$t('MSG_BTN_CNTCT_ASSGNMNT')"
-                padding="10px"
-                @click="onClickAssignContact(item)"
-              />
-              <!--계약변경 -->
-              <kw-btn
-                :label="$t('MSG_TXT_CNTRCT')+$t('MSG_BTN_CH')"
-                padding="10px"
-                @click="onClickChange(item)"
-              />
+
+              <!-- 고객센터 계약이고, 고객센터직원 로그인일 경우, [설치배정][계약변경]-->
+              <template v-if="item.isCcs === 'Y'">
+                <template v-if="CCS_BASE_RLE_CDS.includes(sessionUserInfo.baseRleCd)">
+                  <!--설치배정 -->
+                  <kw-btn
+                    v-if="item.installYn ==='Y'"
+                    :label="$t('MSG_BTN_CNTCT_ASSGNMNT')"
+                    padding="10px"
+                    @click="onClickAssignContact(item)"
+                  />
+                  <!--계약변경 -->
+                  <kw-btn
+                    :label="$t('MSG_TXT_CNTRCT')+$t('MSG_BTN_CH')"
+                    padding="10px"
+                    @click="onClickChange(item)"
+                  />
+                </template>
+              </template>
+              <template v-else>
+                <!--설치배정 -->
+                <kw-btn
+                  v-if="item.installYn ==='Y'"
+                  :label="$t('MSG_BTN_CNTCT_ASSGNMNT')"
+                  padding="10px"
+                  @click="onClickAssignContact(item)"
+                />
+                <!--계약변경 -->
+                <kw-btn
+                  :label="$t('MSG_TXT_CNTRCT')+$t('MSG_BTN_CH')"
+                  padding="10px"
+                  @click="onClickChange(item)"
+                />
+              </template>
+
               <!--삭제-->
               <kw-btn
                 v-if="item.deleteDv=='DEL' || (searchParams.isBrmgr === 'Y' && item.deleteDv=='PSB')"
@@ -558,9 +580,18 @@ item.viewCntrPrgsStatCd :
  - 일반 : CNTR_PRGS_STAT_CD
  - 재약정 : RSTL_STAT_CD 010 -> 20(접수) / 020 -> 60(확정)
 
+item.installYn(설치가능여부)
+ - SELL_TP_CD <>'3'
+   &&  CNTR_PD_STRTDT = '0' 에서 상품각사속성이 설치상품인 경우
+
+item.isCcs(고객센터계약여부)
+ - CASE WHEN (T1.CST_STLM_IN_MTH_CD = '30' OR T1.PSPC_CST_ID IS NOT NULL) THEN 'Y'
+        ELSE 'N'
+
 item.confirmPsbYn : 작성완료 상태에서 결제진행하지 않고 확정시킬 수 있는지 여부
  - 쿼리 조건문
  CASE WHEN (세션.ogTpCd = 'W04' AND 법인) OR (T7.SELL_INFLW_CHNL_DTL_CD = '5010' AND 개인) THEN 'Y'
+      WHEN T1.SELL_PRTNR_NO = '1763078' THEN 'Y'
       ELSE 'N'
 
 item.deleteDv : 삭제관련 버튼 노출용
@@ -576,6 +607,7 @@ item.deleteDv : 삭제관련 버튼 노출용
              ELSE ''
          END
       ELSE ''
+
 */
 
 async function fetchData() {
@@ -666,8 +698,6 @@ async function getPrgsStatCd({ resultDiv, cntrNo, cntrSn, cntrPrgsStatCd }) {
   } else {
     res = await dataService.get(`/sms/wells/contract/contracts/contract-lists/${cntrNo}/${cntrSn}`);
   }
-
-  console.log(`${res.data.toString()}, ${typeof (res.data.toString())}, ${cntrPrgsStatCd}, ${typeof cntrPrgsStatCd}, ${res.data.toString() === cntrPrgsStatCd}`);
 
   if (res.data.toString() !== cntrPrgsStatCd) {
     await alert(t('MSG_ALT_NOT_SYNC_REFRESH'));
