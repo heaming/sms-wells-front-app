@@ -801,7 +801,7 @@ async function setGridColumnLayout(data, view) { // 일시불
   const fields = columns.map(({ fieldName, dataType }) => (dataType ? { fieldName, dataType } : { fieldName }));
   data.setFields(fields);
   view.setColumns(columns);
-  view.checkBar.visible = true; // create checkbox column
+  view.checkBar.visible = false; // create checkbox column
   view.rowIndicator.visible = true; // create number indicator column
 
   const layoutMain = [
