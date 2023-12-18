@@ -158,7 +158,6 @@
                 v-model="searchParams.rentalStn"
                 regex="num"
                 maxlength="2"
-                type="number"
                 rules="between:0,99|integer"
               />
               <span>~</span>
@@ -166,7 +165,6 @@
                 v-model="searchParams.rentalEtn"
                 regex="num"
                 maxlength="2"
-                type="number"
                 rules="between:0,99|integer"
               />
             </kw-search-item>
