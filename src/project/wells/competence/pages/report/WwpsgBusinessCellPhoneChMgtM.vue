@@ -166,6 +166,7 @@
                 >
                   <kw-input
                     v-model="saveParams.bizAkCn"
+                    :label="t('MSG_TXT_CH_RSON')"
                     type="textarea"
                     :rows="5"
                     :placeholder="t('MSG_TXT_CH_RSON')"
@@ -218,12 +219,19 @@
         </kw-search-item>
       </kw-search-row>
       <kw-search-row>
-        <kw-search-item :label="t('MSG_TXT_RNT_APLC_TP')">
-          <kw-select
-            v-model="searchParams.rntAplcTpCd"
-            :label="$t('MSG_TXT_RNT_APLC_TP')"
-            first-option="all"
-            :options="codes.RNT_APLC_TP_CD"
+        <kw-search-item
+          :label="$t('MSG_TXT_ELIGIBILITY')"
+        >
+          <kw-input
+            v-model="searchParams.prtnrNo"
+            icon="search"
+            clearable
+            rules="numeric"
+            @click-icon="onClickSelectCustomer"
+          />
+          <kw-input
+            v-model="searchParams.prtnrNm"
+            clearable
           />
         </kw-search-item>
         <kw-search-item :label="t('MSG_TXT_STT')">
@@ -316,8 +324,9 @@ const searchParams = ref({
   rcpStartDtm: now.date(1).format('YYYYMMDD'),
   rcpEndDtm: now.format('YYYYMMDD'),
   rpotBizTpId: '1400',
-  rntAplcTpCd: '',
   rpotBizProcsStatCd: '',
+  prtnrNo: '',
+  prtnrNm: '',
 });
 
 const saveParams = ref({
@@ -369,6 +378,19 @@ async function getBaseInfo() {
   saveParams.value.mexnoEncr = BaseSearchInfo[0].mexnoEncr;
   saveParams.value.cralIdvTno = BaseSearchInfo[0].cralIdvTno;
   saveParams.value.ogTpCd = BaseSearchInfo[0].ogTpCd;
+}
+
+async function onClickSelectCustomer() {
+  const { result, payload } = await modal({
+    component: 'ZwogzPartnerListP',
+    componentProps: {
+      prtnrNo: searchParams.value.prtnrNo,
+    },
+  });
+  if (result) {
+    searchParams.value.prtnrNo = payload.prtnrNo;
+    searchParams.value.prtnrNm = payload.prtnrKnm;
+  }
 }
 
 async function onClickPartner() {
