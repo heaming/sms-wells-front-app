@@ -140,9 +140,13 @@ const dataService = useDataService();
 // -------------------------------------------------------------------------------------------------
 // Function & Event
 // -------------------------------------------------------------------------------------------------
+// 스텝별 Ref
 const cmpStepRefs = ref([ref(), ref(), ref(), ref(), ref()]);
+// 현재 상품 코드
 const currentPdCd = ref();
+// 현재 상품 데이터
 const currentInitData = ref({});
+// 선택텝
 const selectedTab = ref(pdConst.STANDARD_STEP_BASIC.name);
 
 // 데이터 초기화
@@ -165,11 +169,13 @@ async function init() {
 // 탭 선택
 async function onClickTab(selTab) {
   if (selTab === pdConst.STANDARD_STEP_PRICE.name) {
+    // 가격텝 선택시 가격 자동 검색
     const priceStepIndex = pdConst.STANDARD_STEP_PRICE.step - 1;
     cmpStepRefs.value[priceStepIndex].value.onClickSearch();
   }
 
   if (selTab === pdConst.STANDARD_STEP_REL_PROD.name) {
+    // 연셜상품 선택시 연결상품 자동 검색
     const relStepIndex = pdConst.STANDARD_STEP_REL_PROD.step - 1;
     cmpStepRefs.value[relStepIndex].value.onClickSearch();
   }
@@ -185,6 +191,7 @@ async function onClickUpdate() {
 // 매출인식분류코드
 async function fetechSaleRecognitionClassification(slRcogClsfCd) {
   if (slRcogClsfCd) {
+    // 매출인식분류명 데이터 불러오기
     const res = await dataService.get(`/sms/common/product/standards/recogn-class/${slRcogClsfCd}`);
     return res.data?.slRcogClsfNm;
   }
@@ -194,6 +201,7 @@ async function fetechSaleRecognitionClassification(slRcogClsfCd) {
 async function setMountData() {
   const mangeAttrFields = await cmpStepRefs.value[2]?.value.getNameFields();
   if (mangeAttrFields.slRcogClsfCd) {
+    // 매출인식분류명 자동 설정
     mangeAttrFields.slRcogClsfCd.initName = await fetechSaleRecognitionClassification(
       mangeAttrFields.slRcogClsfCd?.initValue,
     );

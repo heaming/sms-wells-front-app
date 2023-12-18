@@ -158,12 +158,12 @@ const currentSearchYn = ref();
 
 let cachedParams;
 const searchParams = ref({
-  apyStrtdt: '',
-  apyEnddt: '',
-  pdctPdNm: '',
-  pdctPdCd: '',
-  rglrSppMchnTpCd: '',
-  rglrSppPrcDvCd: '',
+  apyStrtdt: '', // 적용시작일
+  apyEnddt: '', // 적용종료일
+  pdctPdNm: '', // 제품명
+  pdctPdCd: '', // 제품코드
+  rglrSppMchnTpCd: '', // 기기유형
+  rglrSppPrcDvCd: '', // 가격구분
 });
 
 const pageInfo = ref({
@@ -304,15 +304,19 @@ async function checkDuplication() {
         && ((isEmpty(item.basePdCd) && isEmpty(dupCodes[6])) || item.basePdCd === dupCodes[6]));
     let dupItem = pdctPdNm;
     if (rglrSppMchnKndCd) {
+      // 기기종류
       dupItem += `/${getCodeNames(codes, rglrSppMchnKndCd, 'RGLR_SPP_MCHN_KND_CD')}`;
     }
     if (rglrSppMchnTpCd) {
+      // 기기유형
       dupItem += `/${getCodeNames(codes, rglrSppMchnTpCd, 'RGLR_SPP_MCHN_TP_CD')}`;
     }
     if (rglrSppPrcDvCd) {
+      // 가격구분
       dupItem += `/${getCodeNames(codes, rglrSppPrcDvCd, 'RGLR_SPP_PRC_DV_CD')}`;
     }
     if (basePdNm) {
+      // 상품명
       dupItem += `/${basePdNm}`;
     }
     dupItem += `/[${stringUtil.getDateFormat(apyStrtdt)} ~ ${stringUtil.getDateFormat(apyEnddt)}]`;
@@ -554,6 +558,7 @@ const initGrdMain = defineGrid((data, view) => {
 
   view.onCellButtonClicked = async (grid, { column, dataRow }) => {
     if (column === 'pdctPdNm') {
+      // 제품명 선택시 교재자재 선택 팝업 호출
       const pdctPdNm = grid.getValue(dataRow, 'pdctPdNm');
       const { payload } = await modal({
         component: 'ZwpdcMaterialsSelectListP',
@@ -572,6 +577,7 @@ const initGrdMain = defineGrid((data, view) => {
       }
     }
     if (column === 'basePdNm') {
+      // 상품명 선택시 기준상품 선택 팝업 호출
       const pdNm = grid.getValue(dataRow, 'basePdNm');
       const { payload } = await modal({
         component: 'ZwpdcStandardListP',

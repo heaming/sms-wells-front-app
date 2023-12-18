@@ -83,19 +83,22 @@ const { t } = useI18n();
 const grdStandardRef = ref(getComponentType('KwGrid'));
 const grdStandardRowCount = ref(0);
 
+// 현재 상품 코드
 const currentPdCd = ref();
+// 현재 상품 데이터
 const currentInitData = ref({});
-
+// 기준상품 팝업 검색 조건
 const standardSelectItems = reactive([
   // 기준상품명
   { codeId: pdConst.PD_SEARCH_NAME, codeName: t('MSG_TXT_PD_STD_NAME') },
   // 기준상품코드
   { codeId: pdConst.PD_SEARCH_CODE, codeName: t('MSG_TXT_PD_STD_CODE') },
 ]);
-
+// 기준상품 연결 타입
 const standardSearchType = ref(pdConst.PD_SEARCH_NAME);
+// 기준상품 검색 값
 const standardSearchValue = ref();
-
+// 검색 기본 파라미터
 const searchParams = ref({
   searchType: null,
   searchValue: null,
@@ -119,6 +122,7 @@ async function init() {
 async function getSaveData() {
   // 미수정시 초기값 그대로 반환.
   if (!(await isModifiedProps())) {
+    // 변경사항이 없으면 초기 데이터 반환
     return {
       [pdConst.RELATION_PRODUCTS]: currentInitData.value[pdConst.RELATION_PRODUCTS],
       [pdConst.TBL_PD_REL]: currentInitData.value[pdConst.RELATION_PRODUCTS],
@@ -157,6 +161,7 @@ async function validateProps() {
     let dupItem;
     await Promise.all(rowValues.map(async (item1) => {
       // 비동기방식 설정 조건문
+      // 순차적으로 적용기간 체크
       if (isValid && await getOverPeriodByRelProd(standardView, item1)) {
         dupItem = (await getOverPeriodByRelProd(standardView, item1));
         if (dupItem) {
@@ -165,6 +170,7 @@ async function validateProps() {
       }
     }));
     if (!isValid) {
+      // 적용기간이 중복되었습니다.
       notify(t('MSG_ALT_EXIST_DUP_RANGE_PD', [dupItem]));
     }
   }
@@ -184,6 +190,7 @@ async function insertCallbackRows(view, rtn, pdRelTpCd) {
 
   let lastRow = 0;
   insertRows.forEach((row) => {
+    // 신규라인 임시 ID 채번
     row[pdConst.REL_PD_ID] = stringUtil.getUid('REL_TMP');
     row[pdConst.PD_REL_TP_CD] = pdRelTpCd;
     row[pdConst.REL_OJ_PD_CD] = row.pdCd;
@@ -191,11 +198,13 @@ async function insertCallbackRows(view, rtn, pdRelTpCd) {
     let isValid = false;
     const alreadyPdCdRows = rowValues.filter((item) => item[pdConst.REL_OJ_PD_CD] === row[pdConst.REL_OJ_PD_CD]);
     if (alreadyPdCdRows && alreadyPdCdRows.length) {
+      // 동일 상품 코드가 존재하면
       const lastVlEndDtm = alreadyPdCdRows.reduce((maxDt, item) => {
         maxDt = Number(item.vlEndDtm) > maxDt ? Number(item.vlEndDtm) : maxDt;
         return maxDt;
       }, 0);
       if (currentTime > lastVlEndDtm) {
+        // 만료되었으면 초기값 설정
         isValid = true;
       }
       lastRow = alreadyPdCdRows[0].dataRow;
@@ -204,6 +213,7 @@ async function insertCallbackRows(view, rtn, pdRelTpCd) {
       lastRow = 0;
     }
     if (isValid) {
+      // 초기값 자동 설정
       row.vlStrtDtm = currentTime;
       row.vlEndDtm = 99991231235959;
     }
@@ -224,6 +234,7 @@ async function deleteCheckedRows(view) {
   await Promise.all(checkedRows.map(async (row) => {
     const item = gridUtil.getRowValue(view, row);
     if (item.rowState === 'created' || isEmpty(item[pdConst.REL_PD_ID]) || item[pdConst.REL_PD_ID].startsWith('REL_TMP')) {
+      // 신규 추가된 라인은 삭제
       removeCreateRows.push(row);
     } else {
       isDbDataRemove = true;
@@ -233,6 +244,7 @@ async function deleteCheckedRows(view) {
     view.getDataSource().removeRows(removeCreateRows);
   }
   if (isDbDataRemove) {
+    // 기존 라인은 삭제 불가
     notify(t('MSG_ALT_PD_REL_NO_REMOVE'));
   }
 
@@ -254,6 +266,7 @@ async function isPriceData() {
 // 기준상품 검색 팝업 호출
 async function onClickStandardSchPopup() {
   if (await isPriceData()) {
+    // 가격 정보가 등록되어있으면 수정 불가
     return;
   }
   const view = grdStandardRef.value.getView();
@@ -366,6 +379,7 @@ async function initStandardGrid(data, view) {
   view.rowIndicator.visible = true;
   view.editOptions.editable = true;
   view.onCellEdited = async (grid, itemIndex, row, fieldIndex) => {
+    // 적용기간 유효 체크
     await onCellEditRelProdPeriod(view, grid, itemIndex, row, fieldIndex);
   };
 

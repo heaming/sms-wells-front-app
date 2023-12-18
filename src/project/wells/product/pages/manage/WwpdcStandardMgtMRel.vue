@@ -78,11 +78,17 @@ const emits = defineEmits([
 // -------------------------------------------------------------------------------------------------
 const rel = pdConst.TBL_PD_REL;
 
+// 탭목록
 const selectedTabs = ref(['prd', 'chg']);
+// 현재 탭
 const selectedTab = ref(selectedTabs.value[0]);
+// 현재 상품 코드
 const currentPdCd = ref();
+// 현재 상품 데이터
 const currentInitData = ref();
+// 판매상품
 const cmpPrdRef = ref();
+// 대체품
 const cmpChgRef = ref();
 
 // 데이터 초기화
@@ -143,9 +149,11 @@ async function validateProps() {
 async function moveNextStep() {
   const currentTabIndex = selectedTabs.value.indexOf(selectedTab.value);
   if (currentTabIndex < (selectedTabs.value.length - 1)) {
+    // 내부 다음 스텝이 있을경우
     selectedTab.value = selectedTabs.value[currentTabIndex + 1];
     return true;
   }
+  // 내부 스텝이 없으면 false 반환
   return false;
 }
 
@@ -153,6 +161,7 @@ async function moveNextStep() {
 async function movePrevStep() {
   const currentTabIndex = selectedTabs.value.indexOf(selectedTab.value);
   if (currentTabIndex > 0) {
+    // 내부 이전 스텝이 있을경우
     selectedTab.value = selectedTabs.value[currentTabIndex - 1];
     return true;
   }

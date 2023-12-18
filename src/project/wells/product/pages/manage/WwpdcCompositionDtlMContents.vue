@@ -123,12 +123,16 @@ const router = useRouter();
 // Function & Event
 // -------------------------------------------------------------------------------------------------
 const cmpStepRefs = ref([ref(), ref(), ref(), ref()]);
+// 현재 상품 코드
 const currentPdCd = ref();
+// 현재 상품 데이터
 const currentInitData = ref({});
+// 기본정보
 const selectedTab = ref(pdConst.COMPOSITION_STEP_BASIC.name);
 
 // 데이터 초기화
 async function resetData() {
+  // 첫번째 탭으로 이동
   selectedTab.value = pdConst.COMPOSITION_STEP_BASIC.name;
   currentPdCd.value = '';
   currentInitData.value = {};
@@ -147,6 +151,7 @@ async function onClickUpdate() {
 // 탭 선택
 async function onClickTab(selTab) {
   if (selTab === pdConst.COMPOSITION_STEP_PRICE.name) {
+    // 가격텝으로 이동
     const priceStepIndex = pdConst.COMPOSITION_STEP_PRICE.step - 1;
     cmpStepRefs.value[priceStepIndex].value.onClickSearch();
   }
@@ -162,12 +167,15 @@ async function initProps() {
 await initProps();
 
 watch(() => props.pdCd, (pdCd) => {
+  // 상품코드 변경시
   currentPdCd.value = pdCd;
   selectedTab.value = pdConst.COMPOSITION_STEP_BASIC.name;
 });
 
 watch(() => props.initData, (initData) => {
+  // 초기데이터 변경시
   if (!isEqual(currentInitData.value, initData)) {
+    // 변경시
     currentInitData.value = initData;
   }
 }, { deep: true });

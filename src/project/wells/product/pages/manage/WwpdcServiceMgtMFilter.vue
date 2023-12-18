@@ -99,13 +99,16 @@ const { notify, modal } = useGlobal();
 // -------------------------------------------------------------------------------------------------
 const grdMainRef = ref(getComponentType('KwGrid'));
 const grdRowCount = ref(0);
+// 현재 상품 코드
 const currentPdCd = ref();
+// 현재 상품 데이터
 const currentInitData = ref({});
+// 교재자재 검색 조건
 const searchParams = ref({
   searchType: pdConst.PD_SEARCH_NAME,
   searchValue: null,
 });
-
+// 연결타입 선택
 const materialSelectItems = ref([
   // 교재/자재명
   { codeId: pdConst.PD_SEARCH_NAME, codeName: t('MSG_TXT_PD_BOK_MTR_NAME') },
@@ -192,8 +195,10 @@ async function onClickRemoveRows() {
   await Promise.all(checkedRows.map(async (row) => {
     const item = gridUtil.getRowValue(view, row);
     if (item.rowState === 'created' || isEmpty(item[pdConst.REL_PD_ID]) || item[pdConst.REL_PD_ID].startsWith('REL_TMP')) {
+      // 추가된 라인은 삭제
       removeCreateRows.push(row);
     } else {
+      // 기존 라인은 삭제불가
       isDbDataRemove = true;
     }
   }));
@@ -397,6 +402,7 @@ async function initGrid(data, view) {
   view.editOptions.editable = true;
 
   view.onCellEdited = async (grid, itemIndex, row, fieldIndex) => {
+    // 적용기간 유효 설정
     await onCellEditRelProdPeriod(view, grid, itemIndex, row, fieldIndex);
   };
 

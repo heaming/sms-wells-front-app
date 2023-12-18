@@ -185,11 +185,17 @@ const grdStandardRef = ref(getComponentType('KwGrid'));
 const grdChangePrdRef = ref(getComponentType('KwGrid'));
 const grdMainRef = ref(getComponentType('KwGrid'));
 
+// 판매채널 필터
 const filterChannel = ref();
+// 판매채널 코드 목록
 const usedChannelCds = ref([]);
+// 현재 상품코드
 const currentPdCd = ref();
+// 상품정보
 const pdInfo = ref({});
+// 연결상품 정보
 const pdRels = ref([]);
+// 가격 정보
 const pdPrcs = ref([]);
 const codes = await codeUtil.getMultiCodes(
   'SELL_TP_CD',
@@ -210,6 +216,7 @@ async function initGridRows() {
   if (pdRels.value && pdRels.value.length) {
     const materialView = grdMaterialRef.value?.getView();
     if (materialView) {
+      // 교재/자재
       const materialCodeValues = codes.PD_PDCT_REL_DV_CD
         .reduce((rtns, code) => { rtns.push(code.codeId); return rtns; }, []);
       const materialRows = pdRels.value
@@ -219,6 +226,7 @@ async function initGridRows() {
 
     const serviceView = grdServiceRef.value?.getView();
     if (serviceView) {
+      // 서비스
       const serviceRows = pdRels.value
         ?.filter((item) => item[pdConst.PD_REL_TP_CD] === pdConst.PD_REL_TP_CD_P_TO_S);
       serviceView.getDataSource().setRows(serviceRows);
@@ -226,6 +234,7 @@ async function initGridRows() {
 
     const standardView = grdStandardRef.value?.getView();
     if (standardView) {
+      // 기준상품
       const standardCodeValues = codes.BASE_PD_REL_DV_CD
         .reduce((rtns, code) => { rtns.push(code.codeId); return rtns; }, []);
       const standardRows = pdRels.value
@@ -235,6 +244,7 @@ async function initGridRows() {
 
     const changeView = grdChangePrdRef.value?.getView();
     if (changeView) {
+      // 대채품
       const changeRows = pdRels.value
         ?.filter((item) => item[pdConst.PD_REL_TP_CD] === pdConst.PD_REL_TP_CD_CHANGE);
       changeView.getDataSource().setRows(changeRows);
@@ -243,6 +253,7 @@ async function initGridRows() {
 
   const view = grdMainRef.value.getView();
   if (view) {
+    // 판매채널 필터 조건 적용
     const sellChannelFilterCond = codes.SELL_CHNL_DTL_CD.map((v) => ({ name: v.codeId, criteria: `value = '${v.codeId}'` }));
     // 판매채널 필터
     if (sellChannelFilterCond) {

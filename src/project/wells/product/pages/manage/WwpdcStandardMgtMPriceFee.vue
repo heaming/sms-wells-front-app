@@ -16,6 +16,7 @@
   <!-- 수수료 등록 -->
   <h3>{{ $t('MSG_TXT_PD_REG_FEE') }}</h3>
   <kw-action-top>
+    <!-- 삭제 -->
     <kw-btn
       v-show="!props.readonly"
       :label="$t('MSG_BTN_DEL')"
@@ -78,22 +79,33 @@ const { t } = useI18n();
 // Function & Event
 // -------------------------------------------------------------------------------------------------
 const grdMainRef = ref(getComponentType('KwGrid'));
-
 const prcd = pdConst.TBL_PD_PRC_DTL;
 const prcfd = pdConst.TBL_PD_PRC_FNL_DTL;
 const prumd = pdConst.TBL_PD_DSC_PRUM_DTL;
+const gridRowCount = ref(0);
+
+// 가격 메타 속성 기본
 const defaultFields = ref([pdConst.PRC_STD_ROW_ID, pdConst.PRC_FNL_ROW_ID,
   pdConst.PRC_DETAIL_ID, pdConst.PRC_DETAIL_FNL_ID]);
+// 현재 상품 코드
 const currentPdCd = ref();
+// 현재 상품 데이터
 const currentInitData = ref(null);
+// 현재 메타 정보
 const currentMetaInfos = ref();
+// 수수료 변수
 const feeVariables = ref([]);
+// 가격 삭제정보
 const removeObjects = ref([]);
-const gridRowCount = ref(0);
+// 현재 판매 유형 코드
 const currentSellTpCd = ref(null);
+// 선택변수목록
 const selectionVariables = ref([]);
+// 판매채널
 const usedChannelCds = ref([]);
+// 판매채널 필터
 const filterChannel = ref();
+// 판매채널 필터조건
 const sellChannelFilterCond = ref();
 
 // 데이터 초기화
@@ -122,6 +134,7 @@ async function getSaveData() {
     return rtn;
   }, []); /* 그리드에서 수정항목이 아닌 경우 제외 */
   const rowValues = gridUtil.getAllRowValues(view);
+  // 그리드 정보를 메타 기준으로 가격테이블 속성으로 변경
   const rtnValues = await getGridRowsToSavePdProps(
     rowValues,
     currentMetaInfos.value,
@@ -130,6 +143,7 @@ async function getSaveData() {
     outKeys,
   );
   if (removeObjects.value.length) {
+    // 가격 삭제 ID 목록 정보
     rtnValues[pdConst.REMOVE_ROWS] = cloneDeep(removeObjects.value);
   }
   // console.log('WwpdcStandardMgtMPriceFee - getSaveData - rtnValues : ', rtnValues);
@@ -172,6 +186,7 @@ async function initGridRows() {
     sellChannelFilterCond.value = usedChannelCds.value.map((v) => ({ name: v.codeId, criteria: `value = '${v.codeId}'` }));
     // 판매채널 필터
     if (sellChannelFilterCond.value) {
+      // 채널 필터 적용
       view.setColumnFilters('sellChnlCd', sellChannelFilterCond.value, true);
     }
   }
@@ -187,6 +202,7 @@ async function initGridRows() {
   feeVariables.value?.forEach((item) => {
     const column = view.columnByName(item.codeId);
     if (column) {
+      // 모두 표시
       column.visible = true;
     }
   });
@@ -201,12 +217,14 @@ async function initGridRows() {
         [pdConst.PRC_STD_ROW_ID],
       ),
     );
+    // 가격상세정보
     const rows = cloneDeep(await getPropInfosToGridRows(
       currentInitData.value?.[prcfd],
       currentMetaInfos.value,
       prcfd,
       defaultFields.value,
     ));
+    // 기준가와 가격상세정보를 병합
     rows?.map((row) => {
       row[pdConst.PRC_STD_ROW_ID] = row[pdConst.PRC_STD_ROW_ID] ?? row.pdPrcDtlId;
       const stdRow = stdRows?.find((item) => (row[pdConst.PRC_STD_ROW_ID]
@@ -220,6 +238,7 @@ async function initGridRows() {
       return row;
     });
     // console.log('Fee Rows : ', rows);
+    // 가격 그리드 데이터 설정(setRows)
     await setPdGridRows(view, rows, pdConst.PRC_FNL_ROW_ID, defaultFields.value, true);
   } else {
     view.getDataSource().clearRows();
@@ -233,6 +252,7 @@ async function onClickRemove() {
   const view = grdMainRef.value.getView();
   const deletedRowValues = await gridUtil.confirmDeleteCheckedRows(view);
   if (deletedRowValues && deletedRowValues.length) {
+    // 가격 삭제 ID 정보 병합
     removeObjects.value.push(...deletedRowValues.reduce((rtn, item) => {
       if (item[pdConst.PRC_FNL_ROW_ID]) {
         rtn.push({ [pdConst.PRC_FNL_ROW_ID]: item[pdConst.PRC_FNL_ROW_ID] });
@@ -261,6 +281,7 @@ async function resetVisibleChannelColumns() {
     return rtn;
   }, []);
 
+  // 사용자 설정된 선택변수 표시
   selectionVariables.value.forEach((field) => {
     const view = grdMainRef.value.getView();
     const column = view.columnByName(field.codeId);
@@ -279,6 +300,7 @@ async function onUpdateSellChannel() {
   const view = grdMainRef.value.getView();
   view.activateAllColumnFilters('sellChnlCd', false);
   if (filterChannel.value) {
+    // 판매채널 필터 적용
     view.activateColumnFilters('sellChnlCd', [filterChannel.value], true);
   }
 }
@@ -344,6 +366,7 @@ async function initGrid(data, view) {
     ?.reduce((rtn, item) => { rtn.push(item.colNm); return rtn; }, []);
   const readonlyFields = ['sellChnlCd', 'fnlVal', ...basicColNms, ...valColNms, ...fnlColNms];
 
+  // 메타정보를 그리드 정보로 변환
   const { fields, columns } = await getPdMetaToGridInfos(
     currentMetaInfos.value,
     [pdConst.PD_PRC_TP_CD_BASIC,

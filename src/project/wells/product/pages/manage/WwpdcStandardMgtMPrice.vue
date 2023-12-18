@@ -127,17 +127,25 @@ const dataService = useDataService();
 const prcd = pdConst.TBL_PD_PRC_DTL;
 const prcfd = pdConst.TBL_PD_PRC_FNL_DTL;
 
+// 기준가 Ref
 const cmpStdRef = ref();
+// 선택변수 Ref
 const cmpValRef = ref();
+// 최종가 Ref
 const cmpFnlRef = ref();
+// 수수료 Ref
 const cmpFeeRef = ref();
-// const cmpCopyRef = ref();
+// 현재 상품코드
 const currentPdCd = ref();
+// 가격 메타 정보
 const metaInfos = ref({});
+// 현재 상품 데이터
 const currentInitData = ref({});
-// const selectedTabs = ref(['std', 'val', 'fnl', 'fee', 'copy']);
+// 탭 목록
 const selectedTabs = ref(['std', 'val', 'fnl', 'fee']);
+// 선택된 탭
 const selectedTab = ref(selectedTabs.value[0]);
+// 현재 공통코드
 const currentCodes = ref({});
 
 // 데이터 초기화
@@ -200,17 +208,20 @@ async function getSaveData(isBatchCopy) {
   subList[prcd] = [];
   subList[prcfd] = [];
   subList[pdConst.REMOVE_ROWS] = [];
+  // 기준가 속성 병합
   const stds = await cmpStdRef.value?.getSaveData();
   subList[pdConst.REMOVE_ROWS] = pdMergeBy(subList[pdConst.REMOVE_ROWS], stds[pdConst.REMOVE_ROWS]);
   subList[prcd] = pdMergeBy(subList[prcd], stds?.[prcd], pdConst.PRC_STD_ROW_ID);
   // console.log('WwpdcStandardMgtMPrice - getSaveData - 1 - subList[prcd] : ', subList[prcd]);
 
+  // 선택변수 속성 병합
   const vals = await cmpValRef.value?.getSaveData();
   subList[pdConst.REMOVE_ROWS] = pdMergeBy(subList[pdConst.REMOVE_ROWS], vals[pdConst.REMOVE_ROWS]);
   subList[prcfd] = pdMergeBy(subList[prcfd], vals?.[prcfd], pdConst.PRC_FNL_ROW_ID);
   subList[pdConst.TBL_PD_DSC_PRUM_DTL] = vals?.[pdConst.TBL_PD_DSC_PRUM_DTL];
   // console.log('WwpdcStandardMgtMPrice - getSaveData - 2 - subList[prcfd] : ', subList[prcfd]);
 
+  // 최종가 속성 병합
   const fnls = await cmpFnlRef.value?.getSaveData();
   subList[pdConst.REMOVE_ROWS] = pdMergeBy(subList[pdConst.REMOVE_ROWS], fnls[pdConst.REMOVE_ROWS]);
   subList[prcfd] = pdMergeBy(subList[prcfd], fnls?.[prcfd], pdConst.PRC_FNL_ROW_ID);
@@ -218,6 +229,7 @@ async function getSaveData(isBatchCopy) {
   // 저장전 할인적용가격, 최종가 재계산
   subList[prcfd] = getCountPriceDefault(subList[prcd], subList[prcfd]);
 
+  // 수수료 속성 병합
   // console.log('WwpdcStandardMgtMPrice - getSaveData - 3 - subList[prcfd] : ', subList[prcfd]);
   const fees = await cmpFeeRef.value?.getSaveData();
   subList[pdConst.REMOVE_ROWS] = pdMergeBy(subList[pdConst.REMOVE_ROWS], fees[pdConst.REMOVE_ROWS]);
@@ -239,9 +251,12 @@ async function getSaveData(isBatchCopy) {
 async function moveNextStep() {
   const currentTabIndex = selectedTabs.value.indexOf(selectedTab.value);
   if (currentTabIndex < (selectedTabs.value.length - 1)) {
+    // 다음텝으로 이동
     selectedTab.value = selectedTabs.value[currentTabIndex + 1];
+    // 가격 다음텝이 있으면
     return true;
   }
+  // 가격 다음텝이 없으면
   return false;
 }
 
@@ -250,8 +265,10 @@ async function movePrevStep() {
   const currentTabIndex = selectedTabs.value.indexOf(selectedTab.value);
   if (currentTabIndex > 0) {
     selectedTab.value = selectedTabs.value[currentTabIndex - 1];
+    // 가격 이전텝이 있으면
     return true;
   }
+  // 가격 이전텝이 없으면
   return false;
 }
 
@@ -370,6 +387,7 @@ await initProps();
 watch(() => props.pdCd, (pdCd) => { currentPdCd.value = pdCd; });
 watch(() => props.initData, (initData) => {
   if (!isEqual(currentInitData.value, initData)) {
+    // 변경정보 있으면
     const priceDatas = cloneDeep(initData);
     priceDatas[prcfd] = getCountPriceDefault(priceDatas[prcd], priceDatas[prcfd]);
     currentInitData.value = priceDatas;

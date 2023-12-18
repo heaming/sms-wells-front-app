@@ -132,6 +132,7 @@ const { getConfig } = useMeta();
 // -------------------------------------------------------------------------------------------------
 const grdMainRef = ref(getComponentType('KwGrid'));
 const currentSearchYn = ref();
+// 유형 변수 목록
 const variableCodes = ref([]);
 
 let cachedParams;
@@ -211,6 +212,7 @@ async function checkDuplication() {
     return false;
   }
 
+  // 서버 판매유형 중복검사
   const { data: dupData } = await dataService.post('/sms/wells/product/variables/duplication-check', createdRows);
   if (dupData.data) {
     const dupCodes = dupData.data.split(',', -1);
@@ -267,6 +269,7 @@ async function fetchVariables() {
       return;
     }
     // console.log('WwpdySalesTypeVariableListM - fetchVariables - res : ', res);
+    // 판매유형 변수 콤보 설정
     variableCodes.value = res.data?.map(({ pdPrpMetaId, uiLblCdv }) => ({
       codeId: pdPrpMetaId, codeName: uiLblCdv ? t(uiLblCdv) : uiLblCdv })) ?? [];
     const view = grdMainRef.value?.getView();
@@ -358,6 +361,7 @@ const initGrdMain = defineGrid((data, view) => {
   view.onCellEdited = async (grid, itemIndex, row, fieldIndex) => {
     const changedFieldName = grid.getColumn(fieldIndex).fieldName;
     if (changedFieldName === 'rgltnVarbNm') {
+      // 변수명 선택시 변수 ID 자동 설정
       view.setValue(itemIndex, 'rgltnVarbId', grid.getValue(itemIndex, 'rgltnVarbNm'));
     }
   };

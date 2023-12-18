@@ -62,14 +62,21 @@ const grdMainRef = ref(getComponentType('KwGrid'));
 const bas = pdConst.TBL_PD_BAS;
 const prcd = pdConst.TBL_PD_PRC_DTL;
 const prcfd = pdConst.TBL_PD_PRC_FNL_DTL;
+
+// 현재 상품 코드
 const currentPdCd = ref();
+// 현재 데이터
 const currentInitData = ref(null);
+// 메타 정보
 const metaInfos = ref();
+// 현재 코드 목록
 const currentCodes = ref({});
+// 가격 전체 로우 카운트
 const totalCount = ref(0);
+// 가격 그리드 디폴트 컬럼
 const defaultFields = ref(['verSn', pdConst.PRC_STD_ROW_ID, pdConst.PRC_FNL_ROW_ID,
   pdConst.PRC_DETAIL_ID, pdConst.PRC_DETAIL_FNL_ID, 'basePdTempSaveYn', 'basePdClsfNm', 'basePdNm', 'basePdCd', 'baseSellTpCd']);
-
+// 메타 불러오기 검색 조건
 const searchParams = ref({
   pdTpCd: pdConst.PD_TP_CD_COMPOSITION,
   pdCd: '',
@@ -123,6 +130,7 @@ async function initGridRows() {
 // 엑셀다운로드
 async function onClickExcelFormDownload() {
   const view = grdMainRef.value.getView();
+  // [상품코드/코드명]_가격정보 파일명 변경
   let downFileName = currentInitData.value[bas].pdCd ? `${currentInitData.value[bas].pdNm}(${currentInitData.value[bas].pdCd})` : currentInitData.value[bas].pdNm;
   downFileName += `_${t('MSG_TXT_PRICE_INFO')}`;
   await gridUtil.exportView(view, {
@@ -139,7 +147,7 @@ async function fetchData() {
   }
   metaInfos.value = res.data;
   // console.log('WwpdcCompositionMgtMPrice - fetchData - metaInfos.value : ', metaInfos.value);
-  // TODO pdPrcTpCd: pdConst.PD_PRC_TP_CD_COMPOSITION
+  // 메타정보에서 공통코드 추출
   const codeNames = await getPdMetaToCodeNames(metaInfos.value, currentCodes.value);
   if (!isEmpty(codeNames)) {
     // console.log('WwpdcCompositionMgtMPrice - fetchData - codeNames : ', codeNames);
@@ -208,6 +216,7 @@ async function initGrid(data, view) {
         const vlStrtDtm = grid.getValue(index.itemIndex, 'vlStrtDtm');
         const vlEndDtm = grid.getValue(index.itemIndex, 'vlEndDtm');
         if (vlStrtDtm || vlEndDtm) {
+          // 적용일 유효성 체크
           return `${stringUtil.getDateFormat(vlStrtDtm)} ~ ${stringUtil.getDateFormat(vlEndDtm)}`;
         }
         return '';
@@ -219,6 +228,7 @@ async function initGrid(data, view) {
   pdFields.push({ fieldName: 'vlStrtDtm' });
   pdFields.push({ fieldName: 'vlEndDtm' });
   metaInfos.value.map((item) => { item.readEuYn = 'Y'; return item; });
+  // 메타정보를 그리드 정보로 변환
   const { fields, columns } = await getPdMetaToGridInfos(
     metaInfos.value,
     [pdConst.PD_PRC_TP_CD_COMPOSITION],
