@@ -18,7 +18,9 @@
       @search="onClickSearch"
       @reset="onClickReset"
     >
-      <kw-search-row>
+      <kw-search-row
+        :label-size="130"
+      >
         <!-- 출고요청창고 -->
         <kw-search-item
           :label="$t('MSG_TXT_OSTR_AK_WARE')"
@@ -53,7 +55,9 @@
           />
         </kw-search-item>
       </kw-search-row>
-      <kw-search-row>
+      <kw-search-row
+        :label-size="130"
+      >
         <!-- 출고요청접수창고 -->
         <kw-search-item
           :label="$t('MSG_TXT_OSTR_AK_RCP_WARE')"
