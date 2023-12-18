@@ -222,7 +222,7 @@ async function onClickReset() {
   // 기존 로직을 form 기반 reset 을 안쓰려면
   // 아예 다른 동작을 하는 버튼을 만드는 것이 정답일 것 같습니다.
   searchParams.value.cntrCstKnm = '';
-  searchParams.value.lrnnCstKnm = '';
+  searchParams.value.istCstKnm = '';
   searchParams.value.mpno = '';
   searchParams.value.cralLocaraTno = '';
   searchParams.value.mexnoEncr = '';
