@@ -172,9 +172,17 @@ async function onClickExcelDownload() {
   });
 }
 
+let result;
 // 조회 버튼
 async function onClickSearch() {
+  pageInfo.value.pageIndex = 1;
+
   cachedParams = cloneDeep(searchParams.value);
+
+  const res = await dataService.get(`${apiUrl}/sum`, { params: { ...cachedParams } });
+
+  result = res.data;
+
   await fetchData();
 }
 
@@ -205,7 +213,10 @@ const initGrid = defineGrid((data, view) => {
       header: t('MSG_TXT_CNTR_NO'), // 계약번호
       width: '130',
       styleName: 'text-right',
-      headerSummaries: { text: t('MSG_TXT_TOT_SUMMARY'), styleName: 'text-center' }, // 총 합계
+      headerSummary: {
+        styleName: 'text-center',
+        text: t('MSG_TXT_TOT_SUMMARY'), // 총 합계
+      },
     },
     { fieldName: 'cstKnm', header: t('MSG_TXT_CST_NM'), width: '99', styleName: 'text-center' }, // 고객명
     { fieldName: 'pdNm', header: t('MSG_TXT_GOODS_NM'), width: '150', styleName: 'text-left' }, // 제품명
@@ -214,7 +225,14 @@ const initGrid = defineGrid((data, view) => {
       width: '120',
       styleName: 'text-right',
       dataType: 'number',
-      headerSummaries: { expression: 'sum', numberFormat: '#,###' },
+      headerSummary: {
+        valueCallback() {
+          // 표시하고 싶은 값을 return
+          return Number(result.dpAmt);
+        },
+        expression: 'sum',
+        numberFormat: '#,###',
+      },
     },
     { fieldName: 'fnitCd',
       header: t('MSG_TXT_BNK_NM'), // 은행명
@@ -222,15 +240,27 @@ const initGrid = defineGrid((data, view) => {
       styleName: 'text-left',
       options: codes.BNK_CD,
     },
-    { fieldName: 'acnoEncr', header: t('MSG_TXT_AC_NO'), width: '246', styleName: 'text-left' }, // 계좌번호
-    { fieldName: 'dprNm', header: t('MSG_TXT_ACHLDR'), width: '120', styleName: 'text-center' }, // 예금주
+    { fieldName: 'acnoEncr',
+      header: t('MSG_TXT_AC_NO'), // 계좌번호
+      width: '246',
+      styleName: 'text-left',
+    },
+    { fieldName: 'dprNm',
+      header: t('MSG_TXT_ACHLDR'), // 예금주
+      width: '120',
+      styleName: 'text-center',
+    },
     { fieldName: 'copnDvCd',
       header: t('MSG_TXT_CNTR_DV'), // 계약구분
       width: '120',
       styleName: 'text-center',
       options: codes.INDV_CRP_CNTR_DV_CD,
     },
-    { fieldName: 'nmn', header: t('MSG_TXT_NMN'), width: '120', styleName: 'text-right' }, // 차월
+    { fieldName: 'nmn',
+      header: t('MSG_TXT_NMN'), // 차월
+      width: '120',
+      styleName: 'text-right',
+    },
     { fieldName: 'cntrPdEnddt',
       header: t('MSG_TXT_EXP_CANC_YM'), // 만료/취소년월
       width: '150',
@@ -267,21 +297,6 @@ const initGrid = defineGrid((data, view) => {
 
   view.layoutByColumn('cntrNo').summaryUserSpans = [{ colspan: 3 }];
   // view.layoutByColumn('fnitCd').summaryUserSpans = [{ colspan: 7 }];
-
-  // data.setRows([
-  //   // 예시데이터
-  //   { col1: '2016-0298637',
-  //     col2: '공',
-  //     col3: 'KW-B03W1',
-  //     col4: '120',
-  //     col5: '지역농축협',
-  //     col6: '123412-12-123456',
-  //     col7: '공선미',
-  //     col8: '개인',
-  //     col9: '61',
-  //     col10: '2022-01',
-  //     col11: '만료' },
-  // ]);
 });
 </script>
 <style scoped>

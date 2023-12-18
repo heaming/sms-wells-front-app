@@ -242,6 +242,7 @@
 import { useMeta, defineGrid, codeUtil, useDataService, getComponentType, gridUtil, modal, notify, alert } from 'kw-lib';
 import { cloneDeep, isEmpty } from 'lodash-es';
 import ZctzContractDetailNumber from '~sms-common/contract/components/ZctzContractDetailNumber.vue';
+import dayjs from 'dayjs';
 
 const apiUri = '/sms/wells/withdrawal/pchssl/sales-control';
 const dataService = useDataService();
@@ -291,6 +292,7 @@ const searchParams = ref({
   slCtrPrcsStrtDt: '', // 등록일자 From
   slCtrPrcsFshDt: '', // 등록일자 To
   searchExmpYn: 'N',
+  limitCount: 0,
 });
 
 const isExmpYnChk = ref(true);
@@ -431,13 +433,26 @@ async function onClickRemove() {
 async function onClickExcelDownload() {
   const view = grdMainRef.value.getView();
 
-  const res = await dataService.get(`${apiUri}/excel-download`, { params: cachedParams });
+  const limitCount = Math.ceil(pageInfo.value.totalCount / 100000);
+  for (let i = 0; i < limitCount; i += 1) {
+    cachedParams.limitCount = i * 100000;
 
-  await gridUtil.exportView(view, {
-    fileName: currentRoute.value.meta.menuName,
-    timePostfix: true,
-    exportData: res.data,
-  });
+    gridUtil.exportBulkView(view, {
+      url: `${apiUri}/excel-download-bulk`, // url 지정
+      parameter: { // 검색 조건을 그대로 넣어준다. 없을 경우 추가 하지 않아도 됨
+        ...cachedParams, timeout: 6000000,
+      },
+      fileName: `${currentRoute.value.meta.menuName}_${dayjs().format('YYYYMMDDHHmmss')}_Bulk`,
+    });
+  }
+
+  // const res = await dataService.get(`${apiUri}/excel-download`, { params: cachedParams });
+
+  // await gridUtil.exportView(view, {
+  //   fileName: currentRoute.value.meta.menuName,
+  //   timePostfix: true,
+  //   exportData: res.data,
+  // });
 }
 
 // 엑셀업로드
@@ -556,8 +571,8 @@ const initGrid1 = defineGrid((data, view) => {
         text: t('MSG_TXT_CNTR_DTL_NO'), // 계약상세번호
         styleName: 'essential',
       },
-      width: '130',
-      styleName: 'text-left rg-button-icon--search',
+      width: '140',
+      styleName: 'text-center rg-button-icon--search',
       button: 'action',
       editor: {
         type: 'line',
@@ -568,7 +583,12 @@ const initGrid1 = defineGrid((data, view) => {
         return grid.getDataSource().getRowState(index.dataRow) === 'created';
       },
     },
-    { fieldName: 'cstKnm', header: t('MSG_TXT_CST_NM'), width: '100', editable: false }, // 고객명
+    { fieldName: 'cstKnm',
+      header: t('MSG_TXT_CST_NM'),
+      width: '100',
+      styleName: 'text-center',
+      editable: false,
+    }, // 고객명
     {
       fieldName: 'slCtrStrtYm',
       header: {
