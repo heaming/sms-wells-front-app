@@ -1,8 +1,23 @@
 <template>
   <div class="scoped-product-select">
     <div class="scoped-product-select__search-box scoped-search-box">
-      <h3 class="scoped-search-box__title">
+      <h3
+        class="scoped-search-box__title"
+      >
         상품검색
+        <kw-icon
+          name="info"
+          class="ml4 hp-h-auto"
+          tooltip-self="top left"
+        >
+          <p>
+            모종 정기배송 상품의 경우,<br>
+            웰스팜 기기 제품 선택하고<br>
+            패키지 상품으로 추가하시거나,<br>
+            기존에 구매하신 웰스팜 기기를 선택하신 후,<br>
+            선택하실 수 있습니다.
+          </p>
+        </kw-icon>
       </h3>
       <kw-input
         v-model="searchParams.filterText"
@@ -58,6 +73,7 @@
       </div>
     </div>
     <div
+      ref="productScrollRef"
       v-scrollbar
       class="scoped-product-select__product-box"
     >
@@ -65,7 +81,6 @@
         <kw-list
           class="scoped-product-type-list"
           separator
-          item-padding="16px 0"
         >
           <kw-expansion-item
             v-for="(pdClsfCd) in filteredPdClsfCds"
@@ -73,53 +88,65 @@
             :ref="(vm) => expansionItemRef[pdClsfCd] = vm"
             padding-target="header"
             expansion-icon-align="center"
-            expand-icon="arrow_down"
+            expand-icon-class="hidden"
+            expand-icon-toggle
           >
-            <template #header>
+            <template #header="{ toggle, expanded }">
               <kw-item-section>
-                <kw-item-label font="body">
-                  {{ getCodeName('PD_CLSF_CD', pdClsfCd) }}
-                </kw-item-label>
+                <kw-btn
+                  class="kw-font-body fit scoped-expand-btn py16"
+                  :class="{'scoped-expand-btn--expanded': expanded}"
+                  borderless
+                  :label="getCodeName('PD_CLSF_CD', pdClsfCd)"
+                  icon-right="arrow_down"
+                  @click="toggle"
+                />
               </kw-item-section>
             </template>
-            <kw-list
-              class="scoped-product-picker-list"
-            >
-              <!-- 업보려니...합시다. -->
-              <kw-item
-                v-for="(product, idx) in filteredClassifyingProducts[pdClsfCd]"
-                :key="`product-${idx}`"
-                class="scoped-product-picker-list__item"
+            <template #default>
+              <kw-virtual-scroll
+                v-slot="{item: product, index: idx}"
+                :scroll-target="$refs.productScrollRef"
+                class="scoped-product-picker-list"
+                :items="filteredClassifyingProducts[pdClsfCd]"
+                type="list"
+                debounce="50"
               >
-                <kw-item-section>
-                  <kw-item-label
-                    font="dense"
-                    font-weight="400"
-                    class="flex no-wrap"
-                  >
-                    <div
-                      class="ellipsis grow pr20 cursor-pointer"
-                      @click="onClickProduct(product)"
+                <kw-item
+                  :key="`product-${idx}`"
+                  class="scoped-product-picker-list__item"
+                  padding="16px 0"
+                >
+                  <kw-item-section>
+                    <kw-item-label
+                      font="dense"
+                      font-weight="400"
+                      class="flex no-wrap"
                     >
-                      {{ product.cstBasePdAbbrNm || product.pdNm }}
-                      <kw-tooltip show-when-ellipsised>
+                      <div
+                        class="ellipsis grow pr20 cursor-pointer"
+                        @click="onClickProduct(product)"
+                      >
                         {{ product.cstBasePdAbbrNm || product.pdNm }}
-                      </kw-tooltip>
-                    </div>
-                  </kw-item-label>
-                  <kw-item-label
-                    class="mt6 flex gap-xxs"
-                  >
-                    <kw-chip
-                      v-if="labelForSellTpCd(product)"
-                      :label="labelForSellTpCd(product)"
-                      color="primary"
-                      outline
-                    />
-                  </kw-item-label>
-                </kw-item-section>
-              </kw-item>
-            </kw-list>
+                        <kw-tooltip show-when-ellipsised>
+                          {{ product.cstBasePdAbbrNm || product.pdNm }}
+                        </kw-tooltip>
+                      </div>
+                    </kw-item-label>
+                    <kw-item-label
+                      class="mt6 flex gap-xxs"
+                    >
+                      <kw-chip
+                        v-if="labelForSellTpCd(product)"
+                        :label="labelForSellTpCd(product)"
+                        color="primary"
+                        outline
+                      />
+                    </kw-item-label>
+                  </kw-item-section>
+                </kw-item>
+              </kw-virtual-scroll>
+            </template>
           </kw-expansion-item>
         </kw-list>
       </div>
@@ -291,7 +318,7 @@ const filteredClassifyingProducts = computed(() => {
       .filter((product) => (rglrSppMchnTpCd ? product.rglrSppMchnTpCd === rglrSppMchnTpCd : (product.rglrSppMchnTpCd ?? '0') === '0'));
 
     if (filteredProducts.length) {
-      filtered[pdClsfCd] = filteredProducts;
+      filtered[pdClsfCd] = Object.freeze(filteredProducts);
     }
     return filtered;
   }, {});
@@ -413,7 +440,7 @@ onActivated(() => {
   }
 
   &__product-box {
-    flex: auto;
+    flex: 1 1 1px;
   }
 }
 
@@ -437,10 +464,10 @@ onActivated(() => {
 
 .scoped-product-picker-list {
   background-color: $bg-box;
-  padding: $spacing-lg;
+  padding: 0 $spacing-lg;
 
   :deep(> .kw-item-type:not(:first-of-type)) {
-    margin-top: $spacing-lg;
+    // margin-top: $spacing-lg;
   }
 }
 

@@ -23,7 +23,7 @@
       >
         <div class="scoped-item__main">
           <kw-btn
-            class="transparent absolute fit"
+            class="scoped-item__toggle-helper"
             borderless
             @click="toggle"
           />
@@ -31,6 +31,9 @@
             class="scoped-item__product-name"
           >
             {{ dtl.cstBasePdAbbrNm || dtl.pdNm }}
+            <span class="text-bg-white">
+              {{ dtl.pdCd }}
+            </span>
           </kw-item-label>
           <div class="scoped-item__chips">
             <kw-chip
@@ -545,6 +548,12 @@ function labelForCntrRel(cntrRel) {
     flex-flow: column wrap;
     align-items: flex-start;
     gap: $spacing-xs;
+  }
+
+  &__toggle-helper {
+    background: transparent;
+    position: absolute;
+    inset: rem-to-px(map-get($body, "line-height")) 0 0 0;
   }
 
   &__product-name {
