@@ -1626,8 +1626,7 @@ const initGrdMain = defineGrid((data, view) => {
     if (checkedRows?.length > 0) {
       return checkedRows.reduce((acc, row) => acc + row[column.name], 0);
     }
-    const rowValues = gridUtil.getAllRowValues(view);
-    return rowValues.reduce((acc, row) => acc + row[column.name], 0);
+    return grid.getSummary(column.name, 'sum');
   };
 
   const fields = [
