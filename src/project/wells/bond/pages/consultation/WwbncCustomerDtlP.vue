@@ -1623,7 +1623,11 @@ onMounted(async () => {
 const initGrdMain = defineGrid((data, view) => {
   const summaryCallback = (grid, column) => {
     const checkedRows = gridUtil.getCheckedRowValues(grid);
-    return checkedRows.reduce((acc, row) => acc + row[column.name], 0);
+    if (checkedRows?.length > 0) {
+      return checkedRows.reduce((acc, row) => acc + row[column.name], 0);
+    }
+    const rowValues = gridUtil.getAllRowValues(view);
+    return rowValues.reduce((acc, row) => acc + row[column.name], 0);
   };
 
   const fields = [
