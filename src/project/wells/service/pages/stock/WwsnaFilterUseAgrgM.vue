@@ -176,7 +176,7 @@ const searchParams = ref({
   dgr1LevlOgId: '',
   dgr2LevlOgId: '',
   dgr3LevlOgId: '',
-  rgsnYn: 'N', // 퇴사자 제외 여부
+  rgsnYn: 'Y', // 퇴사자 제외 여부
 });
 
 /* 관리 구분 : 매니저 */
