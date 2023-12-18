@@ -897,7 +897,7 @@ async function onClickCntrwMlFw() {
         // 추가 파라미터(신규/변경시  rstlYn:'N')
         rcvrInfo.push({
           cntrNo: String(row.cntrDtlNo).split('-')[0],
-          cntrSn: String(row.cntrDtlNo).split('-')[1],
+          cntrSn: String(row.cntrDtlNo).split('-')[1].substr(0, 1),
           cntrNm: row.cstKnm,
           rstlYn: 'N',
           emadr: '',
