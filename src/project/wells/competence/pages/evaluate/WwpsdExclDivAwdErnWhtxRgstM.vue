@@ -49,6 +49,14 @@
           :label="t('MSG_BTN_EXCEL_UP')"
           @click="onClickExcelUpload"
         />
+        <kw-btn
+          v-permission:download
+          icon="download_on"
+          dense
+          :label="$t('MSG_BTN_EXCEL_DOWN')"
+          :disable="pageInfo.totalCount === 0"
+          @click="onClickExcelDownload"
+        />
       </kw-action-top>
       <kw-grid
         ref="grdMainRef"
@@ -80,7 +88,7 @@ const dataService = useDataService();
 const { getConfig } = useMeta();
 const { modal, notify } = useGlobal();
 const { t } = useI18n();
-
+const { currentRoute } = useRouter();
 // -------------------------------------------------------------------------------------------------
 // Function & Event
 // -------------------------------------------------------------------------------------------------
@@ -131,6 +139,17 @@ async function onClickExcelUpload() {
       });
     }
   }
+}
+async function onClickExcelDownload() {
+  const view = grdMainRef.value.getView();
+
+  const res = await dataService.get('/sms/wells/competence/div-awd-ern-whtx/excel-download', { params: cachedParams });
+
+  await gridUtil.exportView(view, {
+    fileName: currentRoute.value.meta.menuName,
+    timePostfix: true,
+    exportData: res.data,
+  });
 }
 const initGrdMain = defineGrid((data, view) => {
   const fields = [
