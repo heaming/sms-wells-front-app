@@ -220,7 +220,7 @@
       </kw-search-row>
       <kw-search-row>
         <kw-search-item
-          :label="$t('MSG_TXT_CST_NM')"
+          :label="$t('MSG_TXT_ELIGIBILITY')"
         >
           <kw-input
             v-model="searchParams.prtnrNo"
