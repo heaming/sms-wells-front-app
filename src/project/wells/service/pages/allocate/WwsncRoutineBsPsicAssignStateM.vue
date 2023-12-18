@@ -316,8 +316,8 @@ const tempOptions = {
 };
 const searchParams = ref({
   baseYm: now.format('YYYYMM'),
-  startDt: now.subtract(30, 'day').format('YYYYMMDD'),
-  endDt: now.format('YYYYMMDD'),
+  startDt: '', // startDt: now.subtract(30, 'day').format('YYYYMMDD'),
+  endDt: '', // now.format('YYYYMMDD'),
   mngrDvCd: '1',
   pdGrpDtlCd: '',
   pdCd: '',
