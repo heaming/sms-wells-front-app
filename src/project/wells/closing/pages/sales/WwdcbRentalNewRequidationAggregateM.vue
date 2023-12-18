@@ -40,6 +40,7 @@
             rules="date_range_required|date_range_months:1"
             :min-date="limitStartDtFrom"
             :max-date="limitEndDtTo"
+            @change="onChangeSearchParams"
           />
         </kw-search-item>
       </kw-search-row>
@@ -65,6 +66,7 @@
             :options="codes.PRTNR_BZS_CD"
             :label="$t('MSG_TXT_PRTNR_BZS_CD')"
             first-option="all"
+            @change="onChangeSearchParams"
           />
         </kw-search-item>
         <!-- 아웃소싱 선택일때, -->
@@ -133,6 +135,7 @@
 // -------------------------------------------------------------------------------------------------
 import { useDataService, defineGrid, getComponentType, gridUtil, codeUtil } from 'kw-lib';
 import { getAdrpcTpCd } from '~/modules/sms-common/closing/utils/clUtil';
+import { cloneDeep } from 'lodash-es';
 import dayjs from 'dayjs';
 
 const { t } = useI18n();
@@ -147,6 +150,8 @@ const grdSubRef = ref(getComponentType('KwGrid'));
 const totalMainCount = ref(0);
 const totalSubCount = ref(0);
 const isAdrpcTpCd = ref(false);
+let cachedParams;
+let changeYn = 'N';
 const searchParams = ref({ slYm: dayjs().format('YYYYMM'),
   startDt: dayjs().format('YYYYMM').concat('01'),
   endDt: dayjs().format('YYYYMMDD') });
@@ -164,12 +169,18 @@ const codes = await codeUtil.getMultiCodes(
 );
 
 function onChangeSlYm() {
+  changeYn = 'Y';
   searchParams.value.startDt = `${searchParams.value.slYm}01`;
   searchParams.value.endDt = `${searchParams.value.slYm}${dayjs().format('YYYYMMDD').substring(6, 8)}`;
 }
 
 function onChangeAdrpcTpCd() {
+  changeYn = 'Y';
   isAdrpcTpCd.value = searchParams.value.adrpcTpCd === '1';
+}
+
+function onChangeSearchParams() {
+  changeYn = 'Y';
 }
 
 // 엑셀 다운로드 버튼
@@ -184,15 +195,24 @@ async function onClickExcelDownload(gridGb) {
 }
 
 async function fetchData() {
-  const res = await dataService.get('/sms/wells/closing/rental-new-requidation-aggregates', { params: searchParams.value });
+  const res = await dataService.get('/sms/wells/closing/rental-new-requidation-aggregates', { params: cachedParams });
   const aggregates = res.data;
   totalMainCount.value = aggregates.length;
   const view = grdMainRef.value.getView();
   view.getDataSource().setRows(aggregates);
+
+  changeYn = 'N';
 }
 
 // 조회 버튼
 async function onClickSearch() {
+  if (changeYn === 'Y') { // 조회조건 변경시 상세현황 그리드 초기화
+    const view = grdSubRef.value.getView();
+    view.getDataSource().clearRows();
+    totalSubCount.value = grdSubRef.value?.getData().getRowCount();
+  }
+  cachedParams = cloneDeep(searchParams.value);
+
   await fetchData();
 }
 
@@ -239,7 +259,7 @@ const initGrid1 = defineGrid((data, view) => {
     if (column === 'qty') {
       const { qty, divCd, divDtlCd, divDtlCdNm } = gridUtil.getRowValue(g, dataRow);
       if (qty) {
-        const res = await dataService.get('/sms/wells/closing/rental-new-requidation-aggregates/details', { params: { ...searchParams.value, divCd, divDtlCd } });
+        const res = await dataService.get('/sms/wells/closing/rental-new-requidation-aggregates/details', { params: { ...cachedParams, divCd, divDtlCd } });
         const aggregates = res.data;
         totalSubCount.value = aggregates.length;
         const view2 = grdSubRef.value.getView();
