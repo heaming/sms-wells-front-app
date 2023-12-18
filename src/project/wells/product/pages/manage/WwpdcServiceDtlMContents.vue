@@ -107,9 +107,13 @@ const router = useRouter();
 // -------------------------------------------------------------------------------------------------
 // Function & Event
 // -------------------------------------------------------------------------------------------------
+// 스텝별 Ref
 const cmpStepRefs = ref([ref(), ref(), ref()]);
+// 현재 상품 코드
 const currentPdCd = ref();
+// 현재 상품 데이터
 const currentInitData = ref({});
+// 초기 선택 탭
 const selectedTab = ref(pdConst.W_SERVICE_STEP_BASIC.name);
 
 // 데이터 초기화

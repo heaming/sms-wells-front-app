@@ -48,8 +48,9 @@ const { t } = useI18n();
 // Function & Event
 // -------------------------------------------------------------------------------------------------
 const grdStandardRef = ref(getComponentType('KwGrid'));
-
+// 현재 상품 코드
 const currentPdCd = ref();
+// 현재 상품 데이터
 const currentInitData = ref({});
 
 // 데이터 초기화

@@ -133,6 +133,7 @@ async function onClickSave() {
   console.log('WwpdcLifeCustomFilterListP - onClickSave - subList : ', subList);
   await dataService.put('/sms/wells/product/bs-works/details', subList);
 
+  // 저장되었습니다.
   notify(t('MSG_ALT_SAVE_DATA'));
   await fetchData();
 }

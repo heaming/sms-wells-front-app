@@ -18,7 +18,7 @@
   <kw-grid
     ref="grdMaterialRef"
     name="grdDtlRelMaterial"
-    :visible-rows="3"
+    :visible-rows="5"
     ignore-on-modified
     @init="initMaterialGrid"
   />
@@ -27,7 +27,7 @@
   <kw-grid
     ref="grdServiceRef"
     name="grdDtlRelService"
-    :visible-rows="3"
+    :visible-rows="5"
     ignore-on-modified
     @init="initServiceGrid"
   />
@@ -36,7 +36,7 @@
   <kw-grid
     ref="grdStandardRef"
     name="grdDtlRelStandard"
-    :visible-rows="3"
+    :visible-rows="5"
     ignore-on-modified
     @init="initStandardGrid"
   />
@@ -46,7 +46,7 @@
   <kw-grid
     ref="grdChangePrdRef"
     name="grdDtlRelChangePrd"
-    :visible-rows="3"
+    :visible-rows="5"
     ignore-on-modified
     @init="initChangePrdGrid"
   />

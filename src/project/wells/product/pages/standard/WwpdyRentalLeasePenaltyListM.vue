@@ -155,12 +155,12 @@ const currentSearchYn = ref();
 
 let cachedParams;
 const searchParams = ref({
-  prdtCateHigh: '',
-  prdtCateMid: '',
-  prdtCateLow: '',
-  prdtCateLowDtl: '',
-  pdNm: '',
-  pdCd: '',
+  prdtCateHigh: '', // 대분류
+  prdtCateMid: '', // 중분류
+  prdtCateLow: '', // 하분류
+  prdtCateLowDtl: '', // 세분류
+  pdNm: '', // 상품명
+  pdCd: '', // 상품코드
   svcStartDt: '', // 서비스 시작일
   svcEndDt: '', // 서비스 종료일
 });
@@ -402,6 +402,7 @@ const initGrdMain = defineGrid((data, view) => {
 
   view.onCellButtonClicked = async (grid, { column, dataRow }) => {
     if (column === 'pdNm') {
+      // 상품 검색 팝업 호출
       const svPdNm = grid.getValue(dataRow, 'pdNm');
       const { payload } = await modal({
         component: 'ZwpdcStandardListP',

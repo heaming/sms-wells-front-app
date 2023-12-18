@@ -53,15 +53,17 @@ const props = defineProps({
 });
 
 const dataService = useDataService();
-
+const router = useRouter();
 // -------------------------------------------------------------------------------------------------
 // Function & Event
 // -------------------------------------------------------------------------------------------------
 const cmpRef = ref();
+// 현재 상품 코드
 const currentPdCd = ref();
+// 상품 정보
 const pdBas = ref({});
+// 현재 상품 데이터
 const prevStepData = ref({});
-const router = useRouter();
 
 const codes = await codeUtil.getMultiCodes(
   'PD_TP_CD',
@@ -100,6 +102,7 @@ async function initProps() {
 await initProps();
 
 watch(() => props, async ({ pdCd, reloadYn }) => {
+  // 상품코드 갱신시
   console.log(` WwpdcCompositionDtlM - watch - pdCd: ${pdCd} reloadYn: ${reloadYn}`);
   if (pdCd && currentPdCd.value !== pdCd) {
     currentPdCd.value = pdCd;

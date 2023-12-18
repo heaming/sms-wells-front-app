@@ -90,11 +90,16 @@ const dataService = useDataService();
 // -------------------------------------------------------------------------------------------------
 // Function & Event
 // -------------------------------------------------------------------------------------------------
+// 현재 상품 코드
 const currentPdCd = ref();
+// 상품 정보
 const pdInfo = ref({});
+// 메타 정보
 const metaInfos = ref([]);
+
 const codes = await codeUtil.getMultiCodes('COD_YN', 'SV_PRD_UNIT_CD', 'SV_VST_PRD_CD');
 codes.COD_YN.map((item) => {
+  // Y/N 코드는 값을 그대로 사용
   item.codeName = item.codeId;
   item.changed = true;
   return item;

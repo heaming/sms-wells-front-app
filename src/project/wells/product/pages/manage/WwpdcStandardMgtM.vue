@@ -218,22 +218,38 @@ const prcfd = pdConst.TBL_PD_PRC_FNL_DTL;
 const rel = pdConst.TBL_PD_REL;
 const prumd = pdConst.TBL_PD_DSC_PRUM_DTL;
 
+// 이전 Props
 const prevProps = ref({});
+// 임시저장 버튼 여부
 const isTempSaveBtn = ref(true);
+// 스텝목록
 const regSteps = ref([pdConst.STANDARD_STEP_BASIC, pdConst.STANDARD_STEP_REL_PROD,
   pdConst.STANDARD_STEP_MANAGE, pdConst.STANDARD_STEP_PRICE, pdConst.STANDARD_STEP_CHECK]);
+// 현재 선택된 스텝
 const currentStep = ref(cloneDeep(pdConst.STANDARD_STEP_BASIC));
+// 통과된 스텝
 const passedStep = ref(0);
+// 스텝별 Refs
 const cmpStepRefs = ref([ref(), ref(), ref(), ref()]);
+// 가격 삭제 ID 목록
 const removePriceRows = ref([]);
+// 전체 스텝 상품 데이터
 const prevStepData = ref({});
+// 현재 상품 코드
 const currentPdCd = ref();
+// 현재 등록 여부
 const currentNewRegYn = ref();
+// 현재 새로고침 여부
 const currentReloadYn = ref();
+// 현재 복사코드
 const currentCopyPdCd = ref();
+// 최종수정일
 const fnlMdfcDtm = ref();
+// 신규등록
 const isCreate = ref(false);
+// 옵져버
 const obsMainRef = ref();
+// 등록정보확인 - 서브 타이틀
 const subTitle = ref();
 
 const codes = await codeUtil.getMultiCodes(
@@ -287,6 +303,7 @@ async function getSaveData(isBatchCopy) {
       // 기본속성, 관리 속성 수정여부
       if (await isModified && (idx === 0 || idx === 2)) {
         if (idx === 0 && isModified) {
+          // 첨부 파일만 수정
           subList.isOnlyFileModified = await item.value.isOnlyFileModified();
         } else if (idx === 2 && isModified) {
           subList.isOnlyFileModified = false;
@@ -302,30 +319,38 @@ async function getSaveData(isBatchCopy) {
         subList.isModifiedRelation = true;
       }
       if (saveData[bas]) {
+        // 상품 정보 병합
         if (subList[bas]?.cols) {
           saveData[bas].cols += subList[bas].cols;
         }
         subList[bas] = pdMergeBy(subList[bas], saveData[bas]);
       }
       if (saveData[dtl]) {
+        // 상품 상세 병합
         subList[dtl] = pdMergeBy(subList[dtl], saveData[dtl], pdConst.PD_DTL_GRP_ID);
       }
       if (saveData[ecom]) {
+        // 각사 속성 병합
         subList[ecom] = pdMergeBy(subList[ecom], saveData[ecom], 'pdExtsPrpGrpCd');
       }
       if (saveData[prcd]) {
+        // 가격 상세 병합
         subList[prcd] = pdMergeBy(subList[prcd], saveData[prcd], pdConst.PRC_STD_ROW_ID);
       }
       if (saveData[prcfd]) {
+        // 최종 가격 병합
         subList[prcfd] = pdMergeBy(subList[prcfd], saveData[prcfd], pdConst.PRC_FNL_ROW_ID);
       }
       if (saveData[rel]) {
+        // 연결상품 병합
         subList[rel] = pdMergeBy(subList[rel], saveData[rel]);
       }
       if (saveData[prumd]) {
+        // 선택변수 병합
         subList[prumd] = saveData[prumd];
       }
       if (saveData[pdConst.RELATION_PRODUCTS]) {
+        // 연결상품 목록
         subList[pdConst.RELATION_PRODUCTS] = saveData[pdConst.RELATION_PRODUCTS];
         const services = saveData[pdConst.RELATION_PRODUCTS]
           ?.filter((svcItem) => svcItem[pdConst.PD_REL_TP_CD] === pdConst.PD_REL_TP_CD_P_TO_S);
@@ -334,11 +359,13 @@ async function getSaveData(isBatchCopy) {
         }));
       }
       if (saveData[pdConst.REMOVE_ROWS]) {
+        // 연결상품에서 삭제된 Row 병합
         removePriceRows.value = pdMergeBy(removePriceRows.value, saveData[pdConst.REMOVE_ROWS]);
       }
     }
   }));
   if (removePriceRows.value.length) {
+    // 가격에서 삭제된 Row 병합
     // console.log('removePriceRows - prev : ', subList);
     // console.log('removePriceRows.value : ', removePriceRows.value);
     subList[prcd] = pdRemoveBy(subList[prcd], removePriceRows.value);
@@ -347,6 +374,7 @@ async function getSaveData(isBatchCopy) {
   }
   // console.log('WwpdcStandardMgtM - getSaveData - subList.isOnlyFileModified : ', subList.isOnlyFileModified);
   // console.log('WwpdcStandardMgtM - getSaveData - subList : ', subList);
+  // 등록정보확인서브 타이틀
   subTitle.value = subList[bas].pdCd ? `${subList[bas].pdNm} (${subList[bas].pdCd})` : subList[bas].pdNm;
   return subList;
 }
@@ -358,6 +386,7 @@ async function goList() {
 
 // 삭제
 async function onClickDelete() {
+  // 기준상품을 삭제하시겠습니까?
   const deleteConfirmMsg = `[${t('MSG_TXT_STND_PRDT')}]${t('MSG_ALT_WANT_DEL_WCC')}`;
   if (await confirm(deleteConfirmMsg)) {
     await dataService.delete(`/sms/wells/product/standards/${currentPdCd.value}`);
@@ -401,8 +430,10 @@ async function onClickNextStep() {
   prevStepData.value = await getSaveData();
   const isMovedInnerStep = currentStepRef?.moveNextStep ? await currentStepRef?.moveNextStep() : false;
   if (!isMovedInnerStep) {
+    // 더이상 다음 내부 스텝이 없을경우 다음 메인 스텝으로 이동
     const nextStepRef = cmpStepRefs.value[currentStepIndex + 1]?.value;
     if (nextStepRef && nextStepRef.resetFirstStep) {
+      // 내부 스텝은 처음 탭 선택으로 초기화
       await nextStepRef.resetFirstStep();
     }
     currentStep.value = cloneDeep(regSteps.value[currentStepIndex + 1]);
@@ -418,6 +449,7 @@ async function onClickPrevStep() {
   prevStepData.value = await getSaveData();
   const isMovedInnerStep = currentStepRef?.movePrevStep ? await currentStepRef?.movePrevStep() : false;
   if (!isMovedInnerStep) {
+    // 더이상 이전 내부 스텝이 없을경우 메인 이전 스텝으로 이동
     currentStep.value = cloneDeep(regSteps.value[currentStepIndex - 1]);
   }
 }
@@ -458,6 +490,7 @@ async function init() {
 // 상품 데이터 불러오기
 async function fetchProduct() {
   if (currentPdCd.value) {
+    // 상품데이터 불러오기
     const res = await dataService.get(`/sms/wells/product/standards/${currentPdCd.value}`).catch(() => {
       goList();
     });
@@ -469,6 +502,7 @@ async function fetchProduct() {
     isTempSaveBtn.value = initData[bas].tempSaveYn === 'Y';
     prevStepData.value = initData;
   } else if (currentCopyPdCd.value) {
+    // 복사 상품 정보 불러오기
     const res = await dataService.get(`/sms/wells/product/standards/${currentCopyPdCd.value}`).catch(() => {
       goList();
     });
@@ -476,11 +510,14 @@ async function fetchProduct() {
     prevStepData.value = await getCopyProductInfo(res.data);
     isTempSaveBtn.value = 'Y';
   }
+  // 연결상품에 서비스명:서비스코드 정보를 공통코드로 등록
   const services = prevStepData.value[pdConst.RELATION_PRODUCTS]
     ?.filter((svcItem) => svcItem[pdConst.PD_REL_TP_CD] === pdConst.PD_REL_TP_CD_P_TO_S);
   codes.svPdCd = services?.map(({ pdNm, pdCd }) => ({
     codeId: pdCd, codeName: pdNm,
   }));
+
+  // 등록정보 확인에서 서브 타이틀
   subTitle.value = prevStepData.value[bas].pdCd ? `${prevStepData.value[bas].pdNm} (${prevStepData.value[bas].pdCd})` : prevStepData.value[bas].pdNm;
   await init();
 }
@@ -491,6 +528,7 @@ async function onClickSave(tempSaveYn) {
   // '임시저장 ==> 저장' 경우를 제외하고 수정여부 체크
   if (!(isTempSaveBtn.value && tempSaveYn === 'N')) {
     if (!(await isModifiedCheck())) {
+      // 변경사항이 없습니다.
       notify(t('MSG_ALT_NO_CHG_CNTN'));
       return;
     }
@@ -504,6 +542,7 @@ async function onClickSave(tempSaveYn) {
     await Promise.all(cmpStepRefs.value.map(async (item, idx) => {
       if (isValidOk && !await item.value.validateProps()) {
         isValidOk = false;
+        // 검증실패시 해당 스텝으로 이동
         await moveStepByIndex(idx);
       }
     }));
@@ -515,6 +554,7 @@ async function onClickSave(tempSaveYn) {
   // 3. Step별 저장 데이터 확인
   const subList = await getSaveData();
   if (tempSaveYn === 'N' && isTempSaveBtn.value) {
+    // 임시저장 => 저장
     subList.isModifiedProp = true;
     subList[bas].tempSaveYn = tempSaveYn;
   } else if (isEmpty(currentPdCd.value)) {
@@ -527,18 +567,20 @@ async function onClickSave(tempSaveYn) {
   // 4. 생성 or 저장
   let rtn;
   if (isCreate.value) {
+    // 등록
     rtn = await dataService.post('/sms/wells/product/standards', subList);
   } else if (await isValidToProdcutSave(currentPdCd.value, fnlMdfcDtm.value, pdConst.PD_JOB_TYPE_EDIT)) {
+    // 수정
     rtn = await dataService.put(`/sms/wells/product/standards/${currentPdCd.value}`, subList);
   } else {
     return;
   }
+  // 저장되었습니다.
   notify(t('MSG_ALT_SAVE_DATA'));
   await init();
 
   if (tempSaveYn === 'N') {
     // 목록으로 이동
-    // await router.close();
     await goList();
     return;
   }
@@ -560,6 +602,7 @@ async function setSellDetailTypeCodes(sellTpCd, isReset = false) {
     if (isReset) {
       mgtNameFields.sellTpDtlCd.initValue = '';
     }
+    // 판매상세유형 코드는 판매유형에 값에 따라서 필터 적용
     mgtNameFields.sellTpDtlCd.codes = codes.SELL_TP_DTL_CD.filter((item) => item.userDfn02 === sellTpCd);
   }
 }
@@ -569,14 +612,17 @@ async function setCurrentPriceDepositYn() {
   const basicAttrFields = await cmpStepRefs.value[0]?.value.getNameFields();
   const mangeAttrFields = await cmpStepRefs.value[2]?.value.getNameFields();
   if (basicAttrFields.sellTpDtlCd && mangeAttrFields.pvdaYn) {
-    // 판매상세유형
+    // 판매상세유형 (리스, 환경리스)
     if (['22', '24'].includes(basicAttrFields.sellTpDtlCd.initValue)) {
       if (mangeAttrFields.pvdaYn) {
+        // 현재가치할인차금여부 있으면 디폴트 Y
         mangeAttrFields.pvdaYn.initValue = 'Y';
       } else {
+        // 현재가치할인차금여부 없으면 디폴트 N
         mangeAttrFields.pvdaYn.initValue = 'N';
       }
     } else {
+      // 현재가치할인차금여부 없으면 디폴트 N
       mangeAttrFields.pvdaYn.initValue = 'N';
     }
   }
@@ -586,6 +632,7 @@ async function setCurrentPriceDepositYn() {
 async function checkUsedSellChannel(channels) {
   if (channels && prevStepData.value[prcfd] && prevStepData.value[prcfd].length) {
     // console.log('mgtNameFields?.avlChnlId.initValue : ', channels);
+    // 가격에 판매채널 코보 재설정
     const prcUsedChannels = prevStepData.value[prcfd].reduce((rtn, item) => {
       if (!rtn.includes(item.sellChnlCd)) {
         rtn.push(item.sellChnlCd);
@@ -610,6 +657,7 @@ async function checkUsedSellChannel(channels) {
 // 매출인식분류코드
 async function fetechSaleRecognitionClassification(slRcogClsfCd) {
   if (slRcogClsfCd) {
+    // 매출인식분류명 불러오기
     const res = await dataService.get(`/sms/common/product/standards/recogn-class/${slRcogClsfCd}`);
     return res.data?.slRcogClsfNm;
   }
@@ -635,7 +683,7 @@ async function openPopup(field) {
     apyStrtdt: now.format('YYYYMMDD'),
     apyEnddt: now.format('YYYYMMDD'),
   };
-  // 매출인식분류코드
+  // 매출인식분류코드 선택 팝업
   if (field.colNm === 'slRcogClsfCd') {
     const rtn = await modal({
       // ZwwdcSalesRecognitionBaseMgtP

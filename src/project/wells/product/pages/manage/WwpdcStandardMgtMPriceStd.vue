@@ -94,17 +94,25 @@ const { notify } = useGlobal();
 // Function & Event
 // -------------------------------------------------------------------------------------------------
 const grdMainRef = ref(getComponentType('KwGrid'));
-
-const readonlyFields = ref(['pdCd', pdConst.PRC_DETAIL_ID, 'verSn']);
 const prcd = pdConst.TBL_PD_PRC_DTL;
-const priceStdRef = ref();
-const currentPdCd = ref();
-const currentInitData = ref(null);
-const priceFieldData = ref({});
-const currentMetaInfos = ref();
-const removeObjects = ref([]);
-const currentCodes = ref({});
 const gridRowCount = ref(0);
+
+// 가격 메타 속성 읽기전용
+const readonlyFields = ref(['pdCd', pdConst.PRC_DETAIL_ID, 'verSn']);
+// 가격 폼 Ref
+const priceStdRef = ref();
+// 현재 상품 코드
+const currentPdCd = ref();
+// 현재 상품 데이터
+const currentInitData = ref(null);
+// 가격 폼 속성 데이터
+const priceFieldData = ref({});
+// 현재 메타 정보
+const currentMetaInfos = ref();
+// 가격 삭제 정보 ID
+const removeObjects = ref([]);
+// 현재 공통코드
+const currentCodes = ref({});
 
 // 데이터 초기화
 async function resetData() {
@@ -133,6 +141,7 @@ async function getSaveData() {
     [pdConst.PRC_STD_ROW_ID],
   );
   if (removeObjects.value.length) {
+    // 가격 삭제 ID 정보 병합
     rtnValues[pdConst.REMOVE_ROWS] = cloneDeep(removeObjects.value);
   }
   // console.log('WwpdcStandardMgtMPriceStd - getSaveData - rtnValues : ', rtnValues);
@@ -186,6 +195,7 @@ async function initGridRows() {
   };
   priceFieldData.value = cloneDeep(priceFields);
 
+  // 기준가 정보
   if (await currentInitData.value?.[prcd]) {
     const rows = cloneDeep(await getPropInfosToGridRows(
       currentInitData.value?.[prcd],
@@ -199,10 +209,12 @@ async function initGridRows() {
       return row;
     });
     // console.log('Rows : ', rows);
+    // 가격 그리드 데이터 설정(setRows)
     await setPdGridRows(view, rows, pdConst.PRC_STD_ROW_ID, [pdConst.PRC_STD_ROW_ID, pdConst.PRC_DETAIL_ID]);
     // console.log('WwpdcStandardMgtMPriceStd - initGridRows - rows : ', rows);
   }
 
+  // 연결상품정보에서 서비스상품 목록 추출
   const products = currentInitData.value?.[pdConst.RELATION_PRODUCTS];
   if (await products) {
     const relServices = products
@@ -256,6 +268,7 @@ async function onClickRemove() {
   const view = grdMainRef.value.getView();
   const deletedRowValues = await gridUtil.confirmDeleteCheckedRows(view);
   if (deletedRowValues && deletedRowValues.length) {
+    // 가격 삭제 ID 정보 병합
     removeObjects.value.push(...deletedRowValues.reduce((rtn, item) => {
       if (item[pdConst.PRC_STD_ROW_ID]) {
         rtn.push({ [pdConst.PRC_STD_ROW_ID]: item[pdConst.PRC_STD_ROW_ID] });
@@ -294,6 +307,7 @@ watch(() => props.initData, (val) => {
 async function initGrid(data, view) {
   const { metaInfos } = props;
   currentMetaInfos.value = metaInfos;
+  // 메타정보를 가격 그리드 속성으로 변경
   const { fields, columns } = await getPdMetaToGridInfos(
     currentMetaInfos.value,
     [pdConst.PD_PRC_TP_CD_BASIC],
@@ -328,6 +342,7 @@ async function initGrid(data, view) {
     await setGridDateFromTo(view, grid, itemIndex, fieldIndex, 'vlStrtDtm', 'vlEndDtm');
   };
 
+  // 그리드 행 선택시, 가격 폼에 선택된 정보 반영
   view.onCellClicked = async (g, { dataRow }) => {
     if (dataRow >= 0) {
       const prcdValues = await getGridRowsToSavePdProps(
@@ -347,6 +362,7 @@ async function initGrid(data, view) {
       if (['created', 'updated'].includes(item.rowState)) {
         const svPdCd = grid.getValue(item.dataRow, 'svPdCd');
         if (svPdCd) {
+          // 서비스명 붙여넣기시 서비스 코드 자동 설정
           const fSvPdCd = currentCodes.value.svPdCd?.find((code) => code.codeId === svPdCd);
           // svPdCd 필드 붙여넣기시, 서비스코드값이 아닌 서비스명이 들어가는 경우 아래와 같이 찾아서 넣음
           if (isEmpty(fSvPdCd)) {

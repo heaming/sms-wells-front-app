@@ -154,6 +154,7 @@ async function initGridRows() {
   if (pdRels.value && pdRels.value.length) {
     const standardView = grdStandardRef.value?.getView();
     if (standardView) {
+      // 연결상품 타입이 맞는 데이터만 표시
       standardView.getDataSource().setRows(pdRels.value
         .filter((item) => item[pdConst.PD_REL_TP_CD] === pdConst.PD_REL_TP_CD_C_TO_P));
       standardView.displayOptions.rowHeight = -1;

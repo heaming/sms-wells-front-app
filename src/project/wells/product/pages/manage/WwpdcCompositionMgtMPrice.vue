@@ -117,24 +117,38 @@ const { modal, notify } = useGlobal();
 // Function & Event
 // -------------------------------------------------------------------------------------------------
 const now = dayjs();
-const grdMainRef = ref(getComponentType('KwGrid'));
-const defaultFields = ref(['verSn', pdConst.PRC_STD_ROW_ID, pdConst.PRC_FNL_ROW_ID,
-  pdConst.PRC_DETAIL_ID, pdConst.PRC_DETAIL_FNL_ID, 'basePdTempSaveYn', 'basePdClsfNm', 'basePdNm', 'basePdCd', 'baseSellTpCd']);
-const readonlyFields = ref(['pdCd', pdConst.PRC_DETAIL_ID, 'verSn', 'crncyDvCd']);
 const prcd = pdConst.TBL_PD_PRC_DTL;
 const prcfd = pdConst.TBL_PD_PRC_FNL_DTL;
-const currentPdCd = ref();
-const currentInitData = ref(null);
-const metaInfos = ref();
-const removeObjects = ref([]);
-const currentCodes = ref({});
 const gridRowCount = ref(0);
+
+const grdMainRef = ref(getComponentType('KwGrid'));
+// 메타 가격 기본 속성
+const defaultFields = ref(['verSn', pdConst.PRC_STD_ROW_ID, pdConst.PRC_FNL_ROW_ID,
+  pdConst.PRC_DETAIL_ID, pdConst.PRC_DETAIL_FNL_ID, 'basePdTempSaveYn', 'basePdClsfNm', 'basePdNm', 'basePdCd', 'baseSellTpCd']);
+// 메타 일기 전용 속성
+const readonlyFields = ref(['pdCd', pdConst.PRC_DETAIL_ID, 'verSn', 'crncyDvCd']);
+// 현재 상품 코드
+const currentPdCd = ref();
+// 현재 상품 데이터
+const currentInitData = ref(null);
+// 메타 정보
+const metaInfos = ref();
+// 삭제 라인
+const removeObjects = ref([]);
+// 상품 코드 목록
+const currentCodes = ref({});
+// 사용채널
 const usedChannelCds = ref([]);
+// 추가 채널 ID
 const addChannelId = ref();
+// 채널 Ref
 const usedChannelRef = ref();
+// 기본 적용 시작일
 const vlStrtDtm = ref(now.format('YYYYMMDD'));
+// 기본 적용 종료일
 const vlEndDtm = ref('99991231');
 
+// 기준 상품 검색 팝업 - 검색조건
 const searchParams = ref({
   searchType: pdConst.PD_SEARCH_CODE,
   searchValue: null,
@@ -165,6 +179,7 @@ async function init() {
 async function getSaveData() {
 // 미수정시 초기값 그대로 반환.
   if (!(await isModifiedProps())) {
+    // 수정된 경우가 없으면
     return {
       [prcd]: currentInitData.value[prcd],
       [prcfd]: currentInitData.value[prcfd],
@@ -190,6 +205,7 @@ async function getSaveData() {
   const rtnValues = pdMergeBy(stdValues, fnlValues);
   // console.log('WwpdcCompositionMgtMPriceStd - getSaveData - rtnValues : ', rtnValues);
   if (removeObjects.value.length) {
+    // 삭제 라인 반환
     rtnValues[pdConst.REMOVE_ROWS] = cloneDeep(removeObjects.value);
   }
   // console.log('WwpdcCompositionMgtMPriceStd - getSaveData - rtnValues : ', rtnValues);
@@ -223,6 +239,7 @@ async function resetInitData() {
 // 판매채널 선택
 async function setChannels() {
   // console.log('WwpdcCompositionMgtMPrice - setChannels - currentInitData.value: ', currentInitData.value);
+  // 가격데이터에서 판매 채널 목록 추출
   const channels = currentInitData.value?.[pdConst.TBL_PD_DTL]
     ?.reduce((rtn, item) => {
       if (item.avlChnlId && item.pdDtlDvCd === pdConst.PD_DTL_DV_CD_CHANNEL) {
@@ -232,6 +249,7 @@ async function setChannels() {
     }, []);
   // console.log('channels : ', channels);
   if (channels) {
+    // 사용 판매채널 코드 설정
     usedChannelCds.value = props.codes?.SELL_CHNL_DTL_CD?.filter((item) => channels.indexOf(item.codeId) > -1);
   }
 
@@ -239,6 +257,7 @@ async function setChannels() {
   if (view) {
     const sellChnlCd = view.columnByName('sellChnlCd');
     if (sellChnlCd) {
+      // 채널 필터 설정
       sellChnlCd.options = currentCodes.value.SELL_CHNL_DTL_CD;
       sellChnlCd.labels = currentCodes.value.SELL_CHNL_DTL_CD?.map((item) => (item.codeName));
       sellChnlCd.values = currentCodes.value.SELL_CHNL_DTL_CD?.map((item) => (item.codeId));
@@ -256,12 +275,15 @@ async function onClickAdd() {
   const view = grdMainRef.value?.getView();
   const rowValues = gridUtil.getAllRowValues(view);
   if (rowValues.find((item) => item.sellChnlCd === addChannelId.value)?.basePdCd) {
+    // 판매채널이 이미 등록되어 있습니다.
     notify(t('MSG_ALT_ALREADY_RGST', [t('MSG_TXT_SEL_CHNL')]));
     return;
   }
 
+  // 연결상품목록
   const products = currentInitData.value?.[pdConst.RELATION_PRODUCTS];
   if (await products) {
+    // 연결상품에 있는 정보를 가져와 설정
     const rows = cloneDeep(products
       ?.filter((svcItem) => svcItem[pdConst.PD_REL_TP_CD] === pdConst.PD_REL_TP_CD_C_TO_P));
     rows.forEach((item) => {
@@ -271,8 +293,6 @@ async function onClickAdd() {
       item.basePdCd = item.pdCd;
       item.baseSellTpCd = item.sellTpCd;
       item.sellChnlCd = addChannelId.value;
-      // item.vlStrtDtm = item.vlStrtDtm ? item.vlStrtDtm.substr(0, 8) : vlStrtDtm.value;
-      // item.vlEndDtm = item.vlEndDtm ? item.vlEndDtm.substr(0, 8) : vlEndDtm.value;
       item.vlStrtDtm = vlStrtDtm.value;
       item.vlEndDtm = vlEndDtm.value;
       item.pdCd = '';
@@ -352,6 +372,7 @@ async function onClickRemove() {
   if (deletedRowValues && deletedRowValues.length) {
     removeObjects.value.push(...deletedRowValues.reduce((rtn, item) => {
       if (item[pdConst.PRC_FNL_ROW_ID]) {
+        // 삭제 최종상세가격 ID 저장
         rtn.push({ [pdConst.PRC_FNL_ROW_ID]: item[pdConst.PRC_FNL_ROW_ID] });
       }
       return rtn;
@@ -383,6 +404,7 @@ async function initGridRows() {
       prcfd,
       defaultFields.value,
     ));
+    // 기준가와 가격상세정보를 병합
     rows?.forEach((row) => {
       const stdRow = stdRows?.find((item) => (row[pdConst.PRC_STD_ROW_ID]
                                                 && item[pdConst.PRC_STD_ROW_ID] === row[pdConst.PRC_STD_ROW_ID])
@@ -392,6 +414,7 @@ async function initGridRows() {
       row[pdConst.PRC_FNL_ROW_ID] = row[pdConst.PRC_FNL_ROW_ID] ?? row.pdPrcFnlDtlId;
     });
     // console.log('WwpdcCompositionMgtMPrice - initGridRows - rows : ', rows);
+    // 가격 그리드 데이터 설정(setRows)
     await setPdGridRows(view, rows, pdConst.PRC_FNL_ROW_ID, defaultFields.value, true);
   } else {
     view.getDataSource().clearRows();
@@ -403,12 +426,14 @@ async function initGridRows() {
 async function fetchData() {
   if (isEmpty(metaInfos.value)) {
   // console.log('WwpdcCompositionMgtMPrice - fetchData - currentCodes.value 1: ', currentCodes.value);
+    // 가격 메타 정보 불러오기
     const res = await dataService.get('/sms/common/product/meta-properties', { params: { pdPrcTpCd: pdConst.PD_PRC_TP_CD_COMPOSITION } });
     if (isEmpty(res.data)) {
       return;
     }
     metaInfos.value = res.data;
     // console.log('WwpdcCompositionMgtMPrice - fetchData - metaInfos.value : ', metaInfos.value);
+    // 메타에 사용된 공통코드 설정
     const codeNames = await getPdMetaToCodeNames(metaInfos.value, currentCodes.value);
     if (!isEmpty(codeNames)) {
     // console.log('WwpdcCompositionMgtMPrice - fetchData - codeNames : ', codeNames);
@@ -428,8 +453,6 @@ async function initProps() {
   currentPdCd.value = pdCd;
   currentInitData.value = cloneDeep(initData);
   currentCodes.value = cloneDeep(pdMergeBy(currentCodes.value, codes));
-  // console.log(`WwpdcCompositionMgtMPriceStd - initProps - pdCd : ${currentPdCd.value}
-  // , initData : `, currentInitData.value);
   await setChannels();
   await fetchData();
 }
@@ -444,6 +467,7 @@ onActivated(async () => {
 watch(() => props.pdCd, (val) => { currentPdCd.value = val; });
 watch(() => props.initData, (val) => {
   if (!isEqual(currentInitData.value, val)) {
+    // 변경시 데이터 리셋
     currentInitData.value = cloneDeep(val);
     resetInitData();
   }
@@ -483,6 +507,7 @@ async function initGrid(data, view) {
   ];
   const pdFields = pdColumns.map(({ fieldName, dataType }) => (dataType ? { fieldName, dataType } : { fieldName }));
 
+  // 메타정보를 그리드 정보로 변환
   const { fields, columns } = await getPdMetaToGridInfos(
     metaInfos.value,
     [pdConst.PD_PRC_TP_CD_COMPOSITION],
@@ -514,6 +539,7 @@ async function initGrid(data, view) {
     await setGridDateFromTo(view, grid, itemIndex, fieldIndex, 'vlStrtDtm', 'vlEndDtm');
   };
 
+  // 가격팝업 호출
   view.onCellButtonClicked = async (grid, { column, dataRow }) => {
     if (column === 'priceSchBtn') {
       const { basePdCd } = gridUtil.getRowValue(grid, dataRow);
@@ -523,6 +549,7 @@ async function initGrid(data, view) {
 
   view.onCellItemClicked = async (grid, gridInfo) => {
     if (gridInfo.column === 'sellChnlCd') {
+      // 판매채널 컬럼 클릭시 해당 채널 일괄 선택
       const sellChnlCd = grid.getValue(gridInfo.dataRow, 'sellChnlCd');
       grid.checkRows(gridUtil.getAllRowValues(view)
         ?.filter((item) => item.sellChnlCd === sellChnlCd)

@@ -174,21 +174,37 @@ const dtl = pdConst.TBL_PD_DTL;
 const ecom = pdConst.TBL_PD_ECOM_PRP_DTL;
 const rel = pdConst.TBL_PD_REL;
 
+// 이전 Props
 const prevProps = ref({});
+// 상품 최종 수정일
 const fnlMdfcDtm = ref();
+// 임시저장 버튼 표시 여부
 const isTempSaveBtn = ref(true);
+// 스텝 목록
 const regSteps = ref([pdConst.W_SERVICE_STEP_BASIC, pdConst.W_SERVICE_STEP_FILTER, pdConst.W_SERVICE_STEP_CHECK]);
+// 현재 스텝
 const currentStep = cloneDeep(ref(pdConst.W_SERVICE_STEP_BASIC));
+// 통과된 스텝
 const passedStep = ref(0);
+// 스텝 Ref 목록
 const cmpStepRefs = ref([ref(), ref()]);
+// 현재 수정 데이터
 const prevStepData = ref({});
+// 현재 상품 코드
 const currentPdCd = ref();
+// 현재 등록 여부
 const currentNewRegYn = ref();
+// 현재 새로고침 여부
 const currentReloadYn = ref();
+// 복사 상품 코드
 const currentCopyPdCd = ref();
+// 등록 여부
 const isCreate = ref(false);
+// 상품 코드 목록
 const codes = await codeUtil.getMultiCodes('PD_TEMP_SAVE_CD');
+// 옵져버
 const obsMainRef = ref();
+// 등록정보확인 서브 타이틀
 const subTitle = ref();
 
 // 상품 수정여부 검증
@@ -229,25 +245,31 @@ async function getSaveData() {
         subList.isModifiedRelation = true;
       }
       if (saveData[bas]) {
+        // 상품 기본 정보 병합
         if (subList[bas]?.cols) {
           saveData[bas].cols += subList[bas].cols;
         }
         subList[bas] = pdMergeBy(subList[bas], saveData[bas]);
       }
       if (saveData[dtl]) {
+        // 상품 상세 정보 병합
         subList[dtl] = pdMergeBy(subList[dtl], saveData[dtl], pdConst.PD_DTL_GRP_ID);
       }
       if (saveData[ecom]) {
+        // 각사속성 정보 병합
         subList[ecom] = pdMergeBy(subList[ecom], saveData[ecom], 'pdExtsPrpGrpCd');
       }
       if (saveData[rel]) {
+        // 연결상품 정보 병합
         subList[rel] = pdMergeBy(subList[rel], saveData[rel]);
       }
       if (saveData[pdConst.RELATION_PRODUCTS]) {
+        // 연결상품 목록
         subList[pdConst.RELATION_PRODUCTS] = saveData[pdConst.RELATION_PRODUCTS];
       }
     }
   }));
+  // 등록정보확인 - 서브 타이틀 정보
   subTitle.value = subList[bas].pdCd ? `${subList[bas].pdNm} (${subList[bas].pdCd})` : subList[bas].pdNm;
   // console.log('subList : ', subList);
   return subList;
@@ -329,6 +351,7 @@ async function init() {
 // 상품 데이터 불러오기
 async function fetchProduct() {
   if (currentPdCd.value) {
+    // 상품코드가 있는 경우 데이터 불러오기
     const res = await dataService.get(`/sms/wells/product/services/${currentPdCd.value}`).catch(() => {
       goList();
     });
@@ -337,6 +360,7 @@ async function fetchProduct() {
     fnlMdfcDtm.value = prevStepData.value[bas].fnlMdfcDtm;
     isTempSaveBtn.value = prevStepData.value[bas].tempSaveYn === 'Y';
   } else if (currentCopyPdCd.value) {
+    // 복사의 경우 복사 상품 정보 불러오기
     const res = await dataService.get(`/sms/wells/product/services/${currentCopyPdCd.value}`).catch(() => {
       goList();
     });
@@ -344,6 +368,7 @@ async function fetchProduct() {
     prevStepData.value = await getCopyProductInfo(res.data);
     isTempSaveBtn.value = 'Y';
   }
+  // 등록정보확인 - 서브타이틀
   subTitle.value = prevStepData.value[bas].pdCd ? `${prevStepData.value[bas].pdNm} (${prevStepData.value[bas].pdCd})` : prevStepData.value[bas].pdNm;
   await init();
 }
@@ -354,6 +379,7 @@ async function onClickSave(tempSaveYn) {
   // '임시저장 ==> 저장' 경우를 제외하고 수정여부 체크
   if (!(isTempSaveBtn.value && tempSaveYn === 'N')) {
     if (!(await isModifiedCheck())) {
+      // 변경사항이 없습니다.
       notify(t('MSG_ALT_NO_CHG_CNTN'));
       return;
     }
@@ -364,6 +390,7 @@ async function onClickSave(tempSaveYn) {
   await Promise.all(cmpStepRefs.value.map(async (item, idx) => {
     if (isValidOk && !await item.value.validateProps()) {
       isValidOk = false;
+      // 검증 실패시 해당 스텝으로 이동
       await moveStepByIndex(idx);
     }
   }));
@@ -392,12 +419,12 @@ async function onClickSave(tempSaveYn) {
     return;
   }
 
+  // 저장되었습니다.
   notify(t('MSG_ALT_SAVE_DATA'));
   await init();
 
   if (tempSaveYn === 'N') {
     // 목록으로 이동
-    // await router.close();
     await goList();
     return;
   }
