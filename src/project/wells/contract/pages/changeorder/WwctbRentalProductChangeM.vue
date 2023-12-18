@@ -680,6 +680,11 @@ async function fetchData() {
   isFetched.value = false;
   isInit.value = true;
 
+  // 조회 전 기존 데이터 초기화
+  fieldData.value = {};
+  orderProduct.value = {};
+  istEnvRequest.value = {};
+
   const res = await dataService.get(
     '/sms/wells/contract/changeorder/rental-change-infos',
     { params:
@@ -744,19 +749,19 @@ async function fetchData() {
       mchnClnOjYn: '', // TODO: 가져와야됨
       ojCntrMmBaseDvCd: '', // TODO: 가져와야됨
     };
-    if (fieldData.value.mchnChTpCd === '19') {
-      product.priceOptionFilter = {
-        ...product.priceOptionFilter,
-        rentalDscDvCd: RENTAL_DSC_DV_CD.GENERAL,
-        rentalDscTpCd: RENTAL_DSC_TP_CD.STPL_5_YEAR_RE_RENTAL,
-      };
-    } else {
-      orderProduct.value.priceOptionFilter = {
-        ...orderProduct.value.priceOptionFilter,
-        rentalDscDvCd: '8',
-        rentalDscTpCd: RENTAL_DSC_TP_CD.RE_RENTAL,
-      };
-    }
+    // if (fieldData.value.mchnChTpCd === '19') {
+    //   product.priceOptionFilter = {
+    //     ...product.priceOptionFilter,
+    //     rentalDscDvCd: RENTAL_DSC_DV_CD.GENERAL,
+    //     rentalDscTpCd: RENTAL_DSC_TP_CD.STPL_5_YEAR_RE_RENTAL,
+    //   };
+    // } else {
+    //   orderProduct.value.priceOptionFilter = {
+    //     ...orderProduct.value.priceOptionFilter,
+    //     rentalDscDvCd: '8',
+    //     rentalDscTpCd: RENTAL_DSC_TP_CD.RE_RENTAL,
+    //   };
+    // }
   }
 
   // 적용되있는 1+1 세팅
@@ -775,11 +780,11 @@ async function fetchData() {
       },
     });
 
-    product.priceOptionFilter = {
-      ...product.priceOptionFilter,
-      rentalDscDvCd: RENTAL_DSC_DV_CD.GENERAL,
-      rentalDscTpCd: RENTAL_DSC_TP_CD.ONE_PLUS_ONE,
-    };
+    // product.priceOptionFilter = {
+    //   ...product.priceOptionFilter,
+    //   rentalDscDvCd: RENTAL_DSC_DV_CD.GENERAL,
+    //   rentalDscTpCd: RENTAL_DSC_TP_CD.ONE_PLUS_ONE,
+    // };
   }
 
   compKey.value += 1;
