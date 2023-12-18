@@ -28,7 +28,7 @@
           <kw-date-range-picker
             v-model:from="searchParams.cntrCnfmDtFr"
             v-model:to="searchParams.cntrCnfmDtTo"
-            rules="date_range_required"
+            rules="date_range_required|date_range_months:12"
           />
         </kw-search-item>
 
