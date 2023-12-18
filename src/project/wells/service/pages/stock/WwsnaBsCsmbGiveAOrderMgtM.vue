@@ -131,7 +131,7 @@
         </template>
 
         <kw-btn
-          v-permission:create
+          v-permission:update
           :label="$t('MSG_BTN_SAVE')"
           dense
           grid-action
@@ -177,7 +177,7 @@ import dayjs from 'dayjs';
 const { notify } = useGlobal();
 const { currentRoute } = useRouter();
 const dataService = useDataService();
-const { getConfig } = useMeta();
+const { getConfig, hasPermission } = useMeta();
 const { t } = useI18n();
 
 // -------------------------------------------------------------------------------------------------
@@ -185,6 +185,10 @@ const { t } = useI18n();
 // -------------------------------------------------------------------------------------------------
 
 const grdMainRef = ref(getComponentType('KwGrid'));
+
+// 업데이트 권한 체크
+const isPermission = hasPermission('update');
+
 const productCodes = ref([]);
 const pageInfo = ref({
   totalCount: 0,
@@ -445,7 +449,7 @@ const initGrdMain = defineGrid((data, view) => {
     { fieldName: 'mms2bDdlvQty', header: `${ddlvYmNms.value.mms2bDdlvNm}`, width: '130', styleName: 'text-right', editable: false, footer: { expression: 'sum', numberFormat: '#,##0', styleName: 'text-right' } },
     { fieldName: 'mms1bDdlvQty', header: `${ddlvYmNms.value.mms1bDdlvNm}`, width: '130', styleName: 'text-right', editable: false, footer: { expression: 'sum', numberFormat: '#,##0', styleName: 'text-right' } },
     { fieldName: 'mmAvDdlvQty', header: t('MSG_TXT_MM_AV_DDLV'), width: '130', styleName: 'text-right', editable: false, footer: { expression: 'sum', numberFormat: '#,##0', styleName: 'text-right' } },
-    { fieldName: 'strStnbQty', header: t('MSG_TXT_STR_STNB'), width: '130', rules: 'required|min_value:0|max_value:9999999999', styleName: 'text-right', footer: { expression: 'sum', numberFormat: '#,##0', styleName: 'text-right' } },
+    { fieldName: 'strStnbQty', header: t('MSG_TXT_STR_STNB'), width: '130', rules: 'required|min_value:0|max_value:9999999999', styleName: 'text-right', editable: isPermission, footer: { expression: 'sum', numberFormat: '#,##0', styleName: 'text-right' } },
     { fieldName: 'pajuLgstCnrStocQty', header: t('MSG_TXT_PAJU_STOC'), width: '130', styleName: 'text-right', numberFormat: '#,##0', editable: false, footer: { expression: 'sum', numberFormat: '#,##0', styleName: 'text-right' } },
     { fieldName: 'sgsuLgstCnrStocQty', header: t('MSG_TXT_SGSU_STOC'), width: '130', styleName: 'text-right', numberFormat: '#,##0', editable: false, footer: { expression: 'sum', numberFormat: '#,##0', styleName: 'text-right' } },
     { fieldName: 'woStocQty', header: t('MSG_TXT_FNL_STOC'), width: '130', styleName: 'text-right', numberFormat: '#,##0', editable: false, footer: { expression: 'sum', numberFormat: '#,##0', styleName: 'text-right' } },
@@ -453,7 +457,7 @@ const initGrdMain = defineGrid((data, view) => {
     { fieldName: 'etExsDt', header: t('MSG_TXT_ET_EXS_DT'), width: '130', styleName: 'text-center', datetimeFormat: 'yyyy-MM-dd', editable: false },
     { fieldName: 'goUprc', header: t('MSG_TXT_UPRC'), width: '130', styleName: 'text-right', numberFormat: '#,##0', editable: false },
     { fieldName: 'ncstQty', header: t('MSG_TXT_NCST_QT'), width: '130', styleName: 'text-right', numberFormat: '#,##0', editable: false },
-    { fieldName: 'goQty', header: t('MSG_TXT_GO_QTY'), width: '130', rules: 'required|min_value:0|max_value:999999999999', styleName: 'text-right', footer: { expression: 'sum', numberFormat: '#,##0', styleName: 'text-right' } },
+    { fieldName: 'goQty', header: t('MSG_TXT_GO_QTY'), width: '130', rules: 'required|min_value:0|max_value:999999999999', styleName: 'text-right', editable: isPermission, footer: { expression: 'sum', numberFormat: '#,##0', styleName: 'text-right' } },
     { fieldName: 'goAmt', header: t('MSG_TXT_GO_AMT'), width: '130', styleName: 'text-right', editable: false, footer: { expression: 'sum', numberFormat: '#,##0', styleName: 'text-right' } },
     { fieldName: 'minOrdQty', header: t('MSG_TXT_MOQ'), width: '130', styleName: 'text-right', editable: false },
     { fieldName: 'pypdDc', header: t('MSG_TXT_LEAD_TIME_SHORT'), width: '130', styleName: 'text-right', editable: false, numberFormat: '#####' },

@@ -97,11 +97,12 @@
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
 
-import { codeUtil, useGlobal, useDataService, getComponentType, gridUtil, defineGrid } from 'kw-lib';
+import { codeUtil, useGlobal, useDataService, getComponentType, gridUtil, defineGrid, useMeta } from 'kw-lib';
 import dayjs from 'dayjs';
 import { cloneDeep, isEmpty } from 'lodash-es';
 
 const { t } = useI18n();
+const { hasPermission } = useMeta();
 const { notify, alert } = useGlobal();
 
 const dataService = useDataService();
@@ -112,6 +113,9 @@ const dataService = useDataService();
 
 const popupRef = ref();
 const grdMainRef = ref(getComponentType('KwGrid'));
+
+// 업데이트 권한 체크
+const isPermission = hasPermission('update');
 
 const props = defineProps({
   ostrDt: {
@@ -298,7 +302,7 @@ const initGrdMain = defineGrid((data, view) => {
 
   view.onCellEditable = (grid, index) => {
     // 제외수량, 추가수량만 수정 가능
-    if (['excdQty', 'spmtQty'].includes(index.column)) {
+    if (['excdQty', 'spmtQty'].includes(index.column) && isPermission) {
       return true;
     }
 

@@ -144,7 +144,7 @@ import { codeUtil, useMeta, defineGrid, useDataService, getComponentType, useGlo
 import dayjs from 'dayjs';
 import { cloneDeep, isEmpty } from 'lodash-es';
 
-const { getConfig } = useMeta();
+const { getConfig, hasPermission } = useMeta();
 const { t } = useI18n();
 const { currentRoute } = useRouter();
 const { modal, notify } = useGlobal();
@@ -153,6 +153,9 @@ const dataService = useDataService();
 // Function & Event
 // -------------------------------------------------------------------------------------------------
 const grdMainRef = ref(getComponentType('KwGrid'));
+
+// 업데이트 권한 체크
+const isPermission = hasPermission('update');
 
 const codes = await codeUtil.getMultiCodes(
   'COD_PAGE_SIZE_OPTIONS',
@@ -529,7 +532,8 @@ const initGrdMain = defineGrid((data, view) => {
   view.editOptions.columnEditableFirst = true;
 
   view.onCellEditable = (grid, index) => {
-    if (!gridUtil.isCreatedRow(grid, index.dataRow) && ['strWareNo', 'wareNm', 'strRgstDt', 'sapCd', 'itmPdCd', 'itmPdNm', 'itmGdCd', 'strQty'].includes(index.column)) {
+    if (!isPermission
+      || (!gridUtil.isCreatedRow(grid, index.dataRow) && ['strWareNo', 'wareNm', 'strRgstDt', 'sapCd', 'itmPdCd', 'itmPdNm', 'itmGdCd', 'strQty'].includes(index.column))) {
       return false;
     }
   };

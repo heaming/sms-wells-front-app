@@ -147,7 +147,7 @@ import dayjs from 'dayjs';
 import { cloneDeep } from 'lodash-es';
 
 const { t } = useI18n();
-const { getConfig } = useMeta();
+const { getConfig, hasPermission } = useMeta();
 const { modal, notify } = useGlobal();
 const { currentRoute } = useRouter();
 
@@ -158,6 +158,9 @@ const dataService = useDataService();
 // -------------------------------------------------------------------------------------------------
 
 const grdMainRef = ref(getComponentType('KwGrid'));
+
+// 업데이트 권한 체크
+const isPermission = hasPermission('update');
 
 const codes = await codeUtil.getMultiCodes(
   'WARE_DTL_DV_CD',
@@ -343,7 +346,7 @@ const initGrdMain = defineGrid((data, view) => {
 
   view.onCellEditable = (grid, index) => {
     // 물량배정 적용여부만 수정가능
-    if (index.column === 'qomAsnApyYn') {
+    if (index.column === 'qomAsnApyYn' && isPermission) {
       return true;
     }
 

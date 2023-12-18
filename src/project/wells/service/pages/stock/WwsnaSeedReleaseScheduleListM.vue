@@ -234,7 +234,7 @@ import dayjs from 'dayjs';
 import { cloneDeep, isEmpty } from 'lodash-es';
 
 const { t } = useI18n();
-const { getConfig } = useMeta();
+const { getConfig, hasPermission } = useMeta();
 const { notify, alert } = useGlobal();
 const { currentRoute } = useRouter();
 const router = useRouter();
@@ -248,6 +248,9 @@ const dataService = useDataService();
 const grdMainRef = ref(getComponentType('KwGrid'));
 const grdTotalRef = ref(getComponentType('KwGrid'));
 const grdSelectRef = ref(getComponentType('KwGrid'));
+
+// 업데이트 권한 체크
+const isPermission = hasPermission('update');
 
 const now = dayjs();
 const minDate = now.format('YYYY-MM-DD');
@@ -607,7 +610,7 @@ const initGrid = defineGrid((data, view) => {
     const dpYn = gridUtil.getCellValue(view, index.dataRow, 'dpYn');
 
     // 유/무상 구분이 유상인 경우만 입금일자 입력 가능
-    if (dpYn === 'R' && index.column === 'dpDt') {
+    if (dpYn === 'R' && index.column === 'dpDt' && isPermission) {
       return true;
     }
 
