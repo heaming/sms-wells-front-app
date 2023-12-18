@@ -424,7 +424,7 @@ const initGrdMain = defineGrid((data, view) => {
 
   view.onCellEditable = (grid, index) => {
     // 조정관리등급, 조정사유만 변경가능
-    if (['ctrItmMngtGdCd', 'rmkCn'].includes(index.column)) {
+    if (['ctrItmMngtGdCd', 'rmkCn'].includes(index.column) && isPermission) {
       return true;
     }
     return false;

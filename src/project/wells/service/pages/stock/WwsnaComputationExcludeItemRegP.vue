@@ -173,7 +173,7 @@ import dayjs from 'dayjs';
 import { cloneDeep, isEmpty } from 'lodash-es';
 
 const { t } = useI18n();
-const { getConfig } = useMeta();
+const { getConfig, hasPermission } = useMeta();
 const { getters } = useStore();
 const { notify, modal, alert, confirm } = useGlobal();
 
@@ -185,6 +185,9 @@ const dataService = useDataService();
 
 const popupRef = ref();
 const grdMainRef = ref(getComponentType('KwGrid'));
+
+// 업데이트 권한 체크
+const isPermission = hasPermission('update');
 
 const props = defineProps({
   inqrYm: {
@@ -530,7 +533,7 @@ const initGrdMain = defineGrid((data, view) => {
 
   view.onCellEditable = (grid, index) => {
     // 비고내용만 입력 가능
-    if (index.column === 'rmkCn') {
+    if (index.column === 'rmkCn' && isPermission) {
       return true;
     }
 
