@@ -80,18 +80,23 @@ const { t } = useI18n();
 // -------------------------------------------------------------------------------------------------
 const grdChangePrdRef = ref(getComponentType('KwGrid'));
 const grdChangeRowCount = ref(0);
+// 현재 상품 코드
 const currentPdCd = ref();
+// 현재 상품 데이터
 const currentInitData = ref({});
+// 기준상품 관계구분 코드
 const productSelectItems = ref([
   // 기준상품명
   { codeId: pdConst.PD_SEARCH_NAME, codeName: t('MSG_TXT_PD_STD_NAME') },
   // 기준상품코드
   { codeId: pdConst.PD_SEARCH_CODE, codeName: t('MSG_TXT_PD_STD_CODE') },
 ]);
-
+// 기준상품 검색 타입
 const productSearchType = ref(pdConst.PD_SEARCH_NAME);
+// 기준상품 검색값
 const productSearchValue = ref();
 
+// 팝업 검색타입
 const searchParams = ref({
   searchType: null,
   searchValue: null,
@@ -150,6 +155,7 @@ async function isOverPeriodCheck(view) {
     if (isValid && await getOverPeriodByRelProd(view, item1)) {
       dupItem = (await getOverPeriodByRelProd(view, item1));
       if (dupItem) {
+        // 기간 중복
         isValid = false;
       }
     }
@@ -172,6 +178,7 @@ async function insertCallbackRows(view, rtn, pdRelTpCd) {
 
   let lastRow = 0;
   insertRows.forEach((row) => {
+    // 신규 추가 라인 임시코드
     row[pdConst.REL_PD_ID] = stringUtil.getUid('REL_TMP');
     row[pdConst.PD_REL_TP_CD] = pdRelTpCd;
     row[pdConst.REL_OJ_PD_CD] = row.pdCd;
@@ -179,6 +186,7 @@ async function insertCallbackRows(view, rtn, pdRelTpCd) {
     let isValid = false;
     const alreadyPdCdRows = rowValues.filter((item) => item[pdConst.REL_OJ_PD_CD] === row[pdConst.REL_OJ_PD_CD]);
     if (alreadyPdCdRows && alreadyPdCdRows.length) {
+      // 적용기간 체크해서 초기값 적용
       const lastVlEndDtm = alreadyPdCdRows.reduce((maxDt, item) => {
         maxDt = Number(item.vlEndDtm) > maxDt ? Number(item.vlEndDtm) : maxDt;
         return maxDt;
@@ -192,6 +200,7 @@ async function insertCallbackRows(view, rtn, pdRelTpCd) {
       lastRow = 0;
     }
     if (isValid) {
+      // 적용기간 중복 없을 경우 초기값
       row.vlStrtDtm = currentTime;
       row.vlEndDtm = 99991231235959;
     }
@@ -212,8 +221,10 @@ async function deleteCheckedRows(view) {
   await Promise.all(checkedRows.map(async (row) => {
     const item = gridUtil.getRowValue(view, row);
     if (item.rowState === 'created' || isEmpty(item[pdConst.REL_PD_ID]) || item[pdConst.REL_PD_ID].startsWith('REL_TMP')) {
+      // 신규 추가된 라인은 삭제 가능
       removeCreateRows.push(row);
     } else {
+      // 기준 라인은 삭제 불가
       isDbDataRemove = true;
     }
   }));
@@ -334,6 +345,7 @@ async function initChangePrdGrid(data, view) {
   view.rowIndicator.visible = true;
   view.editOptions.editable = true;
   view.onCellEdited = async (grid, itemIndex, row, fieldIndex) => {
+    // 적용기간 유효 설정
     await onCellEditRelProdPeriod(view, grid, itemIndex, row, fieldIndex);
   };
 

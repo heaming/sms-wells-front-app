@@ -137,6 +137,7 @@
             @change="fetchData"
           />
         </template>
+        <!-- 엑셀다운로드 -->
         <kw-btn
           icon="download_on"
           secondary
@@ -192,9 +193,13 @@ const { getConfig } = useMeta();
 const searchRef = ref(getComponentType('KwSearch'));
 const grdStdRef = ref(getComponentType('KwGrid'));
 const grdCmpRef = ref(getComponentType('KwGrid'));
+// 기준상품 가격메타정보
 const priceStdMetaInfos = ref();
+// 복합상품 가격메타정보
 const priceCmpMetaInfos = ref();
+// 가격 공통코드 목록
 const priceCodes = ref({});
+// 가격 선택변수 목록
 const priceVariables = ref();
 
 const pageInfo = ref({
@@ -238,7 +243,7 @@ const searchParams = ref({
 async function fetchData() {
   const res = await dataService.get('/sms/common/product/prices/products/paging', { params: { ...cachedParams, ...pageInfo.value } });
   const { list: prices, pageInfo: pagingResult } = res.data;
-  console.log('ZwpdcStandardPriceListP - fetchData : ', prices);
+  // console.log('ZwpdcStandardPriceListP - fetchData : ', prices);
   pageInfo.value = pagingResult;
 
   const view = searchParams.value.pdTpCd === pdConst.PD_TP_CD_STANDARD
@@ -249,18 +254,21 @@ async function fetchData() {
 
 // 상품 메타 데이터 불러오기
 async function fetchMetaData() {
+  // 기준상품 가격 메타 불러오기
   const res = await dataService.get('/sms/common/product/meta-properties', { params: { pdPrcTpCd: pdConst.PD_PRC_TP_CD_ALL } });
   if (isEmpty(res.data)) {
     return;
   }
   priceStdMetaInfos.value = res.data;
 
+  // 복합상품 가격 메타 불러오기
   const res2 = await dataService.get('/sms/common/product/meta-properties', { params: { pdPrcTpCd: pdConst.PD_PRC_TP_CD_COMPOSITION } });
   if (isEmpty(res2.data)) {
     return;
   }
   priceCmpMetaInfos.value = res2.data;
 
+  // 메타에서 코드목록 추출
   const codeNames = await getPdMetaToCodeNames(priceStdMetaInfos.value, priceCodes.value);
   codeNames.push(...await getPdMetaToCodeNames(priceCmpMetaInfos.value, priceCodes.value));
   if (codeNames && codeNames.length) {
@@ -295,7 +303,7 @@ async function onClickExcelDownload() {
   });
 }
 
-// 변수 데이터 불러오기
+// 선택변수 데이터 불러오기 및 모두 표시
 async function fetchVariableData() {
   // 변수
   const typeRes = await dataService.get('/sms/common/product/type-variables');
@@ -305,6 +313,7 @@ async function fetchVariableData() {
     priceVariables.value.forEach((field) => {
       const column = view.columnByName(field.codeId);
       if (column) {
+        // 선택변수 모두 표시
         column.visible = true;
       }
     });
@@ -318,6 +327,7 @@ async function onUpdateProductType() {
   pageInfo.value.totalCount = 0;
   pageInfo.value.pageIndex = 1;
   if (searchParams.value.pdTpCd !== pdConst.PD_TP_CD_STANDARD) {
+    // 복합상품 검색조건 초기화
     searchParams.valuepdClsfCd = '';
     searchParams.valueprdtCateHigh = '';
     searchParams.valueprdtCateMid = '';
@@ -333,6 +343,7 @@ await fetchMetaData();
 // -------------------------------------------------------------------------------------------------
 // Initialize Grid
 // -------------------------------------------------------------------------------------------------
+// 기준상품 그리드
 async function initGrdStd(data, view) {
   priceStdMetaInfos.value.map((item) => {
     if (item.colNm === 'fnlVal') {
@@ -362,6 +373,7 @@ async function initGrdStd(data, view) {
   ];
 
   const pdFields = pdColumns.map(({ fieldName, dataType }) => (dataType ? { fieldName, dataType } : { fieldName }));
+  // 메타정보를 그리드 정보로 변환
   const { fields, columns } = await getPdMetaToGridInfos(
     priceStdMetaInfos.value,
     prcMetaGroups,
@@ -381,11 +393,13 @@ async function initGrdStd(data, view) {
       const vlStrtDtm = grid.getValue(index.itemIndex, 'vlStrtDtm');
       const vlEndDtm = grid.getValue(index.itemIndex, 'vlEndDtm');
       if (vlStrtDtm || vlEndDtm) {
+        // 유효 적용일 체크
         return `${stringUtil.getDateFormat(vlStrtDtm)} ~ ${stringUtil.getDateFormat(vlEndDtm)}`;
       }
       return '';
     },
   };
+  // 적용기간 추가
   columns.splice(1, 0, applyPeriodCol);
   columns.forEach((item) => {
     if (item.fieldName === 'svPdCd') {
@@ -426,6 +440,7 @@ async function initGrdStd(data, view) {
   view.editOptions.editable = false;
 }
 
+// 복합상품 그리드
 async function initGrdCmp(data, view) {
   const pdColumns = [
     // 판매여부
@@ -464,6 +479,7 @@ async function initGrdCmp(data, view) {
   pdFields.push({ fieldName: 'vlStrtDtm' });
   pdFields.push({ fieldName: 'vlEndDtm' });
   priceCmpMetaInfos.value.map((item) => { item.readEuYn = 'Y'; return item; });
+  // 메타정보를 그리드 정보로 변환
   const { fields, columns } = await getPdMetaToGridInfos(
     priceCmpMetaInfos.value,
     [pdConst.PD_PRC_TP_CD_COMPOSITION],

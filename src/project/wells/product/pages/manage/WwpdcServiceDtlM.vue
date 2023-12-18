@@ -59,8 +59,11 @@ const dataService = useDataService();
 // Function & Event
 // -------------------------------------------------------------------------------------------------
 const cmpRef = ref();
+// 현재 상품 코드
 const currentPdCd = ref();
+// 상품 기본 정보
 const pdBas = ref({});
+// 현재 상품 데이터
 const currentInitData = ref({});
 const codes = await codeUtil.getMultiCodes('PD_TEMP_SAVE_CD');
 

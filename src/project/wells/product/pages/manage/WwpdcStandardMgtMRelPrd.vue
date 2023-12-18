@@ -57,7 +57,7 @@
   <kw-grid
     ref="grdMaterialRef"
     name="grdMgtRelMaterial"
-    :visible-rows="3"
+    :visible-rows="5"
     @init="initMaterialGrid"
   />
   <!-- 서비스 -->
@@ -94,7 +94,7 @@
   <kw-grid
     ref="grdServiceRef"
     name="grdMgtRelService"
-    :visible-rows="3"
+    :visible-rows="5"
     @init="initServiceGrid"
   />
   <!-- 기준상품 관계설정 -->
@@ -142,7 +142,7 @@
   <kw-grid
     ref="grdStandardRef"
     name="grdMgtRelStandard"
-    :visible-rows="3"
+    :visible-rows="5"
     @init="initStandardGrid"
   />
 </template>
@@ -180,9 +180,13 @@ const grdMaterialRowCount = ref(0);
 const grdServiceRowCount = ref(0);
 const grdStandardRowCount = ref(0);
 
+// 현재 상품코드
 const currentPdCd = ref();
+// 현재 상품 데이터
 const currentInitData = ref({});
+// 교재자재 연결타입 콤보박스
 const materialRelTypeRef = ref();
+// 기준상품 연결타입 콤보박스
 const standardRelTypeRef = ref();
 
 const codes = await codeUtil.getMultiCodes('BASE_PD_REL_DV_CD', 'PD_PDCT_REL_DV_CD');
@@ -207,15 +211,21 @@ const standardSelectItems = ref([
   { codeId: pdConst.PD_SEARCH_CODE, codeName: t('MSG_TXT_PD_STD_CODE') },
 ]);
 
+// 교재자재 팝업 조건
 const materialSearchType = ref(pdConst.PD_SEARCH_NAME);
 const materialSearchValue = ref();
 const materialRelType = ref(codes.PD_PDCT_REL_DV_CD?.[0].codeId);
+
+// 서비스 팝업 조건
 const serviceSearchType = ref(pdConst.PD_SEARCH_NAME);
 const serviceSearchValue = ref();
+
+// 기준 팝업 조건
 const standardRelType = ref();
 const standardSearchType = ref(pdConst.PD_SEARCH_NAME);
 const standardSearchValue = ref();
 
+// 팝업 조건
 const searchParams = ref({
   searchType: null,
   searchValue: null,
@@ -311,6 +321,7 @@ async function isOverPeriodCheck(view) {
   let dupItem;
   await Promise.all(rowValues.map(async (item1) => {
     // 비동기방식 설정 조건문
+    // 적용기간 중복 검사
     if (isValid && await getOverPeriodByRelProd(view, item1, 'pdRelTpCd')) {
       dupItem = (await getOverPeriodByRelProd(view, item1, 'pdRelTpCd'));
       if (dupItem) {
@@ -343,11 +354,13 @@ async function insertCallbackRows(view, rtn, pdRelTpCd) {
     let isValid = false;
     const alreadyPdCdRows = rowValues.filter((item) => item[pdConst.REL_OJ_PD_CD] === row[pdConst.REL_OJ_PD_CD]);
     if (alreadyPdCdRows && alreadyPdCdRows.length) {
+      // 중복기간이 존재여부
       const lastVlEndDtm = alreadyPdCdRows.reduce((maxDt, item) => {
         maxDt = Number(item.vlEndDtm) > maxDt ? Number(item.vlEndDtm) : maxDt;
         return maxDt;
       }, 0);
       if (currentTime > lastVlEndDtm) {
+        // 적용기간 중복
         isValid = true;
       }
       lastRow = alreadyPdCdRows[0].dataRow;
@@ -356,6 +369,7 @@ async function insertCallbackRows(view, rtn, pdRelTpCd) {
       lastRow = 0;
     }
     if (isValid) {
+      // 적용기간 자동설정
       row.vlStrtDtm = currentTime;
       row.vlEndDtm = 99991231235959;
     }
@@ -376,8 +390,10 @@ async function deleteCheckedRows(view) {
   await Promise.all(checkedRows.map(async (row) => {
     const item = gridUtil.getRowValue(view, row);
     if (item.rowState === 'created' || isEmpty(item[pdConst.REL_PD_ID]) || item[pdConst.REL_PD_ID].startsWith('REL_TMP')) {
+      // 신규라인은 바로 삭제
       removeCreateRows.push(row);
     } else {
+      // 기존라인은 삭제 불가
       isDbDataRemove = true;
     }
   }));
@@ -632,6 +648,7 @@ async function initMaterialGrid(data, view) {
   view.sortingOptions.enabled = false;
   view.filteringOptions.enabled = false;
   view.onCellEdited = async (grid, itemIndex, row, fieldIndex) => {
+    // 적용기간 유효 설정
     await onCellEditRelProdPeriod(view, grid, itemIndex, row, fieldIndex);
   };
 }
@@ -716,6 +733,7 @@ async function initServiceGrid(data, view) {
   view.rowIndicator.visible = true;
   view.editOptions.editable = true;
   view.onCellEdited = async (grid, itemIndex, row, fieldIndex) => {
+    // 적용기간 유효 설정
     await onCellEditRelProdPeriod(view, grid, itemIndex, row, fieldIndex);
   };
 }
@@ -782,6 +800,7 @@ async function initStandardGrid(data, view) {
 
   view.onCellButtonClicked = async (grid, { column, dataRow }) => {
     if (column === 'svPdNm') {
+      // 서비스 상품 검색 팝업 호출
       const svPdNm = grid.getValue(dataRow, 'svPdNm');
       const { payload } = await modal({
         component: 'ZwpdcServiceListP',
@@ -797,6 +816,7 @@ async function initStandardGrid(data, view) {
     }
   };
   view.onCellEdited = async (grid, itemIndex, row, fieldIndex) => {
+    // 적용기간 유효 설정
     await onCellEditRelProdPeriod(view, grid, itemIndex, row, fieldIndex);
   };
 

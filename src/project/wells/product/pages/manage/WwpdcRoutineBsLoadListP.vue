@@ -172,6 +172,7 @@ async function onSelect() {
     let duplicateFilterName = '';
     checkedRows.forEach((row) => {
       if (!duplicateFilterName && checkedRows.filter((item) => item.partPdCd === row.partPdCd).length > 1) {
+        // 중복검사
         duplicateFilterName = row.partPdNm;
       }
     });

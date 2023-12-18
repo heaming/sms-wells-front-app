@@ -57,8 +57,11 @@ const router = useRouter();
 // Function & Event
 // -------------------------------------------------------------------------------------------------
 const cmpRef = ref();
+// 현재 상품 코드
 const currentPdCd = ref();
+// 상품
 const pdBas = ref({});
+// 스텝 상품 데이터
 const prevStepData = ref({});
 
 const codes = await codeUtil.getMultiCodes(

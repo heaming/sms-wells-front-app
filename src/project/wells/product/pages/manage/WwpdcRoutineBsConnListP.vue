@@ -242,6 +242,7 @@ async function onClickMaterialSchPopup() {
   });
   if (rtn.result) {
     if (Array.isArray(rtn.payload) && rtn.payload.length > 1) {
+      // 결과값이 배열
       const data = view.getDataSource();
       const rows = cloneDeep(rtn.payload.map((item) => ({
         ...item, svPdCd, pdctPdCd, partPdCd: item.pdCd, partPdNm: item.pdNm, filtChngLvCd: 1 })));
@@ -251,6 +252,7 @@ async function onClickMaterialSchPopup() {
         await gridUtil.focusCellInput(view, 0);
       }
     } else {
+      // 단일로우 결과
       const row = Array.isArray(rtn.payload) ? rtn.payload[0] : rtn.payload;
       row.svPdCd = svPdCd;
       row.pdctPdCd = pdctPdCd;
@@ -276,6 +278,7 @@ async function onClickLoadRoutineBsFltPart() {
   });
   if (result) {
     if (Array.isArray(payload) && payload.length > 0) {
+      // 결과값이 존재하면
       const data = view.getDataSource();
       const rows = payload.map((item) => merge(item, { svPdCd, pdctPdCd, dtlSn: null }));
       // const okRows = await getCheckAndNotExistRows(view, rows);
@@ -314,6 +317,7 @@ async function fetchData() {
 
   res.data?.forEach((item) => {
     if (item.dtlHasYn === 'Y') {
+      // B/S 투입 상세 데이터 존재하면 삭제 불가
       dtlRowYn.value = 'Y';
     }
   });
@@ -332,6 +336,7 @@ async function onClickSave() {
     return;
   }
   if (!(await gridUtil.validate(view, { isChangedOnly: false }))) {
+    // 검증 실패
     return;
   }
 
@@ -405,7 +410,7 @@ async function onClickSave() {
   }
 
   const subList = { svPdCd, pdctPdCd, bases, details };
-  // console.log('WwpdcRoutineBsConnListP - onClickSave - subList : ', subList);
+
   await dataService.put('/sms/wells/product/bs-works', subList);
 
   // 저장 되었습니다. / 삭제 되었습니다.
@@ -551,13 +556,8 @@ const initGridMain = defineGrid((data, view) => {
   view.onCellEdited = async (grid, itemIndex, row, fieldIndex) => {
     const changedFieldName = grid.getColumn(fieldIndex).fieldName;
     if (['svStrtmmN', 'istMm', 'wkMm'].includes(changedFieldName)) {
-      // const servicePeriod = Number(grid.getValue(itemIndex, 'svPrdMmN'));
+      // 시작월
       const startMonth = Number(grid.getValue(itemIndex, 'svStrtmmN'));
-      // const repeatCount = Number(grid.getValue(itemIndex, 'svTms'));
-      // 제외월
-      // const exceptMonth = grid.getValue(itemIndex, 'excdMmVal');
-      // const exceptMonths = split(exceptMonth, ',')
-      //   .reduce((rtns, mon) => { if (Number(mon)) rtns.push(Number(mon)); return rtns; }, []);
       // 설치월
       const installMonth = Number(grid.getValue(itemIndex, 'istMm'));
       // 작업월
@@ -566,19 +566,9 @@ const initGridMain = defineGrid((data, view) => {
         grid.setValue(itemIndex, 'istMm', null);
         grid.setValue(itemIndex, 'strtWkYVal', null);
         grid.setValue(itemIndex, 'wkMm', null);
-        // const countTotalValue = (startMonth * (repeatCount + exceptMonths.length)) + servicePeriod;
-        // grid.setValue(itemIndex, 'totStplMcn', countTotalValue);
       } else if (['istMm', 'wkMm'].includes(changedFieldName) && (installMonth || workMonth)) {
         grid.setValue(itemIndex, 'svStrtmmN', null);
         grid.setValue(itemIndex, 'excdMmVal', null);
-        // const countTotalValue = (installMonth * (repeatCount + exceptMonths.length)) + servicePeriod;
-        // grid.setValue(itemIndex, 'totStplMcn', countTotalValue);
-        // // 작업연도
-        // if (installMonth <= workMonth) {
-        //   grid.setValue(itemIndex, 'strtWkYVal', 0);
-        // } else {
-        //   grid.setValue(itemIndex, 'strtWkYVal', 1);
-        // }
       }
     }
   };

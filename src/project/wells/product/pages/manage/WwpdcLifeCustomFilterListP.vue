@@ -127,8 +127,11 @@ const dataService = useDataService();
 // -------------------------------------------------------------------------------------------------
 const grdMainRef = ref(getComponentType('KwGrid'));
 const grdRowCount = ref(0);
+// 서비스명
 const serviceName = ref();
+// 제품명
 const productName = ref();
+// 필터명
 const filterName = ref();
 
 const codes = await codeUtil.getMultiCodes('MM_CD', 'VST_DV_CD');
@@ -143,11 +146,9 @@ async function onClickAdd() {
 
 // 엑셀 다운로드
 async function onClickExcelDownload() {
-  // const { svPdNm, pdctPdNm, partPdNm, svPdCd, pdctPdCd, partPdCd } = props;
   const { svPdNm, pdctPdNm, partPdNm } = props;
   const view = grdMainRef.value.getView();
-  // const res = await dataService.get('/sms/wells/product/bs-works/life-filters',
-  // { params: { svPdCd, pdctPdCd, partPdCd } });
+  // 엑셀 파일명 재설정
   await gridUtil.exportView(view, {
     fileName: `${svPdNm}_${pdctPdNm}_${partPdNm}_`,
     timePostfix: true,
@@ -174,7 +175,7 @@ async function onClickRemoveRows() {
   if (!await gridUtil.confirmIfIsModified(view)) { return; }
   const deletedRows = await gridUtil.confirmDeleteCheckedRows(view);
   if (deletedRows.length) {
-    // console.log('deletedRows : ', deletedRows);
+    // 체크된 행 삭제
     await dataService.delete('/sms/wells/product/bs-works/life-filters', { data: deletedRows });
     gridUtil.reset(view);
     await fetchData();
@@ -191,14 +192,18 @@ async function checkDuplication() {
     // {방문구분/월구분/계절필터명}이(가) 중복됩니다.
     let dupItem = alreadyItems[0].vstDvCd;
     if (alreadyItems[0].vstDvCd) {
+      // 방문구분
       dupItem += `/${getCodeNames(codes, alreadyItems[0].vstDvCd, 'VST_DV_CD')}`;
     }
     if (alreadyItems[0].prdMmVal) {
+      // 월구분
       dupItem += `/${getCodeNames(codes, alreadyItems[0].prdMmVal, 'MM_CD')}`;
     }
     if (alreadyItems[0].chPdctPdNm) {
+      // 계절필터명
       dupItem += `/${alreadyItems[0].chPdctPdNm}`;
     }
+    // {방문구분/월구분/계절필터명}이(가) 중복됩니다.
     notify(t('MSG_ALT_DUP_NCELL', [dupItem]));
     return true;
   }
@@ -217,15 +222,18 @@ async function checkDuplication() {
         && item.chPdctPdCd === dupCodes[2]);
     let dupItem = '';
     if (vstDvCd) {
+      // 방문구분
       dupItem += `/${getCodeNames(codes, vstDvCd, 'VST_DV_CD')}`;
     }
     if (prdMmVal) {
+      // 월구분
       dupItem += `/${getCodeNames(codes, prdMmVal, 'MM_CD')}`;
     }
     if (chPdctPdNm) {
+      // 계절필터명
       dupItem += `/${chPdctPdNm}`;
     }
-    // {제품명/기기종류/기기유형/가격구분} 은(는) 이미 DB에 등록되어 있습니다.
+    // {방문구분/월구분/계절필터명}이(가) 중복됩니다.
     await alert(t('MSG_ALT_EXIST_IN_DB', [dupItem]));
     return true;
   }
@@ -350,6 +358,7 @@ const initGrid = defineGrid((data, view) => {
 
   view.onCellButtonClicked = async (grid, { column, dataRow }) => {
     if (column === 'chPdctPdCd' || column === 'chPdctPdNm') {
+      // 계절필터코드, 계절필터명 수정시 검색값 설정, 코드값 or 코드명
       const searchParams = column === 'chPdctPdCd' ? {
         searchType: pdConst.PD_SEARCH_CODE,
         searchValue: grid.getValue(dataRow, 'chPdctPdCd'),
@@ -357,13 +366,16 @@ const initGrid = defineGrid((data, view) => {
         searchType: pdConst.PD_SEARCH_NAME,
         searchValue: grid.getValue(dataRow, 'chPdctPdNm'),
       };
+      // 단일 선택
       searchParams.selectType = pdConst.PD_SEARCH_SINGLE;
 
+      // 팝업호출
       const { payload } = await modal({
         component: 'ZwpdcMaterialListP',
         componentProps: searchParams,
       });
       if (payload) {
+        // 결과 있을 경우
         const row = Array.isArray(payload) ? payload[0] : payload;
         data.setValue(dataRow, 'chPdctPdCd', row.pdCd);
         data.setValue(dataRow, 'chPdctPdNm', row.pdNm);

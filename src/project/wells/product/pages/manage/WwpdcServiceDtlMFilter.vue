@@ -59,8 +59,12 @@ const { notify, modal } = useGlobal();
 // -------------------------------------------------------------------------------------------------
 const grdMainRef = ref(getComponentType('KwGrid'));
 const grdRowCount = ref(0);
+
+// 현재 상품코드
 const currentPdCd = ref();
+// 현재 상품 데이터
 const currentInitData = ref({});
+// 현재 공통코드
 const currentCodes = ref({});
 
 // 수정여부

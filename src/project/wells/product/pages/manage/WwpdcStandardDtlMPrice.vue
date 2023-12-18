@@ -88,7 +88,10 @@ const bas = pdConst.TBL_PD_BAS;
 const prcd = pdConst.TBL_PD_PRC_DTL;
 const prcfd = pdConst.TBL_PD_PRC_FNL_DTL;
 const prumd = pdConst.TBL_PD_DSC_PRUM_DTL;
+
+// 현재 상품 코드
 const currentPdCd = ref();
+
 const currentInitData = ref(null);
 const currentMetaInfos = ref();
 const currentCodes = ref({});
@@ -290,6 +293,7 @@ async function initGrid(data, view) {
     }
     return item;
   });
+  // 메타정보를 그리드 정보로 변환
   const { fields, columns } = await getPdMetaToGridInfos(
     currentMetaInfos.value,
     [pdConst.PD_PRC_TP_CD_BASIC,

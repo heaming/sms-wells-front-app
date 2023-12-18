@@ -173,14 +173,14 @@ const currentSearchYn = ref();
 
 let cachedParams;
 const searchParams = ref({
-  alncmpCd: '',
-  sellTpCd: '',
-  pdNm: '',
-  pdCd: '',
-  prdtCateHigh: '',
-  prdtCateMid: '',
-  apyStrtdt: '',
-  apyEnddt: '',
+  alncmpCd: '', // 제휴사
+  sellTpCd: '', // 판매유형
+  pdNm: '', // 상풍명
+  pdCd: '', // 상품코드
+  prdtCateHigh: '', // 대분류
+  prdtCateMid: '', // 중분류
+  apyStrtdt: '', // 적용시작일
+  apyEnddt: '', // 적용종료일
 });
 
 const pageInfo = ref({
@@ -283,6 +283,7 @@ async function checkDuplication() {
     return false;
   }
 
+  // 서버 데이터 중복 검사
   const { data: dupData } = await dataService.post('/sms/wells/product/alliances/duplication-check', changedRows);
   if (dupData.data) {
     const dupCodes = dupData.data.split(',', -1);
@@ -291,9 +292,11 @@ async function checkDuplication() {
         && ((isEmpty(item.stplPrdCd) && isEmpty(dupCodes[2])) || item.stplPrdCd === dupCodes[2]));
     let dupMessage = dupItem.pdNm;
     if (dupItem.svPdNm) {
+      // 서비스명
       dupMessage += `/${dupItem.svPdNm}`;
     }
     if (dupItem.stplPrdCd && dupItem.stplPrdCd !== '00') {
+      // 제품코드
       dupMessage += `/${getCodeNames(codes, dupItem.stplPrdCd, 'STPL_PRD_CD')}`;
     }
     // 은(는) 이미 DB에 등록되어 있습니다.
@@ -513,15 +516,18 @@ const initGrdMain = defineGrid((data, view) => {
     // 날짜값 조정
     await setGridDateFromTo(view, grid, itemIndex, fieldIndex, 'apyStrtdt', 'apyEnddt');
     if (grid.getColumn(fieldIndex).fieldName === 'pdNm' && isEmpty(grid.getValue(itemIndex, 'pdNm'))) {
+      // 상품명 삭제시 상품코드 초기화
       data.setValue(itemIndex, 'pdCd', null);
     }
     if (grid.getColumn(fieldIndex).fieldName === 'svPdNm' && isEmpty(grid.getValue(itemIndex, 'svPdNm'))) {
+      // 서비스명 삭제시 서비스코드 초기화
       data.setValue(itemIndex, 'svPdCd', null);
     }
   };
 
   view.onCellButtonClicked = async (grid, { column, dataRow }) => {
     if (column === 'pdNm') {
+      // 상품명 선택시 기준상품 선택 팝업 호출
       const pdNm = grid.getValue(dataRow, 'pdNm');
       const { payload } = await modal({
         component: 'ZwpdcStandardListP',
@@ -536,6 +542,7 @@ const initGrdMain = defineGrid((data, view) => {
       }
     }
     if (column === 'svPdNm') {
+      // 서비스명 선택시, 서비스 선택 팝업 호출
       const svPdNm = grid.getValue(dataRow, 'svPdNm');
       const { payload } = await modal({
         component: 'ZwpdcServiceListP',
