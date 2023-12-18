@@ -74,10 +74,13 @@
           <kw-input
             v-model="searchParams.pdCd"
             :label="$t('MSG_TXT_PRDT_CODE')/* 상품코드 */"
+            :maxlength="10"
+            regex="alpha_num"
           />
         </kw-search-item>
         <kw-search-item
           :label="$t('MSG_TXT_PRDT_NM')/* 상품명 */"
+          :maxlength="50"
         >
           <kw-input
             v-model="searchParams.pdNm"
