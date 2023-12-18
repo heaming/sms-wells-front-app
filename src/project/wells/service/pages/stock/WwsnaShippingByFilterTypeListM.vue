@@ -158,6 +158,7 @@
         />
         <!-- 반납여부 일괄변경 -->
         <kw-btn
+          v-permission:update
           dense
           secondary
           :label="`${t('MSG_TXT_GB')}${t('MSG_TXT_YN')} ${t('MSG_TXT_BLK_CH')}`"
@@ -179,6 +180,7 @@
         />
         <!-- 수거일자 일괄변경 -->
         <kw-btn
+          v-permission:update
           secondary
           dense
           :label="`${t('MSG_TXT_TKY_DT')} ${t('MSG_TXT_BLK_CH')}`"
@@ -230,7 +232,7 @@ import { isEmpty, cloneDeep } from 'lodash-es';
 import { openReportPopup } from '~common/utils/cmPopupUtil';
 
 const { t } = useI18n();
-const { getConfig } = useMeta();
+const { getConfig, hasPermission } = useMeta();
 const { notify, alert } = useGlobal();
 const { currentRoute } = useRouter();
 const router = useRouter();
@@ -242,6 +244,9 @@ const dataService = useDataService();
 // -------------------------------------------------------------------------------------------------
 
 const grdMainRef = ref(getComponentType('KwGrid'));
+
+// 업데이트 권한 체크
+const isPermission = hasPermission('update');
 
 let cachedParams;
 const searchParams = ref({
@@ -592,7 +597,7 @@ const initGrdMain = defineGrid((data, view) => {
 
   view.onCellEditable = (grid, index) => {
     // 반납여부, 특이사항, 수거일자만 수정가능
-    if (['stkrPrntYn', 'rmkCn', 'ostrConfDt'].includes(index.column)) {
+    if (['stkrPrntYn', 'rmkCn', 'ostrConfDt'].includes(index.column) && isPermission) {
       return true;
     }
     return false;
