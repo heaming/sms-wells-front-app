@@ -23,7 +23,7 @@
       >
         <div class="scoped-item__main">
           <kw-btn
-            class="transparent absolute fit"
+            class="scoped-item__toggle-helper"
             borderless
             @click="toggle"
           />
@@ -31,6 +31,9 @@
             class="scoped-item__product-name"
           >
             {{ dtl.cstBasePdAbbrNm || dtl.pdNm }}
+            <span class="text-bg-white">
+              {{ dtl.pdCd }}
+            </span>
           </kw-item-label>
           <div class="scoped-item__chips">
             <kw-chip
@@ -107,15 +110,20 @@
           >
             <kw-form-row
               v-if="multipleQuantityAvailable"
+              :cols="2"
             >
               <kw-form-item
                 :label="'수량변경'"
               >
-                <zwcm-counter
+                <zctz-number-input
                   v-model="pdQty"
                   label="수량변경"
                   :min="1"
                   :max="999"
+                  align="right"
+                  suffix="건"
+                  dense
+                  :clearable="false"
                 />
               </kw-form-item>
             </kw-form-row>
@@ -185,13 +193,36 @@
               <kw-form-item
                 :label="'법인특별할인금액'"
               >
-                <kw-input
-                  :model-value="sellDscCtrAmtStr"
+                <zctz-number-input
+                  :model-value="sellDscCtrAmt"
+                  :disable="!normalizedCrpDscrPriceOptions?.length"
+                  :step="1000"
+                  :min="0"
+                  :max="maxSellDscCtrAmt"
                   align="right"
                   dense
                   suffix="원"
                   :clearable="false"
                   @update:model-value="onChangeSellDscCtrAmt"
+                />
+              </kw-form-item>
+            </kw-form-row>
+            <kw-form-row
+              v-if="crpSpcDsprcEditable"
+            >
+              <kw-form-item
+                :label="'B2B법인특별할인가'"
+              >
+                <zctz-number-input
+                  v-model="crpSpcDsprc"
+                  :step="1000"
+                  :min="0"
+                  :max="maxSpayAmt"
+                  align="right"
+                  dense
+                  suffix="원"
+                  :clearable="false"
+                  @update:model-value="onChangeCrpSpcDsprc"
                 />
               </kw-form-item>
             </kw-form-row>
@@ -260,14 +291,18 @@
 import PromotionSelect from '~sms-wells/contract/components/ordermgmt/WwctaPromotionSelect.vue';
 import { useCtCode } from '~sms-common/contract/composable';
 import { alert, useDataService } from 'kw-lib';
-import ZwcmCounter from '~common/components/ZwcmCounter.vue';
+import ZctzNumberInput from '~sms-common/contract/components/ZctzNumberInput.vue';
 import usePriceSelect, { EMPTY_ID } from '~sms-wells/contract/composables/usePriceSelect';
 import {
   CNTR_REL_DTL_CD,
   SELL_TP_DTL_CD,
   SPAY_DSC_DV_CD,
 } from '~sms-wells/contract/constants/ctConst';
-import { getDisplayedPrice, getPromotionAppliedPrice } from '~sms-wells/contract/utils/CtPriceUtil';
+import {
+  getDisplayedPrice,
+  getPromotionAppliedPrice,
+  getSpayAmt,
+} from '~sms-wells/contract/utils/CtPriceUtil';
 import { warn } from 'vue';
 
 const props = defineProps({
@@ -331,6 +366,7 @@ const multipleQuantityAvailable = computed(() => {
 });
 
 let pdPrcFnlDtlId;
+// eslint-disable-next-line no-unused-vars
 let verSn;
 let fnlAmt;
 let pdQty;
@@ -339,15 +375,7 @@ let wellsDtl;
 let promotions;
 let appliedPromotions;
 let sellDscCtrAmt;
-const sellDscCtrAmtStr = computed(() => {
-  if (sellDscCtrAmt.value === 0) {
-    return '0';
-  }
-  if (!sellDscCtrAmt.value) {
-    return '';
-  }
-  return String(sellDscCtrAmt.value).replaceAll(/(\d)(?=(\d{3})+$)/g, '$1,');
-});
+let crpSpcDsprc; // 법인특별할인가
 
 function connectReactivities() {
   pdPrcFnlDtlId = toRef(props.modelValue, 'pdPrcFnlDtlId');
@@ -359,8 +387,8 @@ function connectReactivities() {
   appliedPromotions = toRef(props.modelValue, 'appliedPromotions', []);
   wellsDtl = toRef(props.modelValue, 'wellsDtl');
   sellDscCtrAmt = toRef(props.modelValue, 'sellDscCtrAmt');
+  crpSpcDsprc = toRef(props.modelValue, 'crpSpcDsprc');
   wellsDtl.value ??= {};
-  console.log('verSn', verSn.value);
 }
 
 connectReactivities();
@@ -525,9 +553,13 @@ const sellDscCtrAmtEditable = computed(() => {
     return false;
   }
 
-  // 현재 선택 가능한 모든 가격이 법인특별할인 대상가격인 경우
+  const visit = {};
   return selectedFinalPrices.value.every((price) => {
     const { rentalCrpDscrCd, asctDscBaseAmt, asctDscLstAmt } = price;
+    if (visit[rentalCrpDscrCd]) {
+      return false;
+    }
+    visit[rentalCrpDscrCd] = true;
     return !!(rentalCrpDscrCd && asctDscBaseAmt && asctDscLstAmt);
   });
 });
@@ -599,7 +631,6 @@ const maxRentalCrpDscrCd = computed(() => {
 
 // sellDscCtrAtm 와 rentalCrpDscrCd 는 서로에게 영향을 미칩니다.
 function onChangeSellDscCtrAmt(newSellDscCtrAmtStr) {
-  console.log('newSellDscCtrAmtStr', newSellDscCtrAmtStr);
   const numVal = Number(newSellDscCtrAmtStr?.replaceAll(/,/g, ''));
   sellDscCtrAmt.value = Number.isNaN(numVal) ? undefined : numVal;
   const newSellDscCtrAmt = numVal;
@@ -642,7 +673,6 @@ function onChangeRentalCrpDscrCd(newRentalCrpDscrCd) {
     warn('The mapToRentalCrpDscrCdToRangeOfSellDscCtrAmt is undefined!!');
     return;
   }
-  console.log(newRentalCrpDscrCd, mapToRentalCrpDscrCdToRangeOfSellDscCtrAmt.value);
   const rangeForSellDscCtrAmt = mapToRentalCrpDscrCdToRangeOfSellDscCtrAmt.value[newRentalCrpDscrCd];
   if (!rangeForSellDscCtrAmt) {
     warn('The rangeForSellDscCtrAmt is undefined!!');
@@ -679,14 +709,43 @@ const lkSdingCntrRel = computed(() => (
 
 // region [가격표기]
 const displayedFinalPrice = computed(() => (
-  getDisplayedPrice(selectedFinalPrice.value)
+  getDisplayedPrice(selectedFinalPrice.value, sellDscCtrAmt.value)
 ));
 
 const promotionAppliedPrice = computed(() => (
-  getPromotionAppliedPrice(selectedFinalPrice.value, appliedPromotions.value)
+  getPromotionAppliedPrice(selectedFinalPrice.value, appliedPromotions.value, sellDscCtrAmt.value)
 ));
 
+const maxSpayAmt = computed(() => {
+  if (!selectedFinalPrice.value) { return; }
+  return getSpayAmt({}, selectedFinalPrice.value, appliedPromotions.value, 0);
+});
 // endregion [가격표기]
+
+// region [B2B법인특별할인]
+const crpSpcDsprcEditable = computed(() => (props.bas.sellOgTpCd === 'W04')
+  && !sellDscCtrAmtEditable.value && !!selectedFinalPrice.value);
+
+function onChangeCrpSpcDsprc() {
+  if (!crpSpcDsprc.value) {
+    sellDscCtrAmt.value = 0;
+    return;
+  }
+  sellDscCtrAmt.value = maxSpayAmt.value - crpSpcDsprc.value;
+}
+
+watch(crpSpcDsprcEditable, (value) => {
+  if (!value) {
+    crpSpcDsprc.value = undefined;
+  }
+
+  if (crpSpcDsprc.value === undefined) {
+    crpSpcDsprc.value = getSpayAmt({}, selectedFinalPrice.value, appliedPromotions.value, sellDscCtrAmt.value);
+  }
+
+  onChangeCrpSpcDsprc();
+});
+// endregion [B2B법인특별할인]
 
 function clearPromotions() {
   promotions.value = [];
@@ -729,6 +788,7 @@ function onClickDelete() {
 
 <style lang="scss" scoped>
 @import "kw-lib/src/css/mixins";
+@import "~@css/variables";
 
 .scoped-item {
   $-left-side-width: 68px;
@@ -781,6 +841,12 @@ function onClickDelete() {
     flex-flow: column wrap;
     align-items: flex-start;
     gap: $spacing-xs;
+  }
+
+  &__toggle-helper {
+    background: transparent;
+    position: absolute;
+    inset: rem-to-px(map-get($body, "line-height")) 0 0 0;
   }
 
   &__product-name {

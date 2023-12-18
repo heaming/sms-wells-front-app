@@ -112,6 +112,14 @@ $unit: px;
   }
 }
 
+.hp-w-auto {
+  width: auto;
+}
+
+.hp-h-auto {
+  height: auto;
+}
+
 .hp-like-kw-notification-item {
   @include typo("dense", 400);
 
