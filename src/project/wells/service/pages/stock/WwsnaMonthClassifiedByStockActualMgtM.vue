@@ -173,7 +173,8 @@
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
-import { getComponentType, defineGrid, useMeta, codeUtil, useDataService, gridUtil, useGlobal, fileUtil } from 'kw-lib';
+import { getComponentType, defineGrid, useMeta, codeUtil, useDataService, gridUtil, useGlobal } from 'kw-lib';
+
 import ZwcmWareHouseSearch from '~sms-common/service/components/ZwsnzWareHouseSearch.vue';
 import { openReportPopup } from '~common/utils/cmPopupUtil';
 import dayjs from 'dayjs';
@@ -187,7 +188,6 @@ const { notify, confirm } = useGlobal();
 const STATUS_VAL = '실사완료';
 const STATUS_FSH = '신청완료';
 const STATUS_APY = '재고반영';
-// const STATUS_CNFM = '실사확정';
 const dataService = useDataService();
 // -------------------------------------------------------------------------------------------------
 // Function & Event
@@ -297,10 +297,17 @@ async function fetchData() {
   view.rowIndicator.indexOffset = gridUtil.getPageIndexOffset(pageInfo);
 }
 
-// 엑셀다운로드
+// 대용량 엑셀다운로드
 async function onClickExcelDownload() {
-  const res = await dataService.post('/sms/wells/service/stock-acinp-rgst/excel-download', cachedParams, { responseType: 'blob' });
-  fileUtil.downloadBlob(res.data, `${currentRoute.value.meta.menuName}_${now.format('YYYYMMDD_HHmmss')}.xlsx`);
+  const view = grdMainRef.value.getView();
+  gridUtil.exportBulkView(view, {
+    url: '/sms/wells/service/stock-acinp-rgst/bulk-excel-download', // url 지정
+    parameter: { // 검색 조건을 그대로 넣어준다. 없을 경우 추가하지 않아도 됨
+      ...cachedParams, timeout: 600000,
+    },
+    fileName: `${currentRoute.value.meta.menuName}_${now.format('YYYYMMDD_HHmmss')}_Bulk`,
+    hideColumns: ['col2'],
+  });
 }
 
 // 조회버튼 클릭이벤트
@@ -563,7 +570,6 @@ const initGrdMain = defineGrid((data, view) => {
     { fieldName: 'cnfmPitmEotStocQty', header: t('MSG_TXT_CNFM_EOT'), width: '150', styleName: 'text-right' },
     { fieldName: 'diffQty', header: t('MSG_TXT_CNFM_GAP'), width: '150', styleName: 'text-right' },
     { fieldName: 'iostRfdt', header: t('MSG_TXT_RFLT_DT'), width: '150', styleName: 'text-right', datetimeFormat: 'date' },
-    { fieldName: 'stocAcinspAkId' },
 
   ];
 
