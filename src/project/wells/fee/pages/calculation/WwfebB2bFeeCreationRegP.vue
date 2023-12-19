@@ -102,14 +102,21 @@ const regData = ref({
   feeTcntDvCd: props.feeTcntDvCd,
   feeCalcUnitTpCd: '401', // B2B 수수료
 });
+const deductionData = ref({
+  ogTpCd: props.ogTpCd,
+  ddtnYm: props.perfYm,
+  feeTcntDvCd: (isEmpty(props.feeTcntDvCd) ? '02' : props.feeTcntDvCd),
+  rsbDvCd: '',
+});
 // 취소
 async function onClickCancel() {
   cancel();
 }
-// 생성
+// 수수료생성 생성 & 가지급금 생성
 async function onClickCreate() {
   if (!await popupRef.value.validate()) { return; }
   await dataService.post(`/sms/common/fee/fee-calculation/${regData.value.perfYm}-${regData.value.feeTcntDvCd}-${regData.value.feeCalcUnitTpCd}`, null, { timeout: 5 * 60 * 1000 });
+  await dataService.post('/sms/common/fee/fee-pnpyam-deductions', deductionData.value);
   ok(true);
   notify(t('MSG_ALT_CRT_FSH')); // 생성되었습니다.
 }
