@@ -60,6 +60,11 @@
     </kw-list>
     <template #action>
       <kw-btn
+        v-if="!agreed"
+        label="계약서 확인"
+        @click="openCntrOZReport(true)"
+      />
+      <kw-btn
         v-if="isSigned && !reportChecked"
         label="계약서 확인"
         @click="openCntrOZReport"
@@ -138,6 +143,7 @@ const isSigned = computed(() => {
   }
   return !!signs.settlementConfirmed;
 });
+const reportPreChecked = ref(false);
 const reportChecked = ref(false);
 
 async function fetchContract() {
@@ -154,6 +160,10 @@ async function fetchContract() {
 }
 
 function onConfirmAgrees(agreedInfos) {
+  if (!reportPreChecked.value) {
+    alert('계약서를 확인해주세요.');
+    return;
+  }
   agreed.value = true;
   stlmsUpdateRequestBody.agIzs = agreedInfos;
 }
@@ -168,8 +178,12 @@ async function onSignSettlementConfirmed(sign) {
   signs.settlementConfirmed = sign;
 }
 
-async function openCntrOZReport() {
-  reportChecked.value = true;
+async function openCntrOZReport(preCheck = false) {
+  if (preCheck === true) {
+    reportPreChecked.value = true;
+  } else {
+    reportChecked.value = true;
+  }
   const { data: reports } = await dataService.get('/sms/wells/contract/report/contract', { params: { cntrNo: params.cntrNo } });
   if (!reports?.length) {
     warn('계약서가 없는데?');
