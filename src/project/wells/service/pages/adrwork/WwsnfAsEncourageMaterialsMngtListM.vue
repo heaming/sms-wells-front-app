@@ -211,6 +211,7 @@ async function changePdGrpCd() {
   searchParams.value.pdCd = '';
 }
 changePdGrpCd();
+
 // -------------------------------------------------------------------------------------------------
 // Initialize Grid
 // -------------------------------------------------------------------------------------------------
@@ -247,19 +248,12 @@ const initGrdMain = defineGrid((data, view) => {
   view.rowIndicator.visible = true;
   // view.displayOptions.selectionStyle = 'singleRow';
 });
+
 onMounted(async () => {
-  if (window.location.href.includes('localhost')) {
-    // searchParams.value.svTpCd = '3';
-    // searchParams.value.pdGrpCd = '1';
-    // searchParams.value.pdCd = 'WM03100205';
-    // searchParams.value.dateType = 'vstCnfmdt';
-    // searchParams.value.dateValueFromDt = '20230701';
-    // searchParams.value.dateValueToDt = '20230725';
-    searchParams.value.classB = '';
-    searchParams.value.classC = '';
-    classBRef.value = [];
-    classCRef.value = [];
-    classARef.value = await getSearchCustomerCenterClass();
-  }
+  searchParams.value.classB = '';
+  searchParams.value.classC = '';
+  classBRef.value = [];
+  classCRef.value = [];
+  classARef.value = await getSearchCustomerCenterClass();
 });
 </script>
