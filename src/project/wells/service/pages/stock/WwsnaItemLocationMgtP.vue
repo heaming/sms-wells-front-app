@@ -255,6 +255,31 @@ async function onClickExcelDownload() {
   });
 }
 
+// 코드 또는 코드명으로 코드정보 찾기
+function getInfoByCodeAndName(codeGb, value) {
+  // 앵글
+  if (codeGb === 'GB1') {
+    // 코드명으로 찾기
+    let codeInfo = codes.LCT_ANGLE_CD.find((e) => e.codeName === value?.toUpperCase());
+    // 코드값으로 찾기
+    if (isEmpty(codeInfo)) {
+      codeInfo = codes.LCT_ANGLE_CD.find((e) => Number(e.codeId) === Number(value));
+    }
+    return codeInfo;
+  // 층수
+  } if (codeGb === 'GB2') {
+    if (value === '0' || value === '00') {
+      return codes.LCT_COF_CD.find((e) => e.codeId === '00');
+    }
+
+    return codes.LCT_COF_CD.find((e) => Number(e.codeId) === Number(value));
+  // 층번호
+  } if (codeGb === 'GB3') {
+    return codes.LCT_FLOR_NO_CD.find((e) => Number(e.codeId) === Number(value));
+  }
+  return '';
+}
+
 onMounted(async () => {
   cachedParams = cloneDeep(searchParams.value);
   await stckStdGbFetchData();
@@ -269,29 +294,23 @@ const initGrdMain = defineGrid((data, view) => {
     { fieldName: 'itmPdCd', header: t('TXT_MSG_AS_ITM_CD'), width: '146', styleName: 'text-center', dataType: 'text' }, // 품목코드
     { fieldName: 'pdAbbrNm', header: t('MSG_TXT_ITM_NM'), width: '320', dataType: 'text' }, // 품목명
     { fieldName: 'pitmStocAGdQty', header: `${t('MSG_TXT_STOC')}(EA)`, width: '80', styleName: 'text-right', dataType: 'number' }, // 재고
-    { fieldName: 'itmLctAngleVal', // 앵글
+    { fieldName: 'angleValNm', // 앵글
       header: t('MSG_TXT_ANGLE'),
       width: '80',
       styleName: 'text-center',
-      options: codes.LCT_ANGLE_CD,
-      editor: { type: 'list' },
       editable: true,
       editOptions: { editable: true },
     },
-    { fieldName: 'itmLctCofVal', // 층수
+    { fieldName: 'cofValNm', // 층수
       header: t('MSG_TXT_FLOR_CNT'),
       width: '80',
       styleName: 'text-center',
-      options: codes.LCT_COF_CD,
-      editor: { type: 'list' },
       editable: true,
     },
-    { fieldName: 'itmLctFlorNoVal', // 층번호
+    { fieldName: 'florNoValNm', // 층번호
       header: t('MSG_TXT_FLOR_NO'),
       width: '96',
       styleName: 'text-center',
-      options: codes.LCT_FLOR_NO_CD,
-      editor: { type: 'list' },
       editable: true,
     },
     { fieldName: 'itmLctMatGrpCd', // 그룹
@@ -308,15 +327,57 @@ const initGrdMain = defineGrid((data, view) => {
   const fields = [...gridField,
     { fieldName: 'wareNo' },
     { fieldName: 'itmKndCd' },
-    { fieldName: 'stdWareUseYn' }];
+    { fieldName: 'stdWareUseYn' },
+    { fieldName: 'itmLctAngleVal' },
+    { fieldName: 'itmLctCofVal' },
+    { fieldName: 'itmLctFlorNoVal' },
+  ];
 
   data.setFields(fields);
   view.setColumns(columns);
   view.checkBar.visible = false;
   view.rowIndicator.visible = true;
   view.editOptions.editable = true;
-  const editFields = ['itmLctAngleVal', 'itmLctCofVal', 'itmLctFlorNoVal', 'itmLctMatGrpCd'];
+  const editFields = ['angleValNm', 'cofValNm', 'florNoValNm', 'itmLctMatGrpCd'];
 
   view.onCellEditable = (grid, clickData) => editFields.includes(clickData.column);
+
+  view.onCellEdited = async (grid, itemIndex, row, field) => {
+    const { angleValNm, cofValNm, florNoValNm } = grid.getValues(itemIndex);
+    const changedFieldName = grid.getDataSource().getOrgFieldName(field);
+    // 앵글
+    if (changedFieldName === 'angleValNm') {
+      const codeInfo = getInfoByCodeAndName('GB1', angleValNm);
+      if (isEmpty(codeInfo)) {
+        grid.setValue(itemIndex, 'itmLctAngleVal', '');
+        grid.setValue(itemIndex, 'angleValNm', '');
+      } else {
+        grid.setValue(itemIndex, 'itmLctAngleVal', codeInfo.codeId);
+        grid.setValue(itemIndex, 'angleValNm', codeInfo.codeName);
+      }
+
+    // 층수
+    } else if (changedFieldName === 'cofValNm') {
+      const codeInfo = getInfoByCodeAndName('GB2', cofValNm);
+      if (isEmpty(codeInfo)) {
+        grid.setValue(itemIndex, 'itmLctCofVal', '');
+        grid.setValue(itemIndex, 'cofValNm', '');
+      } else {
+        grid.setValue(itemIndex, 'itmLctCofVal', codeInfo.codeId);
+        grid.setValue(itemIndex, 'cofValNm', codeInfo.codeName);
+      }
+
+    // 층번호
+    } else if (changedFieldName === 'florNoValNm') {
+      const codeInfo = getInfoByCodeAndName('GB3', florNoValNm);
+      if (isEmpty(codeInfo)) {
+        grid.setValue(itemIndex, 'itmLctFlorNoVal', '');
+        grid.setValue(itemIndex, 'florNoValNm', '');
+      } else {
+        grid.setValue(itemIndex, 'itmLctFlorNoVal', codeInfo.codeId);
+        grid.setValue(itemIndex, 'florNoValNm', codeInfo.codeName);
+      }
+    }
+  };
 });
 </script>
