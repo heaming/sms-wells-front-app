@@ -37,8 +37,10 @@
         >
           <kw-option-group
             v-model="searchParams.ogTpCd"
+            rules="required"
             type="radio"
             :options="ogTp"
+            :label="$t('MSG_TXT_OG_TP')"
           />
         </kw-search-item>
 
@@ -142,7 +144,7 @@
 import { useDataService, defineGrid, getComponentType, gridUtil, codeUtil, useMeta } from 'kw-lib';
 import dayjs from 'dayjs';
 import ZwogLevelSelect from '~sms-common/organization/components/ZwogLevelSelect.vue';
-import { cloneDeep } from 'lodash-es';
+import { cloneDeep, isEmpty } from 'lodash-es';
 
 const { t } = useI18n();
 const { getConfig, getUserInfo } = useMeta();
@@ -188,7 +190,7 @@ const grdMainRef = ref(getComponentType('KwGrid'));
 // -------------------------------------------------------------------------------------------------
 const searchParams = ref({
   baseYm: now,
-  ogTpCd: wkOjOgTpCd === null ? ogTpCd : wkOjOgTpCd,
+  ogTpCd: isEmpty(wkOjOgTpCd) ? ogTpCd : wkOjOgTpCd,
   rsbDvCd: 'S',
   ogLevlDvCd1: undefined,
   ogLevlDvCd2: undefined,
