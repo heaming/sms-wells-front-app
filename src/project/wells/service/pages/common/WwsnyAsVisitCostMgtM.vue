@@ -289,7 +289,6 @@ async function onClickAdd() {
 }
 
 async function onUpdateMtrChk() {
-  debugger;
   onClickSearch();
 }
 
