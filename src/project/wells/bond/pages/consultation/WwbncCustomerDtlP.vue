@@ -1061,7 +1061,7 @@
               type="textarea"
               :rows="9"
               :placeholder="$t('MSG_TXT_CNSL_IN')"
-              :maxlength="4000"
+              :maxlength="2000"
               class="mt12"
             />
           </div>
