@@ -282,6 +282,9 @@ function getInfoByCodeAndName(codeGb, value) {
 
 // 위치명 가져오기
 function getLocationName(angle, cof, flor, grp) {
+  angle = !angle ? '' : angle;
+  cof = !cof ? '' : cof;
+  flor = !flor ? '' : flor;
   grp = !grp ? '' : grp;
 
   const term1 = !isEmpty(angle) && !isEmpty(cof) ? '-' : '';

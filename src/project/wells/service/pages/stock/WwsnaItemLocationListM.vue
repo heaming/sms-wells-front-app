@@ -9,13 +9,14 @@
 ****************************************************************************************************
 * 프로그램 설명
 ****************************************************************************************************
-
+표준창고 적용 및 품목의 위치를 설정하는 화면
 ****************************************************************************************************
 --->
 
 <template>
   <kw-page>
     <kw-search
+      :modified-targets="['grdMain']"
       @search="onClickSearch"
       @reset="onClickReset"
     >
@@ -137,6 +138,7 @@
           dense
           class="w150"
           :options="codes.WARE_TP_CD"
+          first-option="select"
         />
         <!-- 위치앵글 -->
         <kw-select
@@ -144,6 +146,7 @@
           dense
           class="w150"
           :options="codes.LCT_ANGLE_CD"
+          first-option="select"
         />
         <!--위치 층수 -->
         <kw-select
@@ -151,6 +154,7 @@
           dense
           class="w150"
           :options="codes.LCT_COF_CD"
+          first-option="select"
         />
         <!-- 위치 층 번호 -->
         <kw-select
@@ -158,6 +162,7 @@
           dense
           class="w150"
           :options="codes.LCT_FLOR_NO_CD"
+          first-option="select"
         />
         <!-- 위치 자재 그룹 -->
         <kw-select
@@ -165,6 +170,7 @@
           dense
           class="w150"
           :options="codes.LCT_MAT_GRP_CD"
+          first-option="select"
         />
         <!-- 품목위치 일괄변경 -->
         <kw-btn
@@ -178,6 +184,7 @@
 
       <kw-grid
         ref="grdMainRef"
+        name="grdMain"
         :page-size="pageInfo.pageSize"
         :total-count="pageInfo.totalCount"
         @init="initGrdMain"
@@ -361,6 +368,9 @@ function getLocation(wareTpCd, angle, cof, flor, grp, gubun) {
   if (gubun !== 'CODE' && gubun !== 'NAME') return '';
 
   wareTpCd = !wareTpCd ? '' : wareTpCd;
+  angle = !angle ? '' : angle;
+  cof = !cof ? '' : cof;
+  flor = !flor ? '' : flor;
   grp = !grp ? '' : grp;
   const term1 = !isEmpty(wareTpCd) && !isEmpty(angle) ? '-' : '';
   const term2 = !isEmpty(angle) && !isEmpty(cof) ? '-' : '';
