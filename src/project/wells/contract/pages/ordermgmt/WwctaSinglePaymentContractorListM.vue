@@ -487,7 +487,7 @@ const initGridSnglPmntContractorList = defineGrid((data, view) => {
         window: true,
         windowFeatures: { width: 1320, height: 1080 },
       });
-    } else if (column === 'orderInfView') {
+    } else if (column === 'ordrInfoView') {
       await modal({
         component: 'WwctaSinglePaymentOrderDetailListP',
         componentProps: { cntrNo, cntrSn, sellTpCd },
