@@ -387,7 +387,7 @@ async function onClickGridBulkChange() {
     }
     if (!isEmpty(lctAngleCd)) {
       data.setValue(checkedRows[i].dataRow, 'itmLctAngleVal', lctAngleCd);
-      data.setValue(checkedRows[i].dataRow, 'angleVal', angleNm);
+      data.setValue(checkedRows[i].dataRow, 'angleValNm', angleNm);
     }
     if (!isEmpty(lctCofCd)) {
       data.setValue(checkedRows[i].dataRow, 'itmLctCofVal', lctCofCd);
