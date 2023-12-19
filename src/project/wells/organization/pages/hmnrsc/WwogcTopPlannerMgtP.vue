@@ -124,7 +124,7 @@ import { SMS_WELLS_URI } from '~sms-wells/organization/constants/ogConst';
 
 const dataService = useDataService();
 const { cancel: onClickCancel, ok } = useModal();
-const { notify } = useGlobal();
+const { notify, confirm } = useGlobal();
 const { t } = useI18n();
 const thisYm = dayjs().format('YYYYMM');
 const frmMainRef = ref();
@@ -190,6 +190,11 @@ function setData() {
 async function onClickSave() {
   if (await frmMainRef.value.alertIfIsNotModified()) { return; }
   setData();
+
+  // 현재월보다 이전월 & 수석플래너로 변경시 Confirm 창
+  if (planner.value.mgmtYm !== thisYm && planner.value.qlfDvCd === '1') {
+    if (!await confirm(t('MSG_ALT_TOP_CNFM'))) { return; }
+  }
 
   await dataService.put(`${SMS_WELLS_URI}/partner/${props.ogTpCd}/${props.prtnrNo}`, { ...planner.value, ogTpCd: props.ogTpCd });
 
