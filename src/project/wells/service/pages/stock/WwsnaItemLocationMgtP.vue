@@ -257,7 +257,7 @@ async function onClickExcelDownload() {
 
 // 코드 또는 코드명으로 코드정보 찾기
 function getInfoByCodeAndName(codeGb, value) {
-  if (isEmpty(value)) return '';
+  if (isEmpty(value) || !value) return '';
 
   // 앵글
   if (codeGb === 'GB1') {
