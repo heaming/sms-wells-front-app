@@ -68,16 +68,26 @@ import { alert, useDataService } from 'kw-lib';
 import { COPN_DV_CD } from '~sms-wells/contract/constants/ctConst';
 
 const props = defineProps({
-  cntrBasis: { type: Array, default: undefined },
-  cntrChTpCd: { type: String, default: undefined },
-  cntrChRcpId: { type: String, default: undefined },
+  cntrBasis: { type: Array, default: undefined }, // 계약번호(cntrNo) 및 계약번호 시리얼 (cntrSn)
+  cntrChTpCd: { type: String, default: undefined }, // 계약변경유형코드, 103 : 명의변경, 104 : 개명신청, 301 : 자동이체변경, 401 : 계약해약신청
+  cntrCstNo: { type: String, default: undefined }, // 고객번호
+  reRgstYn: { type: String, default: 'N' }, // 재접수 여부
+  cntrChRcpId: { type: String, default: undefined }, // 계약변경접수 ID - 재접수여부가 Y인 경우 필수
   dcmtRcpSn: { type: String, default: undefined },
+  cntrChPrgsMoCn: { type: String, default: '' }, // 계약변경진행 메모내용
+  chRcpUsrId: { type: String, default: '' }, // 변경접수 사용자 ID
   encryptedParam: { type: String, default: undefined },
 });
 
 const params = decryptEncryptedParam(props.encryptedParam, {
   cntrBasis: props.cntrBasis,
   cntrChTpCd: props.cntrChTpCd,
+  cntrCstNo: props.cntrCstNo,
+  reRgstYn: props.reRgstYn,
+  cntrChRcpId: props.cntrChRcpId,
+  dcmtRcpSn: props.dcmtRcpSn,
+  cntrChPrgsMoCn: props.cntrChPrgsMoCn,
+  chRcpUsrId: props.chRcpUsrId,
 });
 
 function close(payload) {
@@ -137,50 +147,24 @@ function next() {
 async function onClickConfirm() {
   if (!await frmRef.value.validate()) { return; }
 
-  // const response = await dataService.post('/sms/wells/contract/contracts/settlements/login', {
-  //   cntrNo: params.cntrNo,
-  //   ...authInfo,
-  // });
+  const response = await dataService.post('/sms/wells/contract/contracts/settlements/login', {
+    cntrNo: params.cntrBasis[0].cntrNo,
+    ...authInfo,
+  });
 
-  let fakeServerResponseResolver;
-  const fakeAxios = new Promise((resolve) => { fakeServerResponseResolver = resolve; });
-  setTimeout(() => {
-    const fakeServerPayload = {
-      data: {
-        valid: true,
-        key: 'anything you can do.',
-      },
-    };
-    fakeServerResponseResolver(fakeServerPayload);
-  }, 100);
-  const { data } = await fakeAxios;
-
-  if (data.valid) {
-    next(data.key);
+  if (response.data?.valid) {
+    next();
   }
 }
 
 async function fetchBasicContractInfo() {
-  // const { data } = await dataService.get('/sms/wells/contract/contracts/settlements/basic-info', {
-  //   params: { cntrNo: params.cntrNo },
-  // }).catch(() => {
-  //   close('Fetch failed!');
-  // });
+  const res = await dataService.get('/sms/wells/contract/contracts/settlements/basic-info', {
+    params: { cntrNo: params.cntrBasis[0].cntrNo },
+  }).catch(async () => {
+    close('Fetch failed!');
+  });
 
-  let fakeServerResponseResolver;
-  const fakeAxios = new Promise((resolve) => { fakeServerResponseResolver = resolve; });
-  setTimeout(() => {
-    const fakeServerPayload = {
-      data: {
-        cntrCstKnm: '김민석',
-        copnDvCd: COPN_DV_CD.INDIVIDUAL,
-      },
-    };
-    fakeServerResponseResolver(fakeServerPayload);
-  }, 100);
-  const { data } = await fakeAxios;
-
-  basicInfo.value = data;
+  basicInfo.value = res.data;
 }
 
 await fetchBasicContractInfo();
