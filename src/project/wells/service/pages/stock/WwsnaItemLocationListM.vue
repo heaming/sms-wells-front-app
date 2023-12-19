@@ -358,6 +358,8 @@ function getInfoByCodeAndName(codeGb, value) {
 
 // 위치 가져오기
 function getLocation(wareTpCd, angle, cof, flor, grp, gubun) {
+  if (gubun !== 'CODE' && gubun !== 'NAME') return '';
+
   wareTpCd = !wareTpCd ? '' : wareTpCd;
   grp = !grp ? '' : grp;
   const term1 = !isEmpty(wareTpCd) && !isEmpty(angle) ? '-' : '';
@@ -367,7 +369,7 @@ function getLocation(wareTpCd, angle, cof, flor, grp, gubun) {
 
   // 위치코드
   if (gubun === 'CODE') {
-    return `${wareTpCd}${term1}${angle}${term2}${cof}${term3}${flor}${term4}${grp}`;
+    return `${wareTpCd}${angle}${cof}${flor}${grp}`;
   }
 
   let wareTpNm = '';
