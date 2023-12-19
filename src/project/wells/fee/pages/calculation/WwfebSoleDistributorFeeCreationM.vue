@@ -282,6 +282,7 @@ async function onClickCreate(feeSchdId, feeSchdLvCd, feeSchdLvStatCd) {
     componentProps: {
       perfYm: searchParams.value.perfYm,
       feeTcntDvCd: searchParams.value.feeTcntDvCd,
+      ogTpCd: 'W05',
     },
   });
   if (isChanged) {
