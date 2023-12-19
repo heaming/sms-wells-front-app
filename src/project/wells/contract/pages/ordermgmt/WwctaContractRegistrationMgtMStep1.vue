@@ -736,6 +736,7 @@ async function checkExistContractor() {
           query: {
             bzrno: searchParams.value.bzrno,
             dlpnrNm: searchParams.value.cstKnm,
+            flag: 'wcontract',
           },
         });
       }
