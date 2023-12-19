@@ -375,9 +375,9 @@ const initGrdMain = defineGrid(async (data, view) => {
       width: '150',
       styleName: 'text-center',
       displayCallback(grid, index) {
-        if (!isEmpty(grid.getValue(index, 'cralLocaraTno')) && !isEmpty(grid.getValue(index, 'mexnoEncr'))
-        && !isEmpty(grid.getValue(index, 'cralIdvTno'))) {
-          return `${grid.getValue(index, 'cralLocaraTno')}-${grid.getValue(index, 'mexnoEncr')}-${grid.getValue(index, 'cralIdvTno')}`;
+        if (!isEmpty(grid.getValue(index.itemIndex, 'cralLocaraTno')) && !isEmpty(grid.getValue(index.itemIndex, 'mexnoEncr'))
+        && !isEmpty(grid.getValue(index.itemIndex, 'cralIdvTno'))) {
+          return `${grid.getValue(index.itemIndex, 'cralLocaraTno')}-${grid.getValue(index.itemIndex, 'mexnoEncr')}-${grid.getValue(index.itemIndex, 'cralIdvTno')}`;
         }
       },
     },
@@ -387,9 +387,9 @@ const initGrdMain = defineGrid(async (data, view) => {
       width: '150',
       styleName: 'text-center',
       displayCallback(grid, index) {
-        if (!isEmpty(grid.getValue(index, 'locaraTno')) && !isEmpty(grid.getValue(index, 'exnoEncr'))
-        && !isEmpty(grid.getValue(index, 'idvTno'))) {
-          return `${grid.getValue(index, 'locaraTno')}-${grid.getValue(index, 'exnoEncr')}-${grid.getValue(index, 'idvTno')}`;
+        if (!isEmpty(grid.getValue(index.itemIndex, 'locaraTno')) && !isEmpty(grid.getValue(index.itemIndex, 'exnoEncr'))
+        && !isEmpty(grid.getValue(index.itemIndex, 'idvTno'))) {
+          return `${grid.getValue(index.itemIndex, 'locaraTno')}-${grid.getValue(index.itemIndex, 'exnoEncr')}-${grid.getValue(index.itemIndex, 'idvTno')}`;
         }
       },
     },
