@@ -88,6 +88,10 @@ const props = defineProps({
     type: String,
     default: '',
   },
+  ogTpCd: {
+    type: String,
+    default: '',
+  },
 });
 // -------------------------------------------------------------------------------------------------
 // Function & Event

@@ -288,6 +288,7 @@ async function onClickCreate(feeSchdId, feeSchdLvCd, feeSchdLvStatCd) {
     componentProps: {
       perfYm: searchParams.value.perfYm,
       feeTcntDvCd: searchParams.value.feeTcntDvCd,
+      ogTpCd: 'W04',
     },
   });
   if (isChanged) {
