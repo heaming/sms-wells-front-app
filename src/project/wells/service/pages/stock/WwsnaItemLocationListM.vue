@@ -9,13 +9,14 @@
 ****************************************************************************************************
 * 프로그램 설명
 ****************************************************************************************************
-
+표준창고 적용 및 품목의 위치를 설정하는 화면
 ****************************************************************************************************
 --->
 
 <template>
   <kw-page>
     <kw-search
+      :modified-targets="['grdMain']"
       @search="onClickSearch"
       @reset="onClickReset"
     >
@@ -137,6 +138,7 @@
           dense
           class="w150"
           :options="codes.WARE_TP_CD"
+          first-option="select"
         />
         <!-- 위치앵글 -->
         <kw-select
@@ -144,6 +146,7 @@
           dense
           class="w150"
           :options="codes.LCT_ANGLE_CD"
+          first-option="select"
         />
         <!--위치 층수 -->
         <kw-select
@@ -151,6 +154,7 @@
           dense
           class="w150"
           :options="codes.LCT_COF_CD"
+          first-option="select"
         />
         <!-- 위치 층 번호 -->
         <kw-select
@@ -158,6 +162,7 @@
           dense
           class="w150"
           :options="codes.LCT_FLOR_NO_CD"
+          first-option="select"
         />
         <!-- 위치 자재 그룹 -->
         <kw-select
@@ -165,6 +170,7 @@
           dense
           class="w150"
           :options="codes.LCT_MAT_GRP_CD"
+          first-option="select"
         />
         <!-- 품목위치 일괄변경 -->
         <kw-btn
@@ -178,6 +184,7 @@
 
       <kw-grid
         ref="grdMainRef"
+        name="grdMain"
         :page-size="pageInfo.pageSize"
         :total-count="pageInfo.totalCount"
         @init="initGrdMain"
@@ -356,6 +363,38 @@ function getInfoByCodeAndName(codeGb, value) {
   return '';
 }
 
+// 위치 가져오기
+function getLocation(wareTpCd, angle, cof, flor, grp, gubun) {
+  if (gubun !== 'CODE' && gubun !== 'NAME') return '';
+
+  wareTpCd = !wareTpCd ? '' : wareTpCd;
+  angle = !angle ? '' : angle;
+  cof = !cof ? '' : cof;
+  flor = !flor ? '' : flor;
+  grp = !grp ? '' : grp;
+  const term1 = !isEmpty(wareTpCd) && !isEmpty(angle) ? '-' : '';
+  const term2 = !isEmpty(angle) && !isEmpty(cof) ? '-' : '';
+  const term3 = !isEmpty(cof) && !isEmpty(flor) ? '-' : '';
+  const term4 = !isEmpty(flor) && !isEmpty(grp) ? '-' : '';
+
+  // 위치코드
+  if (gubun === 'CODE') {
+    return `${wareTpCd}${angle}${cof}${flor}${grp}`;
+  }
+
+  let wareTpNm = '';
+  let grpNm = '';
+
+  if (!isEmpty(wareTpCd)) {
+    wareTpNm = codes.WARE_TP_CD.find((e) => e.codeId === wareTpCd).codeName;
+  }
+
+  if (!isEmpty(grp)) {
+    grpNm = codes.LCT_MAT_GRP_CD.find((e) => e.codeId === grp).codeName;
+  }
+  return `${wareTpNm}${term1}${angle}${term2}${cof}${term3}${flor}${term4}${grpNm}`;
+}
+
 // 품목위치 일괄변경 클릭 이벤트
 async function onClickGridBulkChange() {
   if (!validateIsApplyRowExists()) return;
@@ -382,24 +421,41 @@ async function onClickGridBulkChange() {
   const florNoNm = !isEmpty(florNoInfo) ? florNoInfo.codeName : '';
 
   for (let i = 0; i < checkedRows.length; i += 1) {
+    const row = checkedRows[i].dataRow;
     if (!isEmpty(wareTpCd)) {
-      data.setValue(checkedRows[i].dataRow, 'wareTpCd', wareTpCd);
+      data.setValue(row, 'wareTpCd', wareTpCd);
     }
     if (!isEmpty(lctAngleCd)) {
-      data.setValue(checkedRows[i].dataRow, 'itmLctAngleVal', lctAngleCd);
-      data.setValue(checkedRows[i].dataRow, 'angleValNm', angleNm);
+      data.setValue(row, 'itmLctAngleVal', lctAngleCd);
+      data.setValue(row, 'angleValNm', angleNm);
     }
     if (!isEmpty(lctCofCd)) {
-      data.setValue(checkedRows[i].dataRow, 'itmLctCofVal', lctCofCd);
-      data.setValue(checkedRows[i].dataRow, 'cofValNm', cofNm);
+      data.setValue(row, 'itmLctCofVal', lctCofCd);
+      data.setValue(row, 'cofValNm', cofNm);
     }
     if (!isEmpty(lctFlorNoCd)) {
-      data.setValue(checkedRows[i].dataRow, 'itmLctFlorNoVal', lctFlorNoCd);
-      data.setValue(checkedRows[i].dataRow, 'florNoValNm', florNoNm);
+      data.setValue(row, 'itmLctFlorNoVal', lctFlorNoCd);
+      data.setValue(row, 'florNoValNm', florNoNm);
     }
     if (!isEmpty(lctMatGrpCd)) {
-      data.setValue(checkedRows[i].dataRow, 'itmLctMatGrpCd', lctMatGrpCd);
+      data.setValue(row, 'itmLctMatGrpCd', lctMatGrpCd);
     }
+    const newWareTpCd = data.getValue(row, 'wareTpCd');
+    const newAngleVal = data.getValue(row, 'itmLctAngleVal');
+    const newAngleNm = data.getValue(row, 'angleValNm');
+    const newCofVal = data.getValue(row, 'itmLctCofVal');
+    const newCofNm = data.getValue(row, 'cofValNm');
+    const newFlorNoVal = data.getValue(row, 'itmLctFlorNoVal');
+    const newFlorNm = data.getValue(row, 'florNoValNm');
+    const newGrpCd = data.getValue(row, 'itmLctMatGrpCd');
+
+    // 위치코드
+    const locationCode = getLocation(newWareTpCd, newAngleVal, newCofVal, newFlorNoVal, newGrpCd, 'CODE');
+    data.setValue(row, 'locationCd', locationCode);
+
+    // 위치명
+    const locationName = getLocation(newWareTpCd, newAngleNm, newCofNm, newFlorNm, newGrpCd, 'NAME');
+    data.setValue(row, 'itmLctNm', locationName);
   }
   notify(t('MSG_ALT_ATC_BLK_CH_FSH'));
 }
@@ -530,8 +586,12 @@ const initGrdMain = defineGrid((data, view) => {
   view.editOptions.columnEditableFirst = true;
 
   view.onCellEdited = async (grid, itemIndex, row, field) => {
-    const { angleValNm, cofValNm, florNoValNm } = grid.getValues(itemIndex);
+    const { wareTpCd, itmLctAngleVal, angleValNm, itmLctCofVal,
+      cofValNm, itmLctFlorNoVal, florNoValNm, itmLctMatGrpCd } = grid.getValues(itemIndex);
     const changedFieldName = grid.getDataSource().getOrgFieldName(field);
+    let newCode = '';
+    let newName = '';
+
     // 앵글
     if (changedFieldName === 'angleValNm') {
       const codeInfo = getInfoByCodeAndName('GB1', angleValNm);
@@ -539,9 +599,19 @@ const initGrdMain = defineGrid((data, view) => {
         grid.setValue(itemIndex, 'itmLctAngleVal', '');
         grid.setValue(itemIndex, 'angleValNm', '');
       } else {
-        grid.setValue(itemIndex, 'itmLctAngleVal', codeInfo.codeId);
-        grid.setValue(itemIndex, 'angleValNm', codeInfo.codeName);
+        newCode = codeInfo.codeId;
+        newName = codeInfo.codeName;
+        grid.setValue(itemIndex, 'itmLctAngleVal', newCode);
+        grid.setValue(itemIndex, 'angleValNm', newName);
       }
+
+      // 위치코드
+      const locationCode = getLocation(wareTpCd, newCode, itmLctCofVal, itmLctFlorNoVal, itmLctMatGrpCd, 'CODE');
+      grid.setValue(itemIndex, 'locationCd', locationCode);
+
+      // 위치명
+      const locationName = getLocation(wareTpCd, newName, cofValNm, florNoValNm, itmLctMatGrpCd, 'NAME');
+      grid.setValue(itemIndex, 'itmLctNm', locationName);
 
     // 층수
     } else if (changedFieldName === 'cofValNm') {
@@ -550,9 +620,19 @@ const initGrdMain = defineGrid((data, view) => {
         grid.setValue(itemIndex, 'itmLctCofVal', '');
         grid.setValue(itemIndex, 'cofValNm', '');
       } else {
-        grid.setValue(itemIndex, 'itmLctCofVal', codeInfo.codeId);
-        grid.setValue(itemIndex, 'cofValNm', codeInfo.codeName);
+        newCode = codeInfo.codeId;
+        newName = codeInfo.codeName;
+        grid.setValue(itemIndex, 'itmLctCofVal', newCode);
+        grid.setValue(itemIndex, 'cofValNm', newName);
       }
+
+      // 위치코드
+      const locationCode = getLocation(wareTpCd, itmLctAngleVal, newCode, itmLctFlorNoVal, itmLctMatGrpCd, 'CODE');
+      grid.setValue(itemIndex, 'locationCd', locationCode);
+
+      // 위치명
+      const locationName = getLocation(wareTpCd, angleValNm, newName, florNoValNm, itmLctMatGrpCd, 'NAME');
+      grid.setValue(itemIndex, 'itmLctNm', locationName);
 
     // 층번호
     } else if (changedFieldName === 'florNoValNm') {
@@ -561,9 +641,27 @@ const initGrdMain = defineGrid((data, view) => {
         grid.setValue(itemIndex, 'itmLctFlorNoVal', '');
         grid.setValue(itemIndex, 'florNoValNm', '');
       } else {
-        grid.setValue(itemIndex, 'itmLctFlorNoVal', codeInfo.codeId);
-        grid.setValue(itemIndex, 'florNoValNm', codeInfo.codeName);
+        newCode = codeInfo.codeId;
+        newName = codeInfo.codeName;
+        grid.setValue(itemIndex, 'itmLctFlorNoVal', newCode);
+        grid.setValue(itemIndex, 'florNoValNm', newName);
       }
+
+      // 위치코드
+      const locationCode = getLocation(wareTpCd, itmLctAngleVal, itmLctCofVal, newCode, itmLctMatGrpCd, 'CODE');
+      grid.setValue(itemIndex, 'locationCd', locationCode);
+
+      // 위치명
+      const locationName = getLocation(wareTpCd, angleValNm, cofValNm, newName, itmLctMatGrpCd, 'NAME');
+      grid.setValue(itemIndex, 'itmLctNm', locationName);
+    } else if (changedFieldName === 'wareTpCd' || changedFieldName === 'itmLctMatGrpCd') {
+      // 위치코드
+      const locationCode = getLocation(wareTpCd, itmLctAngleVal, itmLctCofVal, itmLctFlorNoVal, itmLctMatGrpCd, 'CODE');
+      grid.setValue(itemIndex, 'locationCd', locationCode);
+
+      // 위치명
+      const locationName = getLocation(wareTpCd, angleValNm, cofValNm, florNoValNm, itmLctMatGrpCd, 'NAME');
+      grid.setValue(itemIndex, 'itmLctNm', locationName);
     }
   };
 });

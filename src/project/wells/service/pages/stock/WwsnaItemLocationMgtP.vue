@@ -280,6 +280,24 @@ function getInfoByCodeAndName(codeGb, value) {
   return '';
 }
 
+// 위치명 가져오기
+function getLocationName(angle, cof, flor, grp) {
+  angle = !angle ? '' : angle;
+  cof = !cof ? '' : cof;
+  flor = !flor ? '' : flor;
+  grp = !grp ? '' : grp;
+
+  const term1 = !isEmpty(angle) && !isEmpty(cof) ? '-' : '';
+  const term2 = !isEmpty(cof) && !isEmpty(flor) ? '-' : '';
+  const term3 = !isEmpty(flor) && !isEmpty(grp) ? '-' : '';
+
+  if (!isEmpty(grp)) {
+    const grpNm = codes.LCT_MAT_GRP_CD.find((e) => e.codeId === grp).codeName;
+    return `${angle}${term1}${cof}${term2}${flor}${term3}${grpNm}`;
+  }
+  return `${angle}${term1}${cof}${term2}${flor}`;
+}
+
 onMounted(async () => {
   cachedParams = cloneDeep(searchParams.value);
   await stckStdGbFetchData();
@@ -343,8 +361,10 @@ const initGrdMain = defineGrid((data, view) => {
   view.onCellEditable = (grid, clickData) => editFields.includes(clickData.column);
 
   view.onCellEdited = async (grid, itemIndex, row, field) => {
-    const { angleValNm, cofValNm, florNoValNm } = grid.getValues(itemIndex);
+    const { angleValNm, cofValNm, florNoValNm, itmLctMatGrpCd } = grid.getValues(itemIndex);
     const changedFieldName = grid.getDataSource().getOrgFieldName(field);
+    let newName = '';
+
     // 앵글
     if (changedFieldName === 'angleValNm') {
       const codeInfo = getInfoByCodeAndName('GB1', angleValNm);
@@ -352,9 +372,14 @@ const initGrdMain = defineGrid((data, view) => {
         grid.setValue(itemIndex, 'itmLctAngleVal', '');
         grid.setValue(itemIndex, 'angleValNm', '');
       } else {
+        newName = codeInfo.codeName;
         grid.setValue(itemIndex, 'itmLctAngleVal', codeInfo.codeId);
-        grid.setValue(itemIndex, 'angleValNm', codeInfo.codeName);
+        grid.setValue(itemIndex, 'angleValNm', newName);
       }
+
+      // 위치명
+      const locationNm = getLocationName(newName, cofValNm, florNoValNm, itmLctMatGrpCd);
+      grid.setValue(itemIndex, 'itmLctNm', locationNm);
 
     // 층수
     } else if (changedFieldName === 'cofValNm') {
@@ -363,9 +388,14 @@ const initGrdMain = defineGrid((data, view) => {
         grid.setValue(itemIndex, 'itmLctCofVal', '');
         grid.setValue(itemIndex, 'cofValNm', '');
       } else {
+        newName = codeInfo.codeName;
         grid.setValue(itemIndex, 'itmLctCofVal', codeInfo.codeId);
-        grid.setValue(itemIndex, 'cofValNm', codeInfo.codeName);
+        grid.setValue(itemIndex, 'cofValNm', newName);
       }
+
+      // 위치명
+      const locationNm = getLocationName(angleValNm, newName, florNoValNm, itmLctMatGrpCd);
+      grid.setValue(itemIndex, 'itmLctNm', locationNm);
 
     // 층번호
     } else if (changedFieldName === 'florNoValNm') {
@@ -374,9 +404,20 @@ const initGrdMain = defineGrid((data, view) => {
         grid.setValue(itemIndex, 'itmLctFlorNoVal', '');
         grid.setValue(itemIndex, 'florNoValNm', '');
       } else {
+        newName = codeInfo.codeName;
         grid.setValue(itemIndex, 'itmLctFlorNoVal', codeInfo.codeId);
-        grid.setValue(itemIndex, 'florNoValNm', codeInfo.codeName);
+        grid.setValue(itemIndex, 'florNoValNm', newName);
       }
+
+      // 위치명
+      const locationNm = getLocationName(angleValNm, cofValNm, newName, itmLctMatGrpCd);
+      grid.setValue(itemIndex, 'itmLctNm', locationNm);
+
+    // 그룹
+    } else if (changedFieldName === 'itmLctMatGrpCd') {
+      // 위치명
+      const locationNm = getLocationName(angleValNm, cofValNm, florNoValNm, itmLctMatGrpCd);
+      grid.setValue(itemIndex, 'itmLctNm', locationNm);
     }
   };
 });
