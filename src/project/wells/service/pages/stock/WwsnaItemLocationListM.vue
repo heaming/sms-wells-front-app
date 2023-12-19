@@ -340,6 +340,8 @@ function validateIsApplyRowExists() {
 
 // 코드 또는 코드명으로 코드정보 찾기
 function getInfoByCodeAndName(codeGb, value) {
+  if (isEmpty(value)) return '';
+
   // 앵글
   if (codeGb === 'GB1') {
     // 코드명으로 찾기
@@ -372,9 +374,13 @@ function getLocation(wareTpCd, angle, cof, flor, grp, gubun) {
   cof = !cof ? '' : cof;
   flor = !flor ? '' : flor;
   grp = !grp ? '' : grp;
-  const term1 = !isEmpty(wareTpCd) && !isEmpty(angle) ? '-' : '';
-  const term2 = !isEmpty(angle) && !isEmpty(cof) ? '-' : '';
-  const term3 = !isEmpty(cof) && !isEmpty(flor) ? '-' : '';
+
+  const term1 = !isEmpty(wareTpCd) && (!isEmpty(angle)
+                                    || (isEmpty(angle) && !isEmpty(cof))
+                                    || (isEmpty(angle) && isEmpty(cof) && !isEmpty(flor))
+                                    || (isEmpty(angle) && isEmpty(cof) && isEmpty(flor) && !isEmpty(grp))) ? '-' : '';
+  const term2 = !isEmpty(angle) && (!isEmpty(cof) || (isEmpty(cof) && !isEmpty(flor)) || (isEmpty(cof) && isEmpty(flor) && !isEmpty(grp))) ? '-' : '';
+  const term3 = !isEmpty(cof) && (!isEmpty(flor) || (isEmpty(flor) && !isEmpty(grp))) ? '-' : '';
   const term4 = !isEmpty(flor) && !isEmpty(grp) ? '-' : '';
 
   // 위치코드
