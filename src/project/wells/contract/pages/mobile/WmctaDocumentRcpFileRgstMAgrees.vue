@@ -17,6 +17,7 @@
           <kw-checkbox
             :model-value="agreeAll"
             boolean-value
+            :disable="isAlreadyAgreed"
             @update:model-value="onChangeAgreeAll"
           />
         </kw-item-section>
@@ -41,6 +42,7 @@
             :true-value="AG_STAT_CD_AG"
             :false-value="AG_STAT_CD_REJ"
             :indeterminate-value="AG_STAT_CD_UNDEF"
+            :disable="isAlreadyAgreed"
             checked-icon="dialog_checked_on"
             unchecked-icon="dialog_checked_off"
             indeterminate-icon="dialog_checked_off"
@@ -99,6 +101,7 @@ const AG_ATC_DV_CD = 'AG_ATC_DV_CD';
 
 const props = defineProps({
   agrees: { type: Array, default: undefined },
+  isAlreadyAgreed: { type: Boolean, default: false },
 });
 
 const emit = defineEmits(['confirm']);
