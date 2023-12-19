@@ -39,10 +39,10 @@
         </p>
       </kw-form-item>
       <kw-form-item
-        :label="$t('MSG_TXT_RTLFE_DUTY_PTRM')"
+        :label="$t('MSG_TXT_STPL_PTRM')"
       >
         <p>
-          {{ sales.dutyUseMcn }}
+          {{ sales.stplPtrm }}
         </p>
       </kw-form-item>
       <kw-form-item
@@ -95,7 +95,7 @@
         :label="$t('MSG_TXT_RTLFE1_MCNT')"
       >
         <p>
-          {{ sales.rentalAmt }}
+          {{ sales.rentalPtrm }}
         </p>
       </kw-form-item>
       <kw-form-item
@@ -103,6 +103,13 @@
       >
         <p>
           {{ sales.sellDscTpNm }}
+        </p>
+      </kw-form-item>
+      <kw-form-item
+        :label="$t('MSG_TXT_CNTR_PD_ENDDT')"
+      >
+        <p>
+          {{ sales.cntrPdEnddt }}
         </p>
       </kw-form-item>
     </kw-form-row>
@@ -400,10 +407,12 @@ async function fetchData() {
   sales.value.rgstDsc = stringUtil.getNumberWithComma(sales.value.rgstDsc);
   sales.value.rentalDscAmt = stringUtil.getNumberWithComma(sales.value.rentalDscAmt);
   sales.value.canDt = !isEmpty(sales.value.canDt) ? dayjs(sales.value.canDt).format('YYYY-MM-DD') : '';
+  sales.value.cntrPdEnddt = !isEmpty(sales.value.cntrPdEnddt) ? dayjs(sales.value.cntrPdEnddt).format('YYYY-MM-DD') : '';
   sales.value.cntrTam = stringUtil.getNumberWithComma(sales.value.cntrTam);
   sales.value.rentalAmt = stringUtil.getNumberWithComma(sales.value.rentalAmt);
   sales.value.rentalAmt2 = stringUtil.getNumberWithComma(sales.value.rentalAmt2);
   sales.value.rentalDscAmt2 = stringUtil.getNumberWithComma(sales.value.rentalDscAmt2);
+  sales.value.rentalPtrm = stringUtil.getNumberWithComma(sales.value.rentalPtrm);
   sales.value.rentalPtrm2 = stringUtil.getNumberWithComma(sales.value.rentalPtrm2);
   sales.value.slRcogDt = !isEmpty(sales.value.slRcogDt) ? dayjs(sales.value.slRcogDt).format('YYYY-MM-DD') : '';
 
