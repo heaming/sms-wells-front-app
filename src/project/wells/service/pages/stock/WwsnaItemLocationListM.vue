@@ -331,6 +331,31 @@ function validateIsApplyRowExists() {
   return true;
 }
 
+// 코드 또는 코드명으로 코드정보 찾기
+function getInfoByCodeAndName(codeGb, value) {
+  // 앵글
+  if (codeGb === 'GB1') {
+    // 코드명으로 찾기
+    let codeInfo = codes.LCT_ANGLE_CD.find((e) => e.codeName === value?.toUpperCase());
+    // 코드값으로 찾기
+    if (isEmpty(codeInfo)) {
+      codeInfo = codes.LCT_ANGLE_CD.find((e) => Number(e.codeId) === Number(value));
+    }
+    return codeInfo;
+  // 층수
+  } if (codeGb === 'GB2') {
+    if (value === '0' || value === '00') {
+      return codes.LCT_COF_CD.find((e) => e.codeId === '00');
+    }
+
+    return codes.LCT_COF_CD.find((e) => Number(e.codeId) === Number(value));
+  // 층번호
+  } if (codeGb === 'GB3') {
+    return codes.LCT_FLOR_NO_CD.find((e) => Number(e.codeId) === Number(value));
+  }
+  return '';
+}
+
 // 품목위치 일괄변경 클릭 이벤트
 async function onClickGridBulkChange() {
   if (!validateIsApplyRowExists()) return;
@@ -345,18 +370,32 @@ async function onClickGridBulkChange() {
   }
 
   const { wareTpCd, lctAngleCd, lctCofCd, lctFlorNoCd, lctMatGrpCd } = baseInfo.value;
+
+  // 앵글 정보
+  const angleInfo = getInfoByCodeAndName('GB1', lctAngleCd);
+  const angleNm = !isEmpty(angleInfo) ? angleInfo.codeName : '';
+  // 층수 정보
+  const cofInfo = getInfoByCodeAndName('GB2', lctCofCd);
+  const cofNm = !isEmpty(cofInfo) ? cofInfo.codeName : '';
+  // 층번호 정보
+  const florNoInfo = getInfoByCodeAndName('GB3', lctFlorNoCd);
+  const florNoNm = !isEmpty(florNoInfo) ? florNoInfo.codeName : '';
+
   for (let i = 0; i < checkedRows.length; i += 1) {
     if (!isEmpty(wareTpCd)) {
       data.setValue(checkedRows[i].dataRow, 'wareTpCd', wareTpCd);
     }
     if (!isEmpty(lctAngleCd)) {
       data.setValue(checkedRows[i].dataRow, 'itmLctAngleVal', lctAngleCd);
+      data.setValue(checkedRows[i].dataRow, 'angleVal', angleNm);
     }
     if (!isEmpty(lctCofCd)) {
       data.setValue(checkedRows[i].dataRow, 'itmLctCofVal', lctCofCd);
+      data.setValue(checkedRows[i].dataRow, 'cofValNm', cofNm);
     }
     if (!isEmpty(lctFlorNoCd)) {
       data.setValue(checkedRows[i].dataRow, 'itmLctFlorNoVal', lctFlorNoCd);
+      data.setValue(checkedRows[i].dataRow, 'florNoValNm', florNoNm);
     }
     if (!isEmpty(lctMatGrpCd)) {
       data.setValue(checkedRows[i].dataRow, 'itmLctMatGrpCd', lctMatGrpCd);
@@ -430,8 +469,11 @@ const initGrdMain = defineGrid((data, view) => {
     { fieldName: 'pitmStocAGdQty', dataType: 'number' }, // 재고
     { fieldName: 'wareTpCd' }, // 창고유형코드
     { fieldName: 'itmLctAngleVal' }, // 앵글
+    { fieldName: 'angleValNm' }, // 앵글명
     { fieldName: 'itmLctCofVal' }, // 층수
+    { fieldName: 'cofValNm' }, // 층수명
     { fieldName: 'itmLctFlorNoVal' }, // 층번호
+    { fieldName: 'florNoValNm' }, // 층번호명
     { fieldName: 'itmLctMatGrpCd' }, // 그룹
     { fieldName: 'locationCd' }, // 위치코드
     { fieldName: 'itmLctNm' }, // 품목위치명
@@ -453,26 +495,20 @@ const initGrdMain = defineGrid((data, view) => {
       editor: { type: 'list' },
       editable: true,
     },
-    { fieldName: 'itmLctAngleVal',
+    { fieldName: 'angleValNm',
       header: t('MSG_TXT_ANGLE'),
       width: '80',
       styleName: 'text-center',
-      options: codes.LCT_ANGLE_CD,
-      editor: { type: 'list' },
       editable: true },
-    { fieldName: 'itmLctCofVal',
+    { fieldName: 'cofValNm',
       header: t('MSG_TXT_FLOR_CNT'),
       width: '80',
       styleName: 'text-center',
-      options: codes.LCT_COF_CD,
-      editor: { type: 'list' },
       editable: true },
-    { fieldName: 'itmLctFlorNoVal',
+    { fieldName: 'florNoValNm',
       header: t('MSG_TXT_FLOR_NO'),
       width: '96',
       styleName: 'text-center',
-      options: codes.LCT_FLOR_NO_CD,
-      editor: { type: 'list' },
       editable: true },
     { fieldName: 'itmLctMatGrpCd',
       header: t('MSG_TXT_SAP_GRP'),
@@ -492,6 +528,44 @@ const initGrdMain = defineGrid((data, view) => {
   view.checkBar.visible = true;
   view.rowIndicator.visible = true;
   view.editOptions.columnEditableFirst = true;
+
+  view.onCellEdited = async (grid, itemIndex, row, field) => {
+    const { angleValNm, cofValNm, florNoValNm } = grid.getValues(itemIndex);
+    const changedFieldName = grid.getDataSource().getOrgFieldName(field);
+    // 앵글
+    if (changedFieldName === 'angleValNm') {
+      const codeInfo = getInfoByCodeAndName('GB1', angleValNm);
+      if (isEmpty(codeInfo)) {
+        grid.setValue(itemIndex, 'itmLctAngleVal', '');
+        grid.setValue(itemIndex, 'angleValNm', '');
+      } else {
+        grid.setValue(itemIndex, 'itmLctAngleVal', codeInfo.codeId);
+        grid.setValue(itemIndex, 'angleValNm', codeInfo.codeName);
+      }
+
+    // 층수
+    } else if (changedFieldName === 'cofValNm') {
+      const codeInfo = getInfoByCodeAndName('GB2', cofValNm);
+      if (isEmpty(codeInfo)) {
+        grid.setValue(itemIndex, 'itmLctCofVal', '');
+        grid.setValue(itemIndex, 'cofValNm', '');
+      } else {
+        grid.setValue(itemIndex, 'itmLctCofVal', codeInfo.codeId);
+        grid.setValue(itemIndex, 'cofValNm', codeInfo.codeName);
+      }
+
+    // 층번호
+    } else if (changedFieldName === 'florNoValNm') {
+      const codeInfo = getInfoByCodeAndName('GB3', florNoValNm);
+      if (isEmpty(codeInfo)) {
+        grid.setValue(itemIndex, 'itmLctFlorNoVal', '');
+        grid.setValue(itemIndex, 'florNoValNm', '');
+      } else {
+        grid.setValue(itemIndex, 'itmLctFlorNoVal', codeInfo.codeId);
+        grid.setValue(itemIndex, 'florNoValNm', codeInfo.codeName);
+      }
+    }
+  };
 });
 
 </script>

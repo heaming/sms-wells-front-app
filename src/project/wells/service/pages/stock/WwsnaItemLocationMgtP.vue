@@ -256,7 +256,7 @@ async function onClickExcelDownload() {
 }
 
 // 코드 또는 코드명으로 코드정보 찾기
-function getValueByCodeAndName(codeGb, value) {
+function getInfoByCodeAndName(codeGb, value) {
   // 앵글
   if (codeGb === 'GB1') {
     // 코드명으로 찾기
@@ -347,7 +347,7 @@ const initGrdMain = defineGrid((data, view) => {
     const changedFieldName = grid.getDataSource().getOrgFieldName(field);
     // 앵글
     if (changedFieldName === 'angleValNm') {
-      const codeInfo = getValueByCodeAndName('GB1', angleValNm);
+      const codeInfo = getInfoByCodeAndName('GB1', angleValNm);
       if (isEmpty(codeInfo)) {
         grid.setValue(itemIndex, 'itmLctAngleVal', '');
         grid.setValue(itemIndex, 'angleValNm', '');
@@ -358,7 +358,7 @@ const initGrdMain = defineGrid((data, view) => {
 
     // 층수
     } else if (changedFieldName === 'cofValNm') {
-      const codeInfo = getValueByCodeAndName('GB2', cofValNm);
+      const codeInfo = getInfoByCodeAndName('GB2', cofValNm);
       if (isEmpty(codeInfo)) {
         grid.setValue(itemIndex, 'itmLctCofVal', '');
         grid.setValue(itemIndex, 'cofValNm', '');
@@ -369,7 +369,7 @@ const initGrdMain = defineGrid((data, view) => {
 
     // 층번호
     } else if (changedFieldName === 'florNoValNm') {
-      const codeInfo = getValueByCodeAndName('GB3', florNoValNm);
+      const codeInfo = getInfoByCodeAndName('GB3', florNoValNm);
       if (isEmpty(codeInfo)) {
         grid.setValue(itemIndex, 'itmLctFlorNoVal', '');
         grid.setValue(itemIndex, 'florNoValNm', '');
