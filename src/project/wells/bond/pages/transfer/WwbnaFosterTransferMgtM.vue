@@ -319,6 +319,7 @@ async function fetchSummaryData() {
   view.columnByName('thmChramAmt').headerSummary.text = res.data.thmChramAmt;
   view.columnByName('dlqAddAmt').headerSummary.text = res.data.dlqAddAmt;
   view.columnByName('rsgBorAmt').headerSummary.text = res.data.rsgBorAmt;
+  view.columnByName('lsRntf').headerSummary.text = res.data.lsRntf;
 }
 
 async function fetchDetailData() {
@@ -479,6 +480,8 @@ const initGridResult = defineGrid((data, view) => {
     { fieldName: 'woDlqAddAmt', header: t('MSG_TXT_DLQ_ADD_AMT'), width: '110', dataType: 'number', numberFormat: '#,##0', headerSummary: { expression: 'sum', numberFormat: '#,##0' }, styleName: 'text-right' },
     // 전체 - 위약금액
     { fieldName: 'woRsgBorAmt', header: t('MSG_TXT_BOR_AMT'), width: '110', dataType: 'number', numberFormat: '#,##0', headerSummary: { expression: 'sum', numberFormat: '#,##0' }, styleName: 'text-right' },
+    // 전체 - 분실손료
+    { fieldName: 'woLsRntf', header: t('MSG_TXT_PD_LENT_LOST_LOG'), width: '110', dataType: 'number', numberFormat: '#,##0', headerSummary: { expression: 'sum', numberFormat: '#,##0' }, styleName: 'text-right' },
 
     // 렌탈 - 고객수
     { fieldName: 'rentalCstCt', header: t('MSG_TXT_CST_N'), width: '65', dataType: 'number', numberFormat: '#,##0', headerSummary: { expression: 'sum', numberFormat: '#,##0', styleName: 'text-right' }, styleName: 'text-right' },
@@ -496,6 +499,8 @@ const initGridResult = defineGrid((data, view) => {
     { fieldName: 'rentalDlqAddAmt', header: t('MSG_TXT_DLQ_ADD_AMT'), width: '110', dataType: 'number', numberFormat: '#,##0', headerSummary: { expression: 'sum', numberFormat: '#,##0' }, styleName: 'text-right' },
     // 렌탈 - 위약금액
     { fieldName: 'rentalRsgBorAmt', header: t('MSG_TXT_BOR_AMT'), width: '110', dataType: 'number', numberFormat: '#,##0', headerSummary: { expression: 'sum', numberFormat: '#,##0' }, styleName: 'text-right' },
+    // 렌탈 - 분실손료
+    { fieldName: 'rentalLsRntf', header: t('MSG_TXT_BOR_AMT'), width: '110', dataType: 'number', numberFormat: '#,##0', headerSummary: { expression: 'sum', numberFormat: '#,##0' }, styleName: 'text-right' },
 
     // 금융리스 - 고객수
     { fieldName: 'leaseCstCt', header: t('MSG_TXT_CST_N'), width: '65', dataType: 'number', numberFormat: '#,##0', headerSummary: { expression: 'sum', numberFormat: '#,##0', styleName: 'text-right' }, styleName: 'text-right' },
@@ -513,6 +518,8 @@ const initGridResult = defineGrid((data, view) => {
     { fieldName: 'leaseDlqAddAmt', header: t('MSG_TXT_DLQ_ADD_AMT'), width: '110', dataType: 'number', numberFormat: '#,##0', headerSummary: { expression: 'sum', numberFormat: '#,##0' }, styleName: 'text-right' },
     // 금융리스 - 위약금액
     { fieldName: 'leaseRsgBorAmt', header: t('MSG_TXT_BOR_AMT'), width: '110', dataType: 'number', numberFormat: '#,##0', headerSummary: { expression: 'sum', numberFormat: '#,##0' }, styleName: 'text-right' },
+    // 금융리스 - 분실손료
+    { fieldName: 'leaseLsRntf', header: t('MSG_TXT_BOR_AMT'), width: '110', dataType: 'number', numberFormat: '#,##0', headerSummary: { expression: 'sum', numberFormat: '#,##0' }, styleName: 'text-right' },
 
     // 일반멤버십 - 고객수
     { fieldName: 'mshCstCt', header: t('MSG_TXT_CST_N'), width: '65', dataType: 'number', numberFormat: '#,##0', headerSummary: { expression: 'sum', numberFormat: '#,##0', styleName: 'text-right' }, styleName: 'text-right' },
@@ -530,6 +537,8 @@ const initGridResult = defineGrid((data, view) => {
     { fieldName: 'mshDlqAddAmt', header: t('MSG_TXT_DLQ_ADD_AMT'), width: '110', dataType: 'number', numberFormat: '#,##0', headerSummary: { expression: 'sum', numberFormat: '#,##0' }, styleName: 'text-right' },
     // 일반멤버십 - 위약금액
     { fieldName: 'mshRsgBorAmt', header: t('MSG_TXT_BOR_AMT'), width: '110', dataType: 'number', numberFormat: '#,##0', headerSummary: { expression: 'sum', numberFormat: '#,##0' }, styleName: 'text-right' },
+    // 일반멤버십 - 분실손료
+    { fieldName: 'mshLsRntf', header: t('MSG_TXT_BOR_AMT'), width: '110', dataType: 'number', numberFormat: '#,##0', headerSummary: { expression: 'sum', numberFormat: '#,##0' }, styleName: 'text-right' },
 
     // 홈케어멤버십 - 고객수
     { fieldName: 'rglrSppCstCt', header: t('MSG_TXT_CST_N'), width: '65', dataType: 'number', numberFormat: '#,##0', headerSummary: { expression: 'sum', numberFormat: '#,##0', styleName: 'text-right' }, styleName: 'text-right' },
@@ -547,6 +556,8 @@ const initGridResult = defineGrid((data, view) => {
     { fieldName: 'rglrSppDlqAddAmt', header: t('MSG_TXT_DLQ_ADD_AMT'), width: '110', dataType: 'number', numberFormat: '#,##0', headerSummary: { expression: 'sum', numberFormat: '#,##0' }, styleName: 'text-right' },
     // 홈케어멤버십 - 위약금액
     { fieldName: 'rglrSppRsgBorAmt', header: t('MSG_TXT_BOR_AMT'), width: '110', dataType: 'number', numberFormat: '#,##0', headerSummary: { expression: 'sum', numberFormat: '#,##0' }, styleName: 'text-right' },
+    // 홈케어멤버십 - 분실손료
+    { fieldName: 'rglrSppLsRntf', header: t('MSG_TXT_BOR_AMT'), width: '110', dataType: 'number', numberFormat: '#,##0', headerSummary: { expression: 'sum', numberFormat: '#,##0' }, styleName: 'text-right' },
 
     // 일시불 - 고객수
     { fieldName: 'hcrCstCt', header: t('MSG_TXT_CST_N'), width: '65', dataType: 'number', numberFormat: '#,##0', headerSummary: { expression: 'sum', numberFormat: '#,##0', styleName: 'text-right' }, styleName: 'text-right' },
@@ -564,6 +575,8 @@ const initGridResult = defineGrid((data, view) => {
     { fieldName: 'hcrDlqAddAmt', header: t('MSG_TXT_DLQ_ADD_AMT'), width: '110', dataType: 'number', numberFormat: '#,##0', headerSummary: { expression: 'sum', numberFormat: '#,##0' }, styleName: 'text-right' },
     // 일시불 - 위약금액
     { fieldName: 'hcrRsgBorAmt', header: t('MSG_TXT_BOR_AMT'), width: '110', dataType: 'number', numberFormat: '#,##0', headerSummary: { expression: 'sum', numberFormat: '#,##0' }, styleName: 'text-right' },
+    // 일시불 - 분실손료
+    { fieldName: 'hcrLsRntf', header: t('MSG_TXT_BOR_AMT'), width: '110', dataType: 'number', numberFormat: '#,##0', headerSummary: { expression: 'sum', numberFormat: '#,##0' }, styleName: 'text-right' },
 
     // 정기배송 - 고객수
     { fieldName: 'spayCstCt', header: t('MSG_TXT_CST_N'), width: '65', dataType: 'number', numberFormat: '#,##0', headerSummary: { expression: 'sum', numberFormat: '#,##0', styleName: 'text-right' }, styleName: 'text-right' },
@@ -581,6 +594,8 @@ const initGridResult = defineGrid((data, view) => {
     { fieldName: 'spayDlqAddAmt', header: t('MSG_TXT_DLQ_ADD_AMT'), width: '110', dataType: 'number', numberFormat: '#,##0', headerSummary: { expression: 'sum', numberFormat: '#,##0' }, styleName: 'text-right' },
     // 정기배송 - 위약금액
     { fieldName: 'spayRsgBorAmt', header: t('MSG_TXT_BOR_AMT'), width: '110', dataType: 'number', numberFormat: '#,##0', headerSummary: { expression: 'sum', numberFormat: '#,##0' }, styleName: 'text-right' },
+    // 정기배송 - 분실손료
+    { fieldName: 'spayLsRntf', header: t('MSG_TXT_BOR_AMT'), width: '110', dataType: 'number', numberFormat: '#,##0', headerSummary: { expression: 'sum', numberFormat: '#,##0' }, styleName: 'text-right' },
 
   ];
   const fields = columns.map(({ fieldName, dataType }) => (dataType ? { fieldName, dataType } : { fieldName }));
@@ -602,37 +617,37 @@ const initGridResult = defineGrid((data, view) => {
     {
       header: t('MSG_TXT_ALL'), // colspan title
       direction: 'horizontal', // merge type
-      items: ['woCstCt', 'woCntrCt', 'woUcAmt', 'woObjAmt', 'woDlqAmt', 'woThmChramAmt', 'woDlqAddAmt', 'woRsgBorAmt'],
+      items: ['woCstCt', 'woCntrCt', 'woUcAmt', 'woObjAmt', 'woDlqAmt', 'woThmChramAmt', 'woDlqAddAmt', 'woRsgBorAmt', 'woLsRntf'],
     }, // 전체
     {
       header: t('MSG_TXT_RENTAL'),
       direction: 'horizontal',
-      items: ['rentalCstCt', 'rentalCntrCt', 'rentalUcAmt', 'rentalObjAmt', 'rentalDlqAmt', 'rentalThmChramAmt', 'rentalDlqAddAmt', 'rentalRsgBorAmt'],
+      items: ['rentalCstCt', 'rentalCntrCt', 'rentalUcAmt', 'rentalObjAmt', 'rentalDlqAmt', 'rentalThmChramAmt', 'rentalDlqAddAmt', 'rentalRsgBorAmt', 'rentalLsRntf'],
     },
     {
       header: t('MSG_TXT_FNN_LEASE'),
       direction: 'horizontal',
-      items: ['leaseCstCt', 'leaseCntrCt', 'leaseUcAmt', 'leaseObjAmt', 'leaseDlqAmt', 'leaseThmChramAmt', 'leaseDlqAddAmt', 'leaseRsgBorAmt'],
+      items: ['leaseCstCt', 'leaseCntrCt', 'leaseUcAmt', 'leaseObjAmt', 'leaseDlqAmt', 'leaseThmChramAmt', 'leaseDlqAddAmt', 'leaseRsgBorAmt', 'leaseLsRntf'],
     },
     {
       header: t('MSG_TXT_GE_MSH'),
       direction: 'horizontal',
-      items: ['mshCstCt', 'mshCntrCt', 'mshUcAmt', 'mshObjAmt', 'mshDlqAmt', 'mshThmChramAmt', 'mshDlqAddAmt', 'mshRsgBorAmt'],
+      items: ['mshCstCt', 'mshCntrCt', 'mshUcAmt', 'mshObjAmt', 'mshDlqAmt', 'mshThmChramAmt', 'mshDlqAddAmt', 'mshRsgBorAmt', 'mshLsRntf'],
     },
     {
       header: t('MSG_TXT_HCR_MSH'),
       direction: 'horizontal',
-      items: ['spayCstCt', 'spayCntrCt', 'spayUcAmt', 'spayObjAmt', 'spayDlqAmt', 'spayThmChramAmt', 'spayDlqAddAmt', 'spayRsgBorAmt'],
+      items: ['spayCstCt', 'spayCntrCt', 'spayUcAmt', 'spayObjAmt', 'spayDlqAmt', 'spayThmChramAmt', 'spayDlqAddAmt', 'spayRsgBorAmt', 'spayLsRntf'],
     },
     {
       header: t('MSG_TXT_SNGL_PMNT'),
       direction: 'horizontal',
-      items: ['rglrSppCstCt', 'rglrSppCntrCt', 'rglrSppUcAmt', 'rglrSppObjAmt', 'rglrSppDlqAmt', 'rglrSppThmChramAmt', 'rglrSppDlqAddAmt', 'rglrSppRsgBorAmt'],
+      items: ['rglrSppCstCt', 'rglrSppCntrCt', 'rglrSppUcAmt', 'rglrSppObjAmt', 'rglrSppDlqAmt', 'rglrSppThmChramAmt', 'rglrSppDlqAddAmt', 'rglrSppRsgBorAmt', 'rglrSppLsRntf'],
     },
     {
       header: t('MSG_TXT_REG_DLVR'),
       direction: 'horizontal',
-      items: ['hcrCstCt', 'hcrCntrCt', 'hcrUcAmt', 'hcrObjAmt', 'hcrDlqAmt', 'hcrThmChramAmt', 'hcrDlqAddAmt', 'hcrRsgBorAmt'],
+      items: ['hcrCstCt', 'hcrCntrCt', 'hcrUcAmt', 'hcrObjAmt', 'hcrDlqAmt', 'hcrThmChramAmt', 'hcrDlqAddAmt', 'hcrRsgBorAmt', 'hcrLsRntf'],
     },
   ]);
   view.checkBar.visible = false;
@@ -664,7 +679,6 @@ const initGridDetail = ((data, view) => {
       width: '98',
       styleName: 'text-center !important, rg-button-icon--search',
       button: 'action',
-      rules: 'required',
       editor: {
         type: 'line',
         maxLength: 20,
@@ -703,6 +717,8 @@ const initGridDetail = ((data, view) => {
     { fieldName: 'dlqAddAmt', header: t('MSG_TXT_DLQ_ADD_AMT'), width: '110', styleName: 'text-right', dataType: 'number', headerSummaries: { numberFormat: '#,##0' }, numberFormat: '#,##0' },
     // 위약금액
     { fieldName: 'rsgBorAmt', header: t('MSG_TXT_BOR_AMT'), width: '110', styleName: 'text-right', dataType: 'number', headerSummaries: { numberFormat: '#,##0' }, numberFormat: '#,##0' },
+    // 분실손료
+    { fieldName: 'lsRntf', header: t('MSG_TXT_PD_LENT_LOST_LOG'), width: '110', styleName: 'text-right', dataType: 'number', headerSummaries: { numberFormat: '#,##0' }, numberFormat: '#,##0' },
     // 속성
     { fieldName: 'bndClctnPrpDvNm', header: t('MSG_TXT_PRP'), width: '90', styleName: 'text-center' },
     // 사유
@@ -756,6 +772,7 @@ const initGridDetail = ((data, view) => {
         component: 'ZwbnyCollectorListP',
         componentProps: {
           clctamPrtnrNm,
+          clctamDvCd: cachedParams.clctamDvCd,
           is1RowClose: false,
         },
       });
@@ -774,8 +791,8 @@ const initGridDetail = ((data, view) => {
   // 저장 시 validate
   view.onValidate = async (g, index) => {
     if (index.column === 'clctamPrtnrNm') {
-      const { clctamPrtnrNo } = g.getValues(index.itemIndex);
-      if (!clctamPrtnrNo) {
+      const { clctamPrtnrNo, clctamPrtnrNm } = g.getValues(index.itemIndex);
+      if (!clctamPrtnrNo && clctamPrtnrNm) {
         return t('MSG_ALT_PLZ_USE_CLCTAM_PSIC_POPUP'); // 집금담당자 팝업을 이용해 주세요.
       }
     }
@@ -811,6 +828,7 @@ const initGridDetail = ((data, view) => {
         component: 'ZwbnyCollectorListP',
         componentProps: {
           clctamPrtnrNm: currentValue,
+          clctamDvCd: cachedParams.clctamDvCd,
           is1RowClose: false,
         },
       });
