@@ -697,6 +697,7 @@
             </div>
           </kw-expansion-item>
           <kw-expansion-item
+            v-model="rerendering"
             padding-target="header"
             expansion-icon-align="center"
             expand-icon-class="kw-font-pt24"
@@ -941,6 +942,7 @@ const obsRef = ref(getComponentType('KwForm'));
 const grdPrepayRef = ref(getComponentType('KwGrid'));
 const saveGbn = ref({ prod: 'prod', istEnv: 'istEnv' });
 const compKey = ref(0); // 렌탈가격설정 컴포넌트 생성키
+const rerendering = ref(false); // 접힌상태에서 그리드를 다시 그리기 위한 변수
 
 const codes = await codeUtil.getMultiCodes(
   'SELL_EV_CD', // 판매행사코드. 팝업스토어관련(2), 무진행사(4),...
@@ -1102,11 +1104,19 @@ async function fetchPrepayments() {
     },
   );
 
+  // 접힌 상태에서 간헐적으로 그리드 렌더링이 안되는 현상 방지를 위해 추가
+  // 나도 정말 이러고 싶지 않았어...
+  const currentRendering = rerendering.value;
+  rerendering.value = true;
+  await nextTick();
+
   Object.assign(prepayBas.value, res.data[0]);
   totalCount.value = res.data.length;
 
   view.getDataSource().setRows(res.data);
   view.resetCurrent();
+
+  rerendering.value = currentRendering;
 }
 
 const isFetched = ref(false); // 조회되었나
