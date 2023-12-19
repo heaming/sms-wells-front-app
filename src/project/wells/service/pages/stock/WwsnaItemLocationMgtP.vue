@@ -257,6 +257,8 @@ async function onClickExcelDownload() {
 
 // 코드 또는 코드명으로 코드정보 찾기
 function getInfoByCodeAndName(codeGb, value) {
+  if (isEmpty(value) || !value) return '';
+
   // 앵글
   if (codeGb === 'GB1') {
     // 코드명으로 찾기
@@ -287,8 +289,8 @@ function getLocationName(angle, cof, flor, grp) {
   flor = !flor ? '' : flor;
   grp = !grp ? '' : grp;
 
-  const term1 = !isEmpty(angle) && !isEmpty(cof) ? '-' : '';
-  const term2 = !isEmpty(cof) && !isEmpty(flor) ? '-' : '';
+  const term1 = !isEmpty(angle) && (!isEmpty(cof) || (isEmpty(cof) && !isEmpty(flor)) || (isEmpty(cof) && isEmpty(flor) && !isEmpty(grp))) ? '-' : '';
+  const term2 = !isEmpty(cof) && (!isEmpty(flor) || (isEmpty(flor) && !isEmpty(grp))) ? '-' : '';
   const term3 = !isEmpty(flor) && !isEmpty(grp) ? '-' : '';
 
   if (!isEmpty(grp)) {
