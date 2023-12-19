@@ -36,7 +36,7 @@
           <kw-select
             v-model="searchParams.pdCd"
             :options="pds"
-            first-option="select"
+            first-option="all"
             option-label="cdNm"
             option-value="cd"
             :disable="searchParams.pdGrpCd === '' "
@@ -123,6 +123,7 @@
           </p>
           <kw-field
             v-model="searchParams.apyMtrChk"
+            @update:model-value="onUpdateMtrChk"
           >
             <template #default="{ field }">
               <!-- TODO: 현재적용자재 -->
@@ -130,7 +131,7 @@
                 :label="$t('MSG_TXT_CRTL_APY_MAT')"
                 dense
                 v-bind="field"
-                val="현재적용자재"
+                :val="t('MSG_TXT_CRTL_APY_MAT')"
               />
             </template>
           </kw-field>
@@ -270,21 +271,25 @@ async function onClickDelete() {
 
 async function onClickAdd() {
   if (isEmpty(searchParams.value.pdGrpCd) || isEmpty(searchParams.value.pdCd)) {
-    alert('MSG_TXT_PD_GRP_PDCT_CHO');
+    alert(t('MSG_TXT_PD_GRP_PDCT_CHO'));
     return false;
   }
-
   const view = grdMainRef.value.getView();
   await gridUtil.insertRowAndFocus(view, 0, {
-    sapMatCd: '',
+    sapMatCd: pds.value.filter((v) => v.cd === searchParams.value.pdCd)[0].sapMatCd,
     pdCd: searchParams.value.pdCd,
-    pdNm: '',
+    pdNm: pds.value.filter((v) => v.cd === searchParams.value.pdCd)[0].cdNm,
     bstrCsAmt: '0',
     apyStrtdt: dayjs().add('1', 'day').format('YYYYMMDD'),
     apyEnddt: '99991231',
     isLast: 'Y',
   });
   isDisable.value = true;
+  view.checkItem(0, true);
+}
+
+async function onUpdateMtrChk() {
+  onClickSearch();
 }
 
 // -------------------------------------------------------------------------------------------------
@@ -364,9 +369,19 @@ const initGrdMain = defineGrid((data, view) => {
   data.setFields(fields);
   view.setColumns(columns);
   view.setColumnLayout(columnLayout);
+
   view.checkBar.visible = true;
-  view.checkBar.exclusive = true;
+  // 조건따라 채크박스 disable 처리
+  const f = function checked(dataSource, item) {
+    if ((data.getValue(item.dataRow, 'isLast') === 'Y')) {
+      return true;
+    }
+    return false;
+  };
+
+  view.setCheckBar({ checkableCallback: f });
   view.rowIndicator.visible = true;
+  view.editOptions.columnEditableFirst = true;
 
   view.editOptions.editable = true;
   // view.setEditOptions({
@@ -375,9 +390,11 @@ const initGrdMain = defineGrid((data, view) => {
   // });
 
   view.onCellEditable = (g, { column, itemIndex, dataRow }) => {
-    // if (['bstrCsAmt', 'rmkCn'].includes(column) && g.getValues(itemIndex).isLast === 'Y') {
-    //   return true;
-    // }
+    // 수정
+    if (['bstrCsAmt', 'rmkCn'].includes(column) && !gridUtil.isCreatedRow(g, dataRow) && g.getValues(itemIndex).isLast === 'Y') {
+      return true;
+    }
+    // 신규
     if (['bstrCsAmt', 'rmkCn', 'apyStrtdt'].includes(column)
     && gridUtil.isCreatedRow(g, dataRow)
     && g.getValues(itemIndex).isLast === 'Y') {
