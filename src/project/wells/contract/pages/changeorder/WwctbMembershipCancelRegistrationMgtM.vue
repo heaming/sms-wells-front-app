@@ -124,7 +124,7 @@
               <p> {{ stringUtil.getDateFormat(searchDetail.cntrRcpDt) }}</p>
             </kw-form-item>
             <!--확정일자-->
-            <kw-form-item :label="$t('MSG_TXT_RENTAL')+' DC'">
+            <kw-form-item :label="$t('MSG_TXT_CNFM_DT')">
               <p>{{ stringUtil.getDateFormat(searchDetail.cntrCnfmDt) }}</p>
             </kw-form-item>
             <!--가입일자-->
@@ -209,7 +209,7 @@
           <kw-form-row>
             <!-- row4 매출금액 -->
             <kw-form-item :label="$t('MSG_TXT_SL_AMT')">
-              <p>{{ stringUtil.getNumberWithComma(searchDetail.thmSlSumAmt??'') }}</p>
+              <p>{{ stringUtil.getNumberWithComma(searchDetail.slSumAmt??'') }}</p>
             </kw-form-item>
             <!-- row4 매출VAT -->
             <kw-form-item :label="$t('MSG_TXT_SL_VAT')">
@@ -567,9 +567,10 @@ async function onClickSearchCancel() {
 
   emits('searchdetail', { reqDt: searchDetail.rsgAplcDt,
     cancelDt: searchDetail.rsgFshDt,
-    dscDdctam: searchDetail.dscDdctam,
-    filtDdctam: searchDetail.filtDdctam,
-    slCtrAmt: searchDetail.slCtrAmt,
+    slCtrAmt: searchDetail.slCtrAmt ?? 0,
+    dscDdctam: searchDetail.dscDdctam ?? 0,
+    filtDdctam: searchDetail.filtDdctam ?? 0,
+    adCtrAmt: searchDetail.adCtrAmt ?? 0,
   });
 
   isReSearch.value = searchDetail.cancelStatNm === '취소등록' ? 'Y' : 'N';

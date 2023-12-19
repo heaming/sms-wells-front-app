@@ -570,9 +570,10 @@ async function onClickSearchCancel() {
 
   emits('searchdetail', { reqDt: searchDetail.rsgAplcDt,
     cancelDt: searchDetail.rsgFshDt,
+    slCtrAmt: searchDetail.slCtrAmt ?? 0,
     dscDdctam: searchDetail.dscDdctam ?? 0,
     filtDdctam: searchDetail.filtDdctam ?? 0,
-    slCtrAmt: searchDetail.slCtrAmt ?? 0,
+    adCtrAmt: searchDetail.adCtrAmt ?? 0,
   });
 
   isReSearch.value = searchDetail.cancelStatNm === '취소등록' ? 'Y' : 'N';
