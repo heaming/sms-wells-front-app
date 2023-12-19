@@ -114,7 +114,7 @@
       <kw-form-item
         :label="$t('MSG_TXT_BLG_CD')"
       >
-        <p>{{ frmMainData.sellPrtnrBlgCd+'('+frmMainData.sellPrtnrBlgNm+')' }}</p>
+        <p>{{ frmMainData.sellPrtnrBlgCd+'('+frmMainData.sellPrtnrBlgBrmgrNm+')' }}</p>
       </kw-form-item>
       <!-- 성명 -->
       <kw-form-item
@@ -156,7 +156,21 @@
       <kw-form-item
         :label="$t('MSG_TXT_ALNC_PTY_CD')"
       >
-        <p>{{ frmMainData.alncPtyCd }}</p>
+        <p>{{ frmMainData.alncPtyCdNm }}</p>
+        <kw-separator
+          vertical
+          spaced="10px"
+          size="0"
+        />
+        <!-- 제휴 상세내역 -->
+        <kw-btn
+          v-show="isAlncPtyCdInfo"
+          v-permission:read
+          dense
+          secondary
+          :label="$t('MSG_TXT_ALNC') + ' ' + $t('MSG_TXT_DTL_IZ')"
+          @click="onClickAlncPtyCdInfo"
+        />
       </kw-form-item>
       <!-- 기타사항 -->
       <kw-form-item
@@ -267,7 +281,8 @@ const props = defineProps({
   sellTpCd: { type: String, required: true, default: '' },
 });
 const isVacInfo = ref();
-const isPtyCdInfo = ref(false);
+const isPtyCdInfo = ref(false); // 상세내역(상대코드)
+const isAlncPtyCdInfo = ref(false); // 상세내역(제휴상대코드)
 
 let cachedParams;
 const searchParams = ref({
@@ -297,6 +312,8 @@ const frmMainData = ref({
   chdvcDt: '', // 기변일자
   ptyCd: '', // 상대코드
   alncPtyCd: '', // 제휴상대코드
+  alncPtyCdNm: '', // 제휴상대코드명
+  alncmpCntrDrmVal: '', // 제휴사계약식별값
   etcArtc: '', // 기타사항
   chngDt: '', // 교체일자
   reqdDt: '', // 철거일자
@@ -316,6 +333,11 @@ const frmMainData = ref({
   ptyCntrCstNo: '', // 상대코드(고객번호)
   ptySellTpCd: '', // 상대코드(판매유형코드)
   ptyCopnDvCd: '', // 상대코드(고객구분코드)
+  alncPtyCntrNo: '', // 제휴 상대코드(계약번호)
+  alncPtyCntrSn: '', // 제휴 상대코드(계약일련번호)
+  alncPtyCntrCstNo: '', // 제휴 상대코드(고객번호)
+  alncPtySellTpCd: '', // 제휴 상대코드(판매유형코드)
+  alncPtyCopnDvCd: '', // 제휴 상대코드(고객구분코드)
 });
 
 // -------------------------------------------------------------------------------------------------
@@ -387,6 +409,30 @@ async function onClickPtyCdInfo() {
   });
 }
 
+// 제휴 상세내역 팝업 호출
+async function onClickAlncPtyCdInfo() {
+  // 기존 계약상세팝업창 Close
+  window.close();
+
+  const paramCntrNo = frmMainData.value.alncPtyCntrNo;
+  const paramCntrSn = frmMainData.value.alncPtyCntrSn;
+  const paramCntrCstNo = frmMainData.value.alncPtyCntrCstNo;
+  const paramSellTpCd = frmMainData.value.alncPtySellTpCd;
+  const paramCopnDvCd = frmMainData.value.alncPtyCopnDvCd;
+
+  await modal({
+    component: 'WwctaOrderDetailP',
+    componentProps: { cntrNo: paramCntrNo,
+      cntrSn: paramCntrSn,
+      sellTpCd: paramSellTpCd,
+      cntrCstNo: paramCntrCstNo,
+      copnDvCd: paramCopnDvCd },
+    draggable: true,
+    window: true,
+    windowFeatures: { width: 1320, height: 1080 },
+  });
+}
+
 // wells 주문 상세(판매내역)
 async function fetchData() {
   // changing api & cacheparams according to search classification
@@ -397,6 +443,7 @@ async function fetchData() {
 
   isVacInfo.value = false;
   isPtyCdInfo.value = false;
+  isAlncPtyCdInfo.value = false;
 
   if (res.data.length > 0) {
     frmMainData.value.cntrDt = res.data[0].cntrDt; // 계약일
@@ -433,7 +480,29 @@ async function fetchData() {
       frmMainData.value.ptySellTpCd = res.data[0].ptySellTpCd; // 상대코드(판매유형코드)
       frmMainData.value.ptyCopnDvCd = res.data[0].ptyCopnDvCd; // 상대코드(고객구분코드)
     }
-    frmMainData.value.alncPtyCd = res.data[0].alncPtyCd; // 제휴상대코드
+    frmMainData.value.alncPtyCd = res.data[0].alncPtyCd; // 제휴 상대코드
+    if (isEmpty(res.data[0].alncPtyCd) || res.data[0].alncPtyCd === '-') {
+      frmMainData.value.alncPtyCdNm = '-'; // 제휴 상대코드명
+      frmMainData.value.alncPtyCntrCstNo = ''; // 제휴 상대코드(고객번호)
+      frmMainData.value.alncPtySellTpCd = ''; // 제휴 상대코드(판매유형코드)
+      frmMainData.value.alncPtyCopnDvCd = ''; // 제휴 상대코드(고객구분코드)
+    } else {
+      // 17:상조제휴, 22:W머니, 54:포인트플러스399, 55:포인트플러스599일 경우
+      if (['17', '22', '54', '55'].includes(frmMainData.value.alncPtyCd)) {
+        isAlncPtyCdInfo.value = true;
+      } else {
+        isAlncPtyCdInfo.value = false;
+      }
+      if (!isEmpty(res.data[0].alncmpCntrDrmVal)) {
+        frmMainData.value.alncmpCntrDrmVal = `${res.data[0].alncmpCntrDrmVal.substr(0, 4)}-${res.data[0].alncmpCntrDrmVal.substr(4, 7)}`;
+      }
+      frmMainData.value.alncPtyCntrNo = res.data[0].alncPtyCntrNo; // 제휴 상대코드(계약번호)
+      frmMainData.value.alncPtyCntrSn = res.data[0].alncPtyCntrSn; // 제휴 상대코드(계약일련번호)
+      frmMainData.value.alncPtyCdNm = `[${res.data[0].alncPtyCd} ${res.data[0].alncPtyNm}] ${frmMainData.value.alncmpCntrDrmVal}`; // 제휴상대코드명
+      frmMainData.value.alncPtyCntrCstNo = res.data[0].alncPtyCntrCstNo; // 제휴 상대코드(고객번호)
+      frmMainData.value.alncPtySellTpCd = res.data[0].alncPtySellTpCd; // 제휴 상대코드(판매유형코드)
+      frmMainData.value.alncPtyCopnDvCd = res.data[0].alncPtyCopnDvCd; // 제휴 상대코드(고객구분코드)
+    }
     frmMainData.value.etcArtc = res.data[0].etcArtc; // 기타사항
     frmMainData.value.chngDt = res.data[0].chngDt; // 교체일자
     frmMainData.value.reqdDt = res.data[0].reqdDt; // 철거일자
@@ -468,6 +537,7 @@ async function fetchData() {
     frmMainData.value.chdvcDt = ''; // 기변일자
     frmMainData.value.ptyCd = ''; // 상대코드
     frmMainData.value.alncPtyCd = ''; // 제휴상대코드
+    frmMainData.value.alncPtyCdNm = '-'; // 제휴상대코드명
     frmMainData.value.etcArtc = ''; // 기타사항
     frmMainData.value.chngDt = ''; // 교체일자
     frmMainData.value.reqdDt = ''; // 철거일자
