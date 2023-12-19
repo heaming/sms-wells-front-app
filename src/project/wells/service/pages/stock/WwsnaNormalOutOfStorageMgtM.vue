@@ -154,6 +154,7 @@ import { cloneDeep, isEmpty } from 'lodash-es';
 const { getConfig } = useMeta();
 const { modal } = useGlobal();
 const { t } = useI18n();
+const { currentRoute } = useRouter();
 
 const dataService = useDataService();
 const baseURI = '/sms/wells/service/normal-out-of-storages';
@@ -222,7 +223,7 @@ async function onClickExcelDownload() {
   const view = grdMainRef.value.getView();
   const res = await dataService.get(`${baseURI}/excel-download`, { params: cachedParams });
   await gridUtil.exportView(view, {
-    fileName: 'NomalOutOfStorageMgt',
+    fileName: currentRoute.value.meta.menuName,
     timePostfix: true,
     exportData: res.data,
   });
