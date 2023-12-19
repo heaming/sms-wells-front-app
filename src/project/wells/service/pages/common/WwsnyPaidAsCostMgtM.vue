@@ -133,16 +133,22 @@
           <p class="filter-box__item-label">
             {{ $t('MSG_TXT_MAT_DV') }}
           </p>
-          <kw-field
+          <kw-checkbox
             v-model="searchParams.apyMtrChk"
-          >
-            <template #default="{ field }">
-              <kw-checkbox
-                v-bind="field"
-                :label="$t('MSG_TXT_CRTL_APY_MTR')"
-              />
-            </template>
-          </kw-field>
+            :options="[]"
+            :true-value="Y"
+            :false-value="N"
+            :label="$t('MSG_TXT_CRTL_APY_MTR')"
+            @update:model-value="onChangeFilterApyDt"
+          />
+          <!-- 현재적용자료필터링 : 그리드필터링 -->
+          <!-- <kw-option-group
+            dense
+            :model-value="apyDtOptions"
+            type="checkbox"
+            :options="tempOptions.apyDt"
+            @change="onChangeFilterApyDt"
+          /> -->
         </li>
       </ul>
 
@@ -197,6 +203,13 @@ const codes = await codeUtil.getMultiCodes(
   'COD_PAGE_SIZE_OPTIONS',
   'PD_GRP_CD',
 );
+
+/* 현재적용자료 필터링 : 그리드 필터링 */
+// const tempOptions = {
+//   apyDt: [
+//     { codeId: '1', codeName: t('MSG_TXT_CRTL_APY_MTR') }, // 현재적용자료
+//   ],
+// };
 
 const pageInfo = ref({
   totalCount: 0,
@@ -270,6 +283,51 @@ async function fetchData() {
   const view = grdMainRef.value.getView();
   view.getDataSource().setRows(recapitalizationAsSvCs);
   view.rowIndicator.indexOffset = gridUtil.getPageIndexOffset(pageInfo);
+}
+
+// const apyDtOptions = ref([]);
+// /*현재적용자료 필터링 : 그리드 필터링*/
+// const onChangeFilterApyDt = (val) => {
+//   console.log(val);
+//   const view = grdMainRef.value.getView();
+//   const currentDate = now.format('YYYYMMDD');
+//   console.log(currentDate);
+
+//   // 적용시작일 필터링
+//   const filter1 = [{
+//     name: 'apydtFilter1',
+//     criteria: `value <= "${currentDate}"`,
+//   }];
+//   // 적용종료일 필터링
+//   const filter2 = [{
+//     name: 'apydtFilter2',
+//     criteria: `value >= "${currentDate}"`,
+//   }];
+//   // 필터등록
+//   view.setColumnFilters('apyStrtdt', filter1);
+//   view.setColumnFilters('apyEnddt', filter2);
+
+//   if (val.includes('1')) {
+//     console.log('1111');
+//     // 적용시작일 필터초기화 & 필터링
+//     view.activateColumnFilters('apyStrtdt', false);
+//     view.activateColumnFilters('apyStrtdt', ['apydtFilter1'], true);
+//     // 적용종료일 필터초기화 & 필터링
+//     view.activateColumnFilters('apyEnddt', false);
+//     view.activateColumnFilters('apyEnddt', ['apydtFilter2'], true);
+//   } else {
+//     console.log('2222');
+//     view.activateColumnFilters('apyStrtdt', ['apydtFilter1'], false);
+//     view.activateColumnFilters('apyEnddt', ['apydtFilter2'], false);
+//   }
+// };
+
+/* 현재적용자재필터링 : 재조회 */
+async function onChangeFilterApyDt() {
+  pageInfo.value.pageIndex = 1;
+  cachedParams = cloneDeep(searchParams.value);
+
+  await fetchData();
 }
 
 /* 조회 버튼 */
@@ -366,8 +424,8 @@ const initGrdMain = defineGrid((data, view) => {
       width: '350',
       styleName: 'text-left',
       editable: false }, // 상품명
-    { fieldName: 'apyStrtdt', header: t('MSG_TXT_APY_STRT_DAY'), width: '150', styleName: 'text-center', datetimeFormat: 'date', editable: false }, // 적용시작일
-    { fieldName: 'apyEnddt', header: t('MSG_TXT_APY_END_DAY'), width: '150', styleName: 'text-center', datetimeFormat: 'date', editable: false }, // 적용종료일
+    { fieldName: 'apyStrtdt', header: t('MSG_TXT_APY_STRT_DAY'), width: '150', styleName: 'text-center', datetimeFormat: 'date', editable: false, autoFilter: false }, // 적용시작일
+    { fieldName: 'apyEnddt', header: t('MSG_TXT_APY_END_DAY'), width: '150', styleName: 'text-center', datetimeFormat: 'date', editable: false, autoFilter: false }, // 적용종료일
     { fieldName: 'csmrUprcAmt',
       header: t('MSG_TXT_CSPRC'),
       width: '100',
@@ -425,6 +483,7 @@ const initGrdMain = defineGrid((data, view) => {
   view.editOptions.editable = true;
   view.checkBar.visible = true;
   view.rowIndicator.visible = true;
+  view.filteringOptions.enabled = false;
 
   // 소비자가, 도매단가, 내부단가, 기술료, 적용시작일/종료일 수정로직
   view.onCellEditable = (grid, itemIndex) => {
