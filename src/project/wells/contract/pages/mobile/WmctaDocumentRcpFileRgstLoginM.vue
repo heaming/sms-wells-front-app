@@ -161,7 +161,7 @@ async function fetchBasicContractInfo() {
   const res = await dataService.get('/sms/wells/contract/contracts/settlements/basic-info', {
     params: { cntrNo: params.cntrBasis[0].cntrNo },
   }).catch(async () => {
-    close('Fetch failed!');
+    close('Fetch failed');
   });
 
   basicInfo.value = res.data;
