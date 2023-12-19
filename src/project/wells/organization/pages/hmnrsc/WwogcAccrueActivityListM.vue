@@ -34,8 +34,10 @@
         <kw-search-item :label="$t('MSG_TXT_OG_TP')">
           <kw-option-group
             v-model="searchParams.ogTpCd"
+            rules="required"
             type="radio"
             :options="ogTp"
+            :label="$t('MSG_TXT_OG_TP')"
           />
         </kw-search-item>
         <kw-search-item
@@ -136,7 +138,7 @@ import { useDataService, codeUtil, defineGrid, getComponentType, gridUtil, useMe
 import dayjs from 'dayjs';
 import ZwogPartnerSearch from '~sms-common/organization/components/ZwogPartnerSearch.vue';
 import ZwogLevelSelect from '~sms-common/organization/components/ZwogLevelSelect.vue';
-import { cloneDeep } from 'lodash-es';
+import { cloneDeep, isEmpty } from 'lodash-es';
 
 const { t } = useI18n();
 const { getConfig, getUserInfo } = useMeta();
@@ -176,7 +178,7 @@ const grdMainRef = ref(getComponentType('KwGrid'));
 // -------------------------------------------------------------------------------------------------
 const searchParams = ref({
   baseYm: now, // 기준년월
-  ogTpCd: wkOjOgTpCd === null ? ogTpCd : wkOjOgTpCd, // 조직유형
+  ogTpCd: isEmpty(wkOjOgTpCd) ? ogTpCd : wkOjOgTpCd, // 조직유형
   qlfDvCd: undefined, // 자격구분 : '2' --> undefined
   ogLevlDvCd1: undefined, // 1차레벨 조직ID
   ogLevlDvCd2: undefined, // 2차레벨 조직ID
