@@ -314,11 +314,12 @@ async function onClickSearch() {
 
 async function onClickExcelDownload() {
   const view = grdMainRef.value.getView();
+  const res = await dataService.get('/sms/wells/service/engineer-tools/excel-download', { params: cachedParams });
 
-  await gridUtil.exportView(view, {
+  gridUtil.exportView(view, {
     fileName: currentRoute.value.meta.menuName,
     timePostfix: true,
-    exportData: gridUtil.getAllRowValues(view),
+    exportData: res.data,
     checkBar: 'hidden',
   });
 }
