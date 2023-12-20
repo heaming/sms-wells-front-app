@@ -565,12 +565,13 @@ function onChangeTextforSelect(div) {
 async function onClickSearchCancel() {
   if (!await frmMainMembership.value.validate()) { return; }
 
-  emits('searchdetail', { reqDt: searchDetail.rsgAplcDt,
+  emits('searchdetail', {
+    reqDt: searchDetail.rsgAplcDt,
     cancelDt: searchDetail.rsgFshDt,
+    adCtrAmt: searchDetail.adCtrAmt ?? 0,
     slCtrAmt: searchDetail.slCtrAmt ?? 0,
     dscDdctam: searchDetail.dscDdctam ?? 0,
     filtDdctam: searchDetail.filtDdctam ?? 0,
-    adCtrAmt: searchDetail.adCtrAmt ?? 0,
   });
 
   isReSearch.value = searchDetail.cancelStatNm === '취소등록' ? 'Y' : 'N';
