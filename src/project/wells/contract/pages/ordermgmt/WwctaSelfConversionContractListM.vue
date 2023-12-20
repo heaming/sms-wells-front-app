@@ -80,11 +80,11 @@
         </kw-search-item>
         <kw-search-item
           :label="$t('MSG_TXT_PRDT_NM')/* 상품명 */"
-          :maxlength="50"
         >
           <kw-input
             v-model="searchParams.pdNm"
             :label="$t('MSG_TXT_PRDT_NM')/* 상품명 */"
+            :maxlength="50"
           />
         </kw-search-item>
         <kw-search-item
