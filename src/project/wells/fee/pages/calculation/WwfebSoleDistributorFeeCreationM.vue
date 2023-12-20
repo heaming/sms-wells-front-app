@@ -532,6 +532,8 @@ const initGridBase = defineGrid((data, view) => {
       width: '110',
       styleName: 'text-right',
       dataType: 'number',
+      rules: 'max:16',
+      editor: { type: 'number', numberFormat: '#,##0', maxLength: 16 },
       headerSummary: {
         numberFormat: '#,##0',
         expression: 'sum',
@@ -543,6 +545,8 @@ const initGridBase = defineGrid((data, view) => {
       width: '110',
       styleName: 'text-right',
       dataType: 'number',
+      rules: 'max:16',
+      editor: { type: 'number', numberFormat: '#,##0', maxLength: 16 },
       headerSummary: {
         numberFormat: '#,##0',
         expression: 'sum',
@@ -554,6 +558,8 @@ const initGridBase = defineGrid((data, view) => {
       width: '110',
       styleName: 'text-right',
       dataType: 'number',
+      rules: 'max:16',
+      editor: { type: 'number', numberFormat: '#,##0', maxLength: 16 },
       headerSummary: {
         numberFormat: '#,##0',
         expression: 'sum',
@@ -565,6 +571,8 @@ const initGridBase = defineGrid((data, view) => {
       width: '110',
       styleName: 'text-right',
       dataType: 'number',
+      rules: 'max:16',
+      editor: { type: 'number', numberFormat: '#,##0', maxLength: 16 },
       headerSummary: {
         numberFormat: '#,##0',
         expression: 'sum',
@@ -662,6 +670,12 @@ const initGridBase = defineGrid((data, view) => {
   view.checkBar.visible = false;
   view.rowIndicator.visible = true;
   view.editOptions.editable = true;
+  view.setPasteOptions({
+    enabled: false,
+    applyEditMask: true,
+    applyNumberFormat: true,
+    applyMaxLength: true,
+  });
   view.onCellEditable = (grid, index) => {
     if (!['amtW050002', 'amtW050003', 'amtW050020', 'amtW050004'].includes(index.column)) {
       return false;
