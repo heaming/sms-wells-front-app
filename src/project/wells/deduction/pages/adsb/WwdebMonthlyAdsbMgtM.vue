@@ -182,8 +182,8 @@
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
 import dayjs from 'dayjs';
-import { codeUtil, getComponentType, gridUtil, useDataService, useMeta, modal } from 'kw-lib';
-import { cloneDeep } from 'lodash-es';
+import { codeUtil, getComponentType, gridUtil, useDataService, useMeta, modal, notify } from 'kw-lib';
+import { cloneDeep, isNil } from 'lodash-es';
 
 // -------------------------------------------------------------------------------------------------
 // Function & Event
@@ -337,13 +337,14 @@ async function onClickSearchPartner() {
 }
 
 async function onClickAdsbObjAndAmtCreate() {
-  const result = await modal({
+  const { result, payload } = await modal({
     component: 'ZwdebAdsbObjectAndAmtBulkCreateP',
     componentProps: {
       ogTpCd: userInfo.ogTpCd,
     },
   });
   if (result) {
+    await notify(t('MSG_ALT_CNT_CRT_FSH', [!isNil(payload) ? String(payload) : '0'])); // {0}건 생성 되었습니다.
     await onClickSearch();
   }
 }
