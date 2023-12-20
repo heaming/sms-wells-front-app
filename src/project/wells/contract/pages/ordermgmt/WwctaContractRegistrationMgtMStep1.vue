@@ -290,12 +290,14 @@
               label="본인인증 / 약관동의"
             >
               <p
-                v-if="step1.cntrt?.cikVal"
+                v-if="step1.cntrt?.cikVal && step1.cntrt.hsCtfYn === 'Y'"
               >
                 {{ $t('MSG_TXT_IDENT_VERF_COMPL') }}
               </p>
               <kw-btn
                 v-else
+                underline
+                text-color="primary"
                 dense
                 :label="$t('MSG_TXT_SELF_AUTH_REQUIRED')"
                 @click="onClickSendUrlMsg('01')"
@@ -313,6 +315,8 @@
               >
                 <kw-btn
                   dense
+                  underline
+                  text-color="primary"
                   :label="$t('MSG_BTN_TERMS_AG_URL_TRS')"
                   @click="onClickSendUrlMsg('02')"
                 />
@@ -758,6 +762,7 @@ async function openCustomerSelectPopup() {
     dlpnrNm: searchParams.value.cstKnm,
     bzrno: searchParams.value.bzrno,
   };
+
   return await modal({
     component: 'ZwcsaCustomerListP',
     // 개인: 공통팝업(이름, 성별, 생년월일, 휴대전화번호)
@@ -1023,11 +1028,15 @@ async function isValidStep() {
     return false;
   }
 
-  const { cikVal, itgCstNo, copnDvCd } = step1.value.cntrt;
+  const { cikVal, hsCtfYn, itgCstNo, copnDvCd } = step1.value.cntrt;
 
   if (copnDvCd === COPN_DV_CD.INDIVIDUAL) {
     if (!cikVal) {
       await alert('본인인증 미완료 상태입니다.\n완료 후 계약자를 재 조회해 주세요.');
+      // return false; // TODO: 전아영 매니저님 요청에 의한 일시 제거
+    }
+    if (hsCtfYn !== 'Y') {
+      await alert('고객 정보 변경으로 본인인증이 필요합니다.\n완료 후 계약자를 재 조회해 주세요.');
       // return false; // TODO: 전아영 매니저님 요청에 의한 일시 제거
     }
     if (!itgCstNo) {
