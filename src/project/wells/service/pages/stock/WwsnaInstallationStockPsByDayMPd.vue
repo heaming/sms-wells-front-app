@@ -29,6 +29,7 @@
           :label="$t('MSG_TXT_BASE_DT')"
           rules="required"
           type="date"
+          :disable="true"
         />
       </kw-search-item>
       <kw-search-item
@@ -41,15 +42,24 @@
           first-option="all"
         />
       </kw-search-item>
-      <kw-search-item
+      <!-- <kw-search-item
         :label="$t('MSG_TXT_SV_CNR')"
-      >
-        <kw-select
+      > -->
+      <wwsn-engineer-og-search-item-group
+        v-model:dgr1-levl-og-id="searchParams.svCnr"
+        use-og-level="1"
+        dgr1-levl-og-first-option="select"
+        dgr1-levl-og-label="ogCdNm"
+        :use-partner="false"
+        dgr1-levl-og-required="true"
+      />
+      <!-- <kw-select
           v-model="searchParams.svCnr"
           :options="codes.SV_CNR_CD"
-          first-option="all"
-        />
-      </kw-search-item>
+          first-option="select"
+          required
+        /> -->
+      <!-- </kw-search-item> -->
     </kw-search-row>
   </kw-search>
   <div class="result-area">
@@ -59,7 +69,7 @@
           v-model:page-index="pageInfo.pageIndex"
           v-model:page-size="pageInfo.pageSize"
           :total-count="pageInfo.totalCount"
-          :page-size-options="codes.COD_PAGE_SIZE_OPTIONS"
+          :page-size-options="false"
           @change="fetchData"
         />
       </template>
@@ -103,10 +113,11 @@
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
-import { codeUtil, getComponentType, gridUtil, useDataService, defineGrid, useGlobal } from 'kw-lib';
-import { cloneDeep } from 'lodash-es';
+import { codeUtil, getComponentType, gridUtil, useDataService, defineGrid, useGlobal, alert } from 'kw-lib';
+import { cloneDeep, isEmpty } from 'lodash-es';
 import dayjs from 'dayjs';
 import 'dayjs/locale/ko';
+import WwsnEngineerOgSearchItemGroup from '~sms-wells/service/components/WwsnEngineerOgSearchItemGroup.vue';
 
 const { t } = useI18n();
 const now = dayjs();
@@ -171,10 +182,12 @@ const getDateColumnsFields = (searchDt) => {
       header: baseDt.add(i, 'day').format('MM/DD(ddd)'),
       width: '100',
       styleName: 'text-right',
+      nanText: '0',
     };
 
     const stockDateField = {
       fieldName: `stockdate${i + 1}`,
+      dataType: 'number',
     };
 
     const installDateColumn = {
@@ -182,10 +195,12 @@ const getDateColumnsFields = (searchDt) => {
       header: baseDt.add(i, 'day').format('MM/DD(ddd)'),
       width: '100',
       styleName: 'text-right',
+      nanText: '0',
     };
 
     const installDateField = {
       fieldName: `installdate${i + 1}`,
+      dataType: 'number',
     };
 
     stockDateColumns.push(stockDateColumn);
@@ -210,26 +225,38 @@ async function fetchData() {
   getDateColumnsFields(cachedParams.baseDt);
 
   const columns = [
-    { fieldName: 'pdCd', header: t('MSG_TXT_ITM_CD'), width: '200', styleName: 'text-center' },
-    { fieldName: 'pdNm', header: t('MSG_TXT_ITM_NM'), width: '200', styleName: 'text-center' },
-    { fieldName: 'pajuQty', header: t('MSG_TXT_LGST'), width: '100', styleName: 'text-right' },
-    { fieldName: 'centerQty', header: t('MSG_TXT_CENTER_DIVISION'), width: '100', styleName: 'text-right' },
-    { fieldName: 'engQty', header: t('MSG_TXT_EGER'), width: '100', styleName: 'text-right' },
-    { fieldName: 'stocQty', header: t('MSG_TXT_SUM'), width: '100', styleName: 'text-right' },
+    { fieldName: 'ogCd', header: t('MSG_TXT_DIV'), width: '160', styleName: 'text-center', display: false },
+    { fieldName: 'ogNm', header: t('MSG_TXT_DIV'), width: '160', styleName: 'text-center', display: false },
+    { fieldName: 'ogInfo',
+      header: t('MSG_TXT_DIV'),
+      width: '247',
+      displayCallback(grid, index) {
+        const { ogCd: no1, ogNm: no2 } = grid.getValues(index.itemIndex);
+        return `${no2} (${no1})`;
+      } },
+    { fieldName: 'pdCd', header: t('MSG_TXT_ITM_CD'), width: '160', styleName: 'text-center' },
+    { fieldName: 'pdNm', header: t('MSG_TXT_ITM_NM'), width: '160', styleName: 'text-center' },
+    { fieldName: 'sapMatCd', header: t('MSG_TXT_ITM_NM'), width: '160', styleName: 'text-center' },
+    { fieldName: 'lgstQty', header: t('MSG_TXT_LGST'), width: '100', styleName: 'text-right', nanText: 0 },
+    { fieldName: 'sumQtyCenter', header: t('MSG_TXT_CENTER_DIVISION'), width: '100', styleName: 'text-right', nanText: 0 },
+    { fieldName: 'sumQtyEng', header: t('MSG_TXT_EGER'), width: '100', styleName: 'text-right', nanText: 0 },
+    { fieldName: 'sumQtyTot', header: t('MSG_TXT_SUM'), width: '100', styleName: 'text-right', nanText: 0 },
     ...stockDateColumns,
     ...installDateColumns,
-    { fieldName: 'istTotal', header: t('MSG_TXT_AGG'), width: '100', styleName: 'text-right' },
+    { fieldName: 'aggAsnCnt', header: t('MSG_TXT_AGG'), width: '100', styleName: 'text-right', nanText: 0 },
   ];
 
   view.setColumns(columns);
   view.getDataSource().setRows(state);
   view.setColumnLayout([
+    'ogInfo',
     'pdCd',
     'pdNm',
+    'sapMatCd',
     {
       header: t('MSG_TXT_CURRENT') + t('MSG_TXT_STOC'), // colspan title
       direction: 'horizontal', // merge type
-      items: ['pajuQty', 'centerQty', 'engQty', 'stocQty'],
+      items: ['lgstQty', 'sumQtyCenter', 'sumQtyEng', 'sumQtyTot'],
     },
     {
       header: t('MSG_TXT_STOC') + t('MSG_TXT_PS'), // colspan title
@@ -242,8 +269,9 @@ async function fetchData() {
       direction: 'horizontal', // merge type
       items: installDateItems,
     },
-    'istTotal',
+    'aggAsnCnt',
   ]);
+  view.setFixedOptions({ colCount: 4 });
   // view.resetCurrent();
 }
 
@@ -252,6 +280,12 @@ async function fetchData() {
  */
 async function onClickSearch() {
   pageInfo.value.pageIndex = 1;
+
+  if (isEmpty(searchParams.value.svCnr)) {
+    alert(t('MSG_ALT_SV_CNR_SELCT'));
+    return;
+  }
+
   cachedParams = cloneDeep(searchParams.value);
   console.log(cachedParams);
   await fetchData();
@@ -291,42 +325,57 @@ const initGrid = defineGrid((data, view) => {
   cachedParams = cloneDeep(searchParams.value);
   getDateColumnsFields(cachedParams.baseDt);
 
-  const fields = [
-    { fieldName: 'pdCd' },
-    { fieldName: 'pdNm' },
-    { fieldName: 'pajuQty' },
-    { fieldName: 'centerQty' },
-    { fieldName: 'engQty' },
-    { fieldName: 'stocQty' },
-    ...stockDateFields,
-    ...installDateFields,
-    { fieldName: 'istTotal' },
-  ];
-
   const columns = [
+    { fieldName: 'ogCd', header: t('MSG_TXT_DIV'), width: '160', styleName: 'text-center', display: false },
+    { fieldName: 'ogNm', header: t('MSG_TXT_DIV'), width: '160', styleName: 'text-center', display: false },
+    { fieldName: 'ogInfo',
+      header: t('MSG_TXT_DIV'),
+      width: '247',
+      displayCallback(grid, index) {
+        const { ogCd: no1, ogNm: no2 } = grid.getValues(index.itemIndex);
+        return `${no2} (${no1})`;
+      } },
     { fieldName: 'pdCd', header: t('MSG_TXT_ITM_CD'), width: '160', styleName: 'text-center' },
     { fieldName: 'pdNm', header: t('MSG_TXT_ITM_NM'), width: '160', styleName: 'text-center' },
-    { fieldName: 'pajuQty', header: t('MSG_TXT_LGST'), width: '100', styleName: 'text-right' },
-    { fieldName: 'centerQty', header: t('MSG_TXT_CENTER_DIVISION'), width: '100', styleName: 'text-right' },
-    { fieldName: 'engQty', header: t('MSG_TXT_EGER'), width: '100', styleName: 'text-right' },
-    { fieldName: 'stocQty', header: t('MSG_TXT_SUM'), width: '100', styleName: 'text-right' },
+    { fieldName: 'sapMatCd', header: t('MSG_TXT_ITM_NM'), width: '160', styleName: 'text-center' },
+    { fieldName: 'lgstQty', header: t('MSG_TXT_LGST'), width: '100', styleName: 'text-right', nanText: 0 },
+    { fieldName: 'sumQtyCenter', header: t('MSG_TXT_CENTER_DIVISION'), width: '100', styleName: 'text-right', nanText: 0 },
+    { fieldName: 'sumQtyEng', header: t('MSG_TXT_EGER'), width: '100', styleName: 'text-right', nanText: 0 },
+    { fieldName: 'sumQtyTot', header: t('MSG_TXT_SUM'), width: '100', styleName: 'text-right', nanText: 0 },
     ...stockDateColumns,
     ...installDateColumns,
-    { fieldName: 'istTotal', header: t('MSG_TXT_AGG'), width: '100', styleName: 'text-right' },
+    { fieldName: 'aggAsnCnt', header: t('MSG_TXT_AGG'), width: '100', styleName: 'text-right', nanText: 0 },
   ];
 
+  const fields = [
+    { fieldName: 'ogCd' },
+    { fieldName: 'ogNm' },
+    { fieldName: 'ogInfo' },
+    { fieldName: 'pdCd' },
+    { fieldName: 'pdNm' },
+    { fieldName: 'sapMatCd' },
+    { fieldName: 'lgstQty', dataType: 'number' },
+    { fieldName: 'sumQtyCenter', dataType: 'number' },
+    { fieldName: 'sumQtyEng', dataType: 'number' },
+    { fieldName: 'sumQtyTot', dataType: 'number' },
+    ...stockDateFields,
+    ...installDateFields,
+    { fieldName: 'aggAsnCnt', dataType: 'number' },
+  ];
   data.setFields(fields);
   view.setColumns(columns);
 
   view.checkBar.visible = false;
   view.rowIndicator.visible = true;
   view.setColumnLayout([
+    'ogInfo',
     'pdCd',
     'pdNm',
+    'sapMatCd',
     {
       header: t('MSG_TXT_CURRENT') + t('MSG_TXT_STOC'), // colspan title
       direction: 'horizontal', // merge type
-      items: ['pajuQty', 'centerQty', 'engQty', 'stocQty'],
+      items: ['lgstQty', 'sumQtyCenter', 'sumQtyEng', 'sumQtyTot'],
     },
     {
       header: t('MSG_TXT_STOC') + t('MSG_TXT_PS'), // colspan title
@@ -339,9 +388,9 @@ const initGrid = defineGrid((data, view) => {
       direction: 'horizontal', // merge type
       items: installDateItems,
     },
-    'istTotal',
+    'aggAsnCnt',
   ]);
-  view.setFixedOptions({ colCount: 2 });
+  view.setFixedOptions({ colCount: 4 });
 });
 
 </script>

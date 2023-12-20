@@ -30,6 +30,7 @@
           :label="$t('MSG_TXT_BASE_DT')"
           rules="required"
           type="date"
+          :disable="true"
         />
       </kw-search-item>
       <kw-search-item
@@ -45,19 +46,21 @@
       <kw-search-item
         :label="$t('MSG_TXT_ITM_DV')"
         :colspan="2"
+        required
       >
         <kw-select
           v-model="searchParams.itmKndCd"
           :label="$t('MSG_TXT_ITM_DV')"
           :options="codes.ITM_KND_CD"
-          first-option="all"
+          first-option="select"
           disable
           @change="onChangeItmKnd"
         />
         <kw-select
           v-model="searchParams.pdCd"
           :options="selectedProductByItmKnd"
-          first-option="all"
+          first-option="select"
+          :required="true"
         />
       </kw-search-item>
     </kw-search-row>
@@ -80,7 +83,7 @@
           v-model:page-index="pageInfo.pageIndex"
           v-model:page-size="pageInfo.pageSize"
           :total-count="pageInfo.totalCount"
-          :page-size-options="codes.COD_PAGE_SIZE_OPTIONS"
+          :page-size-options="false"
           @change="fetchData"
         />
       </template>
@@ -124,8 +127,8 @@
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
-import { codeUtil, getComponentType, gridUtil, useDataService, defineGrid, useGlobal } from 'kw-lib';
-import { cloneDeep } from 'lodash-es';
+import { codeUtil, getComponentType, gridUtil, useDataService, defineGrid, useGlobal, alert } from 'kw-lib';
+import { cloneDeep, isEmpty } from 'lodash-es';
 import dayjs from 'dayjs';
 import 'dayjs/locale/ko';
 
@@ -225,10 +228,12 @@ const getDateColumnsFields = (searchDt) => {
       header: baseDt.add(i, 'day').format('MM/DD(ddd)'),
       width: '100',
       styleName: 'text-right',
+      nanText: '0',
     };
 
     const stockDateField = {
       fieldName: `stockdate${i + 1}`,
+      dataType: 'number',
     };
 
     const installDateColumn = {
@@ -236,10 +241,12 @@ const getDateColumnsFields = (searchDt) => {
       header: baseDt.add(i, 'day').format('MM/DD(ddd)'),
       width: '100',
       styleName: 'text-right',
+      nanText: '0',
     };
 
     const installDateField = {
       fieldName: `installdate${i + 1}`,
+      dataType: 'number',
     };
 
     stockDateColumns.push(stockDateColumn);
@@ -262,22 +269,21 @@ async function fetchData() {
 
   getDateColumnsFields(cachedParams.baseDt);
   const columns = [
-    { fieldName: 'ogId', header: t('MSG_TXT_DIV'), width: '247', display: false },
+    { fieldName: 'ogCd', header: t('MSG_TXT_DIV'), width: '247', display: false },
     { fieldName: 'ogNm', header: t('MSG_TXT_DIV'), width: '247', display: false },
     { fieldName: 'ogInfo',
       header: t('MSG_TXT_DIV'),
       width: '247',
       displayCallback(grid, index) {
-        const { ogId: no1, ogNm: no2 } = grid.getValues(index.itemIndex);
+        const { ogCd: no1, ogNm: no2 } = grid.getValues(index.itemIndex);
         return `${no2} (${no1})`;
       } },
-    { fieldName: 'pajuQty', header: t('MSG_TXT_LGST'), width: '100', styleName: 'text-right' },
-    { fieldName: 'prvMng', header: t('MSG_TXT_CENTER_DIVISION'), width: '100', styleName: 'text-right' },
-    { fieldName: 'engQty', header: t('MSG_TXT_EGER'), width: '100', styleName: 'text-right' },
-    { fieldName: 'stockTotal', header: t('MSG_TXT_SUM'), width: '100', styleName: 'text-right' },
+    { fieldName: 'sumQtyCenter', header: t('MSG_TXT_CENTER_DIVISION'), width: '100', styleName: 'text-right', nanText: '0' },
+    { fieldName: 'sumQtyEng', header: t('MSG_TXT_EGER'), width: '100', styleName: 'text-right', nanText: '0' },
+    { fieldName: 'sumQtyTot', header: t('MSG_TXT_SUM'), width: '100', styleName: 'text-right', nanText: '0' },
     ...stockDateColumns,
     ...installDateColumns,
-    { fieldName: 'istTotal', header: t('MSG_TXT_AGG'), width: '100', styleName: 'text-right' },
+    { fieldName: 'aggAsnCnt', header: t('MSG_TXT_AGG'), width: '100', styleName: 'text-right', nanText: '0' },
   ];
 
   view.setColumns(columns);
@@ -287,7 +293,7 @@ async function fetchData() {
     {
       header: t('MSG_TXT_CURRENT') + t('MSG_TXT_STOC'), // colspan title
       direction: 'horizontal', // merge type
-      items: ['pajuQty', 'prvMng', 'engQty', 'stockTotal'],
+      items: ['sumQtyCenter', 'sumQtyEng', 'sumQtyTot'],
     },
     {
       header: t('MSG_TXT_STOC') + t('MSG_TXT_PS'), // colspan title
@@ -300,7 +306,7 @@ async function fetchData() {
       direction: 'horizontal', // merge type
       items: installDateItems,
     },
-    'istTotal',
+    'aggAsnCnt',
   ]);
   view.resetCurrent();
 }
@@ -309,6 +315,11 @@ async function fetchData() {
  *  Search - 조회
  */
 async function onClickSearch() {
+  if (isEmpty(searchParams.value.pdCd)) {
+    alert(t('MSG_ALT_PD_CD_CHO'));
+    return;
+  }
+
   pageInfo.value.pageIndex = 1;
   cachedParams = cloneDeep(searchParams.value);
   console.log(cachedParams);
@@ -349,38 +360,34 @@ const initGrid = defineGrid((data, view) => {
   cachedParams = cloneDeep(searchParams.value);
   getDateColumnsFields(cachedParams.baseDt);
 
-  const fields = [
-    { fieldName: 'ogId' },
-    { fieldName: 'ogNm' },
-    { fieldName: 'ogInfo' },
-    { fieldName: 'pajuQty' },
-    { fieldName: 'prvMng' },
-    { fieldName: 'engQty' },
-    { fieldName: 'stockTotal' },
-    ...stockDateFields,
-    ...installDateFields,
-    { fieldName: 'istTotal' },
-  ];
-
   const columns = [
-    { fieldName: 'ogId', header: t('MSG_TXT_DIV'), width: '247', display: false },
+    { fieldName: 'ogCd', header: t('MSG_TXT_DIV'), width: '247', display: false },
     { fieldName: 'ogNm', header: t('MSG_TXT_DIV'), width: '247', display: false },
     { fieldName: 'ogInfo',
       header: t('MSG_TXT_DIV'),
       width: '247',
       displayCallback(grid, index) {
-        const { ogId: no1, ogNm: no2 } = grid.getValues(index.itemIndex);
+        const { ogCd: no1, ogNm: no2 } = grid.getValues(index.itemIndex);
         return `${no2} (${no1})`;
       } },
-    { fieldName: 'pajuQty', header: t('MSG_TXT_LGST'), width: '100', styleName: 'text-right' },
-    { fieldName: 'prvMng', header: t('MSG_TXT_CENTER_DIVISION'), width: '100', styleName: 'text-right' },
-    { fieldName: 'engQty', header: t('MSG_TXT_EGER'), width: '100', styleName: 'text-right' },
-    { fieldName: 'stockTotal', header: t('MSG_TXT_SUM'), width: '100', styleName: 'text-right' },
+    { fieldName: 'sumQtyCenter', header: t('MSG_TXT_CENTER_DIVISION'), width: '100', styleName: 'text-right', nanText: '0' },
+    { fieldName: 'sumQtyEng', header: t('MSG_TXT_EGER'), width: '100', styleName: 'text-right', nanText: '0' },
+    { fieldName: 'sumQtyTot', header: t('MSG_TXT_SUM'), width: '100', styleName: 'text-right', nanText: '0' },
     ...stockDateColumns,
     ...installDateColumns,
-    { fieldName: 'istTotal', header: t('MSG_TXT_AGG'), width: '100', styleName: 'text-right' },
+    { fieldName: 'aggAsnCnt', header: t('MSG_TXT_AGG'), width: '100', styleName: 'text-right', nanText: '0' },
   ];
-
+  const fields = [
+    { fieldName: 'ogCd' },
+    { fieldName: 'ogNm' },
+    { fieldName: 'ogInfo' },
+    { fieldName: 'sumQtyCenter', dataType: 'number' },
+    { fieldName: 'sumQtyEng', dataType: 'number' },
+    { fieldName: 'sumQtyTot', dataType: 'number' },
+    ...stockDateFields,
+    ...installDateFields,
+    { fieldName: 'aggAsnCnt', dataType: 'number' },
+  ];
   data.setFields(fields);
   view.setColumns(columns);
 
@@ -391,7 +398,7 @@ const initGrid = defineGrid((data, view) => {
     {
       header: t('MSG_TXT_CURRENT') + t('MSG_TXT_STOC'), // colspan title
       direction: 'horizontal', // merge type
-      items: ['pajuQty', 'prvMng', 'engQty', 'stockTotal'],
+      items: ['sumQtyCenter', 'sumQtyEng', 'sumQtyTot'],
     },
     {
       header: t('MSG_TXT_STOC') + t('MSG_TXT_PS'), // colspan title
@@ -404,7 +411,7 @@ const initGrid = defineGrid((data, view) => {
       direction: 'horizontal', // merge type
       items: installDateItems,
     },
-    'istTotal',
+    'aggAsnCnt',
   ]);
   view.setFixedOptions({ colCount: 1 });
 
