@@ -70,6 +70,7 @@
             v-model:to="frmMainData.prmEndYymm"
             placeholder=""
             readonly
+            type="month"
           />
         </kw-form-item>
       </kw-form-row>
