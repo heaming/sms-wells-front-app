@@ -35,8 +35,9 @@
             >
               <p>
                 {{
-                  `${step4.cntrt.cstKnm || ''} / ${stringUtil.getDateFormat(step4.cntrt.bryyMmdd)} /
-${step4.cntrt.sexDvNm || ''}`
+                  `${step4.cntrt.cstKnm || ''} / ${
+                    stringUtil.getDateFormat(step4.cntrt.bryyMmdd)} / ${
+                    getCodeName('SEX_DV_CD', step4.cntrt.sexDvCd) || ''}`
                 }}
               </p>
             </kw-form-item>
@@ -53,7 +54,9 @@ ${step4.cntrt.sexDvNm || ''}`
               :label="$t('MSG_TXT_MPNO')"
             >
               <p>
-                {{ step4.cntrt.cralLocaraTno }}-{{ step4.cntrt.mexnoEncr }}-{{ step4.cntrt.cralIdvTno }}
+                {{ step4.cntrt.cralLocaraTno }}-{{
+                  step4.cntrt.mexnoEncr
+                }}-{{ step4.cntrt.cralIdvTno }}
               </p>
             </kw-form-item>
             <kw-form-item
@@ -93,7 +96,9 @@ ${step4.cntrt.sexDvNm || ''}`
               :label="$t('MSG_TXT_MPNO')"
             >
               <p>
-                {{ step4.cntrt.cralLocaraTno }}-{{ step4.cntrt.mexnoEncr }}-{{ step4.cntrt.cralIdvTno }}
+                {{ step4.cntrt.cralLocaraTno }}-{{
+                  step4.cntrt.mexnoEncr
+                }}-{{ step4.cntrt.cralIdvTno }}
               </p>
             </kw-form-item>
             <kw-form-item
@@ -131,7 +136,9 @@ ${step4.cntrt.sexDvNm || ''}`
               <p
                 v-if="isReadonly"
               >
-                {{ codes.CST_STLM_IN_MTH_CD.find((code) => code.codeId === step4.bas?.cstStlmInMthCd)?.codeName }}
+                {{
+                  codes.CST_STLM_IN_MTH_CD.find((code) => code.codeId === step4.bas?.cstStlmInMthCd)?.codeName
+                }}
               </p>
               <kw-option-group
                 v-else
@@ -301,7 +308,9 @@ ${step4.cntrt.sexDvNm || ''}`
                 >
                   <kw-form-item label="멤버십계좌이체">
                     <p>
-                      {{ codes.DP_TP_CD_AFTN.find((code) => code.codeId === item.dpTpCdMsh)?.codeName }}
+                      {{
+                        codes.DP_TP_CD_AFTN.find((code) => code.codeId === item.dpTpCdMsh)?.codeName
+                      }}
                     </p>
                   </kw-form-item>
                 </kw-form-row>
@@ -326,7 +335,9 @@ ${step4.cntrt.sexDvNm || ''}`
                     label="자동이체"
                   >
                     <p>
-                      {{ codes.DP_TP_CD_AFTN.find((code) => code.codeId === item.dpTpCdAftn)?.codeName }}
+                      {{
+                        codes.DP_TP_CD_AFTN.find((code) => code.codeId === item.dpTpCdAftn)?.codeName
+                      }}
                     </p>
                   </kw-form-item>
                   <kw-form-item no-label>
@@ -338,7 +349,9 @@ ${step4.cntrt.sexDvNm || ''}`
                 <kw-form-row>
                   <kw-form-item label="등록비결제유형">
                     <p>
-                      {{ codes.DP_TP_CD_IDRV.find((code) => code.codeId === item.dpTpCdIdrv)?.codeName }}
+                      {{
+                        codes.DP_TP_CD_IDRV.find((code) => code.codeId === item.dpTpCdIdrv)?.codeName
+                      }}
                     </p>
                   </kw-form-item>
                   <kw-form-item no-label>
@@ -372,7 +385,9 @@ ${step4.cntrt.sexDvNm || ''}`
                 label="휴대전화번호"
               >
                 <p>
-                  {{ item.adrpc.cralLocaraTno }}-{{ item.adrpc.mexnoEncr }}-{{ item.adrpc.cralIdvTno }}
+                  {{ item.adrpc.cralLocaraTno }}-{{ item.adrpc.mexnoEncr }}-{{
+                    item.adrpc.cralIdvTno
+                  }}
                 </p>
               </kw-form-item>
               <kw-form-item
@@ -413,7 +428,9 @@ ${step4.cntrt.sexDvNm || ''}`
                   label="설치장소"
                 >
                   <p>
-                    {{ codes.IST_PLC_TP_CD.find((code) => code.codeId === item.wellsDtl.istPlcTpCd)?.codeName }}
+                    {{
+                      codes.IST_PLC_TP_CD.find((code) => code.codeId === item.wellsDtl.istPlcTpCd)?.codeName
+                    }}
                   </p>
                 </kw-form-item>
                 <kw-form-item
@@ -429,14 +446,18 @@ ${step4.cntrt.sexDvNm || ''}`
                   label="전압"
                 >
                   <p>
-                    {{ codes.USE_ELECT_TP_CD.find((code) => code.codeId === item.wellsDtl.useElectTpCd)?.codeName }}
+                    {{
+                      codes.USE_ELECT_TP_CD.find((code) => code.codeId === item.wellsDtl.useElectTpCd)?.codeName
+                    }}
                   </p>
                 </kw-form-item>
                 <kw-form-item
                   label="수압"
                 >
                   <p>
-                    {{ codes.WPRS_ITST_TP_CD.find((code) => code.codeId === item.wellsDtl.wprsItstTpCd)?.codeName }}
+                    {{
+                      codes.WPRS_ITST_TP_CD.find((code) => code.codeId === item.wellsDtl.wprsItstTpCd)?.codeName
+                    }}
                   </p>
                 </kw-form-item>
               </kw-form-row>
@@ -445,7 +466,9 @@ ${step4.cntrt.sexDvNm || ''}`
                   label="수질"
                 >
                   <p>
-                    {{ codes.SRCWT_TP_CD.find((code) => code.codeId === item.wellsDtl.srcwtTpCd)?.codeName }}
+                    {{
+                      codes.SRCWT_TP_CD.find((code) => code.codeId === item.wellsDtl.srcwtTpCd)?.codeName
+                    }}
                   </p>
                 </kw-form-item>
               </kw-form-row>
@@ -607,7 +630,7 @@ const dataService = useDataService();
 const { notify, alert } = useGlobal();
 const { getters } = useStore();
 const { codes, getCodeName } = await useCtCode(
-  'CNTR_TP_CD',
+  'SEX_DV_CD',
   'CST_STLM_IN_MTH_CD',
   'IST_PLC_TP_CD',
   'WRFR_IST_MTH_CD',
@@ -673,8 +696,10 @@ const fileParams = ref({
 function setGrid() {
   const viewMain = grdMainRef.value.getView();
   const viewStlm = grdStlmRef.value.getView();
-  viewMain.getDataSource().setRows(step4.value.cntrDtls);
-  viewStlm.getDataSource().setRows(step4.value.stlmDtls);
+  viewMain.getDataSource()
+    .setRows(step4.value.cntrDtls);
+  viewStlm.getDataSource()
+    .setRows(step4.value.stlmDtls);
   countGrdMain.value = Math.max(step4.value.cntrDtls.length, 1);
   countGrdStlm.value = Math.max(step4.value.stlmDtls.length, 1);
 }
@@ -697,7 +722,7 @@ async function calcRestipulation() {
   if (Number(restipulationBasInfo.value.newFnlValue) < Number(restipulationBasInfo.value.minRentalAmt)) {
     restipulationBasInfo.value.newFnlValue = restipulationBasInfo.value.minRentalAmt;
     restipulationBasInfo.value.stplDscAmt = Number(restipulationBasInfo.value.newFnlValue)
-        - Number(restipulationBasInfo.value.minRentalAmt);
+      - Number(restipulationBasInfo.value.minRentalAmt);
   }
 
   if (!restipulationBasInfo.value.newFnlValue) {
@@ -720,13 +745,16 @@ async function calcRestipulation() {
   const stplEndDay = stplStrtDay
     .add(Number(restipulationBasInfo.value.stplPtrm) - 1, 'month')
     .endOf('M');
-  const stplStrtdt = stplStrtDay.format('YYYYMMDD').toString();
-  const stplEnddt = stplEndDay.format('YYYYMMDD').toString();
+  const stplStrtdt = stplStrtDay.format('YYYYMMDD')
+    .toString();
+  const stplEnddt = stplEndDay.format('YYYYMMDD')
+    .toString();
   restipulationBasInfo.value.cntrNo = data.cntrNo;
   restipulationBasInfo.value.stplStrtdt = stplStrtdt;
   restipulationBasInfo.value.stplEnddt = stplEnddt;
   restipulationBasInfo.value.rstlStatCd = '010'; // 접수
-  restipulationBasInfo.value.stplRcpDtm = now.format('YYYYMMDDHHmmss').toString();
+  restipulationBasInfo.value.stplRcpDtm = now.format('YYYYMMDDHHmmss')
+    .toString();
   restipulationBasInfo.value.rcpOgTpCd = sessionUserId.ogTpCd;
   restipulationBasInfo.value.rcpPrtnrNo = sessionUserId.employeeIDNumber;
   restipulationBasInfo.value.stplTn = Number(data.stplTn) + 1;
@@ -857,14 +885,17 @@ function getDisplayedFinalPrice(cntrDtl) {
   }
   if (sellTpCd === '6') {
     return `${getNumberWithComma(fnlAmt)}원 (월 ${getNumberWithComma(fnlAmt
-        / svPrd)}원)`;
+      / svPrd)}원)`;
   }
   return `월 ${getNumberWithComma(fnlAmt)}원`;
 }
 
 const loaded = ref(false);
+
 async function initStep(forced = false) {
-  if (!forced && loaded.value) { return; }
+  if (!forced && loaded.value) {
+    return;
+  }
 
   const { cntrNo, rstlCntrNo } = props.contract;
   if (rstlCntrNo) {
@@ -932,7 +963,12 @@ const initGrdMain = defineGrid((data, view) => {
     { fieldName: 'regAmt', header: '등록비(계약금)', width: 90, styleName: 'text-right' },
     { fieldName: 'rntlAmt', header: '월납부금', width: 90, styleName: 'text-right' },
     { fieldName: 'pdAmt', header: t('MSG_TXT_PRDT_AMT'), width: 90, styleName: 'text-right' },
-    { fieldName: 'stplPtrm', header: t('MSG_TXT_CONTRACT_PERI'), width: 90, styleName: 'text-right' },
+    {
+      fieldName: 'stplPtrm',
+      header: t('MSG_TXT_CONTRACT_PERI'),
+      width: 90,
+      styleName: 'text-right',
+    },
     { fieldName: 'cntrPtrm', header: t('MSG_TXT_CNTR_PTRM'), width: 90, styleName: 'text-right' },
     { fieldName: 'dscAmt', header: t('MSG_TXT_DSC_AMT'), width: 90, styleName: 'text-right' },
   ];
