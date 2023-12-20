@@ -31,7 +31,7 @@
             class="scoped-item__product-name"
           >
             {{ dtl.cstBasePdAbbrNm || dtl.pdNm }}
-            <span class="text-bg-white">
+            <span class="text-black3 text-caption">
               {{ dtl.pdCd }}
             </span>
           </kw-item-label>
@@ -75,6 +75,12 @@
         top
       >
         <kw-item-label class="flex gap-xs">
+          <kw-btn
+            v-if="showInitBtn"
+            :label="'초기화'"
+            dense
+            @click="initializePriceDefineVariable"
+          />
           <kw-btn
             v-if="showChangeWellsFarmPackageBtn"
             :disable="!!promotions?.length"
@@ -694,6 +700,13 @@ function onChangeRentalCrpDscrCd(newRentalCrpDscrCd) {
 // endregion [법인특별할인]
 
 // region [계약 관계 버튼]
+const showInitBtn = computed(() => {
+  if (ojCntrRels.value?.length) {
+    return false;
+  }
+  return !promotions.value?.length;
+});
+
 const showChangeWellsFarmPackageBtn = computed(() => {
   const { pdLclsfId } = dtl.value;
   if (!pdLclsfId) {
@@ -846,7 +859,10 @@ function onClickDelete() {
   &__toggle-helper {
     background: transparent;
     position: absolute;
-    inset: rem-to-px(map-get($body, "line-height")) 0 0 0;
+    height: 52px;
+    bottom: 0;
+    left: 0;
+    right: 0;
   }
 
   &__product-name {

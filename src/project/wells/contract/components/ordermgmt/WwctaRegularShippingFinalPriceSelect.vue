@@ -31,7 +31,7 @@
             class="scoped-item__product-name"
           >
             {{ dtl.cstBasePdAbbrNm || dtl.pdNm }}
-            <span class="text-bg-white">
+            <span class="text-black3 text-caption">
               {{ dtl.pdCd }}
             </span>
           </kw-item-label>
@@ -265,7 +265,6 @@ const isSeeding = computed(() => dtl.value?.sellTpDtlCd === '62');
 const isCapsule = computed(() => dtl.value?.sellTpDtlCd === '63');
 const isFreePackage = computed(() => dtl.value?.pdChoLmYn === 'Y'); // TODO FIX... dtl 에 없음..
 
-/* TODO: FIX */
 async function fetchSdingCapsls() {
   if (!isSeeding.value && !isCapsule.value) {
     return;
@@ -504,7 +503,10 @@ function labelForCntrRel(cntrRel) {
   &__toggle-helper {
     background: transparent;
     position: absolute;
-    inset: rem-to-px(map-get($body, "line-height")) 0 0 0;
+    height: 52px;
+    bottom: 0;
+    left: 0;
+    right: 0;
   }
 
   &__product-name {
