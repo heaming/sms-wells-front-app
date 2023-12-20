@@ -20,6 +20,7 @@
       @search="onClickSearch"
     >
       <kw-search-row>
+        <!-- 고객명 -->
         <kw-search-item
           :label="$t('MSG_TXT_CST_NM')"
         >
@@ -27,6 +28,7 @@
             v-model="searchParams.cstNm"
           />
         </kw-search-item>
+        <!-- 계약상세번호 -->
         <kw-search-item
           :label="$t('MSG_TXT_CNTR_DTL_NO')"
         >
@@ -37,6 +39,7 @@
             :rules="validateCntrDtlNo"
           />
         </kw-search-item>
+        <!-- 휴대전화번호 -->
         <kw-search-item
           :label="$t('MSG_TXT_MPNO')"
         >
@@ -46,6 +49,7 @@
             regex="num"
           />
         </kw-search-item>
+        <!-- 전화번호 -->
         <kw-search-item
           :label="$t('MSG_TXT_TEL_NO')"
         >
@@ -57,6 +61,7 @@
         </kw-search-item>
       </kw-search-row>
       <kw-search-row>
+        <!-- 사업자번호 -->
         <kw-search-item
           :label="$t('MSG_TXT_ENTRP_NO')"
         >
@@ -64,6 +69,7 @@
             v-model="searchParams.bzrno"
           />
         </kw-search-item>
+        <!-- S/N -->
         <kw-search-item
           :label="$t('MSG_TXT_SNNO')"
         >
@@ -71,6 +77,7 @@
             v-model="searchParams.bcNo"
           />
         </kw-search-item>
+        <!-- 취소건 포함 여부 -->
         <kw-search-item
           :label="$t('MSG_TXT_CAN_CT_INC_YN')"
         >
@@ -94,6 +101,7 @@
           @change="fetchData"
         />
       </template>
+      <!-- 엑셀 다운로드 -->
       <kw-btn
         icon="download_on"
         secondary
@@ -123,7 +131,6 @@
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
-
 import { defineGrid, getComponentType, useMeta, useDataService, codeUtil, useGlobal, useModal, gridUtil } from 'kw-lib';
 import { cloneDeep, isEmpty } from 'lodash-es';
 
@@ -152,7 +159,6 @@ const props = defineProps({
 // -------------------------------------------------------------------------------------------------
 // Function & Event
 // -------------------------------------------------------------------------------------------------
-
 const frmMainRef = ref(getComponentType('KwObserver'));
 const grdMainRef = ref(getComponentType('KwGrid'));
 const pageInfo = ref({
@@ -222,6 +228,7 @@ const validateCntrDtlNo = async () => {
 };
 
 let cachedParams;
+// 조회
 async function fetchData() {
   if (searchParams.value.cstNm === '' && searchParams.value.bzrno === '' && searchParams.value.bcNo === ''
   && searchParams.value.mpNo === '' && searchParams.value.telNo === '' && searchParams.value.cntrDtlNo === '') {
@@ -243,6 +250,7 @@ async function fetchData() {
   }
 }
 
+// 조회 버튼 클릭 이벤트
 async function onClickSearch() {
   if (!await frmMainRef.value.validate()) { return; }
 
@@ -254,7 +262,7 @@ async function onClickSearch() {
 
   pageInfo.value.pageIndex = 1;
 
-  if (searchParams.value.cntrDtlNo !== '') {
+  if (searchParams.value.cntrDtlNo !== '') { // 계약상세번호
     searchParams.value.cntrNo = searchParams.value.cntrDtlNo.substring(0, 12);
     searchParams.value.cntrSn = searchParams.value.cntrDtlNo.substring(12);
   } else {
@@ -262,38 +270,38 @@ async function onClickSearch() {
     searchParams.value.cntrSn = '';
   }
 
-  if (searchParams.value.mpNo !== '') {
+  if (searchParams.value.mpNo !== '') { // 휴대전화번호
     if (searchParams.value.mpNo.length === 10) {
       searchParams.value.cralLocaraTno = searchParams.value.mpNo.substring(0, 3);
-      searchParams.value.mexnoEncr = searchParams.value.mpNo.substring(3, 3);
-      searchParams.value.cralIdvTno = searchParams.value.mpNo.substring(6, 4);
+      searchParams.value.mexnoEncr = searchParams.value.mpNo.substring(3, 6);
+      searchParams.value.cralIdvTno = searchParams.value.mpNo.substring(6);
     } else if (searchParams.value.mpNo.length === 11) {
       searchParams.value.cralLocaraTno = searchParams.value.mpNo.substring(0, 3);
-      searchParams.value.mexnoEncr = searchParams.value.mpNo.substring(3, 4);
-      searchParams.value.cralIdvTno = searchParams.value.mpNo.substring(7, 4);
+      searchParams.value.mexnoEncr = searchParams.value.mpNo.substring(3, 7);
+      searchParams.value.cralIdvTno = searchParams.value.mpNo.substring(7);
     }
   }
 
-  if (searchParams.value.telNo !== '') {
+  if (searchParams.value.telNo !== '') { // 전화번호
     if (searchParams.value.telNo.substring(0, 2) === '02') {
       if (searchParams.value.telNo.length === 9) {
-        searchParams.value.cralLocaraTno = searchParams.value.telNo.substring(0, 2);
-        searchParams.value.mexnoEncr = searchParams.value.telNo.substring(2, 3);
-        searchParams.value.cralIdvTno = searchParams.value.telNo.substring(5, 4);
+        searchParams.value.locaraTno = searchParams.value.telNo.substring(0, 2);
+        searchParams.value.exnoEncr = searchParams.value.telNo.substring(2, 5);
+        searchParams.value.idvTno = searchParams.value.telNo.substring(5);
       } else if (searchParams.value.telNo.length === 10) {
-        searchParams.value.cralLocaraTno = searchParams.value.telNo.substring(0, 2);
-        searchParams.value.mexnoEncr = searchParams.value.telNo.substring(2, 4);
-        searchParams.value.cralIdvTno = searchParams.value.telNo.substring(6, 4);
+        searchParams.value.locaraTno = searchParams.value.telNo.substring(0, 2);
+        searchParams.value.exnoEncr = searchParams.value.telNo.substring(2, 6);
+        searchParams.value.idvTno = searchParams.value.telNo.substring(6);
       }
     } else if (searchParams.value.telNo.substring(0, 2) !== '02') {
       if (searchParams.value.telNo.length === 10) {
-        searchParams.value.cralLocaraTno = searchParams.value.telNo.substring(0, 3);
-        searchParams.value.mexnoEncr = searchParams.value.telNo.substring(3, 3);
-        searchParams.value.cralIdvTno = searchParams.value.telNo.substring(6, 4);
+        searchParams.value.locaraTno = searchParams.value.telNo.substring(0, 3);
+        searchParams.value.exnoEncr = searchParams.value.telNo.substring(3, 6);
+        searchParams.value.idvTno = searchParams.value.telNo.substring(6);
       } else if (searchParams.value.telNo.length === 11) {
-        searchParams.value.cralLocaraTno = searchParams.value.telNo.substring(0, 3);
-        searchParams.value.mexnoEncr = searchParams.value.telNo.substring(3, 4);
-        searchParams.value.cralIdvTno = searchParams.value.telNo.substring(7, 4);
+        searchParams.value.locaraTno = searchParams.value.telNo.substring(0, 3);
+        searchParams.value.exnoEncr = searchParams.value.telNo.substring(3, 7);
+        searchParams.value.idvTno = searchParams.value.telNo.substring(7);
       }
     }
   }
@@ -303,6 +311,7 @@ async function onClickSearch() {
   await fetchData();
 }
 
+// 엑셀 다운로드
 async function onClickExcelDownload() {
   const view = grdMainRef.value.getView();
 
@@ -315,6 +324,7 @@ async function onClickExcelDownload() {
   });
 }
 
+// 마운트 처리
 onMounted(async () => {
   if (props.cntrNo) {
     searchParams.value.cntrDtlNo = `${props.cntrNo}${props.cntrSn}`;
@@ -345,8 +355,8 @@ const initGrdMain = defineGrid(async (data, view) => {
     { fieldName: 'cralLocaraTno' },
     { fieldName: 'mexnoEncr' },
     { fieldName: 'cralIdvTno' },
-    { fieldName: 'istDt' },
-    { fieldName: 'reqdDt' },
+    { fieldName: 'istDt', dataType: 'datetime' },
+    { fieldName: 'reqdDt', dataType: 'datetime' },
     { fieldName: 'bcNo' },
     { fieldName: 'sellTpCd' },
     { fieldName: 'sellTpNm' },
@@ -364,11 +374,11 @@ const initGrdMain = defineGrid(async (data, view) => {
   const columns = [
     { fieldName: 'cntrDtlNo', header: t('MSG_TXT_CNTR_DTL_NO'), width: '150', styleName: 'text-center' },
     { fieldName: 'cstNm', header: t('MSG_TXT_CST_NM'), width: '100', styleName: 'text-center' },
-    { fieldName: 'pdNm', header: t('MSG_TXT_PRDT_NM'), width: '200', styleName: 'text-left' },
+    { fieldName: 'pdNm', header: t('MSG_TXT_PRDT_NM'), width: '200' },
     { fieldName: 'newAdrZip', header: t('MSG_TXT_ZIP'), width: '100', styleName: 'text-center' },
     { fieldName: 'bznsCnr', header: t('MSG_TXT_BSNS_CNTR'), width: '100', styleName: 'text-center' },
     { fieldName: 'svCnr', header: t('MSG_TXT_SV_CNR'), width: '100', styleName: 'text-center' },
-    { fieldName: 'adrNm', header: t('MSG_TXT_INST_ADDR'), width: '400', styleName: 'text-center' },
+    { fieldName: 'adrNm', header: t('MSG_TXT_INST_ADDR'), width: '400' },
     {
       fieldName: 'mpNo',
       header: t('MSG_TXT_MPNO'),
@@ -393,8 +403,8 @@ const initGrdMain = defineGrid(async (data, view) => {
         }
       },
     },
-    { fieldName: 'istDt', header: t('MSG_TXT_IST_DT'), width: '117', styleName: 'text-center' },
-    { fieldName: 'reqdDt', header: t('MSG_TXT_DEM_DT'), width: '117', styleName: 'text-center' },
+    { fieldName: 'istDt', header: t('MSG_TXT_IST_DT'), width: '117', styleName: 'text-center', datetimeFormat: 'date' },
+    { fieldName: 'reqdDt', header: t('MSG_TXT_DEM_DT'), width: '117', styleName: 'text-center', datetimeFormat: 'date' },
     { fieldName: 'sellTpNm', header: t('MSG_TXT_SEL_TYPE'), width: '117', styleName: 'text-center' },
     { fieldName: 'pdCd', header: t('MSG_TXT_PRDT_CODE'), width: '115', styleName: 'text-center' },
     { fieldName: 'bcNo', header: t('MSG_TXT_SNNO'), width: '180', styleName: 'text-center' },
