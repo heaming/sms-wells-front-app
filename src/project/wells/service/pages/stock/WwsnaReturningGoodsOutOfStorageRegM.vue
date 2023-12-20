@@ -136,7 +136,7 @@
         />
         <!-- 등급 일괄변경 -->
         <kw-btn
-          v-permission:read
+          v-permission:update
           dense
           secondary
           :label="$t('MSG_BTN_GD_BLK_CH')"
@@ -158,7 +158,7 @@
         />
         <!-- 사유 일괄변경 -->
         <kw-btn
-          v-permission:read
+          v-permission:update
           dense
           secondary
           :label="$t('MSG_BTN_RSON_BLK_CH')"
