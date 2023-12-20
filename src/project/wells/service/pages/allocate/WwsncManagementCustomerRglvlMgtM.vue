@@ -70,6 +70,7 @@
               v-model="searchParams.exceptWellsManagerYn"
               :label="$t('MSG_TXT_EXCPT_WELS_MNGR')"
               val="Y"
+              disable
             /><!--웰스매니저 미관리 제외-->
           </kw-field>
         </kw-search-item>
