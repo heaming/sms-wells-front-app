@@ -352,10 +352,10 @@ const initGrd = defineGrid((data, view) => {
     { fieldName: 'cntorNm', header: t('MSG_TXT_CNTOR_NM'), width: '100', styleName: 'text-center' }, // 계약자명
     { fieldName: 'basePdCd', header: t('MSG_TXT_PRDT_CODE'), width: '140', styleName: 'text-center' }, // 상품코드
     { fieldName: 'basePdNm', header: t('MSG_TXT_PRDT_NM'), width: '180', styleName: 'text-left' }, // 상품명
-    { fieldName: 'vstMcn', header: t('MSG_TXT_VISIT_MN'), width: '100', styleName: 'text-right', dataType: 'number', rules: 'required', editable: true, editor: { type: 'number', numberFormat: '#,##0', maxLength: 22 } }, // 방문개월
+    { fieldName: 'vstMcn', header: t('MSG_TXT_VISIT_MN'), width: '100', styleName: 'text-right', dataType: 'number', rules: 'required||max:2', editable: true, editor: { type: 'number', numberFormat: '#,##0', maxLength: 2 } }, // 방문개월
     { fieldName: 'svFeePdDvCd', header: t('MSG_TXT_BS_PD_GRP'), width: '180', styleName: 'text-center', options: codes.SV_FEE_PD_DV_CD, editor: { type: 'list' }, editable: true, rules: 'required' }, /* 서비스수수료상품구분코드 */
-    { fieldName: 'baseChTcnt', header: t('MSG_TXT_ORDR'), width: '100', styleName: 'text-right', dataType: 'number', editable: true, rules: 'required', editor: { type: 'number', numberFormat: '#,##0', maxLength: 22 } }, // 차수
-    { fieldName: 'svFeeBaseAmt', header: `${t('TXT_MSG_FEE_AMT')} (${t('MSG_TXT_FXAM')}/${t('MSG_TXT_HMST')})`, width: '250', styleName: 'text-right', dataType: 'number', editable: true, editor: { type: 'number', numberFormat: '#,##0', maxLength: 22 } }, /* 서비스수수료기준금액 */
+    { fieldName: 'baseChTcnt', header: t('MSG_TXT_ORDR'), width: '100', styleName: 'text-right', dataType: 'number', editable: true, rules: 'required|max:2', editor: { type: 'number', numberFormat: '#,##0', maxLength: 2 } }, // 차수
+    { fieldName: 'svFeeBaseAmt', header: `${t('TXT_MSG_FEE_AMT')} (${t('MSG_TXT_FXAM')}/${t('MSG_TXT_HMST')})`, width: '250', styleName: 'text-right', dataType: 'number', editable: true, rules: 'max:16', editor: { type: 'number', numberFormat: '#,##0', maxLength: 16 } }, /* 서비스수수료기준금액 */
     { fieldName: 'feeFxamYn', header: t('MSG_TXT_FXAM_YN'), width: '100', styleName: 'text-center', options: codes.YN_CD, editor: { type: 'list' }, editable: true }, // 정액여부
     { fieldName: 'apyStrtYm', header: t('MSG_TXT_APY_STRT_YM'), width: '130', styleName: 'text-center', editor: { type: 'btdate', datetimeFormat: 'yyyy-MM', btOptions: btOpt }, datetimeFormat: 'yyyy-MM', rules: 'required', editable: true }, // 적용시작년월
     { fieldName: 'apyEndYm', header: t('MSG_TXT_APY_END_YM'), width: '130', styleName: 'text-center', editor: { type: 'btdate', datetimeFormat: 'yyyy-MM', btOptions: btOpt }, datetimeFormat: 'yyyy-MM', rules: 'required', editable: true }, // 적용종료년월
@@ -370,6 +370,12 @@ const initGrd = defineGrid((data, view) => {
   view.checkBar.visible = true; // create checkbox column
   view.rowIndicator.visible = true;
   view.editOptions.columnEditableFirst = true;
+  view.setPasteOptions({
+    enabled: false,
+    applyEditMask: true,
+    applyNumberFormat: true,
+    applyMaxLength: true,
+  });
   view.onCellEditable = (grid, index) => {
     if (gridUtil.isCreatedRow(grid, index.dataRow) && ['cntrDtlSn', 'vstMcn', 'svFeePdDvCd', 'baseChTcnt', 'svFeeBaseAmt', 'feeFxamYn', 'apyStrtYm', 'apyEndYm'].includes(index.column)) {
       return true;
