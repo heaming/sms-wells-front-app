@@ -370,18 +370,21 @@ function getLocation(wareTpCd, angle, cof, flor, grp, gubun) {
   if (gubun !== 'CODE' && gubun !== 'NAME') return '';
 
   wareTpCd = !wareTpCd ? '' : wareTpCd;
-  angle = !angle ? '' : angle;
-  cof = !cof ? '' : cof;
-  flor = !flor ? '' : flor;
   grp = !grp ? '' : grp;
 
-  const term1 = !isEmpty(wareTpCd) && (!isEmpty(angle)
-                                    || (isEmpty(angle) && !isEmpty(cof))
-                                    || (isEmpty(angle) && isEmpty(cof) && !isEmpty(flor))
-                                    || (isEmpty(angle) && isEmpty(cof) && isEmpty(flor) && !isEmpty(grp))) ? '-' : '';
-  const term2 = !isEmpty(angle) && (!isEmpty(cof) || (isEmpty(cof) && !isEmpty(flor)) || (isEmpty(cof) && isEmpty(flor) && !isEmpty(grp))) ? '-' : '';
-  const term3 = !isEmpty(cof) && (!isEmpty(flor) || (isEmpty(flor) && !isEmpty(grp))) ? '-' : '';
-  const term4 = !isEmpty(flor) && !isEmpty(grp) ? '-' : '';
+  if (gubun === 'NAME') {
+    angle = !angle || isEmpty(angle) ? ' ' : angle;
+    cof = !cof || isEmpty(cof) ? ' ' : cof;
+    flor = !flor || isEmpty(flor) ? ' ' : flor;
+  } else {
+    angle = !angle ? '' : angle;
+    cof = !cof ? '' : cof;
+    flor = !flor ? '' : flor;
+  }
+
+  const term = '-';
+  const term1 = !isEmpty(wareTpCd) ? '-' : '';
+  const term2 = !isEmpty(grp) ? '-' : '';
 
   // 위치코드
   if (gubun === 'CODE') {
@@ -398,7 +401,7 @@ function getLocation(wareTpCd, angle, cof, flor, grp, gubun) {
   if (!isEmpty(grp)) {
     grpNm = codes.LCT_MAT_GRP_CD.find((e) => e.codeId === grp).codeName;
   }
-  return `${wareTpNm}${term1}${angle}${term2}${cof}${term3}${flor}${term4}${grpNm}`;
+  return `${wareTpNm}${term1}${angle}${term}${cof}${term}${flor}${term2}${grpNm}`;
 }
 
 // 품목위치 일괄변경 클릭 이벤트
