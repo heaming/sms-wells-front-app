@@ -548,6 +548,8 @@ const initGridBase = defineGrid((data, view) => {
       width: '110',
       styleName: 'text-right',
       dataType: 'number',
+      rules: 'max:16',
+      editor: { type: 'number', numberFormat: '#,##0', maxLength: 16 },
       headerSummary: {
         numberFormat: '#,##0',
         expression: 'sum',
@@ -559,6 +561,8 @@ const initGridBase = defineGrid((data, view) => {
       width: '110',
       styleName: 'text-right',
       dataType: 'number',
+      rules: 'max:16',
+      editor: { type: 'number', numberFormat: '#,##0', maxLength: 16 },
       headerSummary: {
         numberFormat: '#,##0',
         expression: 'sum',
@@ -570,6 +574,8 @@ const initGridBase = defineGrid((data, view) => {
       width: '110',
       styleName: 'text-right',
       dataType: 'number',
+      rules: 'max:16',
+      editor: { type: 'number', numberFormat: '#,##0', maxLength: 16 },
       headerSummary: {
         numberFormat: '#,##0',
         expression: 'sum',
@@ -581,6 +587,8 @@ const initGridBase = defineGrid((data, view) => {
       width: '110',
       styleName: 'text-right',
       dataType: 'number',
+      rules: 'max:16',
+      editor: { type: 'number', numberFormat: '#,##0', maxLength: 16 },
       headerSummary: {
         numberFormat: '#,##0',
         expression: 'sum',
@@ -592,6 +600,8 @@ const initGridBase = defineGrid((data, view) => {
       width: '110',
       styleName: 'text-right',
       dataType: 'number',
+      rules: 'max:16',
+      editor: { type: 'number', numberFormat: '#,##0', maxLength: 16 },
       headerSummary: {
         numberFormat: '#,##0',
         expression: 'sum',
@@ -603,6 +613,8 @@ const initGridBase = defineGrid((data, view) => {
       width: '98',
       styleName: 'text-right',
       dataType: 'number',
+      rules: 'max:16',
+      editor: { type: 'number', numberFormat: '#,##0', maxLength: 16 },
       headerSummary: {
         numberFormat: '#,##0',
         expression: 'sum',
@@ -614,6 +626,8 @@ const initGridBase = defineGrid((data, view) => {
       width: '110',
       styleName: 'text-right',
       dataType: 'number',
+      rules: 'max:16',
+      editor: { type: 'number', numberFormat: '#,##0', maxLength: 16 },
       headerSummary: {
         numberFormat: '#,##0',
         expression: 'sum',
@@ -623,6 +637,7 @@ const initGridBase = defineGrid((data, view) => {
       fieldName: 'amt01Cn',
       header: t('MSG_TXT_RDS_MDFC_RSON'),
       width: '150',
+      rules: 'max:500',
       styleName: 'text-left',
     }, // 보증예치금 수정사유
     {
@@ -631,6 +646,8 @@ const initGridBase = defineGrid((data, view) => {
       width: '110',
       styleName: 'text-right',
       dataType: 'number',
+      rules: 'max:16',
+      editor: { type: 'number', numberFormat: '#,##0', maxLength: 16 },
       headerSummary: {
         numberFormat: '#,##0',
         expression: 'sum',
@@ -696,6 +713,12 @@ const initGridBase = defineGrid((data, view) => {
   view.checkBar.visible = false;
   view.rowIndicator.visible = true;
   view.editOptions.editable = true;
+  view.setPasteOptions({
+    enabled: false,
+    applyEditMask: true,
+    applyNumberFormat: true,
+    applyMaxLength: true,
+  });
   view.onCellEditable = (grid, index) => {
     if (!['amtW040005', 'amtW040005', 'amtW040004', 'amtW040020', 'amtW040003', 'amt01', 'amt01Cn'].includes(index.column)) {
       return false;
