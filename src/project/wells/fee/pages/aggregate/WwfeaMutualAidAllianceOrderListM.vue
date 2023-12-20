@@ -60,7 +60,7 @@
       <kw-search-row>
         <!-- 직책유형 -->
         <kw-search-item
-          :label="$t('MSG_TXT_RSB_TP')"
+          :label="$t('MSG_TXT_RSB')"
         >
           <kw-option-group
             v-model="searchParams.rsbDvCd"
@@ -69,7 +69,20 @@
             :options="[{ codeId: '0', codeName: $t('MSG_TXT_ALL') },
                        { codeId: '15', codeName: $t('MSG_TXT_PLAR') },
                        { codeId: '7', codeName: $t('MSG_TXT_BRMGR') }]"
-            :label="$t('MSG_TXT_RSB_TP')"
+            :label="$t('MSG_TXT_RSB')"
+          />
+        </kw-search-item>
+        <!-- 조직유형 -->
+        <kw-search-item
+          :label="$t('MSG_TXT_OG_TP')"
+        >
+          <kw-option-group
+            v-model="searchParams.ogTpCd"
+            type="radio"
+            rules="required"
+            :options="[{ codeId: 'W01', codeName: $t('MSG_TXT_P_ORG') },
+                       { codeId: 'W02', codeName: $t('MSG_TXT_MNGER_OG') }]"
+            :label="$t('MSG_TXT_OG_TP')"
           />
         </kw-search-item>
         <!-- 조직레벨 -->
