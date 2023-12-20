@@ -129,4 +129,15 @@ async function fetchBasicContractInfo() {
 }
 
 await fetchBasicContractInfo();
+
+const forcedClosedHandler = () => {
+  postMessage('forceClosed', false);
+};
+
+onMounted(() => {
+  window.addEventListener('beforeunload', forcedClosedHandler, {
+    capture: true,
+    once: true,
+  });
+});
 </script>

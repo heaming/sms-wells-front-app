@@ -227,8 +227,15 @@ async function onSettlementConfirmed() {
 
 await fetchContract();
 
+const forcedClosedHandler = () => {
+  postMessage('forceClosed', false);
+};
+
 onMounted(() => {
-  window.addEventListener('beforeunload', () => postMessage('forceClosed', false));
+  window.addEventListener('beforeunload', forcedClosedHandler, {
+    capture: true,
+    once: true,
+  });
 });
 </script>
 
