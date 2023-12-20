@@ -14,10 +14,6 @@
 --->
 <template>
   <kw-page>
-    <template #header>
-      <kw-page-header :options="['홈','depth1', 'depth2', '배정건 대비 보유자재 현황']" />
-    </template>
-
     <kw-search
       :cols="2"
       @search="onClickSearch"
@@ -64,14 +60,13 @@
             v-model="searchParams.itmKndCd"
             :options="itmKndCdList"
             first-option="all"
-            @change="onChangeItmKndCd"
           />
           <kw-select
             v-model="searchParams.itmPdCds"
             :options="optionsItmPdCd"
             :label="$t('MSG_TXT_ITM_DV')"
-            option-value="pdCd"
-            option-label="pdNm"
+            option-value="codeId"
+            option-label="codeName"
             first-option="all"
           />
         </kw-search-item>
@@ -230,30 +225,37 @@ function onChagneHgrWareNo() {
   searchParams.value.wareNoD = '';
 }
 
+watch(() => searchParams.value.itmKndCd, async () => {
+  const { data } = await dataService.get('/sms/wells/service/out-of-storage-agrg/filter-items', { params: searchParams.value });
+  optionsItmPdCd.value = data;
+  optionsAllItmPdCd.value = data;
+  searchParams.value.itmPdCd = '';
+});
 // 품목조회
-const getProductList = async () => {
-  const result = await dataService.get('/sms/wells/service/independence-ware-ostrs/products');
-  optionsItmPdCd.value = result.data;
-  optionsAllItmPdCd.value = result.data;
-};
+// const getProductList = async () => {
 
-await getProductList();
+//   optionsItmPdCd.value = data;
+//   optionsAllItmPdCd.value = data;
+//   // optionsItmPdCd.value.filter((v) => ['5', '6'].includes(v.itmKndCd));
+// };
+
+// await getProductList();
 
 console.log('optionsItmPdCd.value >>>', optionsItmPdCd.value);
 console.log('optionsAllItmPdCd.value >>>', optionsAllItmPdCd.value);
 
-async function onChangeItmKndCd() {
-  // 품목코드 클리어
-  searchParams.value.itmPdCds = [];
-  const { itmKndCd } = searchParams.value;
+// async function onChangeItmKndCd() {
+//   // 품목코드 클리어
+//   searchParams.value.itmPdCds = [];
+//   const { itmKndCd } = searchParams.value;
 
-  if (isEmpty(itmKndCd)) {
-    optionsItmPdCd.value = optionsAllItmPdCd.value;
-    return;
-  }
-  console.log('itmKndCd >>>', itmKndCd);
-  optionsItmPdCd.value = optionsAllItmPdCd.value.filter((v) => itmKndCd === v.itmKndCd);
-}
+//   if (isEmpty(itmKndCd)) {
+//     optionsItmPdCd.value = optionsAllItmPdCd.value;
+//     return;
+//   }
+//   console.log('itmKndCd >>>', itmKndCd);
+//   optionsItmPdCd.value = optionsAllItmPdCd.value.filter((v) => itmKndCd === v.itmKndCd);
+// }
 
 // onMounted(async () => {
 //   await getProductList();
