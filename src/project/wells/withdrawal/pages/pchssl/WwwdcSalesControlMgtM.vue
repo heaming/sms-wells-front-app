@@ -623,7 +623,7 @@ const initGrid1 = defineGrid((data, view) => {
       },
       width: '100',
       rules: 'required',
-      editor: { type: 'dropdown', textReadOnly: true },
+      editor: { type: 'list', textReadOnly: true },
       options: codes.SL_CTR_MTR_DV_CD,
       styleCallback(grid, dataCell) {
         const mdfyYn = grid.getValue(dataCell.index.itemIndex, 'mdfyYn');
@@ -632,7 +632,7 @@ const initGrid1 = defineGrid((data, view) => {
           ret.editable = false;
         } else {
           ret = {
-            editor: { type: 'dropdown', textReadOnly: true },
+            editor: { type: 'list', textReadOnly: true },
           };
         }
         return ret;
@@ -647,7 +647,7 @@ const initGrid1 = defineGrid((data, view) => {
       lookupDisplay: true,
       width: '100',
       rules: 'required',
-      editor: { type: 'dropdown', textReadOnly: true },
+      editor: { type: 'list', textReadOnly: true },
       options: codes.SELL_TP_CD,
       editable: false,
     },
@@ -661,144 +661,8 @@ const initGrid1 = defineGrid((data, view) => {
       options: codes.SELL_TP_DTL_CD,
       width: '100',
       rules: 'required',
-      editor: { type: 'dropdown', textReadOnly: true,
+      editor: { type: 'list', textReadOnly: true,
       },
-      // editable: true,
-      // options: codes.SELL_TP_DTL_CD,
-      // styleCallback(grid, dataCell) {
-      //   const sellTpCd = grid.getValue(dataCell.index.itemIndex, 'slCtrSellTpCd');
-      //   const lumpCodeId = lump.map((param) => param.codeId);
-      //   const lumpCodeName = lump.map((param) => param.codeName);
-
-      //   const rentalCodeId = rental.map((param) => param.codeId);
-      //   const rentalCodeName = rental.map((param) => param.codeName);
-
-      //   const membershipCodeId = membership.map((param) => param.codeId);
-      //   const membershipCodeName = membership.map((param) => param.codeName);
-
-      //   const deliveryCodeId = delivery.map((param) => param.codeId);
-      //   const deliveryCodeName = delivery.map((param) => param.codeName);
-
-      //   const ret = {};
-      //   switch (sellTpCd) {
-      //     case '1':
-      //       ret.editor = {
-      //         type: 'dropdown',
-      //         values: lumpCodeId,
-      //         labels: lumpCodeName,
-      //         editable: true,
-      //         textReadOnly: true,
-      //       };
-      //       break;
-      //     case '2':
-      //       ret.editor = {
-      //         type: 'dropdown',
-      //         values: rentalCodeId,
-      //         labels: rentalCodeName,
-      //         editable: true,
-      //         textReadOnly: true,
-      //       };
-      //       break;
-      //     case '3':
-      //       ret.editor = {
-      //         type: 'dropdown',
-      //         values: membershipCodeId,
-      //         labels: membershipCodeName,
-      //         editable: true,
-      //         textReadOnly: true,
-      //       };
-      //       break;
-      //     case '6':
-      //       ret.editor = {
-      //         type: 'dropdown',
-      //         values: deliveryCodeId,
-      //         labels: deliveryCodeName,
-      //         editable: true,
-      //         textReadOnly: true,
-      //       };
-      //       break;
-      //     case '9':
-      //       ret.editor = {
-      //         values: '',
-      //         labels: '',
-      //       };
-      //       break;
-      //     default:
-      //       ret.editor = {
-      //         type: 'dropdown',
-      //         values: Array([]),
-      //         labels: Array([]),
-      //       };
-      //       ret.editable = false;
-      //       break;
-      //   }
-      //   return ret;
-      // },
-      // // valueCallback: (gridBase, rowId, fieldName, field, values) => {
-      // //   const no = values[field.indexOf('slCtrSellTpCd')];
-      // //   console.log(no);
-      // //   // let value;
-      // //   return 0;
-      // // },
-
-      // // displayCallback(grid, index, value) {
-      // //   // let retValue = value;
-      // //   console.log(value);
-      // //   const sellTpDtlCd = grid.getValue(index.itemIndex, 'sellTpDtlCd');
-      // //   // let idx;
-      // //   const sellTpCd = grid.getValue(index.itemIndex, 'slCtrSellTpCd');
-      // //   // const lumpCodeId = lump.map((param) => param.codeId);
-      // //   // const lumpCodeName = lump.map((param) => param.codeName);
-
-      // //   // const rentalCodeId = rental.map((param) => param.codeId);
-      // //   // const rentalCodeName = rental.map((param) => param.codeName);
-
-      // //   // const membershipCodeId = membership.map((param) => param.codeId);
-      // //   // const membershipCodeName = membership.map((param) => param.codeName);
-
-      // //   // const deliveryCodeId = delivery.map((param) => param.codeId);
-      // //   // const deliveryCodeName = delivery.map((param) => param.codeName);
-
-      // //   if (sellTpCd === '4' || sellTpCd === '5') {
-      // //     return -1;
-      // //   }
-      // //   return sellTpDtlCd;
-
-      // // switch (sellTpCd) {
-      // //   case '1':
-      // //     // idx = lump.indexOf(value);
-      // //     retValue = {
-      // //       lump,
-      // //     };
-      // //     break;
-      // //   case '2':
-      // //     // idx = rental.indexOf(value);
-      // //     // retValue = rental[idx];
-      // //     retValue = {
-      // //       codeId: rentalCodeId,
-      // //       codeName: rentalCodeName,
-      // //     };
-      // //     break;
-      // //   case '3':
-      // //     // idx = membership.indexOf(value);
-      // //     retValue = membership;
-      // //     break;
-      // //   case '4':
-      // //     retValue = '';
-      // //     break;
-      // //   case '5':
-      // //     retValue = '';
-      // //     break;
-      // //   case '6':
-      // //     // idx = delivery.indexOf(value);
-      // //     retValue = delivery;
-      // //     break;
-      // //   default:
-      // //     retValue = value;
-      // //     break;
-      // // }
-      // // return retValue;
-      // // },
     },
     { fieldName: 'pdCd',
       header: t('MSG_TXT_PROD_CD'), // 제품코드
@@ -820,7 +684,7 @@ const initGrid1 = defineGrid((data, view) => {
       },
       width: '100',
       rules: 'required',
-      editor: { type: 'dropdown', textReadOnly: true },
+      editor: { type: 'list', textReadOnly: true },
       options: codes.SL_CTR_DV_CD,
       styleCallback(grid, dataCell) {
         const mdfyYn = grid.getValue(dataCell.index.itemIndex, 'mdfyYn');
@@ -829,7 +693,7 @@ const initGrid1 = defineGrid((data, view) => {
           ret.editable = false;
         } else {
           ret = {
-            editor: { type: 'dropdown', textReadOnly: true },
+            editor: { type: 'list', textReadOnly: true },
           };
         }
         return ret;
@@ -843,7 +707,7 @@ const initGrid1 = defineGrid((data, view) => {
       },
       width: '100',
       rules: 'required',
-      editor: { type: 'dropdown', textReadOnly: true },
+      editor: { type: 'list', textReadOnly: true },
       options: codes.SL_CTR_MTR_TP_CD,
       styleCallback(grid, dataCell) {
         const mdfyYn = grid.getValue(dataCell.index.itemIndex, 'mdfyYn');
@@ -852,7 +716,7 @@ const initGrid1 = defineGrid((data, view) => {
           ret.editable = false;
         } else {
           ret = {
-            editor: { type: 'dropdown', textReadOnly: true },
+            editor: { type: 'list', textReadOnly: true },
           };
         }
         return ret;
@@ -866,7 +730,7 @@ const initGrid1 = defineGrid((data, view) => {
       },
       rules: 'required',
       width: '100',
-      editor: { type: 'dropdown', textReadOnly: true },
+      editor: { type: 'list', textReadOnly: true },
       editable: true,
       options: codes.SL_CTR_TP_CD,
       styleCallback(grid, dataCell) {
@@ -876,7 +740,7 @@ const initGrid1 = defineGrid((data, view) => {
           ret.editable = false;
         } else {
           ret = {
-            editor: { type: 'dropdown', textReadOnly: true },
+            editor: { type: 'list', textReadOnly: true },
           };
         }
         return ret;
@@ -890,7 +754,7 @@ const initGrid1 = defineGrid((data, view) => {
       },
       width: '208',
       rules: 'required',
-      editor: { type: 'dropdown' },
+      editor: { type: 'list' },
       options: codes.SL_CTR_DSC_TP_CD,
       styleCallback(grid, dataCell) {
         const mdfyYn = grid.getValue(dataCell.index.itemIndex, 'mdfyYn');
@@ -899,7 +763,7 @@ const initGrid1 = defineGrid((data, view) => {
           ret.editable = false;
         } else {
           ret = {
-            editor: { type: 'dropdown', textReadOnly: true },
+            editor: { type: 'list', textReadOnly: true },
           };
         }
         return ret;
@@ -908,7 +772,7 @@ const initGrid1 = defineGrid((data, view) => {
     { fieldName: 'canAfOjYn',
       header: t('MSG_TXT_CAN_AFT_APY'), // 취소 후 적용
       width: '100',
-      editor: { type: 'dropdown', textReadOnly: true },
+      editor: { type: 'list', textReadOnly: true },
       editable: true,
       styleCallback(grid, dataCell) {
         const mdfyYn = grid.getValue(dataCell.index.itemIndex, 'mdfyYn');
@@ -917,7 +781,7 @@ const initGrid1 = defineGrid((data, view) => {
           ret.editable = false;
         } else {
           ret = {
-            editor: { type: 'dropdown', textReadOnly: true },
+            editor: { type: 'list', textReadOnly: true },
           };
         }
         return ret;
@@ -1022,6 +886,7 @@ const initGrid1 = defineGrid((data, view) => {
   };
   view.onCellEdited = async (grid, itemIndex) => {
     const { fieldName } = grid.getCurrent();
+    console.log(gridUtil.getCheckedRowValues(view));
 
     if (fieldName === 'slCtrSellTpCd') {
       grid.commit();
@@ -1219,7 +1084,7 @@ const initGrid2 = defineGrid((data, view) => {
     },
     { fieldName: 'slCtrSellTpCd',
       header: t('TXT_MSG_SELL_TP_CD'), // 판매유형
-      editor: { type: 'dropdown', textReadOnly: true },
+      editor: { type: 'list', textReadOnly: true },
       width: '160',
       styleName: 'text-center',
       editable: true,
@@ -1231,66 +1096,9 @@ const initGrid2 = defineGrid((data, view) => {
         text: t('MSG_TXT_SELL_TP_DTL'), // 판매유형상세
       },
       width: '100',
-      editor: { type: 'dropdown', textReadOnly: true },
+      editor: { type: 'list', textReadOnly: true },
       options: codes.SELL_TP_DTL_CD,
       editable: false,
-      // styleCallback(grid, dataCell) {
-      //   console.log(grid, dataCell);
-      //   const ret = {
-      //     type: 'dropdown',
-      //     labels: { 0: '렌탈' },
-      //     values: { 0: '21' },
-      //   };
-      // const sellTpCd = grid.getValue(dataCell.index.itemIndex, 'slCtrSellTpCd');
-
-      // const lumpCodeId = lump.map((param) => param.codeId);
-      // const lumpCodeName = lump.map((param) => param.codeName);
-
-      // const rentalCodeId = rental.map((param) => param.codeId);
-      // const rentalCodeName = rental.map((param) => param.codeName);
-
-      // const membershipCodeId = membership.map((param) => param.codeId);
-      // const membershipCodeName = membership.map((param) => param.codeName);
-
-      // const deliveryCodeId = delivery.map((param) => param.codeId);
-      // const deliveryCodeName = delivery.map((param) => param.codeName);
-
-      // switch (sellTpCd) {
-      //   case '1':
-      //     ret.editor = {
-      //       type: 'dropdown',
-      //       values: lumpCodeId,
-      //       labels: lumpCodeName,
-      //     };
-      //     break;
-      //   case '2':
-      //     ret.editor = {
-      //       type: 'dropdown',
-      //       values: rentalCodeId,
-      //       labels: rentalCodeName,
-      //     };
-      //     break;
-      //   case '3':
-      //     ret.editor = {
-      //       type: 'dropdown',
-      //       values: membershipCodeId,
-      //       labels: membershipCodeName,
-      //     };
-      //     break;
-      //   case '6':
-      //     ret.editor = {
-      //       type: 'dropdown',
-      //       values: deliveryCodeId,
-      //       labels: deliveryCodeName,
-      //     };
-      //     break;
-      //   default:
-      //     ret.editor = {};
-      //     break;
-      // }
-      // console.log(ret);
-      // return ret;
-      // },
     },
     {
       fieldName: 'slCtrWoExmpAmt',
