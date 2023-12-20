@@ -17,6 +17,7 @@
   <kw-page>
     <kw-search
       :cols="4"
+      :modified-targets="['grdMain']"
       @search="onClickSearch"
     >
       <kw-search-row>
@@ -205,7 +206,7 @@
         />
         <!-- 스티커출력 -->
         <kw-btn
-          v-permission:read
+          v-permission:print
           dense
           secondary
           :label="$t('MSG_BTN_STKR_PRNT')"

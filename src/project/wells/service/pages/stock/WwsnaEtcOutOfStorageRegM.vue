@@ -120,7 +120,7 @@
         />
         <!-- 일괄변경 -->
         <kw-btn
-          v-permission:read
+          v-permission:update
           dense
           secondary
           :label="$t('MSG_TXT_BLK_CH')"

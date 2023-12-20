@@ -18,6 +18,7 @@
     <kw-search
       :cols="2"
       one-row
+      :modified-targets="['grdMain']"
       @search="onClickSearch"
     >
       <kw-search-row>
