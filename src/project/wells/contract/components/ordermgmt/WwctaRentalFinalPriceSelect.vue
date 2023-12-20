@@ -31,7 +31,7 @@
             class="scoped-item__product-name"
           >
             {{ dtl.cstBasePdAbbrNm || dtl.pdNm }}
-            <span class="text-bg-white">
+            <span class="text-black3 text-caption">
               {{ dtl.pdCd }}
             </span>
           </kw-item-label>
@@ -78,7 +78,7 @@
       >
         <kw-item-label class="scoped-item__header-btns flex gap-xs">
           <kw-btn
-            v-if="!promotions?.length"
+            v-if="showInitBtn"
             :label="'초기화'"
             dense
             @click="initializePriceDefineVariable"
@@ -981,6 +981,15 @@ const userSelectableRentalDscTpCd = computed(() => (priceDefineVariableOptions.v
 점심은 나가서 먹자.
 
 * */
+const showInitBtn = computed(() => {
+  if (machineChanged.value) {
+    return false;
+  }
+  if (ojCntrRels.value?.length || cntrRels.value?.length) {
+    return false;
+  }
+  return !promotions.value?.length;
+});
 
 const showMachineChangeBtn = computed(() => props.bas.sellInflwChnlDtlCd !== '5010');
 
@@ -1277,7 +1286,10 @@ function labelForCntrRel(cntrRel) {
   &__toggle-helper {
     background: transparent;
     position: absolute;
-    inset: rem-to-px(map-get($body, "line-height")) 0 0 0;
+    height: 52px;
+    bottom: 0;
+    left: 0;
+    right: 0;
   }
 
   &__product-name {

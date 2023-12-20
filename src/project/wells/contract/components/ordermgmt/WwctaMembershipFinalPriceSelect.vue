@@ -31,7 +31,7 @@
             class="scoped-item__product-name"
           >
             {{ dtl.cstBasePdAbbrNm || dtl.pdNm }}
-            <span class="text-bg-white">
+            <span class="text-black3 text-caption">
               {{ dtl.pdCd }}
             </span>
           </kw-item-label>
@@ -553,7 +553,10 @@ function labelForCntrRel(cntrRel) {
   &__toggle-helper {
     background: transparent;
     position: absolute;
-    inset: rem-to-px(map-get($body, "line-height")) 0 0 0;
+    height: 52px;
+    bottom: 0;
+    left: 0;
+    right: 0;
   }
 
   &__product-name {

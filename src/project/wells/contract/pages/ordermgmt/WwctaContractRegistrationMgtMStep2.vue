@@ -16,11 +16,15 @@
   <div class="scoped-layout">
     <product-select
       class="scoped-layout__pick-area"
+      :class="{'scoped-layout__pick-area--empty': !step2.dtls?.length}"
       :cntr-no="cntrNo"
       @select="onSelectProduct"
       @fetched="onFetchedProduct"
     />
-    <div class="scoped-layout__mod-area scoped-mod-area">
+    <div
+      class="scoped-layout__mod-area scoped-mod-area"
+      :class="{'scoped-layout__mod-area--empty': !step2.dtls?.length}"
+    >
       <span class="scoped-mod-area__title">
         상품내역
       </span>
@@ -91,10 +95,14 @@
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
-import ProductSelect from '~sms-wells/contract/pages/ordermgmt/WwctaContractRegistrationMgtMStep2SelectProduct.vue';
-import SinglePayPriceSelect from '~sms-wells/contract/components/ordermgmt/WwctaSpayFinalPriceSelect.vue';
-import RentalPriceSelect from '~sms-wells/contract/components/ordermgmt/WwctaRentalFinalPriceSelect.vue';
-import MembershipPriceSelect from '~sms-wells/contract/components/ordermgmt/WwctaMembershipFinalPriceSelect.vue';
+import ProductSelect
+  from '~sms-wells/contract/pages/ordermgmt/WwctaContractRegistrationMgtMStep2SelectProduct.vue';
+import SinglePayPriceSelect
+  from '~sms-wells/contract/components/ordermgmt/WwctaSpayFinalPriceSelect.vue';
+import RentalPriceSelect
+  from '~sms-wells/contract/components/ordermgmt/WwctaRentalFinalPriceSelect.vue';
+import MembershipPriceSelect
+  from '~sms-wells/contract/components/ordermgmt/WwctaMembershipFinalPriceSelect.vue';
 import RegularShippingPriceSelect
   from '~sms-wells/contract/components/ordermgmt/WwctaRegularShippingFinalPriceSelect.vue';
 import { alert, useDataService, useGlobal } from 'kw-lib';
@@ -525,7 +533,9 @@ async function onPackaging(dtl, rentalDscTpCd) {
   }); */
 
   const packagables = step2.value.dtls.filter((rentalDtl) => {
-    if (rentalDtl === dtl) { return false; }
+    if (rentalDtl === dtl) {
+      return false;
+    }
     const { sellTpCd } = rentalDtl;
     return sellTpCd === SELL_TP_CD.RENTAL;
   });
@@ -534,10 +544,12 @@ async function onPackaging(dtl, rentalDscTpCd) {
   if (rentalDscTpCd === RENTAL_DSC_TP_CD.PACKAGE_2 && packagables.length < 1) {
     alert('렌탈 상품을 적어도 두 건이상 선택해주세요.');
     return;
-  } if (rentalDscTpCd === RENTAL_DSC_TP_CD.PACKAGE_3 && packagables.length < 2) {
+  }
+  if (rentalDscTpCd === RENTAL_DSC_TP_CD.PACKAGE_3 && packagables.length < 2) {
     alert('렌탈 상품을 적어도 세 건이상 선택해주세요.');
     return;
-  } if (rentalDscTpCd === RENTAL_DSC_TP_CD.PACKAGE_OVER_4 && packagables.length < 3) {
+  }
+  if (rentalDscTpCd === RENTAL_DSC_TP_CD.PACKAGE_OVER_4 && packagables.length < 3) {
     alert('렌탈 상품을 적어도 네 건이상 선택해주세요.');
     return;
   }
@@ -629,7 +641,9 @@ async function onClickSelectPrecontract(dtl) {
     },
   });
 
-  if (!result) { return; }
+  if (!result) {
+    return;
+  }
 
   dtl.cntrRels ??= [];
 
@@ -663,7 +677,9 @@ async function onChangeWellsFarmPackage(dtl) {
     },
   });
 
-  if (!result) { return; }
+  if (!result) {
+    return;
+  }
 
   setTempKey(newPackageProduct);
 
@@ -751,7 +767,9 @@ async function confirmProducts() {
 
   // eslint-disable-next-line no-use-before-define
   const invalid = dtls.find((dtl) => !validateCntrDtl(dtl));
-  if (invalid) { return false; }
+  if (invalid) {
+    return false;
+  }
 
   const { data } = await dataService.post(`sms/wells/contract/contracts/confirm-products/${cntrNo.value}`, dtls);
   data.forEach((newDtl, index) => {
@@ -918,12 +936,26 @@ function onPriceChanged(item, price) {
   height: 100%;
   display: flex;
   flex-flow: row nowrap;
+  overflow: hidden;
   container-type: inline-size;
 
   &__pick-area {
-    flex: 1 0 1px;
+    flex: none;
+    width: 339px;
     padding-right: 2px; // fixme
     border-right: 1px solid $line-line;
+    transition: transform 0.225s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.1s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  &__pick-area--empty {
+    opacity: 1 !important;
+    transform: unset !important;
+    position: static !important;
+    border-right: 1px solid $line-line !important;
+
+    &::after {
+      visibility: hidden;
+    }
   }
 
   &__mod-area {
@@ -935,8 +967,8 @@ function onPriceChanged(item, price) {
 
   @container (max-width: 1100px) {
     &__pick-area {
-      visibility: hidden;
-      width: 30px;
+      opacity: 0.1;
+      transform: translateX(-100%) translateX(30px);
       position: absolute;
       top: 0;
       bottom: 0;
@@ -944,25 +976,29 @@ function onPriceChanged(item, price) {
       border-right: unset;
 
       &::after {
-        visibility: visible;
+        opacity: 1;
         content: "";
         position: absolute;
-        inset: 0;
+        top: 0;
+        bottom: 0;
+        right: 0;
+        width: 30px;
         background-repeat: no-repeat;
         background-position: center;
         background-size: 8px 30px;
         background-image:
           linear-gradient(
             90deg,
-            $line-line,
+            $black1,
             transparent,
-            $line-line,
+            $black1,
           );
       }
 
       &:hover,
       &:focus-within {
-        visibility: visible;
+        opacity: 1;
+        transform: unset;
         width: 339px;
         background: $bg-white;
         border-right: 1px solid $line-line;
