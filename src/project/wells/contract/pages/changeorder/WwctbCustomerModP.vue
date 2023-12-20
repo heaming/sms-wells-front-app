@@ -127,7 +127,7 @@
             <kw-input
               v-model="fieldParams.rcgvpKnm"
               :rules="!hasIstDt ? 'required': ''"
-              maxlength="10"
+              maxlength="30"
               :label="t('MSG_TXT_INSTR')"
               :disable="hasIstDt"
             />
