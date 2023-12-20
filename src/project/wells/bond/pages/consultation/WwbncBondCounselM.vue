@@ -1215,6 +1215,7 @@ async function fetchData() {
         searchParams.value.tno = `${obj.tno1}-${obj.tno2}-${obj.tno3}`;
         tnoInfo.value.tno1 = `${obj.tno1}-${obj.tno2}-${obj.tno3}`;
         searchParams.value.callbackData0101 = obj.tno3;
+        searchParams.value.queueId = obj.tno3;
         baseParams.value.sysCALL_sStation = `5${obj.tno3}`;
         baseParams.value.sysCALL_sAgent = `k${obj.tno3}`;
       }
