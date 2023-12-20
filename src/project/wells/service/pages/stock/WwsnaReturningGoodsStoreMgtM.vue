@@ -179,7 +179,7 @@
         />
         <!-- 확인일자 일괄변경 -->
         <kw-btn
-          v-permission:read
+          v-permission:update
           dense
           secondary
           :label="$t('MSG_BTN_CONF_DT_BLK_CH')"
@@ -193,7 +193,7 @@
         />
         <!-- 반품처리유형 일괄변경 -->
         <kw-btn
-          v-permission:read
+          v-permission:update
           dense
           secondary
           :label="$t('MSG_BTN_RTNGD_PROCS_TP_BLK_CH')"
@@ -378,8 +378,8 @@ function onClickGridBulkChange(val, type) {
 
   for (let dataRow = 0; dataRow < rowCount; dataRow += 1) {
     const chkValue = gridUtil.getRowValue(view, dataRow);
-    console.log(chkValue);
-    if (isEmpty(chkValue.ostrConfDt) || isEmpty(chkValue.rtngdProcsTpCd)) {
+    debugger;
+    if ((isEmpty(chkValue.ostrConfDt) && type === 'ostrConfDt') || (isEmpty(chkValue.rtngdProcsTpCd) && type === 'rtngdProcsTpCd')) {
       view.setValue(dataRow, type, val);
       view.checkRow(dataRow, true);
     }
@@ -538,16 +538,19 @@ async function onClickRtnGd() {
     return;
   }
 
-  // if (!(await gridUtil.validate(view, { isCheckedOnly: true }))) { return; }
-  if (await gridUtil.alertIfIsNotModified(view)) { return; }
-
   // 10 : 물류폐기, 11 : 리퍼-E급 tt물류폐기 , 20 : 리퍼용,
   // 21 : 품질팀 , 22 : 리퍼-tt특별자재
   // 80 : 리퍼작업완료-A급, 81 : 리퍼작업완료-B-1급, 82 : 리퍼작업완료-B-2급
   const strRtngdProcsTpCd = ['10', '11', '20', '21', '22', '80', '81', '82'];
 
   for (let i = 0; i < checkedRows.length; i += 1) {
-    const { rtngdRvpyProcsYn, rtngdProcsTpCd } = checkedRows[i];
+    const { rtngdRvpyProcsYn, rtngdProcsTpCd, rtngdConfYn, rtngdConfYn1 } = checkedRows[i];
+
+    if (rtngdConfYn === rtngdConfYn1) {
+      // 변경사항이 없습니다.
+      notify(t('MSG_ALT_NO_CHG_CNTN'));
+      return;
+    }
 
     if (rtngdRvpyProcsYn === 'Y') {
       // 이미 반품 완료된 건이 포함되었습니다. \n확인해주십시오.
@@ -647,6 +650,7 @@ const initGrdMain = defineGrid((data, view) => {
     { fieldName: 'reqdDt' }, // 철거요청일자
     { fieldName: 'vstFshDt' }, // 작업일자
     { fieldName: 'rtngdConfYn' }, // 반품확인여부
+    { fieldName: 'rtngdConfYn1' }, // 기존반품확인여부
     { fieldName: 'useDay' }, // 사용일수
     { fieldName: 'useMths' }, // 사용개월
     { fieldName: 'refurbishYn' }, // 리퍼
@@ -826,24 +830,15 @@ const initGrdMain = defineGrid((data, view) => {
   view.filteringOptions.enabled = false;
 
   view.setRowStyleCallback((grid, item) => {
-    const ret = {};
-    const { ostrConfDt1 } = gridUtil.getRowValue(grid, item.index);
-    // const strRtngdProcsTpCd = grid.getValue(item.index, 'rtngdProcsTpCd');
-    // const strOstrDt = grid.getValue(item.index, 'ostrDt');
-    // , rtngdRvpyProcsYn
+    const { rtngdRvpyProcsYn } = gridUtil.getRowValue(grid, item.index);
 
-    if (ostrConfDt1) {
-      ret.editable = false;
+    if (rtngdRvpyProcsYn === 'Y') {
+      return { editable: false };
     }
-
-    // if (rtngdRvpyProcsYn !== 'Y') {
-    //   ret.editable = false;
-    // }
-    return ret;
   });
 
   const f = function checked(dataSource, item) {
-    if ((data.getValue(item.dataRow, 'rtngdRvpyProcsYn') !== 'N') || (data.getValue(item.dataRow, 'ostrConfDt1') !== undefined)) {
+    if ((data.getValue(item.dataRow, 'rtngdRvpyProcsYn') !== 'N') && (Number(data.getValue(item.dataRow, 'useQty')) > 0)) {
       return false;
     }
     return true;
