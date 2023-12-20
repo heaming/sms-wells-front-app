@@ -37,7 +37,7 @@
           <kw-form-row>
             <!--판매구분-->
             <kw-form-item :label="$t('MSG_TXT_SLS_CAT')">
-              <p>{{ searchDetail.cntrGbn }}</p>
+              <p>웰스</p>
             </kw-form-item>
             <!--본부장-->
             <kw-form-item :label="$t('MSG_TXT_GNR_MNG')">
@@ -77,7 +77,7 @@
             </kw-form-item>
             <!--추가금액 (mapping : null)-->
             <kw-form-item :label="$t('MSG_TXT_SPMT_AMT')">
-              <p>{{ stringUtil.getNumberWithComma(searchDetail.null??'') }}</p>
+              <p>{{ stringUtil.getNumberWithComma(searchDetail.rentalAmt??'') }}</p>
             </kw-form-item>
             <!--할인가-->
             <kw-form-item :label="$t('MSG_TXT_DSC_AMT')">
@@ -227,7 +227,7 @@
           <kw-form-row>
             <!-- row3 매출금액 -->
             <kw-form-item :label="$t('MSG_TXT_SL_AMT')">
-              <p>{{ stringUtil.getNumberWithComma(searchDetail.slSumAmt??'') }}</p>
+              <p>{{ stringUtil.getNumberWithComma(searchDetail.thmSlSumAmt??'') }}</p>
             </kw-form-item>
             <!-- row3 매출VAT -->
             <kw-form-item :label="$t('MSG_TXT_SL_VAT')">
@@ -568,12 +568,13 @@ function onChangeTextforSelect(div) {
 async function onClickSearchCancel() {
   if (!await frmMainRegularSp.value.validate()) { return; }
 
-  emits('searchdetail', { reqDt: searchDetail.rsgAplcDt,
+  emits('searchdetail', {
+    reqDt: searchDetail.rsgAplcDt,
     cancelDt: searchDetail.rsgFshDt,
+    adCtrAmt: searchDetail.adCtrAmt ?? 0,
     slCtrAmt: searchDetail.slCtrAmt ?? 0,
     dscDdctam: searchDetail.dscDdctam ?? 0,
     filtDdctam: searchDetail.filtDdctam ?? 0,
-    adCtrAmt: searchDetail.adCtrAmt ?? 0,
   });
 
   isReSearch.value = searchDetail.cancelStatNm === '취소등록' ? 'Y' : 'N';
