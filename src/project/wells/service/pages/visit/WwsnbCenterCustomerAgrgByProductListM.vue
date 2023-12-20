@@ -65,13 +65,13 @@
             @change="fetchData"
           />
         </template>
-        <kw-btn
+        <!-- <kw-btn
           icon="print"
           dense
           secondary
           :label="$t('MSG_BTN_PRTG')"
           @click="onClickPrint"
-        />
+        /> -->
         <kw-btn
           icon="download_on"
           dense
@@ -101,11 +101,11 @@
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
-import { codeUtil, getComponentType, gridUtil, useDataService, defineGrid, useGlobal } from 'kw-lib';
+import { codeUtil, getComponentType, gridUtil, useDataService, defineGrid } from 'kw-lib';
 import dayjs from 'dayjs';
 import { cloneDeep } from 'lodash-es';
 
-const { notify } = useGlobal();
+// const { notify } = useGlobal();
 const { t } = useI18n();
 const { currentRoute } = useRouter();
 const grdMainRef = ref(getComponentType('KwGrid'));
@@ -174,10 +174,10 @@ async function onClickSearch() {
   await fetchData();
 }
 
-async function onClickPrint() {
-  // TODO : 출력 기능 연결
-  notify(t('TODO : 출력기능?'));
-}
+// async function onClickPrint() {
+//   // TODO : 출력 기능 연결
+//   notify(t('TODO : 출력기능?'));
+// }
 // -------------------------------------------------------------------------------------------------
 // Initialize Grid
 // -------------------------------------------------------------------------------------------------
