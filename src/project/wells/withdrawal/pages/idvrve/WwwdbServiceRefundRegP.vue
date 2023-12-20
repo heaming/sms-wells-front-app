@@ -225,6 +225,7 @@
               :disable="infomation.rfndDsbDvCd !== '01'"
               :rules="{required : infomation.rfndDsbDvCd === '01'}"
               :label="$t('MSG_TXT_DSB_BNK')"
+              @update:model-value="infomation.rfndDsbDvCd === '01' ? infomation.cstNm = '' : infomation.cstNm"
             />
           </kw-form-item>
           <!-- 계좌번호 -->
@@ -239,6 +240,7 @@
               :disable="infomation.rfndDsbDvCd !== '01'"
               :rules="{required : infomation.rfndDsbDvCd === '01'}"
               :label="$t('MSG_TXT_AC_NO')"
+              @update:model-value="infomation.rfndDsbDvCd === '01' ? infomation.cstNm = '' : infomation.cstNm"
             />
           </kw-form-item>
         </kw-form-row>
@@ -381,6 +383,7 @@
               :options="codes.CSH_RFND_FNIT_CD"
               rules="required"
               :label="$t('MSG_TXT_DSB_BNK')"
+              @update:model-value="infomation.cstNm=''"
             />
           </kw-form-item>
           <!-- 계좌번호 -->
@@ -394,6 +397,7 @@
               :maxlength="30"
               rules="required"
               :label="$t('MSG_TXT_AC_NO')"
+              @change="infomation.cstNm=''"
             />
           </kw-form-item>
         </kw-form-row>
@@ -810,14 +814,14 @@ async function onClickCheckAccountHolder() {
 
   // eslint-disable-next-line max-len
   const acnoData = await dataService.get('/sms/wells/withdrawal/idvrve/refund-applications/bank-effective', { params: sendData }).catch(() => {
-    infomation.value.cstNm = '테스트예금주';
+    infomation.value.cstNm = '';
   });
   if (!isEmpty(acnoData.data)) {
-    if (isEmpty(acnoData.data.ACHLDR_NM) && isEmpty(acnoData.data.ACHLDR_NM?.trim())) {
+    if (isEmpty(acnoData.data.ACHLDR_NM) || isEmpty(acnoData.data.ACHLDR_NM?.trim())) {
       notify(acnoData.data.ERR_CN);
-      infomation.value.cstNm = '테스트예금주';
+      infomation.value.cstNm = '';
     } else {
-      infomation.value.cstNm = acnoData.data.ACHLDR_NM;
+      infomation.value.cstNm = acnoData.data.ACHLDR_NM?.trim();
     }
   }
 }

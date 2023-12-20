@@ -236,6 +236,7 @@
           <kw-select
             v-model="saveParams.bankCode"
             :options="codes.CSH_RFND_FNIT_CD"
+            @update:model-value="saveParams.cstNm=''"
           />
           <!-- :options="codes.BNK_CD" -->
         </kw-form-item>
@@ -761,14 +762,14 @@ async function onClickEftnCheck() {
 
   // eslint-disable-next-line max-len
   const acnoData = await dataService.get('/sms/wells/withdrawal/idvrve/refund-applications/bank-effective', { params: sendData }).catch(() => {
-    saveParams.value.cstNm = '테스트예금주';
+    saveParams.value.cstNm = '';
   });
   if (!isEmpty(acnoData.data)) {
-    if (isEmpty(acnoData.data.ACHLDR_NM) && isEmpty(acnoData.data.ACHLDR_NM?.trim())) {
+    if (isEmpty(acnoData.data.ACHLDR_NM) || isEmpty(acnoData.data.ACHLDR_NM?.trim())) {
       notify(acnoData.data.ERR_CN);
-      saveParams.value.cstNm = '테스트예금주';
+      saveParams.value.cstNm = '';
     } else {
-      saveParams.value.cstNm = acnoData.data.ACHLDR_NM;
+      saveParams.value.cstNm = acnoData.data.ACHLDR_NM?.trim();
     }
   }
 }
