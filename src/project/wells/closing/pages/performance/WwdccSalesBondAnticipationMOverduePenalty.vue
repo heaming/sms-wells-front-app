@@ -480,9 +480,10 @@ async function onClickWholeExcelDownload() {
       }
     }
   }
-
+  // 요청으로 fileName 속성 추가
   gridUtil.exportBulkView(mainView, {
     url: `/sms/wells/closing/performance/overdue-penalty/${res}/bulk-excel-download`, // url 지정
+    fileName: `${t('MSG_TIT_SL_BND_ATAM_PS')} - ${t('MSG_TXT_BZNS_ATAM')}(${t('MSG_TXT_WO_CNT')})_${dayjs().format('YYYYMMDDHHmmss')}`,
     parameter: { // 검색 조건을 그대로 넣어준다. 없을 경우 추가하지 않아도 됨
       ...bulkExcelCachedParams,
     },

@@ -96,7 +96,6 @@ import { getAggregateDivide, getSellTpCd, getSellTpDtlCd } from '~/modules/sms-c
 
 const { t } = useI18n();
 const dataService = useDataService();
-const { currentRoute } = useRouter();
 
 // -------------------------------------------------------------------------------------------------
 // Function & Event
@@ -247,11 +246,11 @@ async function onClickSearch() {
   await setGridHeader();
   await fetchData();
 }
-
+// 요청으로 fileName 속성 추가
 async function onClickExcelDownload() {
   const view = grdAdditionalChargeRef.value.getView();
   await gridUtil.exportView(view, {
-    fileName: currentRoute.value.meta.menuName,
+    fileName: `${t('MSG_TIT_SL_BND_ATAM_PS')} - ${t('MSG_TXT_DLQ_ADAMT')}`,
     timePostfix: true,
     exportData: gridUtil.getAllRowValues(view),
   });
