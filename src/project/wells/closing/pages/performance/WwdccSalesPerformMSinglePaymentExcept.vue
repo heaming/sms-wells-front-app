@@ -773,8 +773,8 @@ async function setGridColumnLayout(data, view) { // 일시불
       },
     }, // 매출년월
     { fieldName: 'slStpYn', header: t('MSG_TXT_SL_STP'), width: '100', styleName: 'text-center' }, // 매출중지
-    { fieldName: 'rentalTn', header: t('MSG_TXT_RENTAL_NMN'), width: '100', styleName: 'text-center' }, // 렌탈차월
-    { fieldName: 'prmMcn', header: t('MSG_TXT_PRM_MCNT'), width: '100', styleName: 'text-center' }, // 선납개월
+    { fieldName: 'rentalTn', header: t('MSG_TXT_RENTAL_NMN'), width: '100', styleName: 'text-center', dataType: 'number' }, // 렌탈차월
+    { fieldName: 'prmMcn', header: t('MSG_TXT_PRM_MCNT'), width: '100', styleName: 'text-center', dataType: 'number' }, // 선납개월
     { fieldName: 'thmSlOcAmt', header: t('MSG_TXT_SL_AMT'), width: '100', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0', visable: (gridAddSetupInfo.value.sellTpCd === '6') }, // 매출금액
     { fieldName: 'thmSlSumAmt', header: t('MSG_TXT_OCCR_AMT'), width: '134', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' }, // 발생금액
     { fieldName: 'dpAmt',

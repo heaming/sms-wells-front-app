@@ -122,7 +122,6 @@ import ZctzContractDetailNumber from '~sms-common/contract/components/ZctzContra
 const { t } = useI18n();
 const { notify } = useGlobal();
 const dataService = useDataService();
-const { currentRoute } = useRouter();
 // -------------------------------------------------------------------------------------------------
 // Function & Event
 // -------------------------------------------------------------------------------------------------
@@ -593,7 +592,7 @@ function getSearchConditionMessage() {
 async function onClickExcelDownload() {
   const view = grdSalesBondRef.value.getView();
   await gridUtil.exportView(view, {
-    fileName: currentRoute.value.meta.menuName,
+    fileName: `${t('MSG_TIT_SL_BND_ATAM_PS')} - ${t('MSG_TXT_SL_BND')}`,
     timePostfix: true,
     exportData: gridUtil.getAllRowValues(view),
   });
@@ -725,9 +724,11 @@ async function onClickBulkExcelDownload() {
   const bulkExcelCachedParams = cloneDeep(searchParams.value);
   const view = grdSalesBondRef.value.getView();
   // 주문별의 경우 대용량 엑셀 다운로드 형식 사용
+  // 요청으로 fileName 속성 추가
   gridUtil.exportBulkView(view, {
     url: '/sms/wells/closing/performance/sales-bond/bulk-excel-download',
     columns: getColumnsBySellTpCd(bulkExcelCachedParams.sellTpCd),
+    fileName: `${t('MSG_TIT_SL_BND_ATAM_PS')} - ${t('MSG_TXT_SL_BND')}(${t('MSG_TXT_WO_CNT')})_${dayjs().format('YYYYMMDDHHmmss')}`,
     parameter: {
       ...bulkExcelCachedParams,
     },

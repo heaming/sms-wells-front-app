@@ -471,14 +471,14 @@ async function onClickExportViewDetail() {
 const initGridMain = defineGrid((data, view) => {
   const columns = [
     { fieldName: 'slClYm', header: t('MSG_TXT_BASE_YM'), width: '100', styleName: 'text-center', datetimeFormat: 'YYYY-MM' }, // 기준년월
-    { fieldName: 'dlqMcn', header: t('MSG_TXT_DLQ_MCNT'), width: '100', styleName: 'text-right' }, // 연체개월
-    { fieldName: 'eotDlqAmt', header: t('MSG_TXT_DLQ_AMT'), width: '100', styleName: 'text-right', dataType: 'number' }, // 연체금액
+    { fieldName: 'dlqMcn', header: t('MSG_TXT_DLQ_MCNT'), width: '100', styleName: 'text-right', dataType: 'number' }, // 연체개월
+    { fieldName: 'eotDlqAmt', header: t('MSG_TXT_DLQ_AMT'), width: '100', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' }, // 연체금액
     { fieldName: 'clctamDvCdNm', header: t('MSG_TXT_CLCTAM_TP'), width: '100', styleName: 'text-center' }, // 집금유형
     { fieldName: 'clctamPrtnrNo', header: t('MSG_TXT_CLCTAM_TP_ICHR'), width: '100', styleName: 'text-center' }, // 집금유형담당
-    { fieldName: 'slDpAggAmt', header: t('MSG_TXT_TOT_MPY_AMT'), width: '100', styleName: 'text-right', dataType: 'number' }, // 총납부액
-    { fieldName: 'thmIntamDpAmt', header: t('MSG_TXT_THM_MPY_AMT'), width: '100', styleName: 'text-right', dataType: 'number' }, // 당월납부액
-    { fieldName: 'crpUcAmt', header: t('MSG_TXT_THM_CNTRAM_DP_AMT'), width: '100', styleName: 'text-right', dataType: 'number' }, // 당월계약금입금액
-    { fieldName: 'sellAmt', header: t('MSG_TXT_SALE_PRICE'), width: '100', styleName: 'text-right', dataType: 'number' }, // 판매금액
+    { fieldName: 'slDpAggAmt', header: t('MSG_TXT_TOT_MPY_AMT'), width: '100', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' }, // 총납부액
+    { fieldName: 'thmIntamDpAmt', header: t('MSG_TXT_THM_MPY_AMT'), width: '100', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' }, // 당월납부액
+    { fieldName: 'crpUcAmt', header: t('MSG_TXT_THM_CNTRAM_DP_AMT'), width: '100', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' }, // 당월계약금입금액
+    { fieldName: 'sellAmt', header: t('MSG_TXT_SALE_PRICE'), width: '100', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' }, // 판매금액
     { fieldName: 'istmInfo', header: t('MSG_TXT_DTL'), width: '100', styleName: 'text-center' }, // 상세
   ];
   const fields = columns.map(({ fieldName, dataType }) => (dataType ? { fieldName, dataType } : { fieldName }));
@@ -495,7 +495,7 @@ const initGridDetail = defineGrid((data, view) => {
     { fieldName: 'dpDvCd', header: t('MSG_TXT_DIV'), width: '100', styleName: 'text-center' }, // 구분
     { fieldName: 'rveDvCd', header: t('MSG_TXT_DP_KND'), width: '100', styleName: 'text-center' }, // 입금종류
     { fieldName: 'dpTpCd', header: t('MSG_TXT_DP_TP'), width: '100', styleName: 'text-center' }, // 입금유형
-    { fieldName: 'rveAmt', header: t('MSG_TXT_PROCS_AMT_WON'), width: '100', styleName: 'text-right', dataType: 'number' }, // 처리금액(원)
+    { fieldName: 'rveAmt', header: t('MSG_TXT_PROCS_AMT_WON'), width: '100', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' }, // 처리금액(원)
   ];
 
   const fields = columns.map(({ fieldName, dataType }) => (dataType ? { fieldName, dataType } : { fieldName }));
