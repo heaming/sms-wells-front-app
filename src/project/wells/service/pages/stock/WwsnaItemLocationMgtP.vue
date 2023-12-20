@@ -153,6 +153,7 @@ const popupRef = ref();
 
 const codes = await codeUtil.getMultiCodes(
   'COD_PAGE_SIZE_OPTIONS',
+  'WARE_TP_CD',
   'LCT_ANGLE_CD',
   'LCT_COF_CD',
   'LCT_FLOR_NO_CD',
@@ -283,21 +284,29 @@ function getInfoByCodeAndName(codeGb, value) {
 }
 
 // 위치명 가져오기
-function getLocationName(angle, cof, flor, grp) {
-  angle = !angle ? '' : angle;
-  cof = !cof ? '' : cof;
-  flor = !flor ? '' : flor;
+function getLocationName(wareTpCd, angle, cof, flor, grp) {
+  wareTpCd = !wareTpCd ? '' : wareTpCd;
+  angle = !angle || isEmpty(angle) ? ' ' : angle;
+  cof = !cof || isEmpty(cof) ? ' ' : cof;
+  flor = !flor || isEmpty(flor) ? ' ' : flor;
   grp = !grp ? '' : grp;
 
-  const term1 = !isEmpty(angle) && (!isEmpty(cof) || (isEmpty(cof) && !isEmpty(flor)) || (isEmpty(cof) && isEmpty(flor) && !isEmpty(grp))) ? '-' : '';
-  const term2 = !isEmpty(cof) && (!isEmpty(flor) || (isEmpty(flor) && !isEmpty(grp))) ? '-' : '';
-  const term3 = !isEmpty(flor) && !isEmpty(grp) ? '-' : '';
+  const term = '-';
+  const term1 = !isEmpty(wareTpCd) ? '-' : '';
+  const term2 = !isEmpty(grp) ? '-' : '';
+
+  let wareTpNm = '';
+  let grpNm = '';
+
+  if (!isEmpty(wareTpCd)) {
+    wareTpNm = codes.WARE_TP_CD.find((e) => e.codeId === wareTpCd).codeName;
+  }
 
   if (!isEmpty(grp)) {
-    const grpNm = codes.LCT_MAT_GRP_CD.find((e) => e.codeId === grp).codeName;
-    return `${angle}${term1}${cof}${term2}${flor}${term3}${grpNm}`;
+    grpNm = codes.LCT_MAT_GRP_CD.find((e) => e.codeId === grp).codeName;
   }
-  return `${angle}${term1}${cof}${term2}${flor}`;
+
+  return `${wareTpNm}${term1}${angle}${term}${cof}${term}${flor}${term2}${grpNm}`;
 }
 
 onMounted(async () => {
@@ -310,10 +319,18 @@ onMounted(async () => {
 // -------------------------------------------------------------------------------------------------
 const initGrdMain = defineGrid((data, view) => {
   const columns = [
-    { fieldName: 'sapMatCd', header: t('MSG_TXT_SAP_CD'), width: '120', styleName: 'text-center', dataType: 'text' }, // SAP 코드
-    { fieldName: 'itmPdCd', header: t('TXT_MSG_AS_ITM_CD'), width: '146', styleName: 'text-center', dataType: 'text' }, // 품목코드
-    { fieldName: 'pdAbbrNm', header: t('MSG_TXT_ITM_NM'), width: '320', dataType: 'text' }, // 품목명
+    { fieldName: 'sapMatCd', header: t('MSG_TXT_SAP_CD'), width: '100', styleName: 'text-center', dataType: 'text' }, // SAP 코드
+    { fieldName: 'itmPdCd', header: t('TXT_MSG_AS_ITM_CD'), width: '110', styleName: 'text-center', dataType: 'text' }, // 품목코드
+    { fieldName: 'pdAbbrNm', header: t('MSG_TXT_ITM_NM'), width: '200', dataType: 'text' }, // 품목명
     { fieldName: 'pitmStocAGdQty', header: `${t('MSG_TXT_STOC')}(EA)`, width: '80', styleName: 'text-right', dataType: 'number' }, // 재고
+    { fieldName: 'wareTpCd',
+      header: t('MSG_TXT_WARE'),
+      width: '80',
+      styleName: 'text-center',
+      options: codes.WARE_TP_CD,
+      editor: { type: 'dropdown' },
+      editable: true,
+    },
     { fieldName: 'angleValNm', // 앵글
       header: t('MSG_TXT_ANGLE'),
       width: '80',
@@ -358,12 +375,12 @@ const initGrdMain = defineGrid((data, view) => {
   view.checkBar.visible = false;
   view.rowIndicator.visible = true;
   view.editOptions.editable = true;
-  const editFields = ['angleValNm', 'cofValNm', 'florNoValNm', 'itmLctMatGrpCd'];
+  const editFields = ['wareTpCd', 'angleValNm', 'cofValNm', 'florNoValNm', 'itmLctMatGrpCd'];
 
   view.onCellEditable = (grid, clickData) => editFields.includes(clickData.column);
 
   view.onCellEdited = async (grid, itemIndex, row, field) => {
-    const { angleValNm, cofValNm, florNoValNm, itmLctMatGrpCd } = grid.getValues(itemIndex);
+    const { wareTpCd, angleValNm, cofValNm, florNoValNm, itmLctMatGrpCd } = grid.getValues(itemIndex);
     const changedFieldName = grid.getDataSource().getOrgFieldName(field);
     let newName = '';
 
@@ -380,7 +397,7 @@ const initGrdMain = defineGrid((data, view) => {
       }
 
       // 위치명
-      const locationNm = getLocationName(newName, cofValNm, florNoValNm, itmLctMatGrpCd);
+      const locationNm = getLocationName(wareTpCd, newName, cofValNm, florNoValNm, itmLctMatGrpCd);
       grid.setValue(itemIndex, 'itmLctNm', locationNm);
 
     // 층수
@@ -396,7 +413,7 @@ const initGrdMain = defineGrid((data, view) => {
       }
 
       // 위치명
-      const locationNm = getLocationName(angleValNm, newName, florNoValNm, itmLctMatGrpCd);
+      const locationNm = getLocationName(wareTpCd, angleValNm, newName, florNoValNm, itmLctMatGrpCd);
       grid.setValue(itemIndex, 'itmLctNm', locationNm);
 
     // 층번호
@@ -412,13 +429,13 @@ const initGrdMain = defineGrid((data, view) => {
       }
 
       // 위치명
-      const locationNm = getLocationName(angleValNm, cofValNm, newName, itmLctMatGrpCd);
+      const locationNm = getLocationName(wareTpCd, angleValNm, cofValNm, newName, itmLctMatGrpCd);
       grid.setValue(itemIndex, 'itmLctNm', locationNm);
 
-    // 그룹
-    } else if (changedFieldName === 'itmLctMatGrpCd') {
+    // 창고, 그룹
+    } else if (changedFieldName === 'wareTpCd' || changedFieldName === 'itmLctMatGrpCd') {
       // 위치명
-      const locationNm = getLocationName(angleValNm, cofValNm, florNoValNm, itmLctMatGrpCd);
+      const locationNm = getLocationName(wareTpCd, angleValNm, cofValNm, florNoValNm, itmLctMatGrpCd);
       grid.setValue(itemIndex, 'itmLctNm', locationNm);
     }
   };

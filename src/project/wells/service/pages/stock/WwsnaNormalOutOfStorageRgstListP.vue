@@ -592,20 +592,20 @@ const initGrdMain = defineGrid((data, view) => {
   const columns = [
     { fieldName: 'svpdMgtTyp',
       header: t('MSG_TXT_STOC_TYPE'),
-      width: '80',
+      width: '75',
       styleName: 'text-center',
     },
     { fieldName: 'svpdSapCd', header: t('MSG_TXT_SAP_CD'), width: '95', styleName: 'text-center' },
     { fieldName: 'itmPdCd', header: t('MSG_TXT_ITM_CD'), width: '110', styleName: 'text-center' },
     { fieldName: 'svpdNmKor', header: t('MSG_TXT_ITM_NM'), width: '200' },
-    { fieldName: 'itemLoc', header: t('MSG_TXT_ITM_LOC'), width: '100' },
-    { fieldName: 'itmGdCd', header: t('MSG_TXT_GD'), width: '55', styleName: 'text-center' },
+    { fieldName: 'itemLoc', header: t('MSG_TXT_ITM_LOC'), width: '125' },
+    { fieldName: 'itmGdCd', header: t('MSG_TXT_GD'), width: '45', styleName: 'text-center' },
     { fieldName: 'qty', header: t('MSG_TXT_OSTR_WARE_STOC'), width: '70', styleName: 'text-right' },
     { fieldName: 'reqStckQty', header: t('MSG_TXT_STR_WARE_STOC'), width: '70', styleName: 'text-right' },
-    { fieldName: 'ostrAkQty', header: t('MSG_TXT_RQST_QTY'), width: '80', styleName: 'text-right' }, // 신청수량
-    { fieldName: 'ostrCnfmQty', header: t('MSG_TXT_CNFM_QTY'), width: '80', styleName: 'text-right' }, // 확정수량
+    { fieldName: 'ostrAkQty', header: t('MSG_TXT_RQST_QTY'), width: '75', styleName: 'text-right' }, // 신청수량
+    { fieldName: 'ostrCnfmQty', header: t('MSG_TXT_CNFM_QTY'), width: '75', styleName: 'text-right' }, // 확정수량
     { fieldName: 'strHopDt', header: t('MSG_TXT_STR_HOP_DT'), width: '100', styleName: 'text-center', datetimeFormat: 'date' }, // 입고희망일자
-    { fieldName: 'ostrAggQty', header: t('MSG_TXT_OSTR_AGG'), width: '80', styleName: 'text-right' }, // 출고누계
+    { fieldName: 'ostrAggQty', header: t('MSG_TXT_OSTR_AGG'), width: '75', styleName: 'text-right' }, // 출고누계
     { fieldName: 'outQty',
       header: t('MSG_TXT_OSTR_QTY'),
       editable: props.page === pageProps.confirm,
