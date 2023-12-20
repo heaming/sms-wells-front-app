@@ -119,6 +119,7 @@ const { modal } = useGlobal();
 const { t } = useI18n();
 const { getConfig } = useMeta();
 const dataService = useDataService();
+const { currentRoute } = useRouter();
 
 // -------------------------------------------------------------------------------------------------
 // Function & Event
@@ -188,7 +189,7 @@ async function onClickExportView() {
   const res = await dataService.get('/sms/wells/service/work-notices', { params: cachedParams });
 
   await gridUtil.exportView(view, {
-    fileName: 'Work Notice',
+    fileName: currentRoute.value.meta.menuName,
     timePostfix: true,
     exportData: res.data,
   });
