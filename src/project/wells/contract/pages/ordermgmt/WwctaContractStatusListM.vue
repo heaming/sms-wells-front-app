@@ -825,7 +825,7 @@ async function onClickF2fPayment(item) {
 
     const { result, payload } = await popupUtil.open(url, { width: 360, height: 740 });
 
-    if (result || payload === 'forceClosed') {
+    if (result || payload === 'forceClosed' || payload === 'closed') {
       await onClickSearch();
     }
   }
