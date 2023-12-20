@@ -145,7 +145,7 @@
           v-model="baseInfo.lctAngleCd"
           dense
           class="w150"
-          :options="codes.LCT_ANGLE_CD"
+          :options="angleCode"
           first-option="select"
         />
         <!--위치 층수 -->
@@ -264,6 +264,54 @@ const pageInfo = ref({
   pageIndex: 1,
   pageSize: Number(getConfig('CFG_CMZ_DEFAULT_PAGE_SIZE')),
 });
+
+// lpad
+function lpad(str, padLen, padStr) {
+  if (padStr.length > padLen) return str;
+
+  // 문자로 변경
+  str += '';
+  padStr += '';
+
+  while (str.length < padLen) { str = padStr + str; }
+  str = str.length >= padLen ? str.substring(0, padLen) : str;
+
+  return str;
+}
+
+const angleCode = ref([]);
+
+// 앵글코드 정렬
+function sortAngleCode() {
+  angleCode.value = codes.LCT_ANGLE_CD.sort((a, b) => {
+    const beforeName = b.codeName;
+    const beforeLength = beforeName.length;
+    const afterName = a.codeName;
+    const afterLength = afterName.length;
+
+    const beforeAngle = beforeName.substring(0, 1);
+    let beforeSerialNo = beforeName.substring(1, beforeLength);
+    const afterAngle = afterName.substring(0, 1);
+    let afterSerialNo = afterName.substring(1, afterLength);
+
+    if (isEmpty(beforeSerialNo)) {
+      beforeSerialNo = lpad(beforeSerialNo, 5, ' ');
+    } else {
+      beforeSerialNo = lpad(beforeSerialNo, 5, '0');
+    }
+
+    if (isEmpty(afterSerialNo)) {
+      afterSerialNo = lpad(afterSerialNo, 5, ' ');
+    } else {
+      afterSerialNo = lpad(afterSerialNo, 5, '0');
+    }
+
+    if (`${beforeSerialNo}${beforeAngle}` < `${afterSerialNo}${afterAngle}`) return 1;
+    if (`${beforeSerialNo}${beforeAngle}` > `${afterSerialNo}${afterAngle}`) return -1;
+
+    return 0;
+  });
+}
 
 const allWareNoRes = await dataService.get('/sms/wells/service/item-locations/stock');
 const optionStockList = allWareNoRes.data;
@@ -520,6 +568,8 @@ onMounted(async () => {
   await stckStdGbFetchData();
   // 창고조회
   await getWareHouses();
+  // 앵글코드 정렬
+  sortAngleCode();
 });
 
 // -------------------------------------------------------------------------------------------------
