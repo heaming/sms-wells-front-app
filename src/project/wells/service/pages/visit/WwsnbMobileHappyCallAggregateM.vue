@@ -14,12 +14,6 @@
 --->
 <template>
   <kw-page ref="pageRef">
-    <template #header>
-      <kw-page-header
-        :options="['홈','정보관리','서비스종합평가','모바일해피콜 집계']"
-      />
-    </template>
-
     <kw-search
       :cols="3"
       @search="onClickSearch"
@@ -325,9 +319,9 @@ function initGrid(data, view) {
         const { rplyCntRank } = grid.getValues(index.itemIndex);
         let retValue;
         if (rplyCntRank === 0 || isEmpty(rplyCntRank)) {
-          retValue = '0';
+          retValue = '0 %';
         } else {
-          retValue = rplyCntRank;
+          retValue = `${rplyCntRank} %`;
         }
         return retValue;
       },
@@ -373,25 +367,25 @@ function initGrid(data, view) {
         const { rplyPer } = grid.getValues(index.itemIndex);
         let retValue;
         if (rplyPer === 0 || isEmpty(rplyPer)) {
-          retValue = '0';
+          retValue = '0 %';
         } else {
-          retValue = rplyPer;
+          retValue = `${rplyPer} %`;
         }
         return retValue;
       },
     },
     { // [응답율]상위
       fieldName: 'rplyPerRank',
-      header: t('MSG_TXT_HGR'),
+      header: `${t('MSG_TXT_HGR')}(%)`,
       width: '100',
       styleName: 'text-center',
       displayCallback(grid, index) {
         const { rplyPerRank } = grid.getValues(index.itemIndex);
         let retValue;
         if (rplyPerRank === 0 || isEmpty(rplyPerRank)) {
-          retValue = '0';
+          retValue = '0 %';
         } else {
-          retValue = rplyPerRank;
+          retValue = `${rplyPerRank} %`;
         }
         return retValue;
       },
@@ -414,7 +408,7 @@ function initGrid(data, view) {
     },
     { // [응답율]점수
       fieldName: 'rplyPerGrdScore',
-      header: t('MSG_TXT_PC'),
+      header: `${t('MSG_TXT_PC')}(${t('점')})`,
       width: '100',
       styleName: 'text-center',
       displayCallback(grid, index) {
@@ -446,16 +440,16 @@ function initGrid(data, view) {
     },
     { // [해피콜] 상위
       fieldName: 'hpcallAvgRank',
-      header: t('MSG_TXT_HGR'),
+      header: `${t('MSG_TXT_HGR')}(%)`,
       width: '100',
       styleName: 'text-center',
       displayCallback(grid, index) {
         const { hpcallAvgRank } = grid.getValues(index.itemIndex);
         let retValue;
         if (hpcallAvgRank === 0 || isEmpty(hpcallAvgRank)) {
-          retValue = '0';
+          retValue = '0 %';
         } else {
-          retValue = hpcallAvgRank;
+          retValue = `${hpcallAvgRank} %`;
         }
         return retValue;
       },
@@ -478,7 +472,7 @@ function initGrid(data, view) {
     },
     { // [해피콜] 점수
       fieldName: 'hpcallAvgGrdScore',
-      header: t('MSG_TXT_PC'),
+      header: `${t('MSG_TXT_PC')}(${t('점')})`,
       width: '100',
       styleName: 'text-center',
       displayCallback(grid, index) {
