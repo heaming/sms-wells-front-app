@@ -472,7 +472,6 @@ const initGridSnglPmntContractorList = defineGrid((data, view) => {
   view.rowIndicator.visible = true; // create number indicator column
 
   view.onCellItemClicked = async (g, { column, dataRow }) => {
-    // TODO: 현재 출고요청등록 팝업화면 개발진행 후 변경 예정
     const cntrNo = g.getValue(dataRow, 'cntrNo');
     const cntrSn = g.getValue(dataRow, 'cntrSn');
     const { sellTpCd } = g.getValues(dataRow);
@@ -492,7 +491,7 @@ const initGridSnglPmntContractorList = defineGrid((data, view) => {
         component: 'WwctaSinglePaymentOrderDetailListP',
         componentProps: { cntrNo, cntrSn, sellTpCd },
       });
-    } else if (column === 'relPdSearch') {
+    } else if (column === 'connPdView') {
       await modal({
         component: 'WwctaLinkProductListP',
         componentProps: { cntrNo, cntrSn },
