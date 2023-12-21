@@ -394,7 +394,7 @@ const initGridSnglPmntContractNoList = defineGrid((data, view) => {
         window: true,
         windowFeatures: { width: 1320, height: 1080 },
       });
-    } else if (['ordrInfoView'].includes(column)) { // 렌탈 주문정보 상세
+    } else if (['ordrInfoView'].includes(column)) { // 일시불 주문정보 상세
       await modal({ component: 'WwctaSinglePaymentOrderDetailListP', componentProps: { cntrNo: paramCntrNo, cntrSn: paramCntrSn, sellTpCd } });
     } else if (['connPdView'].includes(column)) { // 연계상품 리스트 조회
       await modal({

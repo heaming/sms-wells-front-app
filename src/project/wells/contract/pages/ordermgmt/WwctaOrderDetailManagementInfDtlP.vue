@@ -355,7 +355,7 @@ async function onClickCcamEt() {
     componentProps: searchPopupParams,
     draggable: true,
     window: true,
-    windowFeatures: { width: 1300, height: 1080 },
+    windowFeatures: { width: 1320, height: 1080 },
   });
 }
 
