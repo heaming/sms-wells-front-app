@@ -32,28 +32,25 @@
             rules="required"
           />
         </kw-search-item>
-        <!-- <wwsn-manager-og-search-item-group
-            ref="ogSearchRef"
-            v-model:dgr1-levl-og-id="searchParams.executiveGroup"
-            v-model:dgr2-levl-og-id="searchParams.localGroup"
-            v-model:dgr3-levl-og-id="searchParams.branchOffice"
-            use-og-level="3"
-            :use-partner="false"
-            dgr3-levl-og-first-option="all"
-            partner-first-option="all"
-            bzns-psic-auth-yn="N"
-            auth-yn="N"
-        /> -->
         <wwsn-manager-og-search-item-group
-          ref="ogSearchRef"
           v-model:dgr1-levl-og-id="searchParams.mgtDept"
           v-model:dgr2-levl-og-id="searchParams.rgnlGrp"
           v-model:dgr3-levl-og-id="searchParams.branch"
           v-model:prtnr-no="searchParams.prtnrNo"
+          v-model:dgr1-levl-og="searchParams.dgr1LevlOg"
+          v-model:dgr2-levl-og="searchParams.dgr2LevlOg"
+          v-model:dgr3-levl-og="searchParams.dgr3LevlOg"
+          v-model:partner="searchParams.partner"
           use-og-level="3"
-          use-partner="false"
-          bzns-psic-auth-yn="N"
-          auth-yn="N"
+          use-partner
+          dgr1-levl-og-first-option="all"
+          dgr2-levl-og-first-option="all"
+          dgr3-levl-og-first-option="all"
+          partner-first-option="all"
+          dgr1-levl-og-label="ogCdNm"
+          dgr2-levl-og-label="ogCdNm"
+          dgr3-levl-og-label="ogCdNm"
+          partner-label="prtnrNoNm"
         />
       </kw-search-row>
       <!-- 20231219 김호영 M 수정 요청사항..직급 성명 사번 삭제 -->
@@ -157,6 +154,9 @@ const { currentRoute } = useRouter();
 const router = useRouter();
 const dataService = useDataService();
 
+// const { getters } = useStore();
+// const userInfo = getters['meta/getUserInfo'];
+
 const codes = await codeUtil.getMultiCodes(
   'COD_PAGE_SIZE_OPTIONS',
   'PSTN_DV_CD', // 직급구분코드
@@ -165,12 +165,17 @@ const codes = await codeUtil.getMultiCodes(
 // -------------------------------------------------------------------------------------------------
 // Function & Event
 // -------------------------------------------------------------------------------------------------
+
 let cachedParams;
 const searchParams = ref({
   mgtYnm: dayjs().format('YYYYMM'), // 관리년월
   mgtDept: '',
   rgnlGrp: '',
   branch: '',
+  dgr1LevlOg: {},
+  dgr2LevlOg: {},
+  dgr3LevlOg: {},
+  partner: {},
   pstnDvCd: '', // 직급
   prtnrNo: '', // 사번
   prtnrNm: '', // 성명
@@ -184,7 +189,6 @@ const pageInfo = ref({
   pageSize: Number(codes.COD_PAGE_SIZE_OPTIONS[0].codeName),
 });
 
-const ogSearchRef = ref();
 const grdInfoRef = ref(getComponentType('KwGrid'));
 const grdListRef = ref(getComponentType('KwGrid'));
 
