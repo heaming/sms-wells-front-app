@@ -523,7 +523,7 @@ const initGrdObjectPresentState = defineGrid((data, view) => {
     { fieldName: 'cstKnm' },
     { fieldName: 'rcgvpKnm' },
     { fieldName: 'pdNm' },
-    { fieldName: 'rentalTn' },
+    { fieldName: 'rentalTn', dataType: 'number' },
     { fieldName: 'mpyBsdt' },
     { fieldName: 'lcsleDt' },
     { fieldName: 'cntrCanDt' },
@@ -554,7 +554,7 @@ const initGrdObjectPresentState = defineGrid((data, view) => {
     { fieldName: 'dpAmt', dataType: 'number' },
     { fieldName: 'ogCd' },
     { fieldName: 'prtnrKnm' },
-    { fieldName: 'sellPrtnrNo' },
+    { fieldName: 'sellPrtnrNo', dataType: 'number' },
     { fieldName: 'cltnDt' },
     { fieldName: 'prtnrLocalTno' },
     { fieldName: 'prtnrLocalTno1' },
@@ -565,7 +565,7 @@ const initGrdObjectPresentState = defineGrid((data, view) => {
     { fieldName: 'prtnrCralTno2' },
     { fieldName: 'prtnrCralTno3' },
     { fieldName: 'hooPrtnrNm' },
-    { fieldName: 'hooPrtnrNo' },
+    { fieldName: 'hooPrtnrNo', dataType: 'number' },
     { fieldName: 'hooPrtnrCltnDt' },
     { fieldName: 'ogLocalTno' },
     { fieldName: 'ogLocalTno1' },
@@ -644,7 +644,7 @@ const initGrdObjectPresentState = defineGrid((data, view) => {
     { fieldName: 'dpAmt', header: t('MSG_TXT_DEPOSIT_AMT'), width: '140', styleName: 'text-right', numberFormat: '#,##0' }, // 입금액
     { fieldName: 'ogCd', header: t('MSG_TXT_OG_CD'), width: '100', styleName: 'text-center' }, // 조직코드
     { fieldName: 'prtnrKnm', header: t('MSG_TXT_EMPL_NM'), width: '100', styleName: 'text-center' }, // 성명
-    { fieldName: 'sellPrtnrNo', header: t('MSG_TXT_PRTNR_NUM'), width: '100', styleName: 'text-center' }, // 판매파트너번호
+    { fieldName: 'sellPrtnrNo', header: t('MSG_TXT_PRTNR_NUM'), width: '100', styleName: 'text-center', numberFormat: '#' }, // 판매파트너번호
     { fieldName: 'cltnDt', header: t('MSG_TXT_BIZ_CLTN_D'), width: '100', styleName: 'text-center' }, // 업무해약일
     { fieldName: 'prtnrLocalTno',
       header: t('MSG_TXT_TEL_NO'),
@@ -671,7 +671,7 @@ const initGrdObjectPresentState = defineGrid((data, view) => {
     }, // 판매자휴대전화번호
     { fieldName: 'prtnrCralTno3', width: '100', styleName: 'text-right', visible: false }, // 판매자휴대전화번호3
     { fieldName: 'hooPrtnrNm', header: t('MSG_TXT_EMPL_NM'), width: '100', styleName: 'text-center' }, // 성명
-    { fieldName: 'hooPrtnrNo', header: t('MSG_TXT_PRTNR_NUM'), width: '100', styleName: 'text-center' }, // 번호
+    { fieldName: 'hooPrtnrNo', header: t('MSG_TXT_PRTNR_NUM'), width: '100', styleName: 'text-center', numberFormat: '#' }, // 번호
     { fieldName: 'hooPrtnrCltnDt', header: t('MSG_TXT_BRMGR_CLTN_D'), width: '100', styleName: 'text-center' }, // 지점장해약일
     { fieldName: 'ogLocalTno',
       header: t('MSG_TXT_BRCH_TNO'),
