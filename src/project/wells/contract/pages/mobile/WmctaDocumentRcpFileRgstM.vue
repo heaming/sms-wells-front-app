@@ -427,17 +427,17 @@ async function onClickTransfer() {
       break;
   }
   const param = {
-    CNTR_CH_TP_CD: params.cntrChTpCd, // 계약변경유형
-    CST_NO: params.cntrCstNo, // 고객번호
-    CNTR_CH_PRGS_MO_CN: params.cntrChPrgsMoCn, // 계약변경진행 메모내용
-    CNTR_LIST: params.cntrBasis.map((x) => ({ CNTR_NO: x.cntrNo, CNTR_SN: x.cntrSn })), // 계약목록
-    FILE_LIST: fileList.map((x) => ({
-      APN_FILE_ID: x?.attachDocumentId,
-      REAL_FPATH: x?.realityFilePath,
-      FILE_NM: x?.fileName,
-      FILE_EXTS_NM: x?.fileExtensionName,
+    cntrChTpCd: params.cntrChTpCd, // 계약변경유형
+    cstNo: params.cntrCstNo, // 고객번호
+    cntrChPrgsMoCn: params.cntrChPrgsMoCn, // 계약변경진행 메모내용
+    cntrList: params.cntrBasis, // 계약목록
+    fileList: fileList.map((x) => ({
+      apnFileId: x?.attachDocumentId,
+      realFpath: x?.realityFilePath,
+      fileNm: x?.fileName,
+      fileExtsNm: x?.fileExtensionName,
     })),
-    CH_RCP_USR_ID: params.chRcpUsrId, // 변경접수 사용자 ID
+    chRcpUsrId: params.chRcpUsrId, // 변경접수 사용자 ID
   };
 
   const res = await dataService.post('/sms/wells/contract/contracts/document-receipts', param);
