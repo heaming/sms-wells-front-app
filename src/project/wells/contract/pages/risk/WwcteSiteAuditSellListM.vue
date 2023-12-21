@@ -32,7 +32,6 @@
             :start-level="1"
             :end-level="3"
             :base-ym="searchParams.baseYm"
-            required
           />
         </kw-search-item>
 
@@ -66,7 +65,7 @@
             :label="$t('MSG_TXT_PRD')"
             :from-placeholder="$t('MSG_TXT_START_DATE')"
             :to-placeholder="$t('MSG_TXT_END_DATE')"
-            rules="date_range_required"
+            rules="date_range_required|date_range_months:1"
           />
         </kw-search-item>
         <kw-search-item
