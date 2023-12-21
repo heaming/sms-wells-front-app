@@ -524,6 +524,7 @@ function initGrid(data, view) {
     { fieldName: 'istImpPhoApnFileUid2', visible: false }, // 설치불가환경 이미지 2
     { fieldName: 'istImpPhoApnFileUid3', visible: false }, // 설치불가환경 이미지 3
     { fieldName: 'cstSvAsnNo', visible: false }, // 배정번호
+    { fieldName: 'wkPrgsStatCdGubun', visible: false }, // 배정번호
   ];
 
   data.setFields(columns.map(({ fieldName, dataType }) => (dataType ? { fieldName, dataType } : { fieldName })));
@@ -569,13 +570,15 @@ function initGrid(data, view) {
     if (cData.fieldName === 'imgFile1' || cData.fieldName === 'imgFile2' || cData.fieldName === 'imgFile3') {
       return false;
     }
-    const { cntrNo, cntrSn, cstSvAsnNo } = g.getValues(cData.itemIndex);
+    const { cntrNo, cntrSn, cstSvAsnNo, wkPrgsStatCdGubun } = g.getValues(cData.itemIndex);
+    const gubun = wkPrgsStatCdGubun;
     await modal({
       component: 'WwsnbServiceProcDetailListP',
       componentProps: {
         cntrNo,
         cntrSn,
         cstSvAsnNo,
+        gubun,
       },
     });
   };
