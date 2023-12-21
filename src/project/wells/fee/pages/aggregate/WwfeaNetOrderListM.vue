@@ -303,6 +303,20 @@
             v-if="isGridDtlVisible"
             class="ml8"
           >{{ $t('MSG_TXT_UNIT_COLON_WON') }}</span>
+          <kw-btn
+            v-if="isBtnRefreshVisible"
+            dense
+            secondry
+            icon="redo"
+            class="mx8"
+            @click="onChangedDvcd()"
+          />
+          <span
+            v-if="isBtnRefreshVisible"
+            class="ml8"
+          >{{ !isEmpty(txtFnlMdfcDtm)?
+            $t('MSG_BTN_NTOR_CRT') + $t('MSG_TXT_DTM') + ' : ' +
+            stringUtil.getDatetimeFormat(txtFnlMdfcDtm, 'YYYY-MM-DD HH:mm:ss'):'' }}</span>
           <span
             v-if="isAggrVisible"
             class="ml8"
@@ -396,7 +410,7 @@ import dayjs from 'dayjs';
 
 import ZwogLevelSelect from '~sms-common/organization/components/ZwogLevelSelect.vue';
 import pdConst from '~sms-common/product/constants/pdConst';
-import { useDataService, getComponentType, useGlobal, gridUtil, defineGrid, codeUtil } from 'kw-lib';
+import { useDataService, getComponentType, useGlobal, gridUtil, defineGrid, codeUtil, stringUtil } from 'kw-lib';
 import { cloneDeep, isEmpty } from 'lodash-es';
 
 const { modal, alert } = useGlobal();
@@ -420,6 +434,8 @@ const isGridDtlVisible = ref(true);
 const isGridAggrVisible = ref(false);
 const isPerfBtnVisible = ref(false);
 const isOgLevlVisible = ref(false);
+const isBtnRefreshVisible = ref(false);
+const txtFnlMdfcDtm = ref('');
 const now = dayjs();
 const grdDtlRef = ref(getComponentType('KwGrid'));
 const grdAggrRef = ref(getComponentType('KwGrid'));
@@ -503,6 +519,8 @@ async function fetchNetOrderStatus() {
     isOrderCreateVisile.value = true;
     isOrderModifyVisile.value = false;
   }
+
+  txtFnlMdfcDtm.value = res.data.fnlMdfcDtm;
 }
 
 async function onClickExcelDownload() {
@@ -565,6 +583,7 @@ async function onClickSearch() {
  *  Event - 조회구분 선택 시 하단 그리드 변경※
  */
 async function onChangedDvcd() {
+  isBtnRefreshVisible.value = false;
   if (searchParams.value.ogTpCd !== '') {
     isOgLevlVisible.value = true;
   } else {
@@ -576,6 +595,7 @@ async function onChangedDvcd() {
       isDtlVisible.value = false;
       isDtlAggrVisible.value = true;
       isPerfBtnVisible.value = true;
+      isBtnRefreshVisible.value = true;
     } else {
       isDtlVisible.value = true;
       isDtlAggrVisible.value = false;

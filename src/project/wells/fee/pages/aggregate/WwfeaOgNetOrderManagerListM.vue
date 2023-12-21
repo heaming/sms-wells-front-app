@@ -334,6 +334,20 @@
             :total-count="totalCount"
           />
           <span class="ml8">{{ $t('MSG_TXT_UNIT_COLON_WON') }}</span>
+          <kw-btn
+            v-if="isBtnRefreshVisible"
+            dense
+            secondry
+            icon="redo"
+            class="mx8"
+            @click="onChangedDvcd()"
+          />
+          <span
+            v-if="isBtnRefreshVisible"
+            class="ml8"
+          >{{ !isEmpty(txtFnlMdfcDtm)?
+            $t('MSG_BTN_NTOR_CRT') + $t('MSG_TXT_DTM') + ' : ' +
+            stringUtil.getDatetimeFormat(txtFnlMdfcDtm, 'YYYY-MM-DD HH:mm:ss'):'' }}</span>
         </template>
         <kw-btn
           v-if="isGridDtlVisible"
@@ -418,7 +432,7 @@ import dayjs from 'dayjs';
 
 import ZwogLevelSelect from '~sms-common/organization/components/ZwogLevelSelect.vue';
 import pdConst from '~sms-common/product/constants/pdConst';
-import { useDataService, getComponentType, useGlobal, gridUtil, defineGrid, codeUtil } from 'kw-lib';
+import { useDataService, getComponentType, useGlobal, gridUtil, defineGrid, codeUtil, stringUtil } from 'kw-lib';
 import { cloneDeep, isEmpty } from 'lodash-es';
 
 const { t } = useI18n();
@@ -442,6 +456,8 @@ const isDtlAggrVisible = ref(false);
 const isGridDtlVisible = ref(true);
 const isGridAggrVisible = ref(false);
 const isPerfBtnVisible = ref(false);
+const isBtnRefreshVisible = ref(false);
+const txtFnlMdfcDtm = ref('');
 const now = dayjs();
 const grdDtlRef = ref(getComponentType('KwGrid'));
 const grdAggrRef = ref(getComponentType('KwGrid'));
@@ -685,11 +701,13 @@ async function excelDownload(url) {
   }
 
   const response = await dataService.get(url, { params: cachedParams });
+  const exportLayout = view.getColumnNames();
 
   await gridUtil.exportView(view, {
     fileName: currentRoute.value.meta.menuName,
     timePostfix: true,
     exportData: response.data,
+    exportLayout,
   });
 }
 
@@ -698,6 +716,8 @@ async function fetchNetOrderStatus() {
     await alert(t('MSG_ALT_PERF_YM')); // 실적년월은 필수사항입니다.
     return false;
   }
+
+  txtFnlMdfcDtm.value = '';
 
   const statusParams = {
     baseYm: searchParams.value.perfYm,
@@ -710,15 +730,17 @@ async function fetchNetOrderStatus() {
   if (res.data.ntorCnfmStatCd === '02') { // 주문별 집계가 확정일때 보여준다
     const resStat = await dataService.get('/sms/common/fee/net-order-status/schedule-start', { params: statusParams });
 
+    const prtnrParams = {
+      baseYm: searchParams.value.perfYm,
+      feeTcntDvCd: searchParams.value.feeTcntDvCd,
+      perfAgrgCrtDvCd: '201',
+    };
+
+    const resPrtnr = await dataService.get('/sms/common/fee/net-order-status/prtnr', { params: prtnrParams });
+
+    txtFnlMdfcDtm.value = resPrtnr.data.fnlMdfcDtm;
+
     if (resStat.data.schStartCd === 'NOTSTART') { // 해당 일정이 시작 하였는지 확인
-      const prtnrParams = {
-        baseYm: searchParams.value.perfYm,
-        feeTcntDvCd: searchParams.value.feeTcntDvCd,
-        perfAgrgCrtDvCd: '201',
-      };
-
-      const resPrtnr = await dataService.get('/sms/common/fee/net-order-status/prtnr', { params: prtnrParams });
-
       if (resPrtnr.data.ntorCnfmStatCd === '02') { // 수수료 실적 확정
         isOrderCreateVisile.value = false;
         isOrderModifyVisile.value = false;
@@ -802,6 +824,8 @@ async function fetchData(uri) {
 }
 
 async function onClickSearch() {
+  totalCount.value = 0;
+
   cachedParams = cloneDeep(searchParams.value);
 
   if (searchParams.value.inqrDvCd === '01') { /* 상세선택 */
@@ -824,11 +848,13 @@ async function onClickSearch() {
  *  Event - 조회구분 선택 시 하단 그리드 변경※
  */
 async function onChangedDvcd() {
+  isBtnRefreshVisible.value = false;
   if (searchParams.value.inqrDvCd === '01') { /* 상세선택 */
     if (searchParams.value.dvCd === '04') { // 수수료 실적 집계 대상
       isDtlVisible.value = false;
       isDtlAggrVisible.value = true;
       isPerfBtnVisible.value = true;
+      isBtnRefreshVisible.value = true;
     } else {
       isDtlVisible.value = true;
       isDtlAggrVisible.value = false;
@@ -873,8 +899,6 @@ async function onChangedDvcd() {
 
     view.setColumnLayout(columnLayout);
   }
-
-  totalCount.value = 0;
 
   cachedParams = cloneDeep(searchParams.value);
   fetchNetOrderStatus();
