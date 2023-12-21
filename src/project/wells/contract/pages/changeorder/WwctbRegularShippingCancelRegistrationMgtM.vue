@@ -260,7 +260,7 @@
             <!-- row5 入 / 出 -->
             <kw-form-item label="入 / 出">
               <p>
-                {{ stringUtil.getNumberWithComma(searchDetail.thmDlqAddDpSumAmt??'') }}/
+                {{ stringUtil.getNumberWithComma(searchDetail.thmDlqAddDpSumAmt??'') }}
                 {{ stringUtil.getNumberWithComma(searchDetail.thmDlqAddRfndSumAmt??'') }}
               </p>
             </kw-form-item>
