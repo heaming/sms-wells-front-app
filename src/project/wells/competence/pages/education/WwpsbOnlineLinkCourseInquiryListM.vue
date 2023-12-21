@@ -116,6 +116,7 @@
             v-model:page-size="pageInfo.pageSize"
             :total-count="pageInfo.totalCount"
             :page-size-options="codes.COD_PAGE_SIZE_OPTIONS"
+            @change="fetchData"
           />
         </template>
         <kw-btn
@@ -144,13 +145,14 @@
         name="grdMain"
         :page-size="pageInfo.pageSize"
         :total-count="pageInfo.totalCount"
-        :visible-rows="10"
+        :visible-rows="pageInfo.pageSize - 1"
         @init="initGrdMain"
       />
       <kw-pagination
         v-model:page-index="pageInfo.pageIndex"
         v-model:page-size="pageInfo.pageSize"
         :total-count="pageInfo.totalCount"
+        @change="fetchData"
       />
     </div>
   </kw-page>
@@ -210,25 +212,6 @@ const pageInfo = ref({
   pageSize: Number(getConfig('CFG_CMZ_DEFAULT_PAGE_SIZE')),
 });
 
-const fetchData = async () => {
-  const res = await dataService.get('/sms/wells/competence/educations/online-link-course/paging', { params: { ...cachedParams, ...pageInfo.value } });
-  const { list, pageInfo: pagingResult } = res.data;
-
-  pageInfo.value = pagingResult;
-  const view = grdMainRef.value.getView();
-
-  view.getDataSource().setRows(list);
-  view.resetCurrent();
-  view.rowIndicator.indexOffset = gridUtil.getPageIndexOffset(pageInfo);
-};
-
-const onClickSearch = async () => {
-  pageInfo.value.pageIndex = 1;
-  // 자동완성 검색조건 설정
-  cachedParams = cloneDeep(searchParams.value);
-  await fetchData();
-};
-
 const onClickExcelDownload = async () => {
   const view = grdMainRef.value.getView();
   const response = await dataService.get('/sms/wells/competence/educations/online-link-course/excel-download', { params: cachedParams });
@@ -286,9 +269,10 @@ watch(() => [searchParams.value.ogTpCd, searchParams.value.educSchdYm], async ()
   }
 });
 
-const changeEducDvCd = async (educCrseId) => {
-  if (!isEmpty(educCrseId)) {
-    searchParams.value.educCrseNo = educCrseList.value.filter((v) => v.educCrseId === educCrseId)[0].educCrseNo;
+const changeEducDvCd = async () => {
+  const course = searchParams.value.educCrseId;
+  if (!isEmpty(course)) {
+    searchParams.value.educCrseNo = educCrseList.value.filter((v) => v.educCrseId === course)[0].educCrseNo;
   } else {
     searchParams.value.educCrseNo = '';
   }
@@ -302,9 +286,9 @@ const changeEducDvCd = async (educCrseId) => {
   view.columnByName('fnlCpcYn').visible = false;
   view.columnByName('fshBsAcc').visible = false;
 
-  if (searchParams.value.educCrseNo === '15') {
+  if (searchParams.value.educCrseNo === '15' || searchParams.value.educCrseNo === '127') {
     view.setColumnLayout([
-      'dgr2LevlOgNm', 'dgr3LevlOgNm', 'ogCd', 'prtnrNo', 'prtnrKnm', 'qlfDvNm', 'topmrPlarStmnt', 'ackmtCt', 'ackmtAmt',
+      'dgr2LevlOgNm', 'dgr3LevlOgNm', 'ogCd', 'prtnrNo', 'prtnrKnm', 'qlfDvNm', 'topmrPlarStmnt',
       {
         header: t('MSG_TXT_PLAR_PRTIC_EDUC'),
         direction: 'horizontal',
@@ -312,24 +296,6 @@ const changeEducDvCd = async (educCrseId) => {
       },
     ]);
     view.columnByName('topmrPlarStmnt').visible = true;
-    view.columnByName('ackmtCt').visible = true;
-    view.columnByName('ackmtAmt').visible = true;
-    view.columnByName('offlTCnt1').visible = true;
-    view.columnByName('offlTCnt2').visible = true;
-    view.columnByName('offlTCnt3').visible = true;
-    view.columnByName('onlineTCnt').visible = true;
-    view.columnByName('fnlCpcYn').visible = true;
-  } else if (searchParams.value.educCrseNo === '127') {
-    view.setColumnLayout([
-      'dgr2LevlOgNm', 'dgr3LevlOgNm', 'ogCd', 'prtnrNo', 'prtnrKnm', 'qlfDvNm', 'topmrPlarStmnt', 'ackmtCt',
-      {
-        header: t('MSG_TXT_PLAR_PRTIC_EDUC'),
-        direction: 'horizontal',
-        items: ['offlTCnt1', 'offlTCnt2', 'offlTCnt3', 'onlineTCnt', 'fnlCpcYn'],
-      },
-    ]);
-    view.columnByName('topmrPlarStmnt').visible = true;
-    view.columnByName('ackmtCt').visible = true;
     view.columnByName('offlTCnt1').visible = true;
     view.columnByName('offlTCnt2').visible = true;
     view.columnByName('offlTCnt3').visible = true;
@@ -337,14 +303,13 @@ const changeEducDvCd = async (educCrseId) => {
     view.columnByName('fnlCpcYn').visible = true;
   } else if (searchParams.value.educCrseNo === '128') {
     view.setColumnLayout([
-      'dgr2LevlOgNm', 'dgr3LevlOgNm', 'ogCd', 'prtnrNo', 'prtnrKnm', 'qlfDvNm', 'fshBsAcc', 'ackmtCt',
+      'dgr2LevlOgNm', 'dgr3LevlOgNm', 'ogCd', 'prtnrNo', 'prtnrKnm', 'qlfDvNm', 'fshBsAcc',
       {
         header: t('MSG_TXT_WELS_MNGER_CMPF_EDUC'),
         direction: 'horizontal',
         items: ['offlTCnt1', 'onlineTCnt', 'fnlCpcYn'],
       },
     ]);
-    view.columnByName('ackmtCt').visible = true;
     view.columnByName('offlTCnt1').visible = true;
     view.columnByName('offlTCnt2').visible = true;
     view.columnByName('offlTCnt3').visible = true;
@@ -358,6 +323,25 @@ const changeEducDvCd = async (educCrseId) => {
     view.columnByName('onlineTCnt').visible = true;
     view.columnByName('fnlCpcYn').visible = true;
   }
+};
+
+const fetchData = async () => {
+  const res = await dataService.get('/sms/wells/competence/educations/online-link-course/paging', { params: { ...cachedParams, ...pageInfo.value } });
+  const { list, pageInfo: pagingResult } = res.data;
+
+  pageInfo.value = pagingResult;
+  const view = grdMainRef.value.getView();
+
+  view.getDataSource().setRows(list);
+  view.resetCurrent();
+  view.rowIndicator.indexOffset = gridUtil.getPageIndexOffset(pageInfo);
+};
+
+const onClickSearch = async () => {
+  pageInfo.value.pageIndex = 1;
+  // 자동완성 검색조건 설정
+  cachedParams = cloneDeep(searchParams.value);
+  await fetchData();
 };
 
 onMounted(async () => {
@@ -393,16 +377,62 @@ const initGrdMain = defineGrid((data, view) => {
     { fieldName: 'prtnrNo', header: t('MSG_TXT_SEQUENCE_NUMBER'), width: '100', styleName: 'text-center' },
     { fieldName: 'prtnrKnm', header: t('MSG_TXT_EMPL_NM'), width: '100', styleName: 'text-center' },
     { fieldName: 'qlfDvNm', header: t('MSG_TXT_QLF'), width: '100', styleName: 'text-center', editable: false },
-    { fieldName: 'topmrPlarStmnt', header: t('MSG_TXT_TOPMR_PLAR_STMNT'), width: '150', styleName: 'text-center', visible: false },
+    { fieldName: 'topmrPlarStmnt',
+      header: t('MSG_TXT_TOPMR_PLAR_STMNT'),
+      width: '150',
+      styleName: 'text-center',
+      visible: false,
+      displayCallback(grid, index, value) {
+        return value === 'Y' ? '수료' : '미수료';
+      },
+    },
     { fieldName: 'fshBsAcc', header: t('MSG_TXT_FSH_BFSVC_ACC'), width: '150', styleName: 'text-center', visible: false },
     { fieldName: 'ackmtCt', header: t('MSG_TXT_PD_ACC_CNT'), width: '80', styleName: 'text-center', visible: false },
     { fieldName: 'ackmtAmt', header: t('MSG_TXT_RECOG_AMT'), width: '100', styleName: 'text-right', visible: false },
-    { fieldName: 'offlTCnt1', header: t('MSG_TXT_OFFLINE_TCNT', [1]), width: '100', styleName: 'text-center', visible: false },
-    { fieldName: 'offlTCnt2', header: t('MSG_TXT_OFFLINE_TCNT', [2]), width: '100', styleName: 'text-center', visible: false },
-    { fieldName: 'offlTCnt3', header: t('MSG_TXT_OFFLINE_TCNT', [3]), width: '100', styleName: 'text-center', visible: false },
-    { fieldName: 'onlineTCnt', header: t('MSG_TXT_ONLINE_COURSE', [5]), width: '100', styleName: 'text-center', visible: false },
-    { fieldName: 'fnlCpcYn', header: t('MSG_TXT_FNL_CPC'), width: '100', styleName: 'text-center', visible: false },
-
+    { fieldName: 'offlTCnt1',
+      header: t('MSG_TXT_OFFLINE_TCNT', [1]),
+      width: '100',
+      styleName: 'text-center',
+      visible: false,
+      displayCallback(grid, index, value) {
+        return value === 'Y' ? '수료' : '미수료';
+      },
+    },
+    { fieldName: 'offlTCnt2',
+      header: t('MSG_TXT_OFFLINE_TCNT', [2]),
+      width: '100',
+      styleName: 'text-center',
+      visible: false,
+      displayCallback(grid, index, value) {
+        return value === 'Y' ? '수료' : '미수료';
+      },
+    },
+    { fieldName: 'offlTCnt3',
+      header: t('MSG_TXT_OFFLINE_TCNT', [3]),
+      width: '100',
+      styleName: 'text-center',
+      visible: false,
+      displayCallback(grid, index, value) {
+        return value === 'Y' ? '수료' : '미수료';
+      },
+    },
+    { fieldName: 'onlineTCnt',
+      header: t('MSG_TXT_ONLINE_COURSE', [5]),
+      width: '100',
+      styleName: 'text-center',
+      visible: false,
+      displayCallback(grid, index, value) {
+        return value === 'Y' ? '수료' : '미수료';
+      } },
+    { fieldName: 'fnlCpcYn',
+      header: t('MSG_TXT_FNL_CPC'),
+      width: '100',
+      styleName: 'text-center',
+      visible: false,
+      displayCallback(grid, index, value) {
+        return value === 'Y' ? '수료' : '미수료';
+      },
+    },
   ];
 
   data.setFields(fields);
