@@ -335,15 +335,25 @@ async function fetchData() {
 
   const view = grdMainRef.value.getView();
   const datasSource = view.getDataSource();
-  datasSource.setRows(searchData);
 
+  const { flagChk } = props;
+  const rows = searchData.map((v) => {
+    let chk = 'N';
+
+    if (flagChk === 0 && isEmpty(v.strConfDt)) {
+      chk = 'Y';
+    } else if (flagChk === 1 && !isEmpty(v.strConfDt)) {
+      chk = 'Y';
+    }
+
+    return {
+      ...v,
+      chk,
+    };
+  });
+
+  datasSource.setRows(rows);
   view.rowIndicator.indexOffset = gridUtil.getPageIndexOffset(pageInfo);
-
-  view.checkAll(true);
-  const checkedRows = gridUtil.getCheckedRowValues(view);
-  if (checkedRows.length === 0) {
-    view.checkAll(false);
-  }
 }
 
 // 표준미적용 클릭이벤트
@@ -381,7 +391,7 @@ async function strWareMonthlyClosed() {
 // 저장시 Validation
 async function saveValidation() {
   const view = grdMainRef.value.getView();
-  const rows = view.getCheckedItems();
+  const rows = gridUtil.getCheckedRowValues(view);
 
   if (isEmpty(rows)) {
     // 입고등록 처리를 위해 선택된 건이 없습니다.
@@ -390,7 +400,6 @@ async function saveValidation() {
   }
 
   if (isEmpty(searchParams.value.strRgstDt)) {
-    // 입고 일자가 누락되었습니다.
     // 입고 일자를 선택해 주세요
     await alert(t('MSG_ALT_INP_WRHS_NOT_DY'));
     return false;
@@ -414,6 +423,14 @@ async function saveValidation() {
     return false;
   }
 
+  const closedChk = await strWareMonthlyClosed();
+  // 입고창고의 마감여부 체크
+  if (closedChk) {
+    // 해당 입고일자는 이미 마감이 완료되어, 입고작업이 불가합니다.
+    await alert(t('MSG_ALT_DATE_EDIT_IN_PUT'));
+    return false;
+  }
+
   const qtyValidRows = rows.filter((item) => {
     if (item.strQty !== item.ostrQty) {
       return true;
@@ -426,22 +443,13 @@ async function saveValidation() {
     return false;
   }
 
-  const closedChk = await strWareMonthlyClosed();
-  // 입고창고의 마감여부 체크
-  if (closedChk) {
-    // 해당 입고년월은 이미 마감이 완료되어, 입고작업이 불가합니다.
-    // 해당 입고일자는 이미 마감이 완료되어, 입고작업이 불가합니다.
-    await alert(t('MSG_ALT_DATE_EDIT_IN_PUT'));
-    return false;
-  }
-
   return true;
 }
 
 // 삭제 Validation
 async function removeValidation() {
   const view = grdMainRef.value.getView();
-  const checkedRows = view.getCheckedItems();
+  const checkedRows = gridUtil.getCheckedRowValues(view);
 
   if (isEmpty(checkedRows)) {
     notify(t('MSG_ALT_DEL_NO_DATA'));
@@ -461,10 +469,21 @@ async function removeValidation() {
     return false;
   }
 
+  const strValidRows = checkedRows.filter((item) => {
+    if (isEmpty(item.strConfDt)) {
+      return true;
+    }
+    return false;
+  });
+  if (!isEmpty(strValidRows)) {
+    // 이미 삭제된 데이터입니다.
+    await alert(t('MSG_ALT_ALREADY_DELETE'));
+    return false;
+  }
+
   const closedChk = await strWareMonthlyClosed();
   // 입고창고의 마감여부 체크
   if (closedChk) {
-    // 해당 입고년월은 이미 마감이 완료되어, 입고작업이 불가합니다.
     // 해당 입고일자는 이미 마감이 완료되어, 입고작업이 불가합니다.
     await alert(t('MSG_ALT_DATE_EDIT_IN_PUT'));
     return false;
@@ -476,7 +495,7 @@ async function removeValidation() {
 // 저장버튼 클릭이벤트
 async function onClickSave() {
   const view = grdMainRef.value.getView();
-  const rows = view.getCheckedItems();
+  const rows = gridUtil.getCheckedRowValues(view);
   if (rows.length === 0) {
     notify(t('MSG_ALT_NOT_SELECT_MV'));
     return false;
@@ -491,7 +510,7 @@ async function onClickSave() {
 
     const confirmData = ref([]);
     confirmData.value = rows.map((v) => {
-      const { strSn, strQty, itmStrNo, strWareNo, itmGdCd, itmPdCd } = view.getValues(v);
+      const { strSn, strQty, itmStrNo, strWareNo, itmGdCd, itmPdCd } = v;
       return {
         itmStrNo,
         strSn: Number(strSn),
@@ -516,16 +535,14 @@ async function onClickSave() {
 // 삭제버튼클릭이벤트
 async function onClickRemove() {
   const view = grdMainRef.value.getView();
-  const rows = view.getCheckedItems();
+  const rows = gridUtil.getCheckedRowValues(view);
 
   // 삭제하시겠습니까?
   if (await confirm(t('MSG_ALT_WANT_DEL'))) {
-    if (!await removeValidation()) {
-      return false;
-    }
+    if (!await removeValidation()) return;
 
     const removeData = rows.map((v) => {
-      const { strSn, strQty, itmStrNo, strWareNo, itmGdCd, itmPdCd } = view.getValues(v);
+      const { strSn, strQty, itmStrNo, strWareNo, itmGdCd, itmPdCd } = v;
       return {
         itmStrNo,
         strSn: Number(strSn),
@@ -637,6 +654,7 @@ const initGrdMain = defineGrid((data, view) => {
 
   const gridField = columns.map((v) => ({ fieldName: v.fieldName }));
   const fields = [...gridField,
+    { fieldName: 'chk', dataType: 'text', booleanFormat: 'N:Y' },
     { fieldName: 'strSn' },
     { fieldName: 'strRgstDt' },
     { fieldName: 'baseGb' },
@@ -646,6 +664,7 @@ const initGrdMain = defineGrid((data, view) => {
 
   data.setFields(fields);
   view.setColumns(columns);
+  view.checkBar.fieldName = 'chk';
   view.checkBar.visible = true;
   view.rowIndicator.visible = true;
 
@@ -683,19 +702,21 @@ const initGrdMain = defineGrid((data, view) => {
   };
 
   view.onItemChecked = async (grid, i) => {
-    const { strQty, ostrQty, strConfDt } = grid.getValues(i);
+    const { flagChk } = props;
+    const { strQty, ostrQty, strConfDt, chk } = grid.getValues(i);
 
-    if (strConfDt) {
-      // '이미 입고확인이 처리된 품목입니다.'
-      notify(t('MSG_ALT_ITM_ALRDY_CNFM_RCPT'));
-    }
+    if (flagChk === 0 && chk === 'Y') {
+      if (!isEmpty(strConfDt)) {
+        // '이미 입고확인이 처리된 품목입니다.'
+        notify(t('MSG_ALT_ITM_ALRDY_CNFM_RCPT'));
+        return;
+      }
 
-    if ((Number(strQty) - Number(ostrQty)) !== 0) {
-      // 입고출고 수량이 일치하지 않습니다.
-      notify(t('MSG_ALT_RCPT_RLS_QTTS_NO_MATCH'));
+      if ((Number(strQty) - Number(ostrQty)) !== 0) {
+        // 입고출고 수량이 일치하지 않습니다.
+        notify(t('MSG_ALT_RCPT_RLS_QTTS_NO_MATCH'));
+      }
     }
   };
 });
 </script>
-<style scoped>
-</style>
