@@ -43,6 +43,9 @@
           v-model:partner="searchParams.partner"
           use-og-level="3"
           use-partner
+          :dgr1-levl-og-readonly="!isEmpty(searchParams.mgtDept) ? true : false"
+          :dgr2-levl-og-readonly="!isEmpty(searchParams.rgnlGrp) ? true : false"
+          :dgr3-levl-og-readonly="!isEmpty(searchParams.branch) ? true : false"
           dgr1-levl-og-first-option="all"
           dgr2-levl-og-first-option="all"
           dgr3-levl-og-first-option="all"
@@ -144,7 +147,7 @@
 // -------------------------------------------------------------------------------------------------
 import { codeUtil, useDataService, getComponentType, gridUtil, defineGrid } from 'kw-lib';
 import dayjs from 'dayjs';
-import { cloneDeep } from 'lodash-es';
+import { cloneDeep, isEmpty } from 'lodash-es';
 import { printElement } from '~common/utils/common';
 import WwsnManagerOgSearchItemGroup from '~sms-wells/service/components/WwsnManagerOgSearchItemGroup.vue';
 
