@@ -141,7 +141,7 @@ const codes = await codeUtil.getMultiCodes(
 
 const productCode = ref([]);
 async function fetchProducts() {
-  const res = await dataService.get('/sms/wells/service/service-processing/products', { params: { pdGrpCd: searchParams.value.pdGrpCd } });
+  const res = await dataService.get('/sms/wells/service/error-code/products', { params: { pdGrpCd: searchParams.value.pdGrpCd } });
   productCode.value = res.data;
 }
 watch(() => searchParams.value.pdGrpCd, async (val) => {
