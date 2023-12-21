@@ -273,7 +273,7 @@ const codes = await codeUtil.getMultiCodes(
   'SELL_TP_CD', // 판매유형
   'RVE_DV_CD', // 입금유형
   'SELL_TP_DTL_CD', // 판매유형상세
-  'DP_TP_CD',
+
 );
 
 const optionsCodes = ref(codes.SELL_TP_DTL_CD.filter((p1) => ['21', '22', '24', '25', '26'].includes(p1.codeId)));
@@ -463,9 +463,11 @@ const initGrdMain1 = defineGrid((data, view) => {
     { fieldName: 'cshRfndAcownNm' }, // 예금주, 현금 예금주
     // { fieldName: 'cardRfndCrdcdAprno' }, // 카드 결제자
     { fieldName: 'sellTpDtlCd' }, // 판매유형상세
+    { fieldName: 'bltfSellTpDtlCd' }, // 판매유형상세
     { fieldName: 'rveDvCd' }, // 입금유형
     { fieldName: 'cstNo' }, // 전금고객번호
     { fieldName: 'tmp2' }, // 전금고객명
+    { fieldName: 'bltfCntrDtlNo' }, // 전금계약상세
   ];
 
   const columns = [
@@ -558,8 +560,10 @@ const initGrdMain1 = defineGrid((data, view) => {
       width: '100',
     },
     { fieldName: 'sellTpDtlCd', header: t('MSG_TXT_SEL_TYPE'), width: '100', styleName: 'text-center', options: codes.SELL_TP_CD }, // 판매유형
-    { fieldName: 'rveDvCd', header: t('MSG_TXT_DP_TP'), width: '100', options: codes.DP_TP_CD }, // 입금유형
-    { fieldName: 'cstNo', header: t('MSG_TXT_BLTF_CST_NO'), width: '180' }, // 전금고객번호
+    { fieldName: 'bltfSellTpDtlCd', header: t('MSG_TXT_SEL_TYPE'), width: '100', styleName: 'text-center', options: codes.SELL_TP_DTL_CD }, // 판매유형
+    { fieldName: 'rveDvCd', header: t('MSG_TXT_DP_TP'), width: '100', options: codes.RFND_DSB_DV_CD, styleName: 'text-center' }, // 입금유형
+    { fieldName: 'bltfCntrDtlNo', header: t('전금계약번호'), width: '180' }, //
+    { fieldName: 'cstNo', header: t('전금계약번호'), width: '180' }, //
     { fieldName: 'tmp2', header: t('MSG_TXT_BLTF_CST_NM'), width: '150' }, // 전금고객명
   ];
 
@@ -581,7 +585,7 @@ const initGrdMain1 = defineGrid((data, view) => {
     { // 전금내역 : 판매유형, 입금유형, 전금고객번호, 전금고객명
       header: t('MSG_TXT_BLTF_IZ'),
       direction: 'horizontal',
-      items: ['sellTpDtlCd', 'rveDvCd', 'cstNo', 'tmp2'],
+      items: ['sellTpDtlCd', 'bltfSellTpDtlCd', 'rveDvCd', 'bltfCntrDtlNo', 'cstNo', 'tmp2'],
     },
 
   ]);
@@ -617,7 +621,7 @@ const initGrdMain12 = defineGrid((data, view) => {
     { fieldName: 'rfndDdtnAmt', dataType: 'number' }, // 카드공제
     { fieldName: 'bcRfndDsbAmt', dataType: 'number' }, // 비씨
     { fieldName: 'kbRfndDsbAmt', dataType: 'number' }, // 국민
-    { fieldName: 'hnRfndDsbAmt', dataType: 'number' }, // 외환
+    { fieldName: 'hnRfndDsbAmt', dataType: 'number' }, // 하나
     { fieldName: 'shRfndDsbAmt', dataType: 'number' }, // 신한
     { fieldName: 'ssRfndDsbAmt', dataType: 'number' }, // 삼성
     { fieldName: 'hdRfndDsbAmt', dataType: 'number' }, // 현대
@@ -633,7 +637,7 @@ const initGrdMain12 = defineGrid((data, view) => {
     { fieldName: 'rfndDdtnAmt', header: t('MSG_TXT_CARD_DDTN'), width: '111', styleName: 'text-right' }, // 카드공제
     { fieldName: 'bcRfndDsbAmt', header: t('MSG_TXT_BC2'), width: '111', styleName: 'text-right' }, // 비씨
     { fieldName: 'kbRfndDsbAmt', header: t('MSG_TXT_KB'), width: '111', styleName: 'text-right' }, // 국민
-    { fieldName: 'hnRfndDsbAmt', header: t('MSG_TXT_FREX'), width: '111', styleName: 'text-right' }, // 외환
+    { fieldName: 'hnRfndDsbAmt', header: t('하나'), width: '111', styleName: 'text-right' }, // 하나
     { fieldName: 'shRfndDsbAmt', header: t('MSG_TXT_SH'), width: '111', styleName: 'text-right' }, // 신한
     { fieldName: 'ssRfndDsbAmt', header: t('MSG_TXT_SS'), width: '111', styleName: 'text-right' }, // 삼성
     { fieldName: 'hdRfndDsbAmt', header: t('MSG_TXT_HD'), width: '111', styleName: 'text-right' }, // 현대
