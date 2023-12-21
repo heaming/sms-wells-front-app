@@ -158,7 +158,7 @@ const { getPartMaster } = smsCommon();
 // Function & Event
 // -------------------------------------------------------------------------------------------------
 const grdMainRef = ref(getComponentType('KwGrid'));
-
+const currentDate = dayjs().format('YYYYMMDD');
 /* 공통코드 */
 const codes = await codeUtil.getMultiCodes(
   'COD_PAGE_SIZE_OPTIONS',
@@ -287,11 +287,8 @@ async function onClickSave() {
   const view = grdMainRef.value.getView();
   const realChkRows = gridUtil.getCheckedRowValues(view);
   const chkRows = gridUtil.getCheckedRowValues(view, { isChangedOnly: true });
-  const { apyStrtdt } = view.getJsonRows()[0];
 
   if (await gridUtil.alertIfIsNotModified(view)) { return; }
-
-  if (Number(now.format('YYYYMMDD')) > Number(apyStrtdt)) { notify('최종건보다 큰 날짜를 선택하세요.'); return; }
 
   if (chkRows.length === 0 && realChkRows.length === 0) {
     notify(t('MSG_ALT_NOT_SEL_ITEM'));
@@ -400,7 +397,7 @@ const initGrdMain = defineGrid((data, view) => {
       width: '150',
       editor: { type: 'btdate' },
       styleName: 'text-center',
-      rules: 'required',
+      rules: `required|min_value:${currentDate}`,
       datetimeFormat: 'date',
     }, // 적용시작일
     { fieldName: 'apyEnddt',
