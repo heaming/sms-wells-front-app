@@ -1651,10 +1651,10 @@ const initGrdMain = defineGrid((data, view) => {
     { fieldName: 'mmChramAmt', dataType: 'number' },
     { fieldName: 'mmChramDp', dataType: 'number' },
     { fieldName: 'mmChramBlam', dataType: 'number' },
+    { fieldName: 'thmOcDlqAddAmt', dataType: 'number' },
     { fieldName: 'dlqAddAmt', dataType: 'number' },
     { fieldName: 'dlqAddDp', dataType: 'number' },
     { fieldName: 'dlqAdamtBlam', dataType: 'number' },
-    { fieldName: 'thmOcDlqAddAmt', dataType: 'number' },
     { fieldName: 'svCs', dataType: 'number' },
     { fieldName: 'svDp', dataType: 'number' },
     { fieldName: 'svBlam', dataType: 'number' },
@@ -1700,8 +1700,8 @@ const initGrdMain = defineGrid((data, view) => {
     { fieldName: 'totDlqDp', header: t('MSG_TXT_TOT_DLQ_DP'), width: '110', styleName: 'text-right', numberFormat: '#,##0', headerSummaries: { valueCallback: summaryCallback, numberFormat: '#,##0' } }, // 총연체입금
     { fieldName: 'totDlqBlam', header: t('MSG_TXT_TOT_DLQ_BLAM'), width: '110', styleName: 'text-right', numberFormat: '#,##0', headerSummaries: { valueCallback: summaryCallback, numberFormat: '#,##0' } }, // 총연체잔액
     { fieldName: 'mmChramAmt', header: t('MSG_TXT_MM_CHRAM_AMT'), width: '130', styleName: 'text-right', numberFormat: '#,##0', headerSummaries: { valueCallback: summaryCallback, numberFormat: '#,##0' } }, // 월요금액
-    { fieldName: 'dlqAddAmt', header: t('MSG_TXT_DLQ_ADD_AMT'), width: '130', styleName: 'text-right', numberFormat: '#,##0', headerSummaries: { valueCallback: summaryCallback, numberFormat: '#,##0' } }, // 연체가산금액
     { fieldName: 'thmOcDlqAddAmt', header: t('MSG_TXT_THM_OC_DLQ_ADD_AMT'), width: '130', styleName: 'text-right', numberFormat: '#,##0', headerSummaries: { valueCallback: summaryCallback, numberFormat: '#,##0' } }, // 당월발생가산금
+    { fieldName: 'dlqAddAmt', header: t('MSG_TXT_DLQ_ADD_AMT'), width: '130', styleName: 'text-right', numberFormat: '#,##0', headerSummaries: { valueCallback: summaryCallback, numberFormat: '#,##0' } }, // 연체가산금액
     { fieldName: 'ucAmt', header: t('MSG_TXT_UC_AMT'), width: '100', styleName: 'text-right', numberFormat: '#,##0', headerSummaries: { valueCallback: summaryCallback, numberFormat: '#,##0' } }, // 미수금액
     { fieldName: 'ucDp', header: t('MSG_TXT_UC_DP'), width: '100', styleName: 'text-right', numberFormat: '#,##0', headerSummaries: { valueCallback: summaryCallback, numberFormat: '#,##0' } }, // 미수입금
     { fieldName: 'ucBlam', header: t('MSG_TXT_UC_BLAM'), styleName: 'text-right', numberFormat: '#,##0', headerSummaries: { valueCallback: summaryCallback, numberFormat: '#,##0' } }, // 미수잔액
