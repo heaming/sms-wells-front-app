@@ -195,6 +195,7 @@
               :label="$t('MSG_TXT_ORDR')"
               type="radio"
               :options="codes.FEE_TCNT_DV_CD"
+              @change="onChangeInqrDv"
             />
           </kw-search-item>
         </kw-search-row>
@@ -208,6 +209,7 @@
               :label="$t('MSG_TXT_FEE_YM')"
               type="month"
               rules="required"
+              @change="onChangeInqrDv"
             />
           </kw-search-item>
           <kw-search-item :label="t('MSG_TXT_OG_LEVL')">
@@ -322,6 +324,20 @@
             :total-count="totalCount"
           />
           <span class="ml8">{{ $t('MSG_TXT_UNIT_COLON_WON') }}</span>
+          <kw-btn
+            v-if="isBtnRefreshVisible"
+            dense
+            secondry
+            icon="redo"
+            class="mx8"
+            @click="onChangeInqrDv()"
+          />
+          <span
+            v-if="isBtnRefreshVisible"
+            class="ml8"
+          >{{ !isEmpty(txtFnlMdfcDtm)?
+            $t('MSG_BTN_NTOR_CRT') + $t('MSG_TXT_DTM') + ' : ' +
+            stringUtil.getDatetimeFormat(txtFnlMdfcDtm, 'YYYY-MM-DD HH:mm:ss'):'' }}</span>
         </template>
         <kw-btn
           v-permission:download
@@ -345,6 +361,7 @@
           primary
           dense
           secondary
+          :disable="!isOrderCreateVisile"
           @click="openFeePerfCrtPopup"
         />
         <kw-btn
@@ -354,6 +371,7 @@
           primary
           dense
           secondary
+          :disable="!isOrderModifyVisile"
           @click="openFeePerfCnfmPopup"
         />
         <kw-btn
@@ -363,6 +381,7 @@
           primary
           dense
           secondary
+          :disable="!isOrderDeleteVisile"
           @click="openFeePerfCnfmCanPopup"
         />
       </kw-action-top>
@@ -399,11 +418,11 @@ import dayjs from 'dayjs';
 
 import pdConst from '~sms-common/product/constants/pdConst';
 import ZwogLevelSelect from '~sms-common/organization/components/ZwogLevelSelect.vue';
-import { useDataService, getComponentType, useGlobal, gridUtil, defineGrid, codeUtil } from 'kw-lib';
+import { useDataService, getComponentType, useGlobal, gridUtil, defineGrid, codeUtil, stringUtil } from 'kw-lib';
 import { cloneDeep, isEmpty } from 'lodash-es';
 
 const { t } = useI18n();
-const { modal, confirm } = useGlobal();
+const { modal, confirm, alert } = useGlobal();
 const dataService = useDataService();
 const { currentRoute } = useRouter();
 
@@ -416,6 +435,11 @@ const grd1MainRef = ref(getComponentType('KwGrid'));
 const grd2MainRef = ref(getComponentType('KwGrid'));
 const grd3MainRef = ref(getComponentType('KwGrid'));
 const totalCount = ref(0);
+const txtFnlMdfcDtm = ref('');
+const isBtnRefreshVisible = ref(false);
+const isOrderCreateVisile = ref(false);
+const isOrderModifyVisile = ref(false);
+const isOrderDeleteVisile = ref(false);
 const codes = await codeUtil.getMultiCodes(
   'SELL_TP_CD',
   'FEE_PERF_TP_CD',
@@ -473,9 +497,68 @@ let cachedParams;
 */
 async function initSearchParams() {
   totalCount.value = 0;
-  grd1MainRef.value.getData().clearRows();
-  grd2MainRef.value.getData().clearRows();
-  grd3MainRef.value.getData().clearRows();
+  if (grd1MainRef.value) grd1MainRef.value.getData().clearRows();
+  if (grd2MainRef.value) grd2MainRef.value.getData().clearRows();
+  if (grd3MainRef.value) grd3MainRef.value.getData().clearRows();
+}
+
+/*
+ *  Event - 순주문 집계 상태에 따라 버튼 활성화 처리
+ */
+
+async function fetchNetOrderStatus() {
+  if (searchParams.value.perfYm === '') {
+    await alert(t('MSG_ALT_PERF_YM')); // 실적년월은 필수사항입니다.
+    return false;
+  }
+
+  txtFnlMdfcDtm.value = '';
+
+  const statusParams = {
+    baseYm: searchParams.value.perfYm,
+    ogTpCd: searchParams.value.ogTpCd,
+    feeTcntDvCd: searchParams.value.feeTcntDvCd,
+  };
+
+  const res = await dataService.get('/sms/common/fee/net-order-status/cntr', { params: statusParams });
+
+  if (res.data.ntorCnfmStatCd === '02') { // 주문별 집계가 확정일때 보여준다
+    const resStat = await dataService.get('/sms/common/fee/net-order-status/schedule-start', { params: statusParams });
+
+    const prtnrParams = {
+      baseYm: searchParams.value.perfYm,
+      feeTcntDvCd: searchParams.value.feeTcntDvCd,
+      perfAgrgCrtDvCd: '101',
+    };
+
+    const resPrtnr = await dataService.get('/sms/common/fee/net-order-status/prtnr', { params: prtnrParams });
+
+    txtFnlMdfcDtm.value = resPrtnr.data.fnlMdfcDtm;
+
+    if (resStat.data.schStartCd === 'NOTSTART') { // 해당 일정이 시작 하였는지 확인
+      if (resPrtnr.data.ntorCnfmStatCd === '02') { // 수수료 실적 확정
+        isOrderCreateVisile.value = false;
+        isOrderModifyVisile.value = false;
+        isOrderDeleteVisile.value = true;
+      } else if (resPrtnr.data.ntorCnfmStatCd === '01') { // 수수료 실적 생성
+        isOrderCreateVisile.value = true;
+        isOrderModifyVisile.value = true;
+        isOrderDeleteVisile.value = false;
+      } else {
+        isOrderCreateVisile.value = true;
+        isOrderModifyVisile.value = false;
+        isOrderDeleteVisile.value = false;
+      }
+    } else {
+      isOrderCreateVisile.value = false;
+      isOrderModifyVisile.value = false;
+      isOrderDeleteVisile.value = false;
+    }
+  } else {
+    isOrderCreateVisile.value = false;
+    isOrderModifyVisile.value = false;
+    isOrderDeleteVisile.value = false;
+  }
 }
 
 /*
@@ -698,12 +781,14 @@ async function onClickSearch() {
 
 async function onChangeInqrDv() {
   const { inqrDvCd, divCd } = searchParams.value;
+  isBtnRefreshVisible.value = false;
   if (inqrDvCd === '01') {
     if (divCd === '04') {
       isSelectVisile1.value = false;
       isSelectVisile2.value = true;
       isSelectVisile3.value = false;
       isPerfVisile.value = true;
+      isBtnRefreshVisible.value = true;
     } else {
       isSelectVisile1.value = true;
       isSelectVisile2.value = false;
@@ -715,10 +800,11 @@ async function onChangeInqrDv() {
     isSelectVisile1.value = false;
     isSelectVisile2.value = false;
     isSelectVisile3.value = true;
-    isPerfVisile.value = true;
+    isPerfVisile.value = false;
     initSearchParams();
   }
   totalCount.value = 0;
+  await fetchNetOrderStatus();
 }
 
 // -------------------------------------------------------------------------------------------------
