@@ -135,7 +135,6 @@ const dataService = useDataService();
 const grdMainRef = ref(getComponentType('KwGrid'));
 
 let cachedParams;
-console.log(cachedParams);
 const searchParams = ref({
   itmGdCd: '',
   pgGdCd: '',
