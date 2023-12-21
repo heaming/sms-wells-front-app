@@ -21,7 +21,7 @@
       @search="onClickSearch"
     >
       <kw-search-row
-        v-if="searchCase1"
+        v-show="searchCase1"
       >
         <kw-search-item
           :label="$t('MSG_TXT_BASE_YM')"
@@ -58,7 +58,7 @@
         </kw-search-item>
       </kw-search-row>
       <kw-search-row
-        v-if="searchCase1"
+        v-show="searchCase1"
       >
         <kw-search-item :label="$t('사번')">
           <kw-input
@@ -76,9 +76,12 @@
       </kw-search-row>
 
       <kw-search-row
-        v-if="searchCase2"
+        v-show="searchCase2"
       >
-        <kw-search-item :label="$t('MSG_TXT_BASE_YM')">
+        <kw-search-item
+          :label="$t('MSG_TXT_BASE_YM')"
+          required
+        >
           <kw-date-picker
             v-model="searchParams.baseYm"
             type="month"
@@ -110,7 +113,7 @@
       </kw-search-row>
 
       <kw-search-row
-        v-if="searchCase2"
+        v-show="searchCase2"
       >
         <wwsn-manager-og-search-item-group
           v-model:dgr1-levl-og-id="searchParams.mngtDptmtCd"
@@ -131,7 +134,7 @@
         />
       </kw-search-row>
       <kw-search-row
-        v-if="searchCase2"
+        v-show="searchCase2"
       >
         <kw-search-item :label="$t('사번')">
           <kw-input
@@ -149,9 +152,12 @@
       </kw-search-row>
 
       <kw-search-row
-        v-if="searchCase3"
+        v-show="searchCase3"
       >
-        <kw-search-item :label="$t('MSG_TXT_BASE_YM')">
+        <kw-search-item
+          :label="$t('MSG_TXT_BASE_YM')"
+          required
+        >
           <kw-date-picker
             v-model="searchParams.baseYm"
             type="month"
@@ -181,7 +187,7 @@
         />
       </kw-search-row>
       <kw-search-row
-        v-if="searchCase3"
+        v-show="searchCase3"
       >
         <kw-search-item :label="$t('상품그룹')">
           <kw-select
