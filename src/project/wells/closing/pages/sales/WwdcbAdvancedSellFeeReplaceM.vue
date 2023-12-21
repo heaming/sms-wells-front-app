@@ -450,6 +450,7 @@ const initGridDtl = defineGrid((data, view) => {
     { fieldName: 'feeOcYm', header: t('MSG_TXT_FEE_OC_YM'), width: '120', styleName: 'text-center', datetimeFormat: 'yyyy-MM' },
     { fieldName: 'piaFeeOcAmt', header: t('MSG_TXT_PIA_FEE_OC_AMT'), width: '180', styleName: 'text-right', numberFormat: '#,##0', dataType: 'number' },
     { fieldName: 'slRcogDt', header: t('MSG_TXT_SL_DT'), width: '120', styleName: 'text-center', datetimeFormat: 'date' },
+    { fieldName: 'pasgTn', header: t('MSG_TXT_PASG_TN'), width: '120', styleName: 'text-center' },
     { fieldName: 'stplTn', header: t('MSG_TXT_STPL_CNTS'), width: '120', styleName: 'text-center' },
     { fieldName: 'slAmt', header: t('MSG_TXT_SL_AMT'), width: '140', styleName: 'text-right', numberFormat: '#,##0', dataType: 'number' },
     { fieldName: 'cntrPdEnddt', header: t('MSG_TXT_CNTR_PD_ENDDT'), width: '120', styleName: 'text-center', datetimeFormat: 'date' },
