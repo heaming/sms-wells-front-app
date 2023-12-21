@@ -122,13 +122,20 @@
           inset
           spaced
         />
+        <kw-btn
+          v-permission:print
+          :label="$t('환불현황')"
+          secondary
+          dense
+          @click="onClickTkRfnd('1')"
+        />
         <!-- 계약금 환불현황 -->
         <kw-btn
           v-permission:print
           :label="$t('MSG_TXT_CNTRAM_RFND_PS')"
           secondary
           dense
-          @click="onClickCntramRfnd"
+          @click="onClickTkRfnd('2')"
         />
         <!-- 기타선수금 환불현황-->
         <kw-btn
@@ -136,15 +143,9 @@
           :label="$t('MSG_TXT_ETC_ATAM_RFND_PS')"
           secondary
           dense
-          @click="onClickEtcRfnd"
+          @click="onClickTkRfnd('3')"
         />
-        <kw-btn
-          v-permission:print
-          :label="$t('MSG_TXT_TK_AMT_DP_PS')"
-          secondary
-          dense
-          @click="onClickTkRfnd"
-        />
+
         <kw-separator
           vertical
           inset
@@ -195,7 +196,8 @@ const { t } = useI18n();
 const grdMainRef = ref(getComponentType('KwGrid'));
 const dataService = useDataService();
 const { currentRoute } = useRouter();
-const { notify } = useGlobal();
+const router = useRouter();
+// const { notify } = useGlobal();
 
 const now = dayjs();
 const searchParams = ref({
@@ -319,14 +321,17 @@ async function onClickApplicationRefund() {
   }
 }
 
-async function onClickCntramRfnd() {
-  await notify(t('준비중입니다.')); // TODO:OZ 출력
-}
-async function onClickEtcRfnd() {
-  await notify(t('준비중입니다.')); // TODO:OZ 출력
-}
-async function onClickTkRfnd() {
-  await notify(t('준비중입니다.')); // TODO:OZ 출력
+async function onClickTkRfnd(component) {
+  // WwwdbRefundPresentStateM
+
+  router.replace({
+    path: 'wwwdb-refund-present-state',
+
+    query: {
+      selectedTab: component,
+    },
+
+  });
 }
 // -------------------------------------------------------------------------------------------------
 // Initialize Grid

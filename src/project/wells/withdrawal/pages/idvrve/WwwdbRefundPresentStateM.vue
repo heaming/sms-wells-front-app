@@ -50,10 +50,23 @@
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
+import { isEmpty } from 'lodash-es';
 import WwwdbRefundListMCurrentState from './WwwdbRefundListMCurrentState.vue';
 import WwwdbRefundListMContractAmount from './WwwdbRefundListMContractAmount.vue';
 import WwwdbRefundListMEtcAmount from './WwwdbRefundListMEtcAmount.vue';
 
 const selectedTab = ref('1');
+
+const props = defineProps({
+  selectedTab: {
+    type: String,
+    default: null,
+  },
+});
+
+onMounted(async () => {
+  console.log(props.selectedTab);
+  if (!isEmpty(props.selectedTab)) selectedTab.value = props.selectedTab;
+});
 
 </script>
