@@ -339,6 +339,10 @@ const initGrid = defineGrid((data, view) => {
       header: t('MSG_TXT_CNTR_SN'),
       width: 120,
       editable: true,
+      editor: {
+        type: 'number',
+        positiveOnly: true,
+      },
       styleName: 'text-right',
       rules: 'required',
     },
@@ -357,6 +361,10 @@ const initGrid = defineGrid((data, view) => {
       header: t('MSG_TXT_CNTR_SN'),
       width: 120,
       editable: true,
+      editor: {
+        type: 'number',
+        positiveOnly: true,
+      },
       styleName: 'text-right',
       rules: 'required',
     },
