@@ -184,7 +184,8 @@ async function onClickExcelUpload() {
         // eslint-disable-next-line no-useless-escape
         cntrNo: { label: t('MSG_TXT_CNTR_NO'), width: 200, rules: 'regex:W\\d{11}', required: true },
         cntrSn: { label: t('MSG_TXT_CNTR_SN'), type: Number, width: 100, rules: 'max:5', required: true },
-        notUse1: { label: t('MSG_TXT_WALL_MNT_ORD_NO') /* 벽걸이주문번호 */, width: 200 },
+        wallCntrNo: { label: `벽걸이${t('MSG_TXT_CNTR_NO')}`, width: 200, rules: 'regex:W\\d{11}' },
+        wallCntrSn: { label: `벽걸이${t('MSG_TXT_CNTR_SN')}`, type: Number, width: 200, rules: 'max:5' },
         sppBzsOrdId: { label: t('MSG_TXT_ORD_NO') /* 주문번호 */, width: 200, required: true },
         notUse3: { label: t('MSG_TXT_UNUITM') /* 특이사항 */, width: 200 },
         sppFshDt: { label: t('MSG_TXT_INST_DT'), width: 120, datetimeFormat: 'date', required: true },
