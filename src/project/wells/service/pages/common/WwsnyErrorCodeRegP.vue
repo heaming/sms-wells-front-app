@@ -42,6 +42,7 @@
           <kw-input
             v-model="errorCodeInfo.errCn"
             type="textarea"
+            :readonly="hasAttachFilesProps()"
             :rows="3"
           />
         </kw-form-item>
@@ -155,11 +156,17 @@ const initialErrorCodeInfo = {
   errImageDocId: '',
   attachFiles: [],
   flag: 'I',
+  errCnBefore: '',
+  attachFilesBefore: [],
 };
 
 const errorCodeInfo = ref(initialErrorCodeInfo);
 function hasProps() {
   return !isEmpty(props.errCn);
+}
+
+function hasAttachFilesProps() {
+  return !isEmpty(props.errImageDocId);
 }
 
 function resetErrorCodeInfo() {
@@ -171,6 +178,8 @@ function resetErrorCodeInfo() {
   errorCodeInfo.value.errImageDocId = props.errImageDocId;
   errorCodeInfo.value.attachFiles = attachFiles.value;
   errorCodeInfo.value.flag = props.flag;
+  errorCodeInfo.value.errCnBefore = props.errCn;
+  errorCodeInfo.value.attachFilesBefore = attachFiles.value;
   // errorCodeInfo.value.attachFiles = attachFiles.value;
 }
 
@@ -195,6 +204,7 @@ onMounted(async () => {
 async function onClickSave() {
   if (!await confirm(t('MSG_ALT_WANT_SAVE'))) { return; }
   errorCodeInfo.value.attachFiles = attachFiles.value;
+  errorCodeInfo.value.attachFilesBefore = attachFiles.value;
   const data = errorCodeInfo.value;
   console.log(data);
   await dataService.post('/sms/wells/service/error-code', data);
