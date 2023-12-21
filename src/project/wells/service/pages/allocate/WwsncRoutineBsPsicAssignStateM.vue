@@ -5,7 +5,7 @@
 1. 모듈 : SNC (배정관리)
 2. 프로그램 ID : WwsncRoutineBsPsicAssignStateM - 정기B/S담당자배정 현황(K-W-SV-U-0038M01)
 3. 작성자 : leeminwoo
-4. 작성일 : 2023-08-31
+4. 작성일 : 2023-12-20
 ****************************************************************************************************
 * 프로그램 설명
 ****************************************************************************************************
@@ -530,6 +530,7 @@ const initGrdMain = defineGrid((data, view) => {
     { fieldName: 'newAdrZip' },
     { fieldName: 'rndadr' },
     { fieldName: 'dgr2LevlOgId' },
+    { fieldName: 'dgr2LevlOgNm' },
     { fieldName: 'svBizMclsfCd' },
     { fieldName: 'svBizDclsfCd' },
     { fieldName: 'svBizDclsfNm' },
@@ -621,7 +622,7 @@ const initGrdMain = defineGrid((data, view) => {
     }, // 얘정부품
     { fieldName: 'newAdrZip', header: t('MSG_TXT_ZIP'), width: '80', styleName: 'text-center' }, // 우편번호
     { fieldName: 'rndadr', header: t('MSG_TXT_ADDR'), width: '450', styleName: 'text-left' }, // 주소
-    { fieldName: 'dgr2LevlOgId', header: t('MSG_TXT_RGNL_GRP'), width: '180', styleName: 'text-center' }, // 지역단-엔지니어만 존재
+    { fieldName: 'dgr2LevlOgNm', header: t('MSG_TXT_RGNL_GRP'), width: '180', styleName: 'text-center' }, // 지역단-엔지니어만 존재
     {
       fieldName: 'svBizDclsfNm',
       header: t('MSG_TXT_WK_CNTN'),
