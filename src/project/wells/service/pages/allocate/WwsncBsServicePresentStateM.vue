@@ -185,6 +185,7 @@ const searchParams = ref({
   prtnrNm: '', // 성명
   baseDateFrom: '',
   baseDateTo: '',
+  currentYM: dayjs().format('YYYYMM'),
 });
 
 const pageInfo = ref({
@@ -308,10 +309,12 @@ const initListGrid = defineGrid((data, view) => {
     { // B/S 관리일정
       fieldName: 'mngtSchd',
       header: t('B/S 일정관리'),
-      width: '150',
-      styleName: 'rg-button-link text-center',
-      renderer: { type: 'button' },
+      width: '80',
+      styleName: 'text-center',
+      renderer: { type: 'button', hideWhenEmpty: false },
+      displayCallback: () => t('B/S 일정관리'),
     },
+    { fieldName: 'ogId', visible: false },
   ];
 
   data.setFields(columns.map(({ fieldName, dataType }) => (dataType ? { fieldName, dataType } : { fieldName })));
@@ -328,6 +331,27 @@ const initListGrid = defineGrid((data, view) => {
       // const param = { cntrNo: grid.getDataSource().getValue(clickData.dataRow, 'cntrNo'), cntrSn: grid.getDataSource().getValue(clickData.dataRow, 'cntrSn') };
       // router.push({ path: '/service/wwsnb-bs-manager-schedule-date', state: { stateParam: param } });
       router.push({ path: '/service/wwsnb-bs-manager-schedule-date' });
+    } else if (clickData.column === 'mngtSchd') {
+      //
+      const prtnrNo = grid.getValue(clickData.itemIndex, 'prtnrNo');
+      const ogId = grid.getValue(clickData.itemIndex, 'ogId');
+      const asnOjYm = grid.getValue(clickData.itemIndex, 'asnOjYm');
+      console.log(prtnrNo, '-', ogId, '-', asnOjYm);
+      const fromDate = searchParams.value.currentYM !== asnOjYm ? dayjs(asnOjYm).startOf('month').format('YYYYMMDD')
+        : dayjs().subtract(0, 'month').startOf('month').format('YYYYMMDD');
+      const toDate = searchParams.value.currentYM !== asnOjYm ? dayjs(asnOjYm).endOf('month').format('YYYYMMDD')
+        : dayjs().subtract(0, 'month').endOf('month').format('YYYYMMDD');
+      console.log(fromDate, '-', toDate);
+
+      router.push({
+        path: '/service/wwsnb-bs-manager-schedule-date', // B/S 관리일정 조회
+        query: {
+          prtnrNo,
+          ogId,
+          fromDate,
+          toDate,
+        },
+      });
     }
   };
 });
