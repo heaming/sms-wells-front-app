@@ -348,7 +348,9 @@ const initBusinessToBusinessBoList = defineGrid((data, view) => {
       width: '142',
       styleName: 'text-center',
       options: codes.PRJ_FOM_CD,
-      editor: { type: 'list' } }, // 형태
+      editor: { type: 'list' },
+      rules: 'required',
+    }, // 형태
     { fieldName: 'bzrno',
       header: t('MSG_TXT_ENTRP_NO'),
       width: '142',
@@ -361,6 +363,7 @@ const initBusinessToBusinessBoList = defineGrid((data, view) => {
         },
       },
       displayCallback: (g, i, v) => ((!isEmpty(v)) ? v.replace(/(\d{3})(\d{2})(\d{5})/, '$1-$2-$3') : ''),
+      rules: 'required',
     }, // 사업자번호
     { fieldName: 'leadCstNm',
       header: t('MSG_TXT_CORP_NAME'),
@@ -368,14 +371,18 @@ const initBusinessToBusinessBoList = defineGrid((data, view) => {
       styleName: 'text-center',
       editor: {
         maxLength: 50,
-      } }, // 업체명
+      },
+      rules: 'required',
+    }, // 업체명
     { fieldName: 'leadCstRlpplNm',
       header: t('MSG_TXT_COMP_RSP_USR'),
       width: '212',
       styleName: 'text-center',
       editor: {
         maxLength: 100,
-      } }, // 업체담당자
+      },
+      rules: 'required',
+    }, // 업체담당자
     { fieldName: 'locaraTno', visible: false },
     { fieldName: 'exnoEncr', visible: false },
     { fieldName: 'idvTno', visible: false },
