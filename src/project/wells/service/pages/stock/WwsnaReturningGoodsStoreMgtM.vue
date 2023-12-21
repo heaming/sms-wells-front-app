@@ -378,7 +378,6 @@ function onClickGridBulkChange(val, type) {
 
   for (let dataRow = 0; dataRow < rowCount; dataRow += 1) {
     const chkValue = gridUtil.getRowValue(view, dataRow);
-    debugger;
     if ((isEmpty(chkValue.ostrConfDt) && type === 'ostrConfDt') || (isEmpty(chkValue.rtngdProcsTpCd) && type === 'rtngdProcsTpCd')) {
       view.setValue(dataRow, type, val);
       view.checkRow(dataRow, true);
