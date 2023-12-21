@@ -465,18 +465,6 @@ function timerStart() {
   }, 1000);
 }
 
-function onClickPhoneYn(type) {
-  searchParams.value.phone = searchParams.value.tno;
-  searchParams.value.phoneYn = type;
-}
-
-async function onUpdateMgtValue(tNo) {
-  if (tNo !== undefined) {
-    searchParams.value.tno = tNo;
-    onClickPhoneYn('Y');
-  }
-}
-
 // TODO: 콜백 조회 팝업
 async function onClickBncCallBack() {
   const { result, payload } = await modal({
@@ -902,6 +890,22 @@ function onClickSysCALLMakeCall(sTelNo) {
   return true;
 }
 
+function onClickPhoneYn(type) {
+  searchParams.value.phone = searchParams.value.tno;
+  searchParams.value.phoneYn = type;
+}
+
+async function onUpdateMgtValue(tNo) {
+  if (tNo !== undefined) {
+    searchParams.value.tno = tNo.tno || tNo;
+    onClickPhoneYn('Y');
+
+    if (tNo.autoCall) {
+      onClickSysCALLMakeCall(tNo.tno);
+      onClickPhoneYn('N');
+    }
+  }
+}
 /**
  * 전화 받기
  */
