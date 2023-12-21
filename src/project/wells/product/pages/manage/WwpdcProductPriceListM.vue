@@ -306,7 +306,7 @@ async function onClickExcelDownload() {
   const columns = view.getColumns().reduce((rtn, x) => {
     if (x.visible) {
       const col = {
-        value: x.name,
+        value: x.name === 'svPdCd' ? 'svPdNm' : x.name,
         text: x.displayText,
         width: x.displayWidth,
         align: getAlign(x),
@@ -317,6 +317,7 @@ async function onClickExcelDownload() {
     }
     return rtn;
   }, []);
+  console.log('columns : ', columns);
 
   gridUtil.exportBulkView(view, {
     url: '/sms/common/product/prices/products/excel-download', // url 지정

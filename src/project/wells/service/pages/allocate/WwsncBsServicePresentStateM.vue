@@ -145,13 +145,14 @@
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
-import { codeUtil, useDataService, getComponentType, gridUtil, defineGrid } from 'kw-lib';
+import { codeUtil, useDataService, getComponentType, gridUtil, defineGrid, useGlobal } from 'kw-lib';
 import dayjs from 'dayjs';
 import { cloneDeep, isEmpty } from 'lodash-es';
 import { printElement } from '~common/utils/common';
 import WwsnManagerOgSearchItemGroup from '~sms-wells/service/components/WwsnManagerOgSearchItemGroup.vue';
 
 const { t } = useI18n();
+const { alert } = useGlobal();
 const { currentRoute } = useRouter();
 
 const router = useRouter();
@@ -224,6 +225,10 @@ async function fetchListData() {
 }
 
 async function onClickSearch() {
+  if (isEmpty(searchParams.value.mgtDept)) {
+    await alert(t('총괄단 선택된 값이 없습니다.'));
+    return;
+  }
   searchParams.value.baseDateFrom = dayjs(searchParams.value.mgtYnm).startOf('month').format('YYYYMMDD');
   searchParams.value.baseDateTo = dayjs(searchParams.value.mgtYnm).endOf('month').format('YYYYMMDD');
   cachedParams = cloneDeep(searchParams.value);
