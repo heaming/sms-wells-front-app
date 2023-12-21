@@ -485,13 +485,11 @@ const initGrdMain = defineGrid((data, view) => {
   view.rowIndicator.visible = true;
   view.filteringOptions.enabled = false;
 
+  const currentDate = now.format('YYYYMMDD');
   // 소비자가, 도매단가, 내부단가, 기술료, 적용시작일/종료일 수정로직
   view.onCellEditable = (grid, itemIndex) => {
-    const { izSn, pdctPdCd, useMatPdCd } = gridUtil.getRowValue(grid, itemIndex.dataRow);
-    if ((isEmpty(izSn) || isEmpty(pdctPdCd) || isEmpty(useMatPdCd))
-    && ['csmrUprcAmt', 'whlsUprcAmt', 'insiUprcAmt', 'tcfeeAmt', 'apyStrtdt', 'apyEnddt'].includes(itemIndex.column)) {
-      return false;
-    }
+    const { apyStrtdt, apyEnddt } = gridUtil.getRowValue(grid, itemIndex.dataRow);
+    return (apyStrtdt <= currentDate && apyEnddt >= currentDate);
   };
 
   // 합계(소비자가 + 기술료) 컬럼 계산 및 값 자동 반영 로직
@@ -512,12 +510,8 @@ const initGrdMain = defineGrid((data, view) => {
 
   // 일련번호, 품목코드, 상품자재코드가 없는 데이터 check_box false
   view.setCheckableCallback((dataSource, item) => {
-    const { izSn, pdctPdCd, useMatPdCd } = gridUtil.getRowValue(view, item.dataRow);
-
-    if (isEmpty(izSn) || isEmpty(pdctPdCd) || isEmpty(useMatPdCd)) {
-      return false;
-    }
-    return true;
+    const { apyStrtdt, apyEnddt } = gridUtil.getRowValue(view, item.dataRow);
+    return (apyStrtdt <= currentDate && apyEnddt >= currentDate);
   });
 });
 </script>
