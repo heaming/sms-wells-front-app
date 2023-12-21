@@ -177,6 +177,7 @@
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
 import { useDataService, useMeta, gridUtil, stringUtil, codeUtil, getComponentType } from 'kw-lib';
+import dayjs from 'dayjs';
 import { merge, isEmpty, cloneDeep, split, trim } from 'lodash-es';
 import pdConst from '~sms-common/product/constants/pdConst';
 import { getPdMetaToCodeNames, getPdMetaToGridInfos } from '~sms-common/product/utils/pdUtil';
@@ -291,15 +292,37 @@ async function onClickSearch() {
   await fetchData();
 }
 
+// 엑셀 다운로드 정렬 관련
+function getAlign(column) {
+  if (column?.styleName?.indexOf('text-right') >= 0) return 'right';
+  if (column?.styleName?.indexOf('text-left') >= 0) return 'left';
+  return 'center';
+}
+
 // 엑셀다운로드
 async function onClickExcelDownload() {
   const view = searchParams.value.pdTpCd === pdConst.PD_TP_CD_STANDARD
     ? grdStdRef.value.getView() : grdCmpRef.value.getView();
-  const res = await dataService.get('/sms/common/product/prices/products/excel-download', { params: cachedParams });
-  await gridUtil.exportView(view, {
-    fileName: router.currentRoute.value.meta.menuName,
-    timePostfix: true,
-    exportData: res.data,
+  const columns = view.getColumns().reduce((rtn, x) => {
+    if (x.visible) {
+      const col = {
+        value: x.name,
+        text: x.displayText,
+        width: x.displayWidth,
+        align: getAlign(x),
+        valueType: x.valueType ?? 'text',
+        codeMap: x._lookupMap,
+      };
+      rtn.push(col);
+    }
+    return rtn;
+  }, []);
+
+  gridUtil.exportBulkView(view, {
+    url: '/sms/common/product/prices/products/excel-download', // url 지정
+    parameter: { ...cachedParams },
+    fileName: `${router.currentRoute.value.meta.menuName}_${dayjs().format('YYYYMMDDHHmmss')}`,
+    columns,
   });
 }
 
@@ -457,7 +480,11 @@ async function initGrdCmp(data, view) {
     // 판매유형
     { fieldName: 'baseSellTpCd', header: t('MSG_TXT_SEL_TYPE'), width: '107', styleName: 'text-center', options: codes?.SELL_TP_CD },
     // 판매채널
-    { fieldName: 'sellChnlCd', header: t('MSG_TXT_SEL_CHNL'), width: '87', styleName: 'text-center', options: codes?.SELL_CHNL_DTL_CD },
+    { fieldName: 'sellChnlCd',
+      header: t('MSG_TXT_SEL_CHNL'),
+      width: '87',
+      styleName: 'text-center',
+      options: codes?.SELL_CHNL_DTL_CD },
     // 적용기간
     { fieldName: 'applyPeriod',
       header: t('MSG_TXT_ACEPT_PERIOD'),
