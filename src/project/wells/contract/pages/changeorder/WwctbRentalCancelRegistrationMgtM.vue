@@ -250,7 +250,7 @@
             <!-- row3 매출금액 -->
             <kw-form-item :label="$t('MSG_TXT_SL_AMT')">
               <p class="kw-fc--accent">
-                {{ stringUtil.getNumberWithComma(searchDetail.thmSlSumAmt??'') }}
+                {{ stringUtil.getNumberWithComma(searchDetail.slSumAmt??'') }}
               </p>
             </kw-form-item>
             <!-- row3 매출VAT -->
