@@ -56,7 +56,7 @@
             :maxlength="10"
             @click-icon="onClickSearchPrtnrNoPopup()"
           />
-          <!-- 부서코드 -->
+          <!-- 소속코드 -->
           <kw-input
             v-if="isSearchOgCdVisible"
             v-model="searchParams.ogCd"
