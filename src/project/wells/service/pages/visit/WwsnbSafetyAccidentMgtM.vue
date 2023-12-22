@@ -266,7 +266,7 @@ const searchOptions = [
 const sessionRole = sessionUserInfo.roles.map((x) => x.roleNickName);
 let svcCode;
 svcCode = (await dataService.get('/sms/wells/service/organizations/service-center', { params: { authYn: 'N' } })).data;
-if (!sessionRole.includes('ROL_W1560') && !sessionRole.includes('SYS_ADMIN')) { // WellsCS운영팀, 시스템관리자가 아니면
+if (!sessionRole.includes('ROL_W1560')) { // WellsCS운영팀이 아니면
   svcCode = svcCode.filter((v) => v.ogId === sessionUserInfo.ogId);
 }
 const searchParams = ref({
