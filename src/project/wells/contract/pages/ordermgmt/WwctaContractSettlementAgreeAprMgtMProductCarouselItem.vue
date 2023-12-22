@@ -88,6 +88,7 @@
               :stlms="contract.stlms"
               :contractor="contractor"
               @activated="onChildActivated"
+              @update:stlm-bas="onUpdateStlmBas"
             />
           </kw-list>
         </kw-carousel-slide>
@@ -98,8 +99,9 @@
 
 <script setup>
 import { warn } from 'vue';
-import { notify } from 'kw-lib';
+import { confirm, notify } from 'kw-lib';
 import { scrollIntoView } from '~sms-common/contract/util';
+import { DP_TP_CD } from '~sms-wells/contract/constants/ctConst';
 import ShippingAddressUpdate from './WwctaContractSettlementAgreeAprMgtMShippingAddress.vue';
 import ProductInfo from './WwctaContractSettlementAgreeAprMgtMProductInfo.vue';
 import PaymentsInfoUpdate from './WwctaContractSettlementAgreeAprMgtMPayment.vue';
@@ -112,6 +114,7 @@ const props = defineProps({
 });
 
 const exposed = {};
+
 defineExpose(exposed);
 
 const ADDRESS_REF_PREFIX = 'address-';
@@ -269,6 +272,62 @@ const nightElfSelect = ref(null);
 function onClickCounter() {
   console.log('tset', nightElfSelect.value);
   nightElfSelect.value.onPopup(true); /* todo does not work... */
+}
+
+const bulkApplyChecked = reactive({
+  [DP_TP_CD.IDV_RVE_CRDCD]: false,
+  [DP_TP_CD.CRDCD_AFTN]: false,
+  [DP_TP_CD.AC_AFTN]: false,
+});
+
+async function onUpdateStlmBas(payload) {
+  if (!payload) { return; }
+  const {
+    dpTpCd,
+    acnoEncr,
+    bnkCd,
+    mpyBsdt,
+    crcdnoEncr,
+    cardExpdtYm,
+    owrKnm,
+    copnDvCdDrmVal,
+  } = payload;
+  if (!props.contract?.stlms?.length) { return; }
+  if (bulkApplyChecked[dpTpCd]) {
+    return;
+  }
+  bulkApplyChecked[dpTpCd] = true;
+
+  if (!await confirm('승인된 정보를 일괄 적용하시겠습니까?')) {
+    return;
+  }
+
+  props.contract.stlms.forEach((stlmBas) => {
+    if (!stlmBas.dpTpCd) { return; }
+
+    if ([DP_TP_CD.IDV_RVE_CRDCD, DP_TP_CD.CRDCD_AFTN].includes(dpTpCd)) {
+      if (stlmBas.dpTpCd === DP_TP_CD.IDV_RVE_CRDCD) {
+        stlmBas.crcdnoEncr = crcdnoEncr;
+        stlmBas.cardExpdtYm = cardExpdtYm;
+        stlmBas.owrKnm = owrKnm;
+        stlmBas.copnDvCdDrmVal = copnDvCdDrmVal;
+      }
+      if (stlmBas.dpTpCd === DP_TP_CD.CRDCD_AFTN) {
+        stlmBas.mpyBsdt = mpyBsdt;
+        stlmBas.crcdnoEncr = crcdnoEncr;
+        stlmBas.cardExpdtYm = cardExpdtYm;
+        stlmBas.owrKnm = owrKnm;
+        stlmBas.copnDvCdDrmVal = copnDvCdDrmVal;
+      }
+    }
+    if (DP_TP_CD.AC_AFTN === dpTpCd) {
+      stlmBas.mpyBsdt = mpyBsdt;
+      stlmBas.acnoEncr = acnoEncr;
+      stlmBas.bnkCd = bnkCd;
+      stlmBas.owrKnm = owrKnm;
+      stlmBas.copnDvCdDrmVal = copnDvCdDrmVal;
+    }
+  });
 }
 
 </script>
