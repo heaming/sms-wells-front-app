@@ -264,7 +264,7 @@ async function onClickDetailFileSave() {
 async function onClickDetailExportView() {
   const { baseYm } = searchParams.value;
   const res = await dataService.post('/sms/wells/closing/product-account/download', { baseYm }, { responseType: 'blob' });
-  fileUtil.downloadBlob(res.data, `${currentRoute.value.meta.menuName}.csv`);
+  fileUtil.downloadBlob(res.data, `${currentRoute.value.meta.menuName}_${baseYm}.csv`);
 }
 
 watch(() => searchParams.value.sellTpCd, async (val) => {
