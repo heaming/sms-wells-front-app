@@ -16,6 +16,7 @@
   <kw-page>
     <template #header />
     <kw-search
+      ref="searchRef"
       v-permission:read
       :cols="4"
       @search="onClickSearch"
@@ -322,6 +323,7 @@ const dataService = useDataService();
 const gridMainRef = ref(getComponentType('KwGrid'));
 const { currentRoute } = useRouter();
 const router = useRouter();
+const searchRef = ref(null);
 
 /*
  *  Search Parameter
@@ -446,6 +448,8 @@ async function onChangeMngrDvCd() {
     default:
       break;
   }
+  await nextTick();
+  await searchRef.value.updateExpand(true); // true 면 더보기가 열림. default는 더보기가 안열림.
 }
 
 /*
