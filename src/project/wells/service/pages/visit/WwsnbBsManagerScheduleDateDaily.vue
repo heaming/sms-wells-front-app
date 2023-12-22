@@ -91,7 +91,7 @@
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
 import { codeUtil, defineGrid, useGlobal, getComponentType, gridUtil, useDataService, useMeta } from 'kw-lib';
-import { cloneDeep } from 'lodash-es';
+import { cloneDeep, isEmpty } from 'lodash-es';
 
 import dayjs from 'dayjs';
 
@@ -109,11 +109,21 @@ const dataService = useDataService();
 const grdMainRef = ref(getComponentType('KwGrid'));
 const grdfrontMainRef = ref(getComponentType('KwGrid'));
 
+const props = defineProps({
+  prtnrNo: { type: String, default: '' },
+  prtnrKnm: { type: String, default: '' },
+  ogId: { type: String, default: '' },
+  fromDate: { type: String, default: '' },
+  toDate: { type: String, default: '' },
+});
+
 let cachedParams;
+// TODO..파트너번호로 바로 조회 가능한 방법이 있으면 파트너명 굳이 props 로 받지 않아도 됨...방법을 못찾음
 const searchParams = ref({
-  baseDateFrom: dayjs().subtract(0, 'month').startOf('month').format('YYYYMMDD'),
-  baseDateTo: dayjs().subtract(0, 'month').endOf('day').format('YYYYMMDD'),
-  fxnPrtnrNo: '',
+  baseDateFrom: isEmpty(props.fromDate) ? dayjs().subtract(0, 'month').startOf('month').format('YYYYMMDD') : props.fromDate,
+  baseDateTo: isEmpty(props.toDate) ? dayjs().subtract(0, 'month').endOf('day').format('YYYYMMDD') : props.toDate,
+  fxnPrtnrNo: isEmpty(props.prtnrNo) ? '' : props.prtnrNo,
+  fxnPrtnrKnm: isEmpty(props.prtnrKnm) ? '' : props.prtnrKnm,
 });
 
 const pageInfo = ref({
@@ -145,6 +155,7 @@ async function fetchData2() {
 }
 
 async function onClickSearch() {
+  console.log('zippo0209 0003 >>');
   if (!searchParams.value.fxnPrtnrNo) {
     notify(t('MSG_ALT_NCELL_REQUIRED_VAL', [t('MSG_TXT_PIC')]));
     return;
@@ -187,6 +198,15 @@ async function onFxnPrtnrNoSearchPopup() {
     searchParams.value.fxnPrtnrKnm = payload[0].prtnrKnm;
   }
 }
+
+onMounted(async () => {
+  console.log('zippo0209 0001 searchParams.value >>', searchParams.value);
+  const { baseDateFrom, baseDateTo, fxnPrtnrNo, fxnPrtnrKnm } = searchParams.value;
+  if (!isEmpty(baseDateFrom) && !isEmpty(baseDateTo) && !isEmpty(fxnPrtnrNo) && !isEmpty(fxnPrtnrKnm)) {
+    console.log('zippo0209 0002 >>');
+    await onClickSearch();
+  }
+});
 
 // -------------------------------------------------------------------------------------------------
 // Initialize front Grid

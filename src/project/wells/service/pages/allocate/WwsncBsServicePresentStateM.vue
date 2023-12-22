@@ -332,21 +332,21 @@ const initListGrid = defineGrid((data, view) => {
       // router.push({ path: '/service/wwsnb-bs-manager-schedule-date', state: { stateParam: param } });
       router.push({ path: '/service/wwsnb-bs-manager-schedule-date' });
     } else if (clickData.column === 'mngtSchd') {
-      //
       const prtnrNo = grid.getValue(clickData.itemIndex, 'prtnrNo');
+      const prtnrKnm = grid.getValue(clickData.itemIndex, 'prtnrKnm');
       const ogId = grid.getValue(clickData.itemIndex, 'ogId');
       const asnOjYm = grid.getValue(clickData.itemIndex, 'asnOjYm');
-      console.log(prtnrNo, '-', ogId, '-', asnOjYm);
+
       const fromDate = searchParams.value.currentYM !== asnOjYm ? dayjs(asnOjYm).startOf('month').format('YYYYMMDD')
         : dayjs().subtract(0, 'month').startOf('month').format('YYYYMMDD');
       const toDate = searchParams.value.currentYM !== asnOjYm ? dayjs(asnOjYm).endOf('month').format('YYYYMMDD')
         : dayjs().subtract(0, 'month').endOf('month').format('YYYYMMDD');
-      console.log(fromDate, '-', toDate);
 
       router.push({
         path: '/service/wwsnb-bs-manager-schedule-date', // B/S 관리일정 조회
         query: {
           prtnrNo,
+          prtnrKnm,
           ogId,
           fromDate,
           toDate,
