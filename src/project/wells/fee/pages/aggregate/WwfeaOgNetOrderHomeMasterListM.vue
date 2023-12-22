@@ -825,7 +825,6 @@ const initGrd2Main = defineGrid((data, view) => {
     { fieldName: 'pkgSn' },
     { fieldName: 'mchnPrtnr' },
     { fieldName: 'mchnPd' },
-    { fieldName: 'perfExcd' },
   ];
 
   const columns = [
@@ -870,7 +869,6 @@ const initGrd2Main = defineGrid((data, view) => {
     { fieldName: 'pkgPdNo', header: t('MSG_TXT_PKG_PD_NO'), width: '135.1', styleName: 'text-center' },
     { fieldName: 'mchnPrtnr', header: t('MSG_TXT_MCHN') + t('MSG_TXT_CST_CD'), width: '113', styleName: 'text-center' },
     { fieldName: 'mchnPd', header: t('MSG_TXT_MCHN') + t('MSG_TXT_PRDT_CODE'), width: '113', styleName: 'text-center' },
-    { fieldName: 'perfExcd', header: t('MSG_TXT_PERF_EXCD') + t('MSG_TXT_RGST_YN'), width: '113', styleName: 'text-center' },
 
   ];
 
