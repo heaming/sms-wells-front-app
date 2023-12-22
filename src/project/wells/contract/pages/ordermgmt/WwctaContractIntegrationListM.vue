@@ -43,7 +43,7 @@
           <kw-select
             v-model="searchParams.prtnrDv"
             :options="[{ codeId: '1', codeName: t('MSG_TXT_EPNO') },
-                       { codeId: '2', codeName: t('MSG_TXT_DEPT_CD') }]"
+                       { codeId: '2', codeName: t('MSG_TXT_BLG_CD') }]"
             @change="onChangePrtnrSeltDv"
           />
           <!-- 인사사원번호(사번) -->
@@ -56,7 +56,7 @@
             :maxlength="10"
             @click-icon="onClickSearchPrtnrNoPopup()"
           />
-          <!-- 부서코드 -->
+          <!-- 소속코드 -->
           <kw-input
             v-if="isSearchOgCdVisible"
             v-model="searchParams.ogCd"
@@ -64,7 +64,7 @@
             icon="search"
             :placeholder="t('MSG_TXT_INP')"
             :maxlength="10"
-            @click-icon="onClickSearchDeptListPopup()"
+            @click-icon="onClickOgCdSearch()"
           />
         </kw-search-item>
       </kw-search-row>
@@ -259,6 +259,7 @@ const isSearchMpnoVisible = ref(false); // 고객선택(휴대전화번호)
 const isSearchBzrnoVisible = ref(false); // 고객선택(사업자번호)
 const isSearchSfkValVisible = ref(false); // 고객선택(세이프키)
 const isSearchCntrDtlNoVisible = ref(true); // 고객선택(계약상세번호)
+const now = dayjs();
 
 async function fetchData() {
   // changing api & cacheparams according to search classification
@@ -368,7 +369,7 @@ async function onClickSearchCustomer() {
 // 파트너 검색 팝업 호출
 async function onClickSearchPrtnrNoPopup() {
   const { result, payload } = await modal({
-    component: 'ZwogzPartnerListP',
+    component: 'ZwogzPartnerListP', // Z-OG-U-0050P01
     componentProps: {},
   });
   if (result) {
@@ -377,16 +378,18 @@ async function onClickSearchPrtnrNoPopup() {
   }
 }
 
-// 부서코드 검색 팝업조회
-async function onClickSearchDeptListPopup() {
+// 조직코드 검색 버튼 클릭
+async function onClickOgCdSearch() {
   const { result, payload } = await modal({
-    component: 'ZwcmpDeptListP',
+    component: 'ZwogzOrganizationListP', // Z-OG-U-0049P01
     componentProps: {
-      departmentId: searchParams.value.ogCd,
+      ogNm: searchParams.value.ogCd,
+      ogTpCd: 'W01',
+      baseYm: now.format('YYYYMM'),
     },
   });
-  if (result) {
-    searchParams.value.ogCd = payload.departmentId;
+  if (result && payload) {
+    searchParams.value.ogCd = payload.ogCd;
   }
 }
 
