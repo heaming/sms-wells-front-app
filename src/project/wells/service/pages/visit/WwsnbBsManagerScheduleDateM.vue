@@ -28,7 +28,14 @@
     <kw-tab-panels :model-value="selectedTab">
       <!-- 일자별 TAB -->
       <kw-tab-panel name="dailyTab">
-        <wwsnc-bs-manager-schedule-daily />
+        <wwsnc-bs-manager-schedule-daily
+          :v-model:init-data="currentInitData"
+          :prtnr-no="props.prtnrNo"
+          :prtnr-knm="props.prtnrKnm"
+          :og-id="props.ogId"
+          :from-date="props.fromDate"
+          :to-date="props.toDate"
+        />
       </kw-tab-panel>
       <!-- 주차별 TAB -->
       <kw-tab-panel name="weekTab">
@@ -47,7 +54,12 @@ import wwsncBsManagerScheduleDaily from './WwsnbBsManagerScheduleDateDaily.vue';
 import wwsncBsManagerScheduleWeek from './WwsnbBsManagerScheduleDateWeek.vue';
 
 const props = defineProps({
-  tabValue: { type: String, default: 'dailyTab' },
+  tabValue: { type: String, default: '' },
+  prtnrNo: { type: String, default: '' },
+  prtnrKnm: { type: String, default: '' },
+  ogId: { type: String, default: '' },
+  fromDate: { type: String, default: '' },
+  toDate: { type: String, default: '' },
 });
 
 // -------------------------------------------------------------------------------------------------
