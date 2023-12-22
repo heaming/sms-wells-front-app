@@ -137,30 +137,13 @@
             use-og-level="2"
             :use-partner="false"
             dgr1-levl-og-first-option="all"
-            dgr2-levl-og-first-option="all"
             dgr1-levl-og-label="ogCdNm"
             dgr2-levl-og-label="ogCdNm"
+            dgr2-levl-og-required
             dgr1-levl-og-readonly
+            :dgr2-levl-og-readonly="managerAuthYn"
             auth-yn="N"
           />
-          <!-- <wwsn-manager-og-search-item-group
-            v-model:dgr1-levl-og-id="searchParams.dgr1LevlOgId"
-            v-model:dgr2-levl-og-id="searchParams.dgr2LevlOgId"
-            v-model:dgr3-levl-og-id="searchParams.dgr3LevlOgId"
-            v-model:prtnr-no="searchParams.prtnrNo"
-            use-og-level="2"
-            use-partner
-            dgr1-levl-og-first-option="all"
-            dgr2-levl-og-first-option="all"
-            dgr3-levl-og-first-option="all"
-            partner-first-option="all"
-            dgr1-levl-og-label="ogCdNm"
-            dgr2-levl-og-label="ogCdNm"
-            dgr3-levl-og-label="ogCdNm"
-            partner-label="prtnrNoNm"
-            dgr1-levl-og-readonly
-            auth-yn="N"
-          /> -->
         </template>
         <kw-search-item
           v-if="isManagerSelected"
@@ -323,7 +306,7 @@ const searchParams = ref({
   pdCd: '',
   ogId: '',
   dgr1LevlOgId: '',
-  dgr2LevlOgId: 'OG00053616', // 디폴트 마포지역단
+  dgr2LevlOgId: '', // 디폴트 마포지역단
   dgr3LevlOgId: '',
   prtnrNo: '',
   svTpCd: '',
@@ -334,13 +317,25 @@ const searchParams = ref({
   ozWkDvCds: '',
 });
 
+/* 매니저 정보 조회 - 로그인 정보로 소속 지역단 디폴트 */
+const managerAuthYn = ref(false); // false : Admin, true : not Admin
+async function getOrganizationInfo() {
+  const res = await dataService.get(`${baseUrl}/manager-info`, { params: searchParams.value });
+  const resList = res.data;
+
+  if (resList.ogTpCd === 'HR1') {
+    searchParams.value.dgr2LevlOgId = 'OG00053616'; // 디폴트 - 마포지역단
+  } else {
+    managerAuthYn.value = true;
+    searchParams.value.dgr2LevlOgId = resList.dgr2LevlOgId;
+  }
+}
+
 /* 웰스 매니저 조회 */
 const managerCd = ref();
 watch(() => [searchParams.value.dgr2LevlOgId], async () => {
-  console.log(searchParams.value.dgr2LevlOgId);
   const res = await dataService.get(`${baseUrl}/wells-manager`, { params: searchParams.value });
   const resList = res.data;
-  console.log(resList);
   managerCd.value = resList.map((v) => ({ codeId: v.prtnrNo, codeName: v.prtnrNoNm }));
 }, { immediate: true });
 
@@ -358,7 +353,8 @@ const isEngineerSelected = computed(() => searchParams.value.mngrDvCd === '2');
 async function onChangeMngrDvCd() {
   searchParams.value.dgr1LevlOgId = '';
   if (searchParams.value.mngrDvCd === '1') {
-    searchParams.value.dgr2LevlOgId = 'OG00053616';
+    getOrganizationInfo();
+    // searchParams.value.dgr2LevlOgId = 'OG00053616';
   } else {
     searchParams.value.dgr2LevlOgId = '';
   }
@@ -494,6 +490,7 @@ onMounted(async () => {
   searchParams.value.mngrDvCd = '1';
   searchParams.value.rgsnExcdYn = 'N';
   searchParams.value.vacManaYn = 'N';
+  getOrganizationInfo();
 });
 
 // -------------------------------------------------------------------------------------------------
