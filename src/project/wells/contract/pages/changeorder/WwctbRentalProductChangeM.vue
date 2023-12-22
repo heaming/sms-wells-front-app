@@ -47,6 +47,16 @@
     <kw-form
       ref="obsRef"
     >
+      <!-- orderProduct가 바뀐걸 옵저버가 인지하지 못해서 컴포넌트 추가함. -->
+      <kw-field
+        v-show="false"
+        v-model="orderProduct"
+      />
+      <kw-field
+        v-show="false"
+        v-model="istEnvRequest"
+      />
+
       <div class="result-area">
         <h3>
           {{ $t('MSG_TXT_CNTR_INF') }} <!-- 계약정보 -->
@@ -219,16 +229,6 @@
             expand-icon-class="kw-font-pt24"
             default-opened
           >
-            <!-- orderProduct가 바뀐걸 옵저버가 인지하지 못해서 컴포넌트 추가함. -->
-            <kw-field
-              v-show="false"
-              v-model="orderProduct"
-            />
-            <kw-field
-              v-show="false"
-              v-model="istEnvRequest"
-            />
-
             <template #header>
               <kw-item-section>
                 <kw-item-label>
@@ -260,9 +260,9 @@
                   icon="search"
                   maxlength="100"
                   grow
-                  :disable="fieldData.slClYn==='Y'
-                    || !isEmpty(fieldData.vstSchDt)
-                    || !isEmpty(fieldData.istDt)
+                  :disable="!isCntrCnfmMm
+                    || isEngineerAssigned
+                    || isInstalled
                     || fieldData.svcPdChYn==='Y'"
                   @click-icon="onClickSelectProduct"
                 />
@@ -276,7 +276,7 @@
                 :model-value="orderProduct"
                 :bas="fieldData"
                 modify
-                :readonly="!isEmpty(fieldData.istDt) || fieldData.svcPdChYn==='Y'"
+                :readonly="!isCntrCnfmMm || fieldData.svcPdChYn==='Y'"
                 @select:one-plus-one="onClickOnePlusOne"
                 @delete:one-plus-one="onDeleteOnePlusOne"
                 @select:device="onClickDeviceChange"
@@ -494,6 +494,7 @@ import {
   RENTAL_DSC_DV_CD,
   RENTAL_DSC_TP_CD,
 } from '~sms-wells/contract/constants/ctConst';
+import dayjs from 'dayjs';
 
 const dataService = useDataService();
 const { modal, alert, confirm, notify } = useGlobal();
@@ -675,6 +676,10 @@ async function onClickConfirm() {
   orderProduct.value.promotions = promotions.value;
 }
 
+const isCntrCnfmMm = ref(true); // 현재 계약확정월인가
+const isEngineerAssigned = ref(false); // 엔지니어가 배정되었나
+const isInstalled = ref(false); // 설치되었나
+
 // 기본정보 조회
 async function fetchData() {
   isFetched.value = false;
@@ -694,6 +699,10 @@ async function fetchData() {
     } },
   );
   Object.assign(fieldData.value, res.data);
+
+  isCntrCnfmMm.value = fieldData.value.cntrCnfmDt.substring(0, 6) === dayjs().format('YYYYMM'); // 현재월이 계약확정월인가
+  isEngineerAssigned.value = !isEmpty(fieldData.value.vstSchDt); // 엔지니어 배정되었나
+  isInstalled.value = !isEmpty(fieldData.value.istDt); // 설치되었나
 
   if (isEmpty(fieldData.value.pdPrcFnlDtlId)) {
     alert('가격이 설정되지 않아, 가격을 조회하는데 실패했습니다.');
@@ -749,19 +758,6 @@ async function fetchData() {
       mchnClnOjYn: '', // TODO: 가져와야됨
       ojCntrMmBaseDvCd: '', // TODO: 가져와야됨
     };
-    // if (fieldData.value.mchnChTpCd === '19') {
-    //   product.priceOptionFilter = {
-    //     ...product.priceOptionFilter,
-    //     rentalDscDvCd: RENTAL_DSC_DV_CD.GENERAL,
-    //     rentalDscTpCd: RENTAL_DSC_TP_CD.STPL_5_YEAR_RE_RENTAL,
-    //   };
-    // } else {
-    //   orderProduct.value.priceOptionFilter = {
-    //     ...orderProduct.value.priceOptionFilter,
-    //     rentalDscDvCd: '8',
-    //     rentalDscTpCd: RENTAL_DSC_TP_CD.RE_RENTAL,
-    //   };
-    // }
   }
 
   // 적용되있는 1+1 세팅
@@ -779,12 +775,6 @@ async function fetchData() {
         pdNm: fieldData.value.pdNm,
       },
     });
-
-    // product.priceOptionFilter = {
-    //   ...product.priceOptionFilter,
-    //   rentalDscDvCd: RENTAL_DSC_DV_CD.GENERAL,
-    //   rentalDscTpCd: RENTAL_DSC_TP_CD.ONE_PLUS_ONE,
-    // };
   }
 
   compKey.value += 1;
@@ -903,8 +893,8 @@ async function onPackaging() {
 
 // 기기변경 버튼 클릭
 async function onClickDeviceChange(odrPrdct) {
-  if (!isEmpty(fieldData.value.vstSchDt)) {
-    alert('설치 배정된 계약건은 기기변경 할 수 없습니다.');
+  if (isEngineerAssigned.value || isInstalled.value) {
+    alert('설치 배정/완료된 계약건은 기기변경 할 수 없습니다.');
     return;
   }
 
@@ -1019,6 +1009,11 @@ async function onDeleteOnePlusOne(odrPrdct) {
 
 // 기기변경 삭제 버튼 클릭
 async function onDeleteDeviceChange(odrPrdct) {
+  if (isEngineerAssigned.value || isInstalled.value) {
+    alert('설치 배정/완료된 계약건은 기기변경 할 수 없습니다.');
+    return;
+  }
+
   odrPrdct.mchnCh = null;
 
   if (odrPrdct.priceOptionFilter?.rentalDscTpCd) {
