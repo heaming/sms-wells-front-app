@@ -378,10 +378,10 @@ async function checkDuplication(itmPdCd) {
 
 // 품목기본정보 팝업 호출
 async function openItemBasePopup(row) {
-  const searchItmKndCd = isEmpty(cachedParams.itmKndCd) ? '6' : cachedParams.itmKndCd;
+  const { itmKndCd: searchItmKndCd } = cachedParams;
   const { result, payload } = await modal({
     component: 'WwsnaItemBaseInformationListP',
-    componentProps: { chk: '1', lpGbYn: 'Y', itmKndCd: searchItmKndCd },
+    componentProps: { chk: '1', lpGbYn: 'Y', wareDvCd: '3', itmKndCd: searchItmKndCd },
   });
 
   if (result) {
