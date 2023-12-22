@@ -43,7 +43,7 @@
           <kw-input
             v-model="info.piaSellFeeSmry"
             :maxlength="4000"
-            :readonly="info.dpSlpno !== null"
+            :readonly="true"
           />
         </kw-form-item>
       </kw-form-row>
