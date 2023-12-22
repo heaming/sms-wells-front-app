@@ -15,207 +15,189 @@
 <template>
   <kw-scroll-area
     visible
+    scroll-width="100%"
   >
-    <template
-      v-for="(item, idx) in step3.dtls"
-      :key="idx"
-    >
+    <keep-alive>
       <div
-        v-if="item.cntrSn === dtlSn"
-        class="pr20"
+        v-if="curCntrDtl"
+        :key="curCntrDtl[SYM_TEMP_CNTR_DTL_KEY] || getDtlTempKey(curCntrDtl) "
+        class="pr30"
       >
-        <div class="row justify-between">
-          <div class="row items-center">
-            <h3 class="my0">
-              {{ item.pdClsfNm }}
-              <kw-separator
-                spaced
-                vertical
-                class="mx12 my5"
-              />
-              {{ item.pdNm }}
-            </h3>
-          </div>
-          <div class="row items-center">
-            <p class="kw-fc--primary kw-font-subtitle">
-              {{ getDisplayPriceByCntrDtl(item) }}
+        <!-- 상품명/가격 -->
+        <div class="scoped-sub-title-area">
+          <span class="shrink-off">{{ curCntrDtl.pdClsfNm }}</span>
+          <kw-separator
+            spaced
+            vertical
+            class="mx12 my5"
+          />
+          <span class="grow">
+            {{ curCntrDtl.pdNm }}
+          </span>
+          <span class="shrink-off text-primary">{{ getDisplayPriceByCntrDtl(curCntrDtl) }}</span>
+          <div class="shrink-off row items-center ml20">
+            <kw-btn
+              icon="arrow_left_24"
+              borderless
+              class="kw-font-pt24"
+              :disable="cntrDtlKeys.indexOf(curCntrDtlKey) === 0"
+              @click="onClickPrevDtl"
+            />
+            <p class="mx4">
+              <span class="text-black1">{{ cntrDtlKeys.indexOf(curCntrDtlKey) + 1 }}</span>
+              <span class="text-placeholder">/{{ cntrDtlKeys.length }}</span>
             </p>
-            <div class="row items-center ml20">
-              <kw-btn
-                icon="arrow_left_24"
-                borderless
-                class="kw-font-pt24"
-                :disable="item.blkApy === 'Y'"
-                @click="onClickPrevDtlSn"
-              />
-              <p class="kw-font-pt18 kw-fc--black1 mx4">
-                <span>{{ dtlSn }}</span>
-                <span class="kw-fc--placeholder">/{{ step3.dtls.length }}</span>
-              </p>
-              <kw-btn
-                icon="arrow_right_24"
-                borderless
-                class="kw-font-pt24"
-                :disable="item.blkApy === 'Y'"
-                @click="onClickNextDtlSn"
-              />
-            </div>
+            <kw-btn
+              icon="arrow_right_24"
+              borderless
+              class="kw-font-pt24"
+              :disable="cntrDtlKeys.indexOf(curCntrDtlKey) === cntrDtlKeys.length - 1"
+              @click="onClickNextDtl"
+            />
           </div>
         </div>
-
         <kw-separator class="mt20" />
 
-        <kw-action-top>
-          <template #left>
-            <h3>설치 및 배송 주소</h3>
-          </template>
+        <!-- 설치 및 배송 주소 -->
+        <div class="scoped-sub-title-area">
+          <span class="scoped-sub-title-area__main">설치 및 배송 주소</span>
+          <kw-btn
+            v-if="step3.dtls.length > 1"
+            label="일괄적용"
+            dense
+            :disable="adrpcBulkApplied"
+            @click="onBulkApplyAdrpc"
+          />
           <kw-btn
             label="주소등록"
             dense
-            @click="onClickAddRectRgstAdr(item)"
+            @click="onClickAddRectRgstAdr(curCntrDtl)"
           />
-        </kw-action-top>
-        <kw-observer
-          ref="obsAdrRef"
+        </div>
+        <kw-form
+          ref="frmAdrpcRef"
+          :cols="0"
+          class="mt20"
         >
-          <kw-form
-            :cols="2"
-            class="mt20"
-          >
-            <kw-form-row>
-              <kw-form-item
-                label="주소 선택"
-                :colspan="2"
+          <kw-form-row>
+            <kw-form-item
+              label="주소 선택"
+            >
+              <div
+                class="scoped-radio-multiline"
               >
-                <div class="fit">
-                  <div
-                    class="inline-flex grow items-start radio-multiline relative"
-                    style="max-width: calc(100% - 80px); gap: 0 20px;"
-                  >
-                    <kw-radio
-                      v-for="(adr, i) in adrs"
-                      v-show="i < showAdrCount"
-                      :key="`adr${i}`"
-                      v-model="adrsVal"
-                      class="radio-close-button"
-                      :val="adr"
-                      @update:model-value="onClickRectRgstAdr(item, adr)"
-                    >
-                      {{ adr.rcgvpKnm }}
-                      <kw-btn
-                        icon="close"
-                        borderless
-                        dense
-                        class="kw-fc--placeholder"
-                        @click="onClickDeleteRectRgstAdr(adr)"
-                      />
-                    </kw-radio>
-                  </div>
+                <kw-radio
+                  v-for="(adr, i) in adrpcs"
+                  :key="`${adr[SYM_TEMP_ADRPC_KEY] + i}`"
+                  v-model="adrsVal"
+                  class="scoped-radio--removable"
+                  :val="adr"
+                  @update:model-value="onClickRectRgstAdr(curCntrDtl, adr)"
+                >
+                  {{ adr.rcgvpKnm }}
                   <kw-btn
-                    v-if="adrs?.length > 5"
-                    :icon-right="showAllAdrs ? 'arrow_up' : 'arrow_down'"
-                    dense
+                    icon="close"
                     borderless
-                    label="더보기"
-                    class="absolute kw-fc--black3 kw-font-pt14 self-start mt9"
-                    style="top: 0; right: 0;"
-                    @click="onToggleMore"
+                    dense
+                    class="kw-fc--placeholder"
+                    @click="onClickDeleteRectRgstAdr(adr)"
                   />
-                </div>
-              </kw-form-item>
-            </kw-form-row>
-            <kw-form-row>
-              <kw-form-item
+                </kw-radio>
+              </div>
+            </kw-form-item>
+          </kw-form-row>
+          <kw-form-row :cols="2">
+            <kw-form-item
+              :label="$t('MSG_TXT_RECIPIENT')"
+              required
+            >
+              <kw-input
+                v-model="curCntrDtl.adrpc.rcgvpKnm"
                 :label="$t('MSG_TXT_RECIPIENT')"
+                rules="required|max:15"
+                :maxlength="15"
+              />
+            </kw-form-item>
+            <kw-form-item
+              :label="$t('MSG_TXT_REL_CNTRT')"
+              required
+            >
+              <kw-select
+                v-model="curCntrDtl.adrpc.cntrtRelCd"
+                :options="codes.CNTRT_REL_CD"
+              />
+            </kw-form-item>
+          </kw-form-row>
+          <kw-form-row>
+            <kw-form-item
+              :label="$t('MSG_TXT_MPNO')"
+              required
+            >
+              <zwcm-telephone-number
+                v-model:tel-no1="curCntrDtl.adrpc.cralLocaraTno"
+                v-model:tel-no2="curCntrDtl.adrpc.mexnoEncr"
+                v-model:tel-no3="curCntrDtl.adrpc.cralIdvTno"
+                class="grow"
                 required
-              >
-                <kw-input
-                  v-model="item.adrpc.rcgvpKnm"
-                  :label="$t('MSG_TXT_RECIPIENT')"
-                  rules="required|max:15"
-                  :maxlength="15"
-                />
-              </kw-form-item>
-            </kw-form-row>
-            <kw-form-row>
-              <kw-form-item
-                :label="$t('MSG_TXT_MPNO')"
+              />
+            </kw-form-item>
+            <kw-form-item
+              :label="$t('MSG_TXT_TEL_NO')"
+            >
+              <zwcm-telephone-number
+                v-model:tel-no1="curCntrDtl.adrpc.locaraTno"
+                v-model:tel-no2="curCntrDtl.adrpc.exnoEncr"
+                v-model:tel-no3="curCntrDtl.adrpc.idvTno"
+                class="grow"
+                area
                 required
-              >
-                <zwcm-telephone-number
-                  v-model:tel-no1="item.adrpc.cralLocaraTno"
-                  v-model:tel-no2="item.adrpc.mexnoEncr"
-                  v-model:tel-no3="item.adrpc.cralIdvTno"
-                  required
-                />
-              </kw-form-item>
-              <kw-form-item
-                :label="$t('MSG_TXT_TEL_NO')"
-              >
-                <zwcm-telephone-number
-                  v-model:tel-no1="item.adrpc.locaraTno"
-                  v-model:tel-no2="item.adrpc.exnoEncr"
-                  v-model:tel-no3="item.adrpc.idvTno"
-                  area
-                  required
-                />
-              </kw-form-item>
-            </kw-form-row>
-          </kw-form>
-          <kw-form
-            :cols="1"
-            class="mt16"
-          >
-            <kw-form-row>
-              <kw-form-item
-                :label="$t('MSG_TXT_ADDR')"
-                :colspan="2"
-              >
-                <zwcm-post-code
-                  v-model:zipCode="item.adrpc.zip"
-                  v-model:add1="item.adrpc.adr"
-                  v-model:add2="item.adrpc.adrDtl"
-                  v-model:addKey="item.adrpc.adrId"
-                  v-model:adrDvCd="item.adrpc.adrDvCd"
-                  class="kw-grow"
-                />
-              </kw-form-item>
-            </kw-form-row>
-          </kw-form>
-          <kw-form
-            :cols="2"
-            class="mt16"
-          >
-            <kw-form-row>
-              <kw-form-item
-                :label="$t('MSG_TXT_REL_CNTRT')"
-                required
-              >
-                <kw-select
-                  v-model="item.adrpc.cntrtRelCd"
-                  :options="codes.CNTRT_REL_CD"
-                />
-              </kw-form-item>
-            </kw-form-row>
-          </kw-form>
-        </kw-observer>
+              />
+            </kw-form-item>
+          </kw-form-row>
+          <kw-form-row :cols="2">
+            <kw-form-item
+              :colspan="2"
+              :label="$t('MSG_TXT_ADDR')"
+            >
+              <zwcm-post-code
+                v-model:zipCode="curCntrDtl.adrpc.zip"
+                v-model:add1="curCntrDtl.adrpc.adr"
+                v-model:add2="curCntrDtl.adrpc.adrDtl"
+                v-model:addKey="curCntrDtl.adrpc.adrId"
+                v-model:adrDvCd="curCntrDtl.adrpc.adrDvCd"
+                class="kw-grow"
+              />
+            </kw-form-item>
+          </kw-form-row>
+          <kw-form-row />
+        </kw-form>
         <kw-separator />
 
-        <h3>설치환경 및 요청사항</h3>
-
+        <!-- 설치환경 및 요청사항 -->
+        <div class="scoped-sub-title-area">
+          <span class="scoped-sub-title-area__main">설치환경 및 요청사항</span>
+          <kw-btn
+            v-if="step3.dtls.length > 1"
+            label="일괄적용"
+            dense
+            :disable="wellsDtlBulkApplied"
+            @click="onBulkApplyWellDtl"
+          />
+        </div>
         <kw-form
+          ref="frmWellsDtlRef"
           :cols="2"
           class="mt20"
         >
           <template
-            v-if="item.sellTpCd === '1' || item.sellTpCd === '2'"
+            v-if="curCntrDtl.sellTpCd === SELL_TP_CD.SPAY || curCntrDtl.sellTpCd === SELL_TP_CD.RENTAL"
           >
             <kw-form-row>
               <kw-form-item
                 label="장소"
               >
                 <kw-select
-                  v-model="item.wellsDtl.istPlcTpCd"
+                  v-model="curCntrDtl.wellsDtl.istPlcTpCd"
                   :options="codes.IST_PLC_TP_CD"
                 />
               </kw-form-item>
@@ -223,7 +205,7 @@
                 label="가구 구성원 수"
               >
                 <kw-select
-                  v-model="item.wellsDtl.fmmbN"
+                  v-model="curCntrDtl.wellsDtl.fmmbN"
                   :options="codes.FMMB_N"
                 />
               </kw-form-item>
@@ -231,14 +213,14 @@
             <kw-form-row>
               <kw-form-item label="전압">
                 <kw-option-group
-                  v-model="item.wellsDtl.useElectTpCd"
+                  v-model="curCntrDtl.wellsDtl.useElectTpCd"
                   type="radio"
                   :options="codes.USE_ELECT_TP_CD"
                 />
               </kw-form-item>
               <kw-form-item label="수질">
                 <kw-select
-                  v-model="item.wellsDtl.srcwtTpCd"
+                  v-model="curCntrDtl.wellsDtl.srcwtTpCd"
                   :options="codes.SRCWT_TP_CD"
                 />
               </kw-form-item>
@@ -246,19 +228,20 @@
             <kw-form-row>
               <kw-form-item label="수압">
                 <kw-option-group
-                  v-model="item.wellsDtl.wprsItstTpCd"
+                  v-model="curCntrDtl.wellsDtl.wprsItstTpCd"
                   type="radio"
                   :options="codes.WPRS_ITST_TP_CD"
                 />
               </kw-form-item>
               <kw-form-item
-                v-if="item.wellsDtl.wrfrIstMthCds"
+                v-if="curCntrDtl.wellsDtl.wrfrIstMthCds"
                 label="설치방식"
               >
                 <kw-option-group
-                  v-model="item.wellsDtl.wrfrIstMthCd"
+                  v-model="curCntrDtl.wellsDtl.wrfrIstMthCd"
                   type="radio"
-                  :options="codes.PNCH_IST_TP_CD.filter((code) => item.wellsDtl.wrfrIstMthCds?.includes(code.codeId))"
+                  :options="codes.PNCH_IST_TP_CD.filter((code) =>
+                    curCntrDtl.wellsDtl.wrfrIstMthCds?.includes(code.codeId))"
                 />
               </kw-form-item>
             </kw-form-row>
@@ -269,44 +252,50 @@
               :colspan="2"
             >
               <kw-input
-                v-model="item.wellsDtl.istAkArtcMoCn"
+                v-model="curCntrDtl.wellsDtl.istAkArtcMoCn"
                 type="textarea"
                 maxlength="333"
               />
             </kw-form-item>
           </kw-form-row>
         </kw-form>
-
         <kw-separator />
 
-        <h3>결제정보</h3>
-
+        <!-- 결제정보 -->
+        <div class="scoped-sub-title-area">
+          <span class="scoped-sub-title-area__main">결제정보</span>
+          <kw-checkbox
+            v-if="isSodbt"
+            v-model="sodbtNftfCntr"
+            class="h32 mr8"
+            label="총판 비대면 계약여부"
+            :disable="isCcs"
+            boolean-value
+          />
+          <kw-btn
+            v-if="step3.dtls.length > 1 && curCntrDtl.sellTpCd !== SELL_TP_CD.SPAY"
+            label="일괄적용"
+            dense
+            :disable="stlmBulkApplied || sodbtNftfCntr"
+            @click="onBulkApplyStlm"
+          />
+        </div>
         <kw-form
+          ref="frmStlmRef"
           :cols="0"
           class="mt20"
         >
-          <!-- 총판계약유형 -->
-          <kw-form-row
-            v-if="isSodbt"
-          >
-            <kw-form-item label=" 총판계약유형">
-              <kw-field
-                v-slot="{field}"
-                v-model="item.sodbtNftfCntrYn"
-                @change="onChangeSodbtNftfCntr"
-              >
-                <kw-checkbox
-                  v-bind="field"
-                  label="총판 비대면 계약여부"
-                  :disable="isCcs"
-                  :false-value="'N'"
-                  :true-value="'Y'"
-                />
-              </kw-field>
-            </kw-form-item>
-          </kw-form-row>
+          <!-- 총판 비대면의 경우 -->
+          <template v-if="sodbtNftfCntr && !isCcs">
+            <kw-form-row>
+              <kw-form-item label="결제수단">
+                {{ 'TBD' }}
+              </kw-form-item>
+            </kw-form-row>
+          </template>
+          <!-- 일시불의 경우 -->
           <template
-            v-if="item.sodbtNftfCntrYn !== 'Y' || isCcs"
+            v-else-if="curCntrDtl.sellTpCd === SELL_TP_CD.SPAY"
           >
             <!-- 법인계약시 세금계산서 발행 선택 가능-->
             <kw-form-row
@@ -316,158 +305,151 @@
                 :label="t('MSG_TXT_TXINV_PBL')"
               >
                 <kw-option-group
-                  v-model="item.txinvPblOjYn"
+                  v-model="curCntrDtl.txinvPblOjYn"
                   type="radio"
                   :options="codes.COD_YN"
                 />
               </kw-form-item>
             </kw-form-row>
-            <template
-              v-if="item.sellTpCd === SELL_TP_CD.SPAY"
-            >
-              <kw-form-row>
-                <kw-form-item
-                  no-label
-                >
-                  <h3 class="my0">
-                    결제금액 : {{ getNumberWithComma(item.fnlAmt || 0) }}원
-                  </h3>
-                </kw-form-item>
-              </kw-form-row>
-              <kw-form-row>
-                <kw-form-item label="계약금(카드)">
-                  <kw-input
-                    v-model="item.cntrAmtCrd"
-                    type="number"
-                    align="right"
-                    maxlength="10"
-                    :disable="item.crpUcAmt > 0"
-                    @blur="onChangeCntram1(item)"
-                  />
-                </kw-form-item>
-                <kw-form-item label="계약금(가상계좌)">
-                  <kw-input
-                    v-model="item.cntrAmtVac"
-                    type="number"
-                    align="right"
-                    maxlength="10"
-                    :disable="item.crpUcAmt > 0"
-                    @blur="onChangeCntram2(item)"
-                  />
-                </kw-form-item>
-              </kw-form-row>
-              <!-- 법인 환경가전 일시불계약시, 법인미수금 선택 가능-->
-              <kw-form-row
-                v-if="step3.bas?.copnDvCd === COPN_DV_CD.COOPERATION
-                  && item.sellTpDtlCd === SELL_TP_DTL_CD.SPAY_ENVR_ELHM"
+            <kw-form-row>
+              <kw-form-item
+                no-label
               >
-                <kw-form-item label="법인미수금">
-                  <kw-input
-                    v-model="item.crpUcAmt"
-                    type="number"
-                    align="right"
-                    maxlength="10"
-                    @blur="onChangeCrpUcAmt(item)"
-                  />
-                </kw-form-item>
-              </kw-form-row>
-              <template v-if="Number(item.cntrPtrm) && Number(item.cntrPtrm) > 0">
-                <kw-form-row>
-                  <kw-form-item label="멤버십계좌이체">
-                    <kw-option-group
-                      v-model="item.dpTpCdMshAftn"
-                      type="radio"
-                      :options="step3.bas?.copnDvCd === COPN_DV_CD.COOPERATION ?
-                        codes.DP_TP_CD_AFTN_CRP :
-                        codes.DP_TP_CD_AFTN"
-                    />
-                  </kw-form-item>
-                </kw-form-row>
-              </template>
-            </template>
-            <template
-              v-else
+                <h3 class="my0">
+                  결제금액 : {{ getFormattedStr(getSpayAmtByCntrDtl(curCntrDtl)) }}
+                </h3>
+              </kw-form-item>
+            </kw-form-row>
+            <kw-form-row>
+              <kw-form-item label="계약금(카드)">
+                <kw-input
+                  v-model="curCntrDtl.cntrAmtCrd"
+                  type="number"
+                  align="right"
+                  maxlength="10"
+                  :disable="curCntrDtl.crpUcAmt > 0"
+                  @blur="onChangeCntram1(curCntrDtl)"
+                />
+              </kw-form-item>
+              <kw-form-item label="계약금(가상계좌)">
+                <kw-input
+                  v-model="curCntrDtl.cntrAmtVac"
+                  type="number"
+                  align="right"
+                  maxlength="10"
+                  :disable="curCntrDtl.crpUcAmt > 0"
+                  @blur="onChangeCntram2(curCntrDtl)"
+                />
+              </kw-form-item>
+            </kw-form-row>
+            <!-- 법인 환경가전 일시불계약시, 법인미수금 선택 가능-->
+            <kw-form-row
+              v-if="step3.bas?.copnDvCd === COPN_DV_CD.COOPERATION
+                && curCntrDtl.sellTpDtlCd === SELL_TP_DTL_CD.SPAY_ENVR_ELHM"
             >
-              <kw-form-row
-                :cols="4"
-              >
-                <kw-form-item
-                  label="자동이체"
-                  :colspan="2"
-                >
+              <kw-form-item label="법인미수금">
+                <kw-input
+                  v-model="curCntrDtl.crpUcAmt"
+                  type="number"
+                  align="right"
+                  maxlength="10"
+                  @blur="onChangeCrpUcAmt(curCntrDtl)"
+                />
+              </kw-form-item>
+            </kw-form-row>
+            <template v-if="Number(curCntrDtl.cntrPtrm) && Number(curCntrDtl.cntrPtrm) > 0">
+              <kw-form-row>
+                <kw-form-item label="멤버십계좌이체">
                   <kw-option-group
-                    v-model="item.dpTpCdAftn"
+                    v-model="curCntrDtl.dpTpCdMshAftn"
                     type="radio"
                     :options="step3.bas?.copnDvCd === COPN_DV_CD.COOPERATION ?
                       codes.DP_TP_CD_AFTN_CRP :
                       codes.DP_TP_CD_AFTN"
                   />
                 </kw-form-item>
-                <kw-form-item
-                  no-label
-                  :colspan="1"
-                >
-                  <kw-select
-                    v-if="item.dpTpCdAftn === DP_TP_CD.IDV_RVE_VAC"
-                    v-model="item.mpyBsdt"
-                    borderless
-                    class="scoped-mpy-bsdt-select"
-                    label="이체일자"
-                    rules="required"
-                    prefix="매월"
-                    suffix="이체"
-                    :options="mpyBsdtOptions"
-                  />
-                </kw-form-item>
-                <kw-form-item no-label>
-                  <p class="kw-fc--black2 kw-font-pt14 text-weight-regular">
-                    월납부금 : {{ getNumberWithComma((item.fnlAmt || 0) / (item.sellTpCd === '6' ? item.svPrd : 1)) }}원
-                  </p>
-                </kw-form-item>
-              </kw-form-row>
-              <kw-form-row
-                :cols="4"
-              >
-                <kw-form-item
-                  label="등록비결제유형"
-                  :colspan="3"
-                >
-                  <kw-option-group
-                    v-model="item.dpTpCdIdrv"
-                    type="radio"
-                    :options="codes.DP_TP_CD_IDRV"
-                    :disable="Number(item.cntrAmt) === 0"
-                  />
-                </kw-form-item>
-                <kw-form-item no-label>
-                  <p class="kw-fc--black2 kw-font-pt14 text-weight-regular">
-                    등록비 : {{ getNumberWithComma(item.cntrAmt || 0) }}원
-                  </p>
-                </kw-form-item>
               </kw-form-row>
             </template>
           </template>
-          <kw-form-row
-            v-if="isPsbBlkApy"
+          <!-- 그 외의 경우 -->
+          <template
+            v-else
           >
-            <kw-form-item
-              no-label
-              :colspan="2"
+            <!-- 법인계약시 세금계산서 발행 선택 가능-->
+            <kw-form-row
+              v-if="step3.bas?.copnDvCd === COPN_DV_CD.COOPERATION"
             >
-              <kw-field
-                v-slot="{field}"
-                v-model="item.blkApy"
+              <kw-form-item
+                :label="t('MSG_TXT_TXINV_PBL')"
               >
-                <kw-checkbox
-                  v-bind="field"
-                  label="설정한 조건 나머지 상품에도 일괄적용"
+                <kw-option-group
+                  v-model="curCntrDtl.txinvPblOjYn"
+                  type="radio"
+                  :options="codes.COD_YN"
                 />
-              </kw-field>
-            </kw-form-item>
-          </kw-form-row>
+              </kw-form-item>
+            </kw-form-row>
+            <kw-form-row
+              :cols="4"
+            >
+              <kw-form-item
+                label="자동이체"
+                :colspan="2"
+              >
+                <kw-option-group
+                  v-model="curCntrDtl.dpTpCdAftn"
+                  type="radio"
+                  :options="step3.bas?.copnDvCd === COPN_DV_CD.COOPERATION ?
+                    codes.DP_TP_CD_AFTN_CRP :
+                    codes.DP_TP_CD_AFTN"
+                />
+              </kw-form-item>
+              <kw-form-item
+                no-label
+                :colspan="1"
+              >
+                <kw-select
+                  v-if="curCntrDtl.dpTpCdAftn === DP_TP_CD.IDV_RVE_VAC"
+                  v-model="curCntrDtl.mpyBsdt"
+                  borderless
+                  class="scoped-mpy-bsdt-select"
+                  label="이체일자"
+                  rules="required"
+                  prefix="매월"
+                  suffix="이체"
+                  :options="mpyBsdtOptions"
+                />
+              </kw-form-item>
+              <kw-form-item no-label>
+                <p class="kw-fc--black2 kw-font-pt14 text-weight-regular">
+                  월납부금 : {{ getFormattedStr(getAftnAmtByCntrDtl(curCntrDtl)) }}
+                </p>
+              </kw-form-item>
+            </kw-form-row>
+            <kw-form-row
+              :cols="4"
+            >
+              <kw-form-item
+                label="등록비결제유형"
+                :colspan="3"
+              >
+                <kw-option-group
+                  v-model="curCntrDtl.dpTpCdIdrv"
+                  type="radio"
+                  :options="codes.DP_TP_CD_IDRV"
+                  :disable="totalSpayAmt === 0"
+                />
+              </kw-form-item>
+              <kw-form-item no-label>
+                <p class="kw-fc--black2 kw-font-pt14 text-weight-regular">
+                  등록비 : {{ getFormattedStr(getSpayAmtByCntrDtl(curCntrDtl)) }}
+                </p>
+              </kw-form-item>
+            </kw-form-row>
+          </template>
         </kw-form>
       </div>
-    </template>
+    </keep-alive>
   </kw-scroll-area>
 </template>
 
@@ -477,9 +459,8 @@
 // -------------------------------------------------------------------------------------------------
 import ZwcmTelephoneNumber from '~common/components/ZwcmTelephoneNumber.vue';
 import ZwcmPostCode from '~common/components/ZwcmPostCode.vue';
-import { alert, notify, useDataService } from 'kw-lib';
+import { alert, getComponentType, notify, useDataService } from 'kw-lib';
 import { cloneDeep } from 'lodash-es';
-import { getNumberWithComma } from '~sms-common/contract/util';
 import {
   CCS_BASE_RLE_CDS,
   COPN_DV_CD,
@@ -487,8 +468,17 @@ import {
   SELL_TP_CD,
   SELL_TP_DTL_CD,
 } from '~sms-wells/contract/constants/ctConst';
-import { getDisplayPriceByCntrDtl } from '~sms-wells/contract/utils/CtPriceUtil';
 import { useCtCode } from '~sms-common/contract/composable';
+import { warn } from 'vue';
+import {
+  getAftnAmtByCntrDtl,
+  getDisplayPriceByCntrDtl,
+  getFormattedStr,
+  getSpayAmtByCntrDtl,
+} from '~sms-wells/contract/utils/CtPriceUtil';
+
+const SYM_TEMP_CNTR_DTL_KEY = Symbol.for('TEMP_CNTR_DTL_KEY');
+const SYM_TEMP_ADRPC_KEY = Symbol.for('TEMP_ADRPC_KEY');
 
 const props = defineProps({
   contract: { type: Object, required: true },
@@ -541,70 +531,33 @@ codes.DP_TP_CD_AFTN_CRP = [
   { codeId: DP_TP_CD.IDV_RVE_VAC, codeName: '법인계좌' }, // 가상계좌이다.
 ];
 
-const adrs = ref([]);
+const adrpcs = ref([]);
 const adrsVal = ref('');
-const obsAdrRef = ref();
-const dtlSn = ref(1);
-const showAllAdrs = ref(false);
-const showAdrCount = computed(() => (showAllAdrs.value ? 10 : 5));
-const isPsbBlkApy = ref(true);
-const isSodbt = computed(() => (step3.value?.bas.sellOgTpCd === 'W05'));
-const isCcs = computed(() => CCS_BASE_RLE_CDS.includes(baseRleCd));
-const mpyBsdtOptions = ref([]);
+
+const isSodbt = computed(() => (step3.value?.bas.sellOgTpCd === 'W05')); /* 총판여부 */
+const isCcs = computed(() => CCS_BASE_RLE_CDS.includes(baseRleCd)); /* 고객센터여부 */
+const mpyBsdtOptions = ref([]); /* 이체가능일 */
 // -------------------------------------------------------------------------------------------------
 // Function & Event
 // -------------------------------------------------------------------------------------------------
 
-async function fetchRegularFundTransferDayOptions() {
-  // 계좌 자동이체 기준을 우선 따릅니다.
-  const { data } = await dataService.get(`/sms/common/contract/settlement/regular-fund-transfers-day-options/${DP_TP_CD.AC_AFTN}`);
-  mpyBsdtOptions.value = data?.map((value) => ({ codeId: value, codeName: `${value}일` }));
-}
-
-await fetchRegularFundTransferDayOptions();
-
-async function getCntrInfo() {
-  if (!cntrNo.value) {
-    await alert('잘못된 접근입니다.');
-    return;
+function getAdrpcTempKey(adrpc) {
+  if (!adrpc) {
+    return undefined;
   }
-  const { data } = await dataService.get('sms/wells/contract/contracts/cntr-info', {
-    params: {
-      cntrNo: cntrNo.value,
-      step: 3,
-    },
-  });
-  step3.value = data.step3;
-  adrs.value = [step3.value.basAdrpc];
-
-  data.step3.dtls.forEach((dtl) => {
-    if (dtl.sellTpCd === SELL_TP_CD.SPAY) {
-      if (!dtl.cntrAmtCrd && !dtl.cntrAmtVac && !dtl.crpUcAmt) {
-        dtl.cntrAmtCrd = Number(dtl.fnlAmt || 0);
-        dtl.cntrAmtVac = 0;
-        dtl.crpUcAmt = 0;
-      }
-    } else {
-      dtl.dpTpCdAftn ??= DP_TP_CD.CRDCD_AFTN;
-      dtl.dpTpCdIdrv ??= DP_TP_CD.IDV_RVE_CRDCD;
-    }
-  });
-
-  // 일괄적용 여부(렌탈이면서 유상멤버십기간, 판매유형코드, 판매유형상세코드 등이 일치해야 함)
-  const baseDtl = step3.value.dtls[0];
-
-  isPsbBlkApy.value = (step3.value.dtls.length > 1)
-      && (!step3.value.dtls.some((dtl) => baseDtl.recapMshPtrm !== dtl.recapMshPtrm
-          || baseDtl.sellTpCd !== dtl.sellTpCd
-          || baseDtl.sellTpDtlCd !== dtl.sellTpDtlCd
-          || dtl.sellTpCd !== SELL_TP_CD.RENTAL));
-
-  if (isPsbBlkApy.value) {
-    step3.value.dtls.forEach((dtl) => {
-      dtl.blkApy = 'N';
-    });
+  if (!adrpc[SYM_TEMP_ADRPC_KEY]) {
+    adrpc[SYM_TEMP_ADRPC_KEY] = [
+      adrpc.rcgvpKnm,
+      adrpc.cralLocaraTno,
+      adrpc.mexnoEncr,
+      adrpc.cralIdvTno,
+      adrpc.locaraTno,
+      adrpc.exnoEncr,
+      adrpc.idvTno,
+      adrpc.adrId,
+    ].join('|');
   }
-  ogStep3.value = cloneDeep(step3.value);
+  return adrpc[SYM_TEMP_ADRPC_KEY];
 }
 
 function isChangedStep() {
@@ -613,8 +566,16 @@ function isChangedStep() {
 
 async function isValidStep() {
   const validateDtl = (dtl) => {
-    const { sellTpCd, cntrAmt, fnlAmt, cntrAmtCrd, cntrAmtVac, crpUcAmt, dpTpCdAftn, dpTpCdIdrv } = dtl;
-    console.log(dtl);
+    const {
+      sellTpCd,
+      cntrAmt,
+      fnlAmt,
+      cntrAmtCrd,
+      cntrAmtVac,
+      crpUcAmt,
+      dpTpCdAftn,
+      dpTpCdIdrv,
+    } = dtl;
     if (sellTpCd === SELL_TP_CD.SPAY) {
       return Number(fnlAmt || 0) === Number(cntrAmtCrd || 0) + Number(cntrAmtVac || 0) + Number(crpUcAmt || 0);
     }
@@ -638,41 +599,71 @@ async function saveStep() {
   return savedCntr?.data?.key;
 }
 
-function onToggleMore() {
-  showAllAdrs.value = !showAllAdrs.value;
+/* region [about dtl array control] */
+function getDtlTempKey(cntrDtl) {
+  if (!cntrDtl) {
+    return undefined;
+  }
+  if (!cntrDtl[SYM_TEMP_CNTR_DTL_KEY]) {
+    cntrDtl[SYM_TEMP_CNTR_DTL_KEY] = [
+      cntrDtl.cntrNo,
+      cntrDtl.cntrSn,
+    ].join('-');
+  }
+  return cntrDtl[SYM_TEMP_CNTR_DTL_KEY];
 }
 
-function equalsAdr(adr1, adr2) {
-  return adr1.rcgvpKnm === adr2.rcgvpKnm
-      && adr1.cralLocaraTno === adr2.cralLocaraTno
-      && adr1.mexnoEncr === adr2.mexnoEncr
-      && adr1.cralIdvTno === adr2.cralIdvTno
-      && adr1.locaraTno === adr2.locaraTno
-      && adr1.exnoEncr === adr2.exnoEncr
-      && adr1.idvTno === adr2.idvTno
-      && adr1.adrId === adr2.adrId;
+const cntrDtlKeys = ref(step3.value?.dtls?.map(getDtlTempKey) || []);
+const curCntrDtlKey = ref(getDtlTempKey(step3.value?.dtls?.[0]));
+const curCntrDtl = computed(() => step3.value.dtls?.find((dtl) => dtl[SYM_TEMP_CNTR_DTL_KEY] === curCntrDtlKey.value));
+
+function onClickPrevDtl() {
+  const curIdx = cntrDtlKeys.value.indexOf(curCntrDtlKey.value);
+  curCntrDtlKey.value = cntrDtlKeys.value[curIdx - 1];
+}
+
+function onClickNextDtl() {
+  const curIdx = cntrDtlKeys.value.indexOf(curCntrDtlKey.value);
+  curCntrDtlKey.value = cntrDtlKeys.value[curIdx + 1];
+}
+/* endregion [about dtl array control] */
+
+/* region [계약주소지 adrpc] */
+const frmAdrpcRef = ref(getComponentType('KwForm'));
+const adrpcBulkApplied = ref(false);
+
+function clearAdrpcs() {
+  adrpcs.value = [];
+}
+
+function addAdrpc(newAdrpc) {
+  getAdrpcTempKey(newAdrpc);
+  adrpcs.value.push(newAdrpc);
+}
+
+function equalsAdrpc(adr1, adr2) {
+  return getAdrpcTempKey(adr1) === getAdrpcTempKey(adr2);
 }
 
 async function onClickAddRectRgstAdr(dtl) {
-  if (adrs.value.length === 10) {
+  if (adrpcs.value.length === 10) {
     await alert('주소는 10개까지만 등록 가능합니다.');
     return;
   }
   const { adrpc } = dtl;
   const newAdr = { ...adrpc };
-  if (!await obsAdrRef.value[0].validate()) {
+  if (!await frmAdrpcRef.value.validate()) {
     return;
   }
   if (!newAdr.adrId) {
     await alert('올바른 주소를 입력해주세요.');
     return;
   }
-  if (adrs.value.find((adr) => equalsAdr(adr, newAdr))) {
+  if (adrpcs.value.find((adr) => equalsAdrpc(adr, newAdr))) {
     alert('이미 등록된 주소입니다.');
     return;
   }
-  adrs.value.push(newAdr);
-  // radio 초기화
+  addAdrpc(newAdr);
   adrsVal.value = '';
 }
 
@@ -681,16 +672,103 @@ function onClickRectRgstAdr(dtl, adr) {
 }
 
 function onClickDeleteRectRgstAdr(delAdr) {
-  adrs.value = adrs.value.filter((adr) => !equalsAdr(adr, delAdr));
+  adrsVal.value = undefined;
+  adrpcs.value = adrpcs.value.filter((adr) => !equalsAdrpc(adr, delAdr));
 }
 
-function onClickPrevDtlSn() {
-  if (dtlSn.value > 1) dtlSn.value -= 1;
+function onBulkApplyAdrpc() {
+  const modifyFields = [
+    'rcgvpKnm',
+    'cntrtRelCd',
+    'cralLocaraTno',
+    'mexnoEncr',
+    'cralIdvTno',
+    'locaraTno',
+    'exnoEncr',
+    'idvTno',
+    'zipCode',
+    'add1',
+    'add2',
+    'addKey',
+    'adrDvCd',
+  ];
+  step3.value.dtls.forEach((dtl) => {
+    dtl.adrpc ??= {};
+    modifyFields.forEach((field) => {
+      dtl.adrpc[field] = curCntrDtl.value.adrpc[field];
+    });
+  });
+  adrpcBulkApplied.value = true;
+
+  frmAdrpcRef.value.init();
 }
 
-function onClickNextDtlSn() {
-  if (dtlSn.value < step3.value.dtls.length) dtlSn.value += 1;
+watchEffect(() => {
+  if (frmAdrpcRef.value && frmAdrpcRef.value?.isModified()) {
+    adrpcBulkApplied.value = false;
+  }
+});
+/* endregion [계약주소지 adrpc] */
+
+/* region [설치정보 wellsDtl] */
+const frmWellsDtlRef = ref();
+const wellsDtlBulkApplied = ref(false);
+
+function onBulkApplyWellDtl() {
+  const modifyFields = [
+    'istPlcTpCd',
+    'fmmbN',
+    'useElectTpCd',
+    'srcwtTpCd',
+    'wprsItstTpCd',
+    'istAkArtcMoCn',
+  ];
+
+  wellsDtlBulkApplied.value = true;
+  step3.value.dtls.forEach((dtl) => {
+    dtl.wellsDtl ??= {};
+    modifyFields.forEach((field) => {
+      dtl.wellsDtl[field] = curCntrDtl.value.wellsDtl[field];
+    });
+
+    // 타공 설치 방식은 해당 계약이 해당 타공 유형을 지원할 때만 적용합니다.
+    const bulkAppliedWrfrIstMthCd = curCntrDtl.value.wellsDtl.wrfrIstMthCd;
+    if (bulkAppliedWrfrIstMthCd && dtl.wellsDtl.wrfrIstMthCds?.includes(bulkAppliedWrfrIstMthCd)) {
+      dtl.wellsDtl.wrfrIstMthCd = bulkAppliedWrfrIstMthCd;
+    }
+  });
+
+  frmWellsDtlRef.value.init();
 }
+
+watchEffect(() => {
+  if (frmWellsDtlRef.value && frmWellsDtlRef.value?.isModified()) {
+    wellsDtlBulkApplied.value = false;
+  }
+});
+/* endregion [설치정보 wellsDtl] */
+
+/* region [결제정보 stlm] */
+const sodbtNftfCntr = computed({
+  get: () => step3.value?.bas?.cstStlmInMthCd === '30' || false,
+  set(value) {
+    if (!step3.value?.bas) { return; }
+    step3.value.bas.cstStlmInMthCd = value ? '30' : undefined;
+  },
+}); // 총판 비대면 여부
+
+const frmStlmRef = ref();
+const stlmBulkApplied = ref(false);
+const totalSpayAmt = computed(() => step3.value?.dtls
+  ?.reduce((sum, cntrDtl) => (sum + (getSpayAmtByCntrDtl(cntrDtl) || 0)), 0));
+
+async function fetchRegularFundTransferDayOptions() {
+  // 계좌 자동이체 기준을 우선 따릅니다.
+  const { data } = await dataService.get(`/sms/common/contract/settlement/regular-fund-transfers-day-options/${DP_TP_CD.AC_AFTN}`);
+  mpyBsdtOptions.value = data?.map((value) => ({ codeId: value, codeName: `${value}일` }));
+}
+
+await fetchRegularFundTransferDayOptions();
 
 function onChangeCntram1(dtl) {
   if (Number(dtl.cntrAmtCrd || 0) > Number(dtl.fnlAmt || 0)) {
@@ -721,13 +799,72 @@ function onChangeCrpUcAmt(dtl) {
   }
 }
 
-function onChangeSodbtNftfCntr(v) {
+function onBulkApplyStlm() {
+  const modifyFields = [
+    'txinvPblOjYn',
+    'dpTpCdAftn',
+    'mpyBsdt',
+    'dpTpCdIdrv',
+  ];
+
+  stlmBulkApplied.value = true;
   step3.value.dtls.forEach((dtl) => {
-    dtl.sodbtNftfCntrYn = v;
+    modifyFields.forEach((field) => {
+      dtl[field] = curCntrDtl.value[field];
+    });
   });
+
+  frmStlmRef.value.init();
 }
 
+watchEffect(() => {
+  if (frmStlmRef.value && frmStlmRef.value?.isModified()) {
+    stlmBulkApplied.value = false;
+  }
+});
+/* endregion [결제정보 wellsDtl] */
+
 const loaded = ref(false);
+
+async function getCntrInfo() {
+  if (!cntrNo.value) {
+    await alert('잘못된 접근입니다.');
+    return;
+  }
+  const { data } = await dataService.get('sms/wells/contract/contracts/cntr-info', {
+    params: {
+      cntrNo: cntrNo.value,
+      step: 3,
+    },
+  });
+  step3.value = data.step3;
+
+  clearAdrpcs();
+  addAdrpc(step3.value.basAdrpc);
+
+  if (!step3.value?.dtls.length) {
+    warn('계약상세가 비었습니다!');
+    return;
+  }
+
+  cntrDtlKeys.value = [];
+  step3.value.dtls.forEach((dtl) => {
+    cntrDtlKeys.value.push(getDtlTempKey(dtl));
+    if (dtl.sellTpCd === SELL_TP_CD.SPAY) {
+      if (!dtl.cntrAmtCrd && !dtl.cntrAmtVac && !dtl.crpUcAmt) {
+        dtl.cntrAmtCrd = Number(dtl.fnlAmt || 0);
+        dtl.cntrAmtVac = 0;
+        dtl.crpUcAmt = 0;
+      }
+    } else {
+      dtl.dpTpCdAftn ??= DP_TP_CD.CRDCD_AFTN;
+      dtl.dpTpCdIdrv ??= DP_TP_CD.IDV_RVE_CRDCD;
+    }
+  });
+
+  curCntrDtlKey.value = getDtlTempKey(step3.value.dtls?.[0]);
+  ogStep3.value = cloneDeep(step3.value);
+}
 
 async function initStep(forced = false) {
   if (!forced && loaded.value) {
@@ -737,8 +874,6 @@ async function initStep(forced = false) {
     await getCntrInfo();
     loaded.value = true;
   }
-  // await getCntrInfo();
-  // loaded.value = true;
 }
 
 exposed.getCntrInfo = getCntrInfo;
@@ -755,6 +890,8 @@ onActivated(() => {
 </script>
 
 <style lang="scss" scoped>
+@import "kw-lib/src/css/mixins";
+
 :deep(.scoped-mpy-bsdt-select) {
   flex: 0 0 160px !important;
 
@@ -764,283 +901,51 @@ onActivated(() => {
   }
 }
 
-.normal-area--button-set-bottom {
-  max-height: calc(100vh - 222px);
-  min-height: 715px;
-}
-
-.step-list {
-  margin: 0;
-  padding-left: 0;
-  list-style: none;
-
-  & > li {
-    &::after {
-      content: "";
-      display: block;
-      margin: 12px 0;
-      border-bottom: 1px solid $line-bg;
-    }
-
-    &:last-child::after {
-      display: none;
-    }
-  }
-
-  &-title {
-    color: $black3;
-
-    span {
-      display: inline-block;
-      width: 20px;
-      height: 20px;
-      margin-right: 4px;
-      text-align: center;
-      line-height: 1.4;
-      border-radius: 100%;
-      border: 1px solid $line-stroke;
-      font-size: 14px;
-      color: $black3;
-      font-weight: 500;
-    }
-
-    &--checked {
-      span {
-        border: none;
-        position: relative;
-        background: $line-bg;
-        font-size: 0;
-        vertical-align: text-bottom;
-
-        &::after {
-          content: "";
-          position: absolute;
-          top: 50%;
-          left: 50%;
-          transform: translate(-50%, -50%);
-          width: 15px;
-          height: 20px;
-          background: url("~@assets/icons/checked_stepper.svg") center no-repeat;
-          background-size: contain;
-        }
-      }
-    }
-
-    &--active {
-      color: #2f3c78;
-      font-weight: 500;
-
-      span {
-        border: none;
-        color: #fff;
-        background: #2f3c78;
-      }
-    }
-  }
-
-  &-content {
-    margin-top: 12px;
-    padding: 12px 20px;
-    background-color: #f5f5f5;
-
-    &--blue-bg {
-      padding: 20px;
-      background: rgb(47 138 243 / 10%);
-    }
-  }
-}
-
-.setting-box {
+.scoped-radio-multiline {
+  flex: none;
   width: 100%;
-  margin: 0;
-  padding-left: 0;
-  list-style: none;
-
-  .kw-field {
-    &.kw-input,
-    &.kw-select {
-      background-color: #fff;
-    }
-  }
-
-  li {
-    display: flex;
-    align-items: center;
-
-    & + li {
-      margin-top: 16px;
-    }
-
-    div + div {
-      margin-left: 40px;
-    }
-  }
-
-  &-main {
-    width: 240px;
-
-    p {
-      color: $black1;
-
-      span {
-        margin-left: 4px;
-        color: $primary;
-      }
-    }
-
-    &--subtitle {
-      font-size: 14px;
-      color: #555;
-      width: 100%;
-
-      &::before {
-        content: "";
-        display: inline-block;
-        margin-bottom: 5px;
-        margin-right: 4.5px;
-        width: 9px;
-        height: 8.5px;
-        border-left: 1px solid $line-stroke;
-        border-bottom: 1px solid $line-stroke;
-      }
-    }
-  }
-
-  &-middle {
-    width: 250px;
-  }
-
-  span {
-    font-size: 14px;
-    color: #555;
-  }
+  display: flex;
+  flex-flow: row wrap;
+  column-gap: $spacing-lg;
 }
 
-.product {
-  &-inside {
-    width: 100%;
+:deep(.scoped-radio--removable) {
+  min-height: 40px;
+  height: 40px;
+
+  &.spaced-sibling + .spaced-sibling {
+    margin-left: 0;
+  }
+
+  .q-radio__inner--falsy {
+    & ~ .q-radio__label {
+      font-weight: 500;
+    }
+  }
+
+  .q-radio__label {
     display: flex;
+    align-items: center;
     justify-content: space-between;
-    align-items: flex-start;
-  }
-
-  &-left-area {
-    width: 100%;
-    display: flex;
-    align-items: flex-start;
-  }
-
-  &-type {
-    width: 60px;
-    margin-right: 8px;
+    gap: 8px;
     font-size: 14px;
-    color: $black3;
-    white-space: normal;
-  }
-
-  &-content {
-    display: flex;
-    align-items: flex-start;
-    width: 100%;
-    flex-direction: column;
-    gap: 12px 0;
-  }
-
-  .kw-btn {
-    align-self: flex-start;
-  }
-
-  .setting-box {
-    padding-left: 68px;
-    padding-right: 44px;
-    margin-top: 12px;
-    width: 100%;
-
-    li + li {
-      margin-top: 12px;
-    }
-
-    .form-full-size {
-      column-gap: 8px;
-
-      .kw-date-picker {
-        min-width: 150px;
-      }
-
-      .kw-input,
-      .kw-select {
-        min-width: calc(100% / 4);
-        flex: 10000 1 0%;
-      }
-    }
-  }
-
-  .sub-content {
-    display: flex;
-    align-items: center;
-    width: calc(100% - 28px);
-    margin-top: 12px;
-
-    .sub-content-title {
-      width: 68px;
-      padding-right: 8px;
-      font-size: 14px;
-      color: $black3;
-    }
-
-    &-middle {
-      width: calc(100% - 68px);
-      align-items: center;
-      justify-content: space-between;
-      display: flex;
-    }
-
-    & + .sub-content {
-      margin-top: 12px;
-    }
-
-    &:last-child {
-      margin-bottom: 20px;
-    }
+    color: $black1;
   }
 }
 
-// rev;230405 스타일 수정
-.radio-multiline {
-  &::v-deep(.kw-radio) {
-    min-height: 40px;
-    height: 40px;
-    margin-right: 20px;
+.scoped-sub-title-area {
+  @include typo("subtitle", 500);
 
-    &.radio-close-button {
-      &.spaced-sibling + .spaced-sibling {
-        margin-left: 0;
-      }
+  display: flex;
+  flex-flow: row nowrap;
+  align-items: flex-start;
 
-      .q-radio__inner--falsy {
-        & ~ .q-radio__label {
-          font-weight: 500;
-        }
-      }
-
-      .q-radio__label {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        gap: 8px;
-        font-size: 14px;
-        color: $black1;
-      }
-    }
+  &__main {
+    flex: 1 1 1px;
   }
 
-  // // rev;230405 스타일 수정
-
-  .second-line {
-    display: inline-flex;
-    gap: 12px 20px;
-    min-height: 24px;
+  > .kw-btn {
+    margin-left: $spacing-xs;
   }
 }
-
 </style>

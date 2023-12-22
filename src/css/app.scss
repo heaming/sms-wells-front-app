@@ -102,13 +102,31 @@
 
 $unit: px;
 
-@for $size from 1 through 1000 {
+@for $size from 1 through 300 {
   .hp-w#{$size} {
     width: #{$size} + $unit;
   }
 
   .hp-h#{$size} {
     height: #{$size} + $unit;
+  }
+}
+
+@for $size from 1 through 200 {
+  .hp-w#{$size * 4} {
+    width: #{$size * $spacing-base};
+  }
+
+  .hp-h#{$size * 4} {
+    height: #{$size * $spacing-base};
+  }
+
+  .hp-max-w#{$size * 4} {
+    max-width: #{$size * $spacing-base};
+  }
+
+  .hp-max-h#{$size * 4} {
+    max-height: #{$size * $spacing-base};
   }
 }
 
@@ -136,3 +154,6 @@ $unit: px;
     text-align: center;
   }
 }
+
+.hp-text-h3 {
+  @include typo-of-size(18px, 500); }

@@ -1,5 +1,16 @@
-import { getNumberWithComma } from '~sms-common/contract/util';
 import { warn } from 'vue';
+
+const numberFormat = Intl.NumberFormat('ko-KR');
+
+/**
+ * 금액 및 단위를 한국식 금액 표기법에 따라 문자열로 변환합니다.
+ * @param {number} numValue
+ * @param {string|undefined} [unit = '원']
+ * @return {string}
+ */
+export function getFormattedStr(numValue, unit = '원') {
+  return numberFormat.format(numValue) + unit;
+}
 
 function getFnlAmt(fnlVal, appliedPromotions = [], sellDscCtrAmt = 0) {
   const minRentalFxam = appliedPromotions
@@ -130,13 +141,13 @@ export function getDisplayedPrice(finalPrice, sellDscCtrAmt = 0) {
   }
   const fnlAmt = getFnlAmt(fnlVal, [], sellDscCtrAmt);
   if (sellTpCd === '1') {
-    return `${getNumberWithComma(fnlAmt)}원`;
+    return getFormattedStr(fnlAmt);
   }
   if (sellTpCd === '2') {
-    return `${getNumberWithComma(fnlAmt)}원${stplPrdCd ? ` (${stplPrdCd}개월)` : ''}`;
+    return `${getFormattedStr(fnlAmt)}${stplPrdCd ? ` (${stplPrdCd}개월)` : ''}`;
   }
   if (sellTpCd === '3') {
-    return `월${getNumberWithComma(fnlAmt)}원`;
+    return `월 ${getFormattedStr(fnlAmt)}`;
   }
   if (sellTpCd === '6') {
     let svPrd;
@@ -146,7 +157,7 @@ export function getDisplayedPrice(finalPrice, sellDscCtrAmt = 0) {
       svPrd = Math.max(Number(svVstPrdCd) || 1, Number(pcsvPrdCd) || 1);
     }
     if (svPrd) {
-      return `${getNumberWithComma(fnlAmt)}원 (월 ${getNumberWithComma(fnlAmt / svPrd)}원)`;
+      return `${getFormattedStr(fnlAmt)} (월 ${getFormattedStr(fnlAmt / svPrd)})`;
     }
   }
 }
@@ -174,18 +185,18 @@ export function getDisplayPriceByCntrDtl(cntrDtl) {
   if (!cntrDtl) { return undefined; }
   const { fnlAmt, svPrd, sellTpCd, stplPtrm } = cntrDtl;
   if (sellTpCd === '1') {
-    return `${getNumberWithComma(fnlAmt)}원`;
+    return getFormattedStr(fnlAmt);
   }
   if (sellTpCd === '2') {
-    return `${getNumberWithComma(fnlAmt)}원${stplPtrm ? ` (${stplPtrm}개월)` : ''}`;
+    return `${getFormattedStr(fnlAmt)}${stplPtrm ? ` (${stplPtrm}개월)` : ''}`;
   }
   if (sellTpCd === '3') {
-    return `월${getNumberWithComma(fnlAmt)}원`;
+    return `월 ${getFormattedStr(fnlAmt)}`;
   }
   if (sellTpCd === '6') {
     if (svPrd && svPrd > 1) {
-      return `${getNumberWithComma(fnlAmt)}원 (월 ${getNumberWithComma(fnlAmt / svPrd)}원)`;
+      return `${getFormattedStr(fnlAmt)} (월 ${getFormattedStr(fnlAmt / svPrd)})`;
     }
-    return `${getNumberWithComma(fnlAmt)}원`;
+    return `${getFormattedStr(fnlAmt)}`;
   }
 }
