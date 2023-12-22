@@ -155,7 +155,7 @@ async function fetchData() {
   const { list, pageInfo: pagingResult } = res.data;
 
   pageInfo.value = pagingResult;
-
+  // console.log(JSON.stringify(list, null, '\t'));
   const view = grdMainDPRef.value.getView();
   view.getDataSource().setRows(list);
   view.resetCurrent();
@@ -213,7 +213,7 @@ async function onClickSave() {
 
   const changedRows = gridUtil.getChangedRowValues(view);
   await dataService.post('/sms/wells/contract/changeorder/corp-limits', changedRows);
-
+  // console.log(JSON.stringify(changedRows, null, '\t'));
   notify(t('MSG_ALT_SAVE_DATA')); // 저장되었습니다.
   await onClickSearch();
 }
@@ -227,8 +227,11 @@ const initGrid = defineGrid((data, view) => {
     { fieldName: 'sellLmBzrno' }, /* 판매제한사업자등록번호 */
     { fieldName: 'dlpnrNm' }, /* 거래처명 */
     { fieldName: 'sellLmProcsTpCd' }, /* 판매제한처리유형코드 */
+    { fieldName: 'sellLmOjDrmCd' }, /* 판매제한대상식별코드 */
     { fieldName: 'vlStrtDtm' }, /* 유효시작일시 */
     { fieldName: 'vlEndDtm' }, /* 유효종료일시 */
+    { fieldName: 'sellLmOcDt' }, /* 판매제한발생일자 */
+    { fieldName: 'sellLmRlsDt' }, /* 판매제한해제일자 */
     { fieldName: 'sellLmRsonCn' }, /* 판매제한사유내용 */
     { fieldName: 'fstRgstDtm' }, /* 최초등록일시 */
     { fieldName: 'fstRgstUsrId' }, /* 최초등록사용자ID */
@@ -272,8 +275,11 @@ const initGrid = defineGrid((data, view) => {
         displayLabels: 'label',
       },
     }, // 판매제한처리유형코드
+    { fieldName: 'sellLmOjDrmCd', visible: false }, /* 판매제한대상식별코드 */
+    { fieldName: 'vlStrtDtm', visible: false }, /* 유효시작일자 */
+    { fieldName: 'vlEndDtm', visible: false }, /* 유효종료일자 */
     {
-      fieldName: 'vlStrtDtm',
+      fieldName: 'sellLmOcDt', /* 판매제한발생일자 */
       header: '유효시작일자',
       width: '140',
       styleName: 'text-center',
@@ -282,7 +288,7 @@ const initGrid = defineGrid((data, view) => {
       rules: 'required',
     },
     {
-      fieldName: 'vlEndDtm',
+      fieldName: 'sellLmRlsDt', /* 판매제한해제일자 */
       header: '유효종료일자',
       width: '140',
       styleName: 'text-center',
