@@ -163,6 +163,16 @@ const fnitAprRsCdColorClass = computed(() => {
 const alreadyDone = (stlmBas.value.fnitAprRsCd === 'Y');
 const approved = ref(alreadyDone);
 
+watchEffect(() => {
+  if (approved.value) { return; }
+  approvalRequest.value.acnoEncr = stlmBas.value.acnoEncr || approvalRequest.value.acnoEncr;
+  approvalRequest.value.bnkCd = stlmBas.value.bnkCd || approvalRequest.value.bnkCd;
+  approvalRequest.value.mpyBsdt = stlmBas.value.mpyBsdt || approvalRequest.value.mpyBsdt;
+  approvalRequest.value.owrKnm = stlmBas.value.owrKnm || approvalRequest.value.owrKnm;
+  approvalRequest.value.copnDvCdDrmVal = stlmBas.value.copnDvCdDrmVal || approvalRequest.value.copnDvCdDrmVal;
+  console.log('!', approvalRequest.value.bnkCd);
+}, { onTrigger: (event) => { console.log('onTrigger', event); } });
+
 function getStlmUpdateInfo() {
   const { cntrStlmId, dpTpCd, cntrNo } = stlmBas.value;
   if (!cntrStlmId) { throw Error('데이터가 이상합니다. 관리자에게 연락바랍니다.'); }
@@ -170,6 +180,8 @@ function getStlmUpdateInfo() {
     mpyBsdt,
     acnoEncr,
     owrKnm,
+    copnDvCdDrmVal,
+    bnkCd,
   } = approvalRequest.value;
   const {
     aprNo,
@@ -184,10 +196,12 @@ function getStlmUpdateInfo() {
     mpyBsdt,
     acnoEncr,
     owrKnm,
+    copnDvCdDrmVal,
     aprNo,
     cdcoCd,
     fnitAprRsCd,
     fnitAprFshDtm,
+    bnkCd,
   });
 }
 
