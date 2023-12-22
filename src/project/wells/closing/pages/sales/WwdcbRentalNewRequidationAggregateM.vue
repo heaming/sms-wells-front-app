@@ -15,6 +15,7 @@
     <kw-search
       :cols="2"
       @search="onClickSearch"
+      @reset="onClickReset"
     >
       <kw-search-row>
         <kw-search-item
@@ -214,6 +215,11 @@ async function onClickSearch() {
   cachedParams = cloneDeep(searchParams.value);
 
   await fetchData();
+}
+
+// 초기화 버튼
+async function onClickReset() {
+  changeYn = 'Y';
 }
 
 // -------------------------------------------------------------------------------------------------
