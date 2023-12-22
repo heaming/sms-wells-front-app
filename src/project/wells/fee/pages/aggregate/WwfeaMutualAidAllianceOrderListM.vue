@@ -155,14 +155,14 @@ import ZwogPartnerSearch from '~sms-common/organization/components/ZwogPartnerSe
 const now = dayjs();
 const { t } = useI18n();
 const { currentRoute } = useRouter();
-// const { getters } = useStore();
+const { getters } = useStore();
 const dataService = useDataService();
 
 // -------------------------------------------------------------------------------------------------
 // Function & Event
 // -------------------------------------------------------------------------------------------------
-// const userInfo = getters['meta/getUserInfo'];
-// const { ogTpCd } = userInfo;
+const userInfo = getters['meta/getUserInfo'];
+const { ogTpCd } = userInfo;
 
 const grdRef = ref(getComponentType('KwGrid'));
 const grdData = computed(() => grdRef.value?.getData());
@@ -174,7 +174,7 @@ const searchParams = ref({
   cntrStat: '0',
   alncCd: '0',
   rsbDvCd: '0',
-  ogTpCd: 'W01',
+  ogTpCd: ['W01', 'W02'].includes(ogTpCd) ? ogTpCd : 'W01',
   dgr2LevlOgId: '',
   dgr3LevlOgId: '',
   dgr4LevlOgId: '',
