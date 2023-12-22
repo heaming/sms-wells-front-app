@@ -73,7 +73,6 @@
       </div>
     </div>
     <div
-      ref="productScrollRef"
       v-scrollbar
       class="scoped-product-select__product-box"
     >
@@ -106,7 +105,9 @@
             <template #default>
               <kw-virtual-scroll
                 v-slot="{item: product, index: idx}"
-                :scroll-target="$refs.productScrollRef"
+                scroll-target=".scoped-product-select__product-box"
+                virtual-scroll-item-size="79"
+                virtual-scroll-slice-ratio-after="3"
                 class="scoped-product-picker-list"
                 :items="filteredClassifyingProducts[pdClsfCd]"
                 type="list"

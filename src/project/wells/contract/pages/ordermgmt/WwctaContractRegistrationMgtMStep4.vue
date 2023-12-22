@@ -369,6 +369,7 @@
           <h3>설치 및 배송 주소</h3>
 
           <kw-form
+            v-if="item.adrpc"
             :cols="2"
             dense
             class="mt20"
