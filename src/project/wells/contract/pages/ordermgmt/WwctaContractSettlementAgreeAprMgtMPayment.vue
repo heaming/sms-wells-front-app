@@ -20,6 +20,7 @@
 ****************************************************************************************************
 --->
 <template>
+  <!--카드일시불결재-->
   <single-payment-approval
     ref="spayRef"
     :cntr-cst-info="contractor"
@@ -28,23 +29,27 @@
     @approved="onApprovedSpayStlms"
     @approve-canceled="onApproveCanceledSpayStlms"
   />
+  <!--카드자동이체-->
   <card-automatic-transfer-approval
     ref="cardAftnRef"
     :cntr-cst-info="contractor"
     :stlm="crdCdAftnStlm"
     @approved="onApprovedCrdCdAftnStlms"
   />
+  <!--계좌자동이체-->
   <account-automatic-transfer-approval
     ref="acAftnRef"
     :cntr-cst-info="contractor"
     :stlm="acAftnStlm"
     @approved="onApprovedAcAftnStlms"
   />
+  <!--가상계좌발급-->
   <virtual-account-issue
     ref="vacIssueRef"
     :stlm="vacStlm"
     @approved="onIssuedVirtualAccount"
   />
+  <!--현금영수증등록-->
   <cash-sales-receipt
     v-if="cashSalesReceiptInfo"
     ref="cashRef"
@@ -79,7 +84,7 @@ const props = defineProps({
 const exposed = {};
 defineExpose(exposed);
 
-const emit = defineEmits(['activated']);
+const emit = defineEmits(['activated', 'update:stlm-bas']);
 
 const CREDIT_CARD_DP_TP_CDS = [
   DP_TP_CD.IDV_RVE_CRDCD, /* 개별수납(신용카드) */
@@ -128,6 +133,9 @@ const mileageStlms = computed(() => Object.values(stlmInfo.value)
 const spayStlmsUpdateInfo = ref([]);
 
 function onApprovedSpayStlms(stlmsUpdateInfo) {
+  stlmsUpdateInfo?.forEach((stlmBas) => {
+    emit('update:stlm-bas', stlmBas);
+  });
   spayStlmsUpdateInfo.value = stlmsUpdateInfo;
 }
 
@@ -142,6 +150,7 @@ const crdCdAftnStlm = computed(() => Object.values(stlmInfo.value)
 const crdCdAftnStlmsUpdateInfo = ref([]);
 
 function onApprovedCrdCdAftnStlms(stlmUpdateInfo) {
+  emit('update:stlm-bas', stlmUpdateInfo);
   crdCdAftnStlmsUpdateInfo.value = [stlmUpdateInfo];
 }
 
@@ -151,6 +160,7 @@ const acAftnStlm = computed(() => Object.values(stlmInfo.value)
 const acAftnStlmsUpdateInfo = ref([]);
 
 function onApprovedAcAftnStlms(stlmUpdateInfo) {
+  emit('update:stlm-bas', stlmUpdateInfo);
   acAftnStlmsUpdateInfo.value = [stlmUpdateInfo];
 }
 

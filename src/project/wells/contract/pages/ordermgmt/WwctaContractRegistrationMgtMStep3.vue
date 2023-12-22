@@ -273,7 +273,7 @@
             boolean-value
           />
           <kw-btn
-            v-if="step3.dtls.length > 1 && curCntrDtl.sellTpCd !== SELL_TP_CD.SPAY"
+            v-if="ableToStlmBulkApply"
             label="일괄적용"
             dense
             :disable="stlmBulkApplied || sodbtNftfCntr"
@@ -759,6 +759,8 @@ const sodbtNftfCntr = computed({
 
 const frmStlmRef = ref();
 const stlmBulkApplied = ref(false);
+const ableToStlmBulkApply = computed(() => step3.value?.dtls.length > 1
+  && !step3.value?.dtls.some((dtl) => dtl.sellTpCd === SELL_TP_CD.SPAY));
 const totalSpayAmt = computed(() => step3.value?.dtls
   ?.reduce((sum, cntrDtl) => (sum + (getSpayAmtByCntrDtl(cntrDtl) || 0)), 0));
 
