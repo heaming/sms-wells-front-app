@@ -101,7 +101,7 @@ const codes = await codeUtil.getMultiCodes(
 const customCodes = {
   findGb: [
     { codeId: '2', codeName: '엔지니어' },
-    { codeId: '3', codeName: 'LP' },
+    { codeId: '3', codeName: '매니저' },
   ],
 };
 const searchParams = ref({
