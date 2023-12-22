@@ -53,8 +53,8 @@
         <kw-search-item :label="$t('계약상세번호')">
           <zctz-contract-detail-number
             ref="contractNumberRef"
-            v-model:cntr-no="searchParams.cntrNo"
-            v-model:cntr-sn="searchParams.cntrSn"
+            v-model:cntr-no="searchParams.cntrNo1"
+            v-model:cntr-sn="searchParams.cntrSn1"
           />
         </kw-search-item>
       </kw-search-row>
@@ -107,8 +107,8 @@
         <kw-search-item :label="$t('계약상세번호')">
           <zctz-contract-detail-number
             ref="contractNumberRef"
-            v-model:cntr-no="searchParams.cntrNo"
-            v-model:cntr-sn="searchParams.cntrSn"
+            v-model:cntr-no="searchParams.cntrNo2"
+            v-model:cntr-sn="searchParams.cntrSn2"
           />
         </kw-search-item>
       </kw-search-row>
@@ -199,8 +199,8 @@
         <kw-search-item :label="$t('계약상세번호')">
           <zctz-contract-detail-number
             ref="contractNumberRef"
-            v-model:cntr-no="searchParams.cntrNo"
-            v-model:cntr-sn="searchParams.cntrSn"
+            v-model:cntr-no="searchParams.cntrNo3"
+            v-model:cntr-sn="searchParams.cntrSn3"
           />
         </kw-search-item>
         <kw-search-item :label="$t('사번')">
@@ -279,6 +279,15 @@
           spaced
         />
         <kw-btn
+          v-if="rpblCnfmVisible"
+          ref="rpblCnfmRef"
+          v-permission:create
+          :label="$t('S/N 재발행 확인')"
+          primary
+          dense
+          @click="onClickQrRpblCnfm"
+        />
+        <kw-btn
           v-permission:create
           :label="$t('S/N 재발행')"
           primary
@@ -317,13 +326,15 @@ import ZctzContractDetailNumber from '~sms-common/contract/components/ZctzContra
 import { openReportPopup } from '~common/utils/cmPopupUtil';
 
 const { getConfig } = useMeta();
-const { alert, modal } = useGlobal();
+const { alert, modal, notify } = useGlobal();
 const { t } = useI18n();
 const dataService = useDataService();
 const gridMainRef = ref(getComponentType('KwGrid'));
 const { currentRoute } = useRouter();
 const router = useRouter();
 const searchRef = ref(null);
+const rpblCnfmRef = ref(null);
+const rpblCnfmVisible = ref(false);
 
 /*
  *  Search Parameter
@@ -335,6 +346,12 @@ const searchParams = ref({
   pdPrpVal20: '', // 상품그룹
   cntrNo: '', // 계약번호
   cntrSn: '', // 계약순번
+  cntrNo1: '', // 계약번호
+  cntrSn1: '', // 계약순번
+  cntrNo2: '', // 계약번호
+  cntrSn2: '', // 계약순번
+  cntrNo3: '', // 계약번호
+  cntrSn3: '', // 계약순번
   prtnrNo: '', // 사번
   // Case2 (관리구분 - 매니저)
   mngtDptmtCd: '', // 총괄단
@@ -434,16 +451,31 @@ async function onChangeMngrDvCd() {
       searchParams.value.mngrCd = '';
       searchParams.value.svcCntrCd = '';
       searchParams.value.engineerCd = '';
+
+      searchParams.value.cntrNo2 = '';
+      searchParams.value.cntrNo2 = '';
+      searchParams.value.cntrNo3 = '';
+      searchParams.value.cntrNo3 = '';
       break;
     case '1': // 관리구분 - 매니저
       searchParams.value.svcCntrCd = '';
       searchParams.value.engineerCd = '';
+
+      searchParams.value.cntrNo1 = '';
+      searchParams.value.cntrNo1 = '';
+      searchParams.value.cntrNo3 = '';
+      searchParams.value.cntrNo3 = '';
       break;
     case '2': // 관리구분 - 엔지니어
       searchParams.value.mngtDptmtCd = '';
       searchParams.value.rgnlGrpCd = '';
       searchParams.value.branchCd = '';
       searchParams.value.mngrCd = '';
+
+      searchParams.value.cntrNo1 = '';
+      searchParams.value.cntrNo1 = '';
+      searchParams.value.cntrNo2 = '';
+      searchParams.value.cntrNo2 = '';
       break;
     default:
       break;
@@ -458,11 +490,21 @@ async function onChangeMngrDvCd() {
 async function onClickSearch() {
   pageInfo.value.pageIndex = 1;
 
-  if (searchCase2) {
+  if (searchCase1.value) {
+    searchParams.value.cntrNo = searchParams.value.cntrNo1;
+    searchParams.value.cntrSn = searchParams.value.cntrSn1;
+  } else if (searchCase2.value) {
     searchParams.value.ogTpCd = mngrPartnerObj.value?.ogTpCd;
-  } else if (searchCase3) {
+    searchParams.value.cntrNo = searchParams.value.cntrNo2;
+    searchParams.value.cntrSn = searchParams.value.cntrSn2;
+  } else if (searchCase3.value) {
     searchParams.value.ogTpCd = engPartnerObj.value?.ogTpCd;
+    searchParams.value.cntrNo = searchParams.value.cntrNo3;
+    searchParams.value.cntrSn = searchParams.value.cntrSn3;
   }
+
+  // 재발행 확인 버튼 visible false setting
+  rpblCnfmVisible.value = false;
 
   cachedParams = cloneDeep(searchParams.value);
   await getQuickResponseRpblPages();
@@ -495,7 +537,7 @@ async function onClickExcelDownload() {
 /*
  * Event - QR재발행 버튼 클릭
  */
-async function onClickQrRpbl() {
+async function onClickQrRpblCnfm() {
   if (isEmpty(cachedParams?.baseYm)) {
     alert(t('MSG_ALT_USE_DT_SRCH_AF')); // 데이터 조회 후 사용해주세요.
     return;
@@ -503,7 +545,25 @@ async function onClickQrRpbl() {
 
   // 바코드 재발행 저장
   await dataService.post('/sms/wells/service/quick-response-rpbls', cachedParams);
+  await notify(t('MSG_ALT_SAVE_DATA'));
+
+  await getQuickResponseRpblPages();
+}
+
+/*
+ * Event - QR재발행 버튼 클릭
+ */
+async function onClickQrRpbl() {
+  if (isEmpty(cachedParams?.baseYm)) {
+    alert(t('MSG_ALT_USE_DT_SRCH_AF')); // 데이터 조회 후 사용해주세요.
+    return;
+  }
+
+  /*
+  // 바코드 재발행 저장
+  await dataService.post('/sms/wells/service/quick-response-rpbls', cachedParams);
   // await notify(t('MSG_ALT_SAVE_DATA'));
+  */
 
   // Initialize
   ozReportParam.value.args = {
@@ -558,6 +618,9 @@ async function onClickQrRpbl() {
     JSON.stringify(ozReportParam.value.args),
     { width: ozReportParam.value.width, height: ozReportParam.value.height },
   );
+
+  // 재발행 확인 버튼 visible true setting
+  rpblCnfmVisible.value = true;
 }
 
 // -------------------------------------------------------------------------------------------------
