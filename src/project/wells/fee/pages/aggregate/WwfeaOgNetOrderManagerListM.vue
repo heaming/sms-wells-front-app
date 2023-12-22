@@ -584,8 +584,13 @@ function getGridColumns() {
     { fieldName: 'pkgSn', header: t('MSG_TXT_PKG_SN'), width: '120', styleName: 'text-center' }, // 패키지 일련번호
     { fieldName: 'mchnSstCd', header: t('MSG_TXT_MCHN') + t('MSG_TXT_CST_CD'), width: '120', styleName: 'text-center' }, // 기기 고객코드
     { fieldName: 'mchnPdCd', header: t('MSG_TXT_MCHN') + t('MSG_TXT_PRDT_CODE'), width: '120', styleName: 'text-center' }, // 기기 상품코드
-    { fieldName: 'perfExcdRgstYn', header: t('MSG_TXT_PERF_EXCD') + t('MSG_TXT_RGST_YN'), width: '120', styleName: 'text-center' }, // 실적제외 등록여부
   );
+
+  if (searchParams.value.dvCd !== '04') {
+    columns.push(
+      { fieldName: 'perfExcdRgstYn', header: t('MSG_TXT_PERF_EXCD') + t('MSG_TXT_RGST_YN'), width: '120', styleName: 'text-center' }, // 실적제외 등록여부
+    );
+  }
 
   return columns;
 }
