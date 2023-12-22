@@ -173,7 +173,7 @@ const searchParams = ref({
   baseDateFrom: dayjs().format('YYYYMMDD'),
   baseDateTo: dayjs().format('YYYYMMDD'),
   fxnPrtnrNo: '',
-  managementYear: '2023',
+  managementYear: dayjs().format('YYYY'),
   selectweeks: '',
   weekDay1: '',
   weekDay2: '',
@@ -241,10 +241,6 @@ async function onClickSearch() {
   await fetchData2();
 }
 
-async function initInfo() {
-  weekItems.value = await onChangeYear();
-}
-
 async function changeWeeks() {
   const sfdf = weekItems.value.find((v) => v.codeId === searchParams.value.selectweeks);
 
@@ -263,6 +259,13 @@ async function changeWeeks() {
   searchParams.value.weekDay5 = sfdf.dayC5;
   searchParams.value.weekDay6 = sfdf.dayC6;
   searchParams.value.weekDay7 = sfdf.dayC7;
+}
+
+async function initInfo() {
+  weekItems.value = await onChangeYear();
+
+  const todayWeek = weekItems.value.find((v) => (v.codeId.substring(0, 8) <= dayjs().format('YYYYMMDD')) && (v.codeId.substring(8, 16) >= dayjs().format('YYYYMMDD')));
+  searchParams.value.selectweeks = todayWeek.codeId;
 }
 
 /*
