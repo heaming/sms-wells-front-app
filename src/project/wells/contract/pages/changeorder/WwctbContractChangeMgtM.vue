@@ -478,7 +478,8 @@ async function changeContract(item, popNm, gubun) {
         break;
       case 'WwctbRentalProductChangeM': // 렌탈 주문 수정_상품변경 Variation (PC화면)
         router.push({
-          path: '/contract/wwctb-rental-product-change', // 나과장 작업중
+          // path: '/contract/wwctb-rental-product-change',
+          path: '/contract/wwctb-contract-change-mgt/wwctb-rental-product-change',
           query: {
             cntrNo: item.cntrNo,
             cntrSn: item.cntrSn },
