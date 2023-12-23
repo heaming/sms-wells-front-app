@@ -51,24 +51,25 @@
       </kw-search-row>
       <kw-search-row>
         <!-- 처리구분 -->
-        <kw-search-item :label="$t('MSG_TXT_PROCS_DV')">
+        <!-- <kw-search-item :label="$t('MSG_TXT_PROCS_DV')">
           <kw-select
             v-model="searchParams.rfndDsbDvCdCshBltf"
             first-option="all"
             first-option-value="ALL"
             :options="codes.BLTF_RFND_DV_CD"
           />
-          <!-- :model-value="['']"
-          :options="['선택', 'B', 'C', 'D']" -->
-        </kw-search-item>
+        </kw-search-item> -->
         <!-- 계약상세번호 -->
-        <kw-search-item :label="$t('MSG_TXT_CNTR_DTL_NO')">
+        <kw-search-item
+          :label="$t('MSG_TXT_CNTR_DTL_NO')"
+        >
           <zctz-contract-detail-number
             v-model:cntr-no="searchParams.cntrNo"
             v-model:cntr-sn="searchParams.cntrSn"
             :label="$t('MSG_TXT_CNTR_DTL_NO')"
           />
         </kw-search-item>
+        <kw-search-item />
         <!-- 고객번호 -->
         <kw-search-item :label="$t('MSG_TXT_CST_NO')">
           <kw-input
@@ -205,7 +206,7 @@ const searchParams = ref({
   startDay: now.add(-1, 'M').add(1, 'day').format('YYYYMMDD'), // 접수일자 시작일 now.add(-30, 'day').format('YYYYMMDD') 1개월 이내로 하라고 에러뜸
   endDay: now.format('YYYYMMDD'), // 접수일자 종료일
   rfndStatCd: '00', // 환불상태
-  rfndDsbDvCdCshBltf: 'ALL', // 처리구분
+  // rfndDsbDvCdCshBltf: 'ALL', // 처리구분 2023-12-23 삭제
   cntrNo: '',
   cntrSn: '',
   cstNo: '',
