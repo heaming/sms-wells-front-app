@@ -80,14 +80,14 @@ const props = defineProps({
 });
 
 const params = decryptEncryptedParam(props.encryptedParam, {
-  cntrBasis: props.cntrBasis,
-  cntrChTpCd: props.cntrChTpCd,
-  cntrCstNo: props.cntrCstNo,
-  reRgstYn: props.reRgstYn,
-  cntrChRcpId: props.cntrChRcpId,
-  dcmtRcpSn: props.dcmtRcpSn,
-  cntrChPrgsMoCn: props.cntrChPrgsMoCn,
-  chRcpUsrId: props.chRcpUsrId,
+  cntrBasis: props.cntrBasis === 'undefined' || props.cntrBasis === 'null' ? null : props.cntrBasis,
+  cntrChTpCd: props.cntrChTpCd === 'undefined' || props.cntrChTpCd === 'null' ? null : props.cntrChTpCd,
+  cntrChRcpId: props.cntrChRcpId === 'undefined' || props.cntrChRcpId === 'null' ? null : props.cntrChRcpId,
+  dcmtRcpSn: props.dcmtRcpSn === 'undefined' || props.dcmtRcpSn === 'null' ? null : props.dcmtRcpSn,
+  cntrChPrgsMoCn: props.cntrChPrgsMoCn === 'undefined' || props.cntrChPrgsMoCn === 'null' ? null : props.cntrChPrgsMoCn,
+  cntrCstNo: props.cntrCstNo === 'undefined' || props.cntrCstNo === 'null' ? null : props.cntrCstNo,
+  reRgstYn: props.reRgstYn === 'undefined' || props.reRgstYn === 'null' ? 'N' : props.cntrCstNo,
+  chRcpUsrId: props.chRcpUsrId === 'undefined' || props.chRcpUsrId === 'null' ? 'N' : props.chRcpUsrId,
 });
 
 function close(payload) {
@@ -140,7 +140,7 @@ const authInfo = reactive({
 function next() {
   router.push({
     path: '/wmcta-document-rcp-file-rgst',
-    query: props,
+    state: { stateParam: params },
   });
 }
 
@@ -165,6 +165,7 @@ async function fetchBasicContractInfo() {
   });
 
   basicInfo.value = res.data;
+  params.cntrCstNo = basicInfo.value?.cntrCstNo;
 }
 
 await fetchBasicContractInfo();
