@@ -133,8 +133,8 @@
           <!-- (단위:원) -->
           <span class="ml8">{{ t('MSG_TXT_UNIT_WON') }}</span>
         </template>
-        <!-- 리포트 보기 -->
-        <kw-btn
+        <!-- 리포트 보기 TODO: 2023_12_23 주석처리 -->
+        <!-- <kw-btn
           v-permission:print
           icon="report"
           dense
@@ -142,7 +142,7 @@
           :label="$t('MSG_BTN_RPT_BRWS')"
           :disable="pageInfo.totalCount === 0"
           @click="onClickReportView"
-        />
+        /> -->
         <!-- 엑셀다운로드 -->
         <kw-btn
           v-permission:download
@@ -233,12 +233,12 @@
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
 
-import { codeUtil, defineGrid, getComponentType, gridUtil, useDataService, useGlobal } from 'kw-lib';
+import { codeUtil, defineGrid, getComponentType, gridUtil, useDataService /* , useGlobal */ } from 'kw-lib';
 import { cloneDeep, isEmpty } from 'lodash-es';
 import dayjs from 'dayjs';
 
 const { t } = useI18n();
-const { notify } = useGlobal();
+// const { notify } = useGlobal();
 const dataService = useDataService();
 
 const { currentRoute } = useRouter();
@@ -379,11 +379,13 @@ async function onClickSearch() {
   await fetchData3();
 }
 
-async function onClickReportView() {
-  // TODO: OZ REPORT 개발중..
-  notify('개발중');
-  // await openReportPopup('/eformsample.ozr', '/eformsample.odi', JSON.stringify({ param1: 'test1', param2: 'test2'}));
-}
+// TODO: 2023-12-23 주석처리(kw-btn visble 기능없음)
+// async function onClickReportView() {
+//   // TODO: OZ REPORT 개발중..
+//   notify('개발중');
+//   // await openReportPopup('/eformsample.ozr',
+//      '/eformsample.odi', JSON.stringify({ param1: 'test1', param2: 'test2'}));
+// }
 
 async function onClickExcelDownload1() {
   const response = await dataService.get('/sms/wells/withdrawal/idvrve/refund-status/excel-download', { params: cachedParams });
