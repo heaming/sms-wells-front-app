@@ -48,8 +48,8 @@
         </kw-search-item>
       </kw-search-row>
       <kw-search-row>
-        <!-- 일괄생성구분 -->
-        <kw-search-item
+        <!-- 일괄생성구분 2023_12_23 삭제 -->
+        <!-- <kw-search-item
           :label="t('MSG_TXT_BLK_CRT_DV')"
           first-option="all"
         >
@@ -58,9 +58,7 @@
             first-option="all"
             :options="customCodes.BLK_CRT_DV"
           />
-          <!-- :model-value="['01','02','03']" -->
-          <!-- :options="['일괄생성제외', '멤버십환불', '기변자동전금']" -->
-        </kw-search-item>
+        </kw-search-item> -->
         <!-- 귀속환불구분 -->
         <kw-search-item
           :label="t('MSG_TXT_BLNG_RFND_DV')"
@@ -85,7 +83,10 @@
         </kw-search-item>
         <!-- 판매유형상세 -->
         <!-- 23.07.21 일반, 금융리스, '장기할부'-->
-        <kw-search-item :label="t('MSG_TXT_SELL_TP_DTL')">
+        <kw-search-item
+          :colspan="2"
+          :label="t('MSG_TXT_SELL_TP_DTL')"
+        >
           <kw-select
             v-model="searchParams.sellTpDtlCd"
             first-option="all"
@@ -310,7 +311,7 @@ const searchParams = ref({
   // 판매유형상세 은 설계자가 테이블 컬럼 매핑하지 못함. 알 수 없음이라고 작성되어 있음.
   rveDvCd: '01', // 대손구분
   dpMesCd: '', // 포인트구분
-  blkCrtDv: '', // 일괄생성구분
+  // blkCrtDv: '', // 일괄생성구분
 });
 
 let summaryParams;
