@@ -193,6 +193,7 @@
             v-model="dataParams.vhcDsbRmkCn"
             type="textarea"
             :rows="3"
+            :maxlength="500"
           />
         </kw-form-item>
       </kw-form-row>
