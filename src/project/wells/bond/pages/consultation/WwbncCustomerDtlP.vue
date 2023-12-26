@@ -257,7 +257,12 @@
                 <kw-form-item
                   :label="$t('MSG_TXT_PRCH_PD_NM')"
                 >
-                  <p>{{ customer.pdNm }}</p>
+                  <p class="ellipsis">
+                    {{ customer.pdNm }}
+                    <kw-tooltip show-when-ellipsised>
+                      {{ customer.pdNm }}
+                    </kw-tooltip>
+                  </p>
                 </kw-form-item>
               </kw-form-row>
               <kw-form-row>
