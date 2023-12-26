@@ -359,6 +359,7 @@ function onChangeItmKndCd(itmKnd) {
   setitmGdCtrTpCdsCellStyle();
 }
 
+// 수량에 대한 null값 체크
 function isBlank(val) {
   return isUndefined(val) || isNull(val) || val === '';
 }
@@ -376,6 +377,7 @@ async function fetchData() {
 }
 
 const product = ref([]);
+// 그리드의 품목상품명에 보여질 품목상품코드 조회
 async function fetchProduct() {
   product.value = [];
   const res = await dataService.get('/sms/wells/service/stock-status-control/status-product', { params: { ...cachedParams } });
@@ -470,13 +472,16 @@ async function onClickSave() {
     const checkedItmGdCtrTpNm = checkedRows[i].itmGdCtrTpNm;
     const checkedItmGdCtrRsonNm = checkedRows[i].itmGdCtrRsonNm;
 
+    // 체크한 항목들 중 품목상품명, 조정수량, 상태조정유형, 조정사유명이 비어있을경우
     if (isEmpty(checkedItmPdNm) || isBlank(checkedCtrQty)
     || isEmpty(checkedItmGdCtrTpNm) || isEmpty(checkedItmGdCtrRsonNm)) {
+      // 항목에 값이 누락되었습니다. 확인하여 주십시오.
       notify(t('MSG_ALT_MISSING_VALUE_PLEASE_CHECK'));
       return;
     }
 
     if (checkedCtrQty <= 0) {
+      // {조정수량}은(는) 0보다 커야 합니다.
       notify(t('MSG_ALT_ZERO_IS_BIG', [t('MSG_TXT_CTR_QTY')]));
       return;
     }
@@ -697,7 +702,9 @@ const initGrdMain = defineGrid((data, view) => {
     const changedFieldName = grid.getDataSource().getOrgFieldName(field);
 
     if (changedFieldName === 'itmGdCtrTpNm') {
+      // 선택한 코드에 품목등급조정유형코드가 해당될경우
       if (['11', '12', '16', '21', '26', '31', '36'].includes(itmGdCtrTpNm)) {
+        // 메타에 등록되어 있는 품목등급조정유형코드 코드값명3, 코드값명4 에 해당하는 값을 구해 그리드에 세팅
         // eslint-disable-next-line max-len
         const itmGdCtrTpCd03 = codes.ITM_GD_CTR_TP_CD.filter((v) => (v.codeId === itmGdCtrTpNm)).map((v) => v.userDfn03);
         // eslint-disable-next-line max-len
@@ -705,6 +712,7 @@ const initGrdMain = defineGrid((data, view) => {
         grid.setValue(itemIndex, 'bfctItmGdCd', itmGdCtrTpCd03);
         grid.setValue(itemIndex, 'afctItmGdCd', itmGdCtrTpCd04);
       } else {
+        // 자재재고상태조정에 메타에 등록되어있는 코드값명3, 코드값명4에 해당하는 값을 구해 그리드에 세팅
         // eslint-disable-next-line max-len
         const matStocStatCtrCd03 = codes.MAT_STOC_STAT_CTR_CD.filter((v) => (v.codeId === itmGdCtrTpNm)).map((v) => v.userDfn03);
         // eslint-disable-next-line max-len
@@ -716,6 +724,7 @@ const initGrdMain = defineGrid((data, view) => {
       const { wareNm } = grid.getValues(itemIndex);
       grid.setValue(itemIndex, 'wareNo', wareNm);
     } else if (changedFieldName === 'itmPdNm') {
+      // 조회해온 품목상품명 변경시 상품코드, SAP코드 세팅
       const { itmPdNm } = grid.getValues(itemIndex);
       const item = product.value.find((e) => e.codeName === itmPdNm);
       const itmPdCd = isEmpty(item) ? '' : item.codeId;
@@ -727,6 +736,7 @@ const initGrdMain = defineGrid((data, view) => {
       const { ctrQty, bfctNomStocAGdQty, bfctNomStocEGdQty, bfctNomStocRGdQty,
         bfctItmGdCd } = grid.getValues(itemIndex);
 
+      // 선택한 상태조정유형에 따른 조정전정상재고 'A', 'E', 'R' 등급이 조정수량보다 작을경우
       let chk = 0;
       if (bfctItmGdCd === 'A' || isEmpty(bfctItmGdCd)) {
         if (Number(bfctNomStocAGdQty) < Number(ctrQty)) {
