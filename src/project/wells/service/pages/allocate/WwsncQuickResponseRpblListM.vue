@@ -408,6 +408,9 @@ const ozReportParam = ref({
       MNGR_DV_CD: '', // 관리구분
       PD_PRP_VAL20: '', // 상품그룹
       RPBL_YN: '', // 재발행여부
+
+      MNGR_CD: '', // 매니저
+      ENGINEER_CD: '', // 엔지니어
     },
   height: 1100,
   width: 1200,
@@ -585,6 +588,9 @@ async function onClickQrRpbl() {
     MNGR_DV_CD: '', // 관리구분
     PD_PRP_VAL20: '', // 상품그룹
     RPBL_YN: '', // 재발행여부
+
+    MNGR_CD: '', // 매니저
+    ENGINEER_CD: '', // 엔지니어
   };
   ozReportParam.value.args.RES_YR = cachedParams.baseYm.substring(0, 4);
   ozReportParam.value.args.RES_MON = cachedParams.baseYm.substring(4, 6);
@@ -599,6 +605,11 @@ async function onClickQrRpbl() {
   ozReportParam.value.args.MNGR_DV_CD = cachedParams.mngrDvCd;
   ozReportParam.value.args.PD_PRP_VAL20 = cachedParams.pdPrpVal20;
   ozReportParam.value.args.RPBL_YN = cachedParams.rpblYn;
+
+  // 2023.12.26 ::: Parameter 추가
+  ozReportParam.value.args.MNGR_CD = cachedParams.mngrCd;
+  ozReportParam.value.args.ENGINEER_CD = cachedParams.engineerCd;
+  ozReportParam.value.args.PRTNR_NO = cachedParams.prtnrNo;
 
   /*
   if (!isEmpty(cachedParams.mngrDvCd)) {
