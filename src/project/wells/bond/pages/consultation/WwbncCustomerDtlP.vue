@@ -520,7 +520,7 @@
                 <kw-form-item
                   :label="$t('MSG_TXT_DBT_NFF')"
                 >
-                  <p>
+                  <p style="color: red;">
                     {{ customer.dfltDt }}
                   </p>
                   <kw-btn
