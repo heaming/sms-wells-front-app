@@ -43,9 +43,9 @@
           v-model:partner="searchParams.partner"
           use-og-level="3"
           use-partner
-          :dgr1-levl-og-readonly="!isEmpty(searchParams.mgtDept) ? true : false"
-          :dgr2-levl-og-readonly="!isEmpty(searchParams.rgnlGrp) ? true : false"
-          :dgr3-levl-og-readonly="!isEmpty(searchParams.branch) ? true : false"
+          :dgr1-levl-og-readonly="mgtDeptDisabled"
+          :dgr2-levl-og-readonly="rgnlGrpDisabled"
+          :dgr3-levl-og-readonly="branchDisabled"
           dgr1-levl-og-first-option="all"
           dgr2-levl-og-first-option="all"
           dgr3-levl-og-first-option="all"
@@ -254,6 +254,21 @@ async function onClickExcelDownload() {
     exportData: res.data,
   });
 }
+
+const mgtDeptDisabled = ref(true);
+const rgnlGrpDisabled = ref(true);
+const branchDisabled = ref(true);
+onMounted(async () => {
+  if (isEmpty(searchParams.value.mgtDept)) {
+    mgtDeptDisabled.value = false;
+  }
+  if (isEmpty(searchParams.value.rgnlGrp)) {
+    rgnlGrpDisabled.value = false;
+  }
+  if (isEmpty(searchParams.value.branch)) {
+    branchDisabled.value = false;
+  }
+});
 
 // -------------------------------------------------------------------------------------------------
 // Initialize Grid
