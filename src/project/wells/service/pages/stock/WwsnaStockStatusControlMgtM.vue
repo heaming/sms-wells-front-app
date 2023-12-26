@@ -53,7 +53,8 @@
         >
           <kw-input
             v-model="searchParams.ogNm"
-            :disable="true"
+            :readonly="true"
+            placeholder=""
           />
         </kw-search-item>
       </kw-search-row>
@@ -718,7 +719,9 @@ const initGrdMain = defineGrid((data, view) => {
       const { itmPdNm } = grid.getValues(itemIndex);
       const item = product.value.find((e) => e.codeName === itmPdNm);
       const itmPdCd = isEmpty(item) ? '' : item.codeId;
+      const sapCd = isEmpty(item) ? '' : item.sapCd;
       grid.setValue(itemIndex, 'itmPdCd', itmPdCd);
+      grid.setValue(itemIndex, 'sapCd', sapCd);
       await fetchItmQty(grid, itemIndex, itmPdCd);
     } else if (changedFieldName === 'ctrQty') {
       const { ctrQty, bfctNomStocAGdQty, bfctNomStocEGdQty, bfctNomStocRGdQty,
