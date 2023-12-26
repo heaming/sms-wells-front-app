@@ -83,7 +83,7 @@
       <kw-search-row>
         <kw-search-item
           v-if="!searchType.ogTpCdW04AndW05"
-          :label="t('MSG_TXT_PRTNR_NUM')"
+          :label="t('MSG_TXT_PRTNR_NUMBER')"
           required
         >
           <kw-input
