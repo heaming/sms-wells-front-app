@@ -72,6 +72,15 @@
             :label="$t('MSG_TXT_RSB')"
           />
         </kw-search-item>
+        <!-- 번호 -->
+        <kw-search-item
+          :label="$t('MSG_TXT_SEQUENCE_NUMBER')"
+        >
+          <zwog-partner-search
+            v-model:prtnr-no="searchParams.prtnrNo"
+            v-model:prtnr-knm="searchParams.prtnrNm"
+          />
+        </kw-search-item>
         <!-- 조직유형 -->
         <kw-search-item
           :label="$t('MSG_TXT_OG_TP')"
@@ -85,6 +94,8 @@
             :label="$t('MSG_TXT_OG_TP')"
           />
         </kw-search-item>
+      </kw-search-row>
+      <kw-search-row>
         <!-- 조직레벨 -->
         <kw-search-item
           :label="$t('MSG_TXT_OG_LEVL')"
@@ -98,17 +109,6 @@
             :base-ym="searchParams.baseYm"
             :start-level="1"
             :end-level="3"
-          />
-        </kw-search-item>
-      </kw-search-row>
-      <kw-search-row>
-        <!-- 번호 -->
-        <kw-search-item
-          :label="$t('MSG_TXT_SEQUENCE_NUMBER')"
-        >
-          <zwog-partner-search
-            v-model:prtnr-no="searchParams.prtnrNo"
-            v-model:prtnr-knm="searchParams.prtnrNm"
           />
         </kw-search-item>
       </kw-search-row>
