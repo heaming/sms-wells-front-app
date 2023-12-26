@@ -101,13 +101,13 @@
           <kw-input
             v-model="searchParams.rpbLocaraCdFrom"
             type="text"
-            mask="NNNN"
+            mask="XXXX"
           />
           <span>~</span>
           <kw-input
             v-model="searchParams.rpbLocaraCdTo"
             type="text"
-            mask="NNNN"
+            mask="XXXX"
           />
         </kw-search-item>
       </kw-search-row>
