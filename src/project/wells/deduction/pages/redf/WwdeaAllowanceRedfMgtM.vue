@@ -477,7 +477,7 @@ async function onClickPageMove(routerType) {
   } else if (routerType === 'HM') {
     pageUrl = '/fee/wwdea-home-master-redf-create';
   } else if (routerType === 'MUTU') {
-    pageUrl = '/fee/wwdea-mutual-aid-fee-mgt';
+    pageUrl = '/fee/zwdea-mutual-aid-fee-mgt';
   }
 
   router.push({
