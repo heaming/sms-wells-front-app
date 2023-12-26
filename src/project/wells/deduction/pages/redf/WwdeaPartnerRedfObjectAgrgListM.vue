@@ -73,7 +73,7 @@
           :label="t('MSG_TXT_BLG_CD')"
         >
           <kw-input
-            v-model="searchParams.ogCd"
+            v-model.trim="searchParams.ogCd"
             icon="search"
             :label="t('MSG_TXT_BLG_CD')"
             rules="max:7|alpha_num"
