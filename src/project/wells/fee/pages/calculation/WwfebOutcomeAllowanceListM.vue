@@ -302,7 +302,9 @@ async function calculateOutcomeAllowance(view) {
 
 async function onClickCalculate() {
   const view = isGrdMOgVisible.value ? grdMOgRef.value.getView() : grdPOgRef.value.getView();
-  calculateOutcomeAllowance(view);
+  if (await gridUtil.validate(view)) {
+    calculateOutcomeAllowance(view);
+  }
 }
 
 async function onClickModify() {
@@ -314,14 +316,16 @@ async function onClickModify() {
 
 async function onClickSave() {
   const view = isGrdMOgVisible.value ? grdMOgRef.value.getView() : grdPOgRef.value.getView();
-  view.editOptions.editable = false;
-  editable.value = false;
+  if (await gridUtil.validate(view)) {
   /* 데이터 업데이트 후 재조회 */
-  calculateOutcomeAllowance(view);
-  const { perfYm, ogTpCd, rsbDvCd } = cachedParams;
-  const newRows = gridUtil.getAllRowValues(view).map((row) => ({ ...row, baseYm: perfYm, ogTpCd, rsbDvCd }));
-  await dataService.post(requestUrl.value, newRows);
-  await fetchData({ ...cachedParams, rtmInqr: false });
+    view.editOptions.editable = false;
+    editable.value = false;
+    calculateOutcomeAllowance(view);
+    const { perfYm, ogTpCd, rsbDvCd } = cachedParams;
+    const newRows = gridUtil.getAllRowValues(view).map((row) => ({ ...row, baseYm: perfYm, ogTpCd, rsbDvCd }));
+    await dataService.post(requestUrl.value, newRows);
+    await fetchData({ ...cachedParams, rtmInqr: false });
+  }
 }
 
 async function onClickCancel() {
@@ -377,6 +381,7 @@ const initGridMOg = defineGrid((data, view) => {
       styleName: 'text-right',
       dataType: 'number',
       numberFormat: '#,##0',
+      rules: 'required|max_value:999',
       headerSummary: {
         numberFormat: '#,##0',
         expression: 'sum',
@@ -387,6 +392,7 @@ const initGridMOg = defineGrid((data, view) => {
       styleName: 'text-right',
       dataType: 'number',
       numberFormat: '#,##0',
+      rules: 'required|max_value:9999999',
       headerSummary: {
         numberFormat: '#,##0',
         expression: 'sum',
@@ -397,6 +403,7 @@ const initGridMOg = defineGrid((data, view) => {
       styleName: 'text-right',
       dataType: 'number',
       numberFormat: '#,##0',
+      rules: 'required|max_value:999',
       headerSummary: {
         numberFormat: '#,##0',
         expression: 'sum',
@@ -407,6 +414,7 @@ const initGridMOg = defineGrid((data, view) => {
       styleName: 'text-right',
       dataType: 'number',
       numberFormat: '#,##0',
+      rules: 'required|max_value:9999999',
       headerSummary: {
         numberFormat: '#,##0',
         expression: 'sum',
@@ -424,6 +432,7 @@ const initGridMOg = defineGrid((data, view) => {
       styleName: 'text-right',
       dataType: 'number',
       numberFormat: '#,##0',
+      rules: 'required|max_value:9999999',
       headerSummary: {
         numberFormat: '#,##0',
         expression: 'sum',
@@ -434,6 +443,7 @@ const initGridMOg = defineGrid((data, view) => {
       styleName: 'text-right',
       dataType: 'number',
       numberFormat: '#,##0',
+      rules: 'required|max_value:9999999',
       headerSummary: {
         numberFormat: '#,##0',
         expression: 'sum',
@@ -455,6 +465,7 @@ const initGridMOg = defineGrid((data, view) => {
       styleName: 'text-right',
       dataType: 'number',
       numberFormat: '#,##0',
+      rules: 'required|max_value:9999999',
       headerSummary: {
         numberFormat: '#,##0',
         expression: 'sum',
@@ -465,6 +476,7 @@ const initGridMOg = defineGrid((data, view) => {
       styleName: 'text-right',
       dataType: 'number',
       numberFormat: '#,##0',
+      rules: 'required|max_value:9999999999',
       headerSummary: {
         numberFormat: '#,##0',
         expression: 'sum',
@@ -486,6 +498,7 @@ const initGridMOg = defineGrid((data, view) => {
       styleName: 'text-right',
       dataType: 'number',
       numberFormat: '#,##0',
+      rules: 'required|max_value:9999999',
       headerSummary: {
         numberFormat: '#,##0',
         expression: 'sum',
@@ -501,7 +514,13 @@ const initGridMOg = defineGrid((data, view) => {
         numberFormat: '#,##0',
         expression: 'sum',
       } }, // 누계
-    { fieldName: 'mngrDangGd', header: { template: `${t('MSG_TXT_ADMIN')}<br>(${t('MSG_TXT_DANG_GD')})` }, width: '106', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' }, // 관리자 위험등급
+    { fieldName: 'mngrDangGd',
+      header: { template: `${t('MSG_TXT_ADMIN')}<br>(${t('MSG_TXT_DANG_GD')})` },
+      width: '106',
+      styleName: 'text-right',
+      dataType: 'number',
+      numberFormat: '#,##0',
+      rules: 'required|max_value:9999999' }, // 관리자 위험등급
     { fieldName: 'trgAchvAwAmt',
       header: { template: `${t('MSG_TXT_TRG_ACHV_AW')}<br>(${t('MSG_TXT_PD_ACC_CNT')})` },
       width: '133',
@@ -530,6 +549,7 @@ const initGridMOg = defineGrid((data, view) => {
       styleName: 'text-right',
       dataType: 'number',
       numberFormat: '#,##0.#',
+      rules: 'required|max_value:9999999',
       headerSummary: {
         numberFormat: '#,##0.#',
         expression: 'sum',
@@ -540,6 +560,7 @@ const initGridMOg = defineGrid((data, view) => {
       styleName: 'text-right',
       dataType: 'number',
       numberFormat: '#,##0.#',
+      rules: 'required|max_value:9999999',
       headerSummary: {
         numberFormat: '#,##0.#',
         expression: 'sum',
@@ -561,6 +582,7 @@ const initGridMOg = defineGrid((data, view) => {
       styleName: 'text-right',
       dataType: 'number',
       numberFormat: '#,##0',
+      rules: 'required|max_value:9999999',
       headerSummary: {
         numberFormat: '#,##0',
         expression: 'sum',
@@ -654,8 +676,20 @@ const initGridPOg = defineGrid((data, view) => {
     { fieldName: 'ogNm', header: t('MSG_TXT_BLG_NM'), width: '96', editable: false, styleName: 'text-center' }, // 소속명
     { fieldName: 'prtnrKnm', header: t('MSG_TXT_EMPL_NM'), width: '96', editable: false, styleName: 'text-center' }, // 성명
     { fieldName: 'prtnrNo', header: t('MSG_TXT_SEQUENCE_NUMBER'), width: '106', editable: false, styleName: 'text-center' }, // 사번
-    { fieldName: 'trgCt', header: t('MSG_TXT_TRG_CT'), width: '106', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' }, // 목표건수
-    { fieldName: 'perfCt', header: t('MSG_TXT_ACHV_CT'), width: '106', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' }, // 달성건수
+    { fieldName: 'trgCt',
+      header: t('MSG_TXT_TRG_CT'),
+      width: '106',
+      styleName: 'text-right',
+      dataType: 'number',
+      rules: 'required|max_value:9999999',
+      numberFormat: '#,##0' }, // 목표건수
+    { fieldName: 'perfCt',
+      header: t('MSG_TXT_ACHV_CT'),
+      width: '106',
+      styleName: 'text-right',
+      dataType: 'number',
+      rules: 'required|max_value:9999999',
+      numberFormat: '#,##0' }, // 달성건수
     { fieldName: 'trgAchvRt',
       header: t('MSG_TXT_ACHV_RT'),
       width: '106',
@@ -665,16 +699,46 @@ const initGridPOg = defineGrid((data, view) => {
       numberFormat: '#,##0.##',
     }, // 달성률
     { fieldName: 'trgAchvAwAmt', header: t('MSG_TXT_TRG_ACHV_AW_SUM'), width: '133', editable: false, styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' }, // 목표달성 수당 계
-    { fieldName: 'thm1OptnTrgCt', header: t('MSG_TXT_1ST_M_OPTN_TRG'), width: '133', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' }, // 1차월가동목표
-    { fieldName: 'thm1OptnAchvCt', header: t('MSG_TXT_1M_OPTN_ACHV'), width: '133', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' }, // 1차월가동달성
+    { fieldName: 'thm1OptnTrgCt',
+      header: t('MSG_TXT_1ST_M_OPTN_TRG'),
+      width: '133',
+      styleName: 'text-right',
+      dataType: 'number',
+      rules: 'required|max_value:9999999',
+      numberFormat: '#,##0' }, // 1차월가동목표
+    { fieldName: 'thm1OptnAchvCt',
+      header: t('MSG_TXT_1M_OPTN_ACHV'),
+      width: '133',
+      styleName: 'text-right',
+      dataType: 'number',
+      rules: 'required|max_value:9999999',
+      numberFormat: '#,##0' }, // 1차월가동달성
     { fieldName: 'thm1OptnAchvRt', header: t('MSG_TXT_1M_OPTN_ACHV_RT'), width: '133', editable: false, styleName: 'text-right', dataType: 'number', numberFormat: '#,##0.##' }, // 1차월가동달성률
     { fieldName: 'thm1OptnAwAmt', header: t('MSG_TXT_1M_OPTN_ACHV_AW'), width: '133', editable: false, styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' }, // 1차월가동수당
-    { fieldName: 'aclActiTrgCt', header: t('MSG_TXT_ACL_ACTI_TRG'), width: '133', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' }, // 실활동목표
-    { fieldName: 'aclActiAchvCt', header: t('MSG_TXT_ACL_ACTI_ACHV'), width: '133', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' }, // 실활동달성
+    { fieldName: 'aclActiTrgCt',
+      header: t('MSG_TXT_ACL_ACTI_TRG'),
+      width: '133',
+      styleName: 'text-right',
+      dataType: 'number',
+      rules: 'required|max_value:9999999',
+      numberFormat: '#,##0' }, // 실활동목표
+    { fieldName: 'aclActiAchvCt',
+      header: t('MSG_TXT_ACL_ACTI_ACHV'),
+      width: '133',
+      styleName: 'text-right',
+      dataType: 'number',
+      rules: 'required|max_value:9999999',
+      numberFormat: '#,##0' }, // 실활동달성
     { fieldName: 'aclActiAchvRt', header: t('MSG_TXT_ACL_ACTI_ACHV_RAT'), width: '133', editable: false, styleName: 'text-right', dataType: 'number', numberFormat: '#,##0.##' }, // 실활동달성률
     { fieldName: 'aclActiAwAmt', header: t('MSG_TXT_ACL_ACTI_AW'), width: '133', editable: false, styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' }, // 실활동수당
     { fieldName: 'ogAchvAwSumAmt', header: t('MSG_TXT_OG_ACHV_AW_SUM'), width: '133', editable: false, styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' }, // 조직달성 수당 계
-    { fieldName: 'ejtAwAmt', header: t('MSG_TXT_EJT_AW'), width: '133', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' }, // 배출수당
+    { fieldName: 'ejtAwAmt',
+      header: t('MSG_TXT_EJT_AW'),
+      width: '133',
+      styleName: 'text-right',
+      dataType: 'number',
+      rules: 'required|max_value:9999999999',
+      numberFormat: '#,##0' }, // 배출수당
     { fieldName: 'outcAwSumAmt', header: t('MSG_TXT_OUTC_AW_TOT_SUM'), width: '146', editable: false, styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' }, // 성과수당 총계
 
   ];
