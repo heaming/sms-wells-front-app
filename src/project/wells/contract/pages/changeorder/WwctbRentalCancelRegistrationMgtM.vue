@@ -295,7 +295,7 @@
                 {{ stringUtil.getNumberWithComma(searchDetail.thmDlqAddRfndSumAmt??'') }}
               </p>
             </kw-form-item>
-            <!-- row5 가산금조정 (mapping : null) -->
+            <!-- row5 가산금조정 -->
             <kw-form-item :label="$t('MSG_TXT_ADD_AM')+$t('MSG_TXT_CTR')">
               <kw-input
                 v-model="searchDetail.adCtrAmt"
@@ -494,11 +494,14 @@
       <kw-form-item
         :label="$t('MSG_TXT_BOR')+$t('MSG_TXT_EXEMPTION')"
         class="equal_division--2"
+        :required="searchDetail.isSearch==='Y'"
       >
         <kw-select
           v-model="searchDetail.ccamExmptDvCd"
+          :label="$t('MSG_TXT_BOR')+$t('MSG_TXT_EXEMPTION')"
           :options="codes.CCAM_EXMPT_DV_CD"
           first-option="select"
+          :rules="{required:searchDetail.isSearch==='Y'}"
         />
         <kw-input
           v-model="inputDetail.sel1Text"
@@ -512,11 +515,14 @@
       <kw-form-item
         :label="$t('MSG_TXT_CNCL_TP')"
         class="equal_division--2"
+        :required="searchDetail.isSearch==='Y'"
       >
         <kw-select
           v-model="searchDetail.cntrStatChRsonCd"
+          :label="$t('MSG_TXT_CNCL_TP')"
           :options="codes.CMN_STAT_CH_RSON_CD"
           first-option="select"
+          :rules="{required:searchDetail.isSearch==='Y'}"
         />
         <kw-input
           v-model="inputDetail.sel2Text"
@@ -544,11 +550,14 @@
       <kw-form-item
         :label="$t('MSG_TXT_CONSUMPTION')+'/'+$t('MSG_TXT_REQD')+'/'+$t('MSG_TXT_RECOVERY')"
         colspan="3"
+        :required="searchDetail.isSearch==='Y'"
       >
         <kw-select
           v-model="searchDetail.csmbCsExmptDvCd"
+          :label="$t('MSG_TXT_CONSUMPTION')"
           :options="searchDetail.isDisCsmb==='Y'?[]:codes.CSMB_CS_EXMPT_DV_CD"
           first-option="select"
+          :rules="{required:searchDetail.isSearch==='Y' && searchDetail.isDisCsmb==='N'}"
         />
         <kw-input
           v-model="inputDetail.sel3Text"
@@ -560,8 +569,10 @@
         />
         <kw-select
           v-model="searchDetail.reqdCsExmptDvCd"
+          :label="$t('MSG_TXT_REQD')"
           :options="searchDetail.isDisReqd==='Y'?[]:codes.REQD_CS_EXMPT_DV_CD"
           first-option="select"
+          :rules="{required:searchDetail.isSearch==='Y' && searchDetail.isDisReqd==='N'}"
         />
         <kw-input
           v-model="inputDetail.sel4Text"
@@ -776,10 +787,13 @@ async function onClickSearchCancel() {
     lsRntf: searchDetail.lsRntf,
   });
 
+  frmMainRental.value.init();
   isReSearch.value = searchDetail.cancelStatNm === '취소등록' ? 'Y' : 'N';
 }
 
-function onClickSave() {
+async function onClickSave() {
+  if (!await frmMainRental.value.validate()) { return; }
+
   if (isEmpty(searchDetail.canCtrAmt)) {
     searchDetail.slCtrRqrId = '';
     searchDetail.slCtrRmkCn = '';

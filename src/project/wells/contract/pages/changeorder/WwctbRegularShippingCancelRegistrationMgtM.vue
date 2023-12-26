@@ -395,11 +395,14 @@
       <kw-form-item
         :label="$t('MSG_TXT_BOR')+$t('MSG_TXT_EXEMPTION')"
         class="equal_division--2"
+        :required="searchDetail.isSearch==='Y'"
       >
         <kw-select
           v-model="searchDetail.ccamExmptDvCd"
+          :label="$t('MSG_TXT_BOR')+$t('MSG_TXT_EXEMPTION')"
           :options="codes.CCAM_EXMPT_DV_CD"
           first-option="select"
+          :rules="{required:searchDetail.isSearch==='Y'}"
         />
         <kw-input
           v-model="inputDetail.sel1Text"
@@ -413,11 +416,14 @@
       <kw-form-item
         :label="$t('MSG_TXT_CNCL_TP')"
         class="equal_division--2"
+        :required="searchDetail.isSearch==='Y'"
       >
         <kw-select
           v-model="searchDetail.cntrStatChRsonCd"
+          :label="$t('MSG_TXT_CNCL_TP')"
           :options="codes.RGLR_SPP_STAT_CH_RSON_CD"
           first-option="select"
+          :rules="{required:searchDetail.isSearch==='Y'}"
         />
         <kw-input
           v-model="inputDetail.sel2Text"
@@ -577,10 +583,13 @@ async function onClickSearchCancel() {
     filtDdctam: searchDetail.filtDdctam ?? 0,
   });
 
+  frmMainRegularSp.value.init();
   isReSearch.value = searchDetail.cancelStatNm === '취소등록' ? 'Y' : 'N';
 }
 
-function onClickSave() {
+async function onClickSave() {
+  if (!await frmMainRegularSp.value.validate()) { return; }
+
   if (isEmpty(searchDetail.canCtrAmt)) {
     searchDetail.slCtrRqrId = '';
     searchDetail.slCtrRmkCn = '';

@@ -335,26 +335,29 @@ function calTotRfndAmt(repObj, targetObj, resObj) {
   let reqdCsBorAmt2 = 0;
   const lsRntf = targetObj.lsRntf || 0;
 
-  switch (repObj.ccamExmptDvCd) {
-    case '1': borAmt = resObj.borAmt; break;// 위약금 적용
-    case '4': borAmt = targetObj.borAmt; break;// 입력
-    case '6': borAmt = resObj.borAmt * 0.5; break; // 위약금 50#
-  }
+  if (targetObj.sell !== '3') {
+    switch (repObj.ccamExmptDvCd) {
+      case '1': borAmt = resObj.borAmt; break;// 위약금 적용
+      case '4': borAmt = targetObj.borAmt; break;// 입력
+      case '6': borAmt = resObj.borAmt * 0.5; break; // 위약금 50#
+    }
 
-  switch (repObj.csmbCsExmptDvCd) {
-    case '1': csmbCostBorAmt2 = resObj.csmbCostBorAmt; break;
-    case '4': csmbCostBorAmt2 = targetObj.csmbCostBorAmt; break;
-    case '6': csmbCostBorAmt2 = resObj.csmbCostBorAmt * 0.5; break;
-  }
+    switch (repObj.csmbCsExmptDvCd) {
+      case '1': csmbCostBorAmt2 = resObj.csmbCostBorAmt; break;
+      case '4': csmbCostBorAmt2 = targetObj.csmbCostBorAmt; break;
+      case '6': csmbCostBorAmt2 = resObj.csmbCostBorAmt * 0.5; break;
+    }
 
-  switch (repObj.reqdCsExmptDvCd) {
-    case '1': reqdCsBorAmt2 = resObj.reqdCsBorAmt; break;
-    case '4': reqdCsBorAmt2 = targetObj.reqdCsBorAmt; break;
-    case '6': reqdCsBorAmt2 = resObj.reqdCsBorAmt * 0.5; break;
+    switch (repObj.reqdCsExmptDvCd) {
+      case '1': reqdCsBorAmt2 = resObj.reqdCsBorAmt; break;
+      case '4': reqdCsBorAmt2 = targetObj.reqdCsBorAmt; break;
+      case '6': reqdCsBorAmt2 = resObj.reqdCsBorAmt * 0.5; break;
+    }
   }
 
   // 환불총액 = 서비스에서 가져온 환불총액 - (위약금+분실손료+소모품비+철거비)
   // totRfndAmt -= (Number(borAmt) + Number(lsRntf) + Number(csmbCostBorAmt2) + Number(reqdCsBorAmt2));
+
   totRfndAmt -= (Number(borAmt) + Number(csmbCostBorAmt2) + Number(reqdCsBorAmt2));
 
   resObj.borAmt = borAmt;

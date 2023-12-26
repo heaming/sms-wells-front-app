@@ -388,11 +388,14 @@
       <kw-form-item
         :label="$t('MSG_TXT_EXEMPTION')+$t('MSG_TXT_TYPE')"
         class="equal_division--2"
+        :required="searchDetail.isSearch==='Y'"
       >
         <kw-select
           v-model="searchDetail.ccamExmptDvCd"
+          :label="$t('MSG_TXT_EXEMPTION')+$t('MSG_TXT_TYPE')"
           :options="codes.CCAM_EXMPT_DV_CD"
           first-option="select"
+          :rules="{required:searchDetail.isSearch==='Y'}"
         />
         <kw-input
           v-model="inputDetail.sel1Text"
@@ -406,11 +409,14 @@
       <kw-form-item
         :label="$t('MSG_TXT_CNCL_TP')"
         class="equal_division--2"
+        :required="searchDetail.isSearch==='Y'"
       >
         <kw-select
           v-model="searchDetail.cntrStatChRsonCd"
+          :label="$t('MSG_TXT_CNCL_TP')"
           :options="codes.CMN_STAT_CH_RSON_CD"
           first-option="select"
+          :rules="{required:searchDetail.isSearch==='Y'}"
         />
         <kw-input
           v-model="inputDetail.sel2Text"
@@ -563,6 +569,7 @@ function onChangeTextforSelect(div) {
 
 // 5. 취소사항 > 취소사항 조회 클릭
 async function onClickSearchCancel() {
+  // searchDetail.isSearch = 'N';
   if (!await frmMainMembership.value.validate()) { return; }
 
   emits('searchdetail', {
@@ -574,10 +581,13 @@ async function onClickSearchCancel() {
     filtDdctam: searchDetail.filtDdctam ?? 0,
   });
 
+  frmMainMembership.value.init();
   isReSearch.value = searchDetail.cancelStatNm === '취소등록' ? 'Y' : 'N';
 }
 
-function onClickSave() {
+async function onClickSave() {
+  if (!await frmMainMembership.value.validate()) { return; }
+
   emits('savedetail');
 }
 
