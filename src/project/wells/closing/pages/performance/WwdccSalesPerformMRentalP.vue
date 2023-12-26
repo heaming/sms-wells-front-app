@@ -260,7 +260,7 @@
         </kw-form-item>
       </kw-form-row>
       <kw-form-row>
-        <kw-form-item :label="$t('MSG_TXT_PR_BLAM')">
+        <kw-form-item :label="$t('MSG_TXT_P_BLAM')">
           <p>{{ stringUtil.getNumberWithComma(toInteger(rentalSalesDetail.mlgEotPrpdAmt)) }}</p>
         </kw-form-item>
         <kw-form-item :label="$t('MSG_TXT_PRPD_BLAM')">
