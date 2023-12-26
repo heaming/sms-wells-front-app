@@ -89,6 +89,7 @@
               v-model:from="searchParams.strtDt"
               v-model:to="searchParams.endDt"
               :label="$t('MSG_TXT_DT')"
+              rules="date_range_required|date_range_months:1"
               @change="onChangeDt"
             />
           </kw-search-item>
