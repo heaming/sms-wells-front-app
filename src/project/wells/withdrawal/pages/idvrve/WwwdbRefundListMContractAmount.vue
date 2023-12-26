@@ -86,8 +86,9 @@
           <!-- (단위:원) -->
           <span class="ml8">{{ t('MSG_TXT_UNIT_WON') }}</span>
         </template>
-        <!-- 리포트 보기 -->
+        <!-- 리포트 보기TODO: 2023_12_23 주석처리 -->
         <kw-btn
+          v-show="false"
           v-permission:print
           icon="report"
           dense
