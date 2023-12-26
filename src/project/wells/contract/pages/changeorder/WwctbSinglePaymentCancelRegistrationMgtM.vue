@@ -142,7 +142,10 @@
   >
     <kw-form-row>
       <!-- row1 요청일자 -->
-      <kw-form-item :label="$t('MSG_TXT_AK_DT')">
+      <kw-form-item
+        :label="$t('MSG_TXT_AK_DT')"
+        required
+      >
         <kw-date-picker
           v-model="searchDetail.rsgAplcDt"
           :label="$t('MSG_TXT_AK_DT')"
@@ -150,7 +153,10 @@
         />
       </kw-form-item>
       <!-- row1 취소일자 -->
-      <kw-form-item :label="$t('MSG_TXT_CANC_DT')">
+      <kw-form-item
+        :label="$t('MSG_TXT_CANC_DT')"
+        required
+      >
         <kw-date-picker
           v-model="searchDetail.rsgFshDt"
           :label="$t('MSG_TXT_CANC_DT')"
@@ -161,11 +167,14 @@
       <kw-form-item
         :label="$t('MSG_TXT_CNCL_TP')"
         class="equal_division--2"
+        required
       >
         <kw-select
           v-model="searchDetail.cntrStatChRsonCd"
+          :label="$t('MSG_TXT_CNCL_TP')"
           :options="codes.CMN_STAT_CH_RSON_CD"
           first-option="select"
+          rules="required"
         />
         <kw-input
           v-model="inputDetail.sel2Text"
@@ -182,11 +191,14 @@
       <kw-form-item
         :label="$t('MSG_TXT_CONSUMPTION')"
         class="equal_division--2"
+        :required="searchDetail.isDisCsmb==='N'"
       >
         <kw-select
           v-model="searchDetail.csmbCsExmptDvCd"
+          :label="$t('MSG_TXT_CONSUMPTION')"
           :options="searchDetail.isDisCsmb==='Y'?[]:codes.CSMB_CS_EXMPT_DV_CD"
           first-option="select"
+          :rules="{required:searchDetail.isDisCsmb==='N'}"
         />
         <kw-input
           v-model="inputDetail.sel3Text"
@@ -302,6 +314,9 @@ const props = defineProps({
 });
 
 const searchDetail = reactive(props.childDetail);
+
+console.log(searchDetail);
+
 const inputDetail = ref({
   reqDt: '',
   cancelDt: '',
@@ -338,7 +353,9 @@ async function onClickRefund() {
   });
 }
 
-function onClickSave() {
+async function onClickSave() {
+  if (!await frmMainSinglePmt.value.validate()) { return; }
+
   emits('savedetail');
 }
 
