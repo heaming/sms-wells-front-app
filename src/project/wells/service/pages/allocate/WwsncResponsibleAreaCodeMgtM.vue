@@ -166,7 +166,7 @@ import {
   gridUtil,
   useGlobal,
 } from 'kw-lib';
-import { cloneDeep } from 'lodash-es';
+import { cloneDeep, isEmpty } from 'lodash-es';
 
 import dayjs from 'dayjs';
 import smsCommon from '~sms-wells/service/composables/useSnCode';
@@ -237,8 +237,22 @@ async function fetchData() {
   const view = grdMainRef.value.getView();
   view.getDataSource().setRows(products);
 }
+// 우편번호 범위 체크
+function isValidZip() {
+  if (isEmpty(searchParams.value.zipFrom) || isEmpty(searchParams.value.zipTo)) {
+    return true;
+  }
+
+  if (searchParams.value.zipFrom > searchParams.value.zipTo) {
+    notify(t('MSG_ALT_ZIP_RNG_VALIDATE')); // 올바른 우편번호 범위를 입력해주세요.
+    return false;
+  }
+  return true;
+}
+
 // 조회 버튼 클릭 이벤트
 async function onClickSearch() {
+  if (!isValidZip()) return;
   pageInfo.value.pageIndex = 1;
   cachedParams = cloneDeep(searchParams.value);
   await fetchData();

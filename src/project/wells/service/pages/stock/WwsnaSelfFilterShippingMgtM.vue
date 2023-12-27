@@ -194,7 +194,7 @@ const delvWares = [{ delvWareNo: '100002', delvWareNm: '파주물류센터' }];
 const products = ref([]);
 products.value = (await dataService.get('/sms/wells/service/bs-regular-shipping/products', { params: searchParams.value })).data;
 searchParams.value.lgstWkMthdCd = products.value[0].lgstWkMthdCd;
-const isPaging = ref(true);
+const isPaging = ref(false);
 const lgstWkMthdCd = ref();
 const cntLgstWkMthdCd = ref();
 // 조회조건-배정년월 변경시 해당 년월의 상품데이터로 조회조건 세팅.
