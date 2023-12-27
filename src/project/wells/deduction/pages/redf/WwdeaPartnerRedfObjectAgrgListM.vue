@@ -20,19 +20,6 @@
     >
       <kw-search-row>
         <kw-search-item
-          :label="t('MSG_TXT_PERF_YM')"
-          required
-        >
-          <kw-date-range-picker
-            v-model:from="searchParams.perfYmFrom"
-            v-model:to="searchParams.perfYmTo"
-            :label="t('MSG_TXT_PERF_YM')"
-            rules="date_range_required"
-            type="month"
-          />
-        </kw-search-item>
-
-        <kw-search-item
           :label="t('MSG_TXT_YEAR_OCCURNCE')"
           required
         >
@@ -41,6 +28,17 @@
             v-model:to="searchParams.redfAdsbOcYmTo"
             :label="t('MSG_TXT_YEAR_OCCURNCE')"
             rules="date_range_required"
+            type="month"
+          />
+        </kw-search-item>
+
+        <kw-search-item
+          :label="t('MSG_TXT_PERF_YM')"
+        >
+          <kw-date-range-picker
+            v-model:from="searchParams.perfYmFrom"
+            v-model:to="searchParams.perfYmTo"
+            :label="t('MSG_TXT_PERF_YM')"
             type="month"
           />
         </kw-search-item>
@@ -159,7 +157,7 @@ const grdMainRef = ref(getComponentType('KwGrid'));
 const { currentRoute } = useRouter();
 const dataService = useDataService();
 const { getConfig } = useMeta();
-const lastMonth = dayjs().subtract(1, 'month').format('YYYYMM');
+// const lastMonth = dayjs().subtract(1, 'month').format('YYYYMM');
 const currentMonth = dayjs().subtract(0, 'month').format('YYYYMM');
 const { getUserInfo } = useMeta();
 const userInfo = getUserInfo();
@@ -204,8 +202,8 @@ const searchParams = ref({
   ogTpCd: filterOgTpCd.value[0].codeId, // 되물림 조직유형코드 변경예정
   redfAdsbOcYmFrom: currentMonth, // 발생년월 from
   redfAdsbOcYmTo: currentMonth, // 발생년월 to
-  perfYmFrom: lastMonth, // 실적년월 from
-  perfYmTo: currentMonth, // 실적년월 to
+  perfYmFrom: '', // lastMonth, // 실적년월 from
+  perfYmTo: '', // currentMonth, // 실적년월 to
   redfAdsbTpCd: filterRedfAdsbTpCd.value[0].codeId, // 처리유형
   rsbDvCd: codes.DDTN_RPLC_RSB_DV_CD[0].codeId, // 직책구분코드
   prtnrNo: '', // 파트너번호
