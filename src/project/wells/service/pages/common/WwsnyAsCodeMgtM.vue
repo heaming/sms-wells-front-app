@@ -236,11 +236,12 @@ const onClickExcelUpload = async () => {
   const apiUrl = '/sms/wells/service/as-codes/excel-upload';
   const templateId = 'FOM_AS_CODE_MNGT';
   const extraData = cachedParams;
-  const { result } = await modal({
+  const { payload } = await modal({
     component: 'ZwcmzExcelUploadP',
     componentProps: { apiUrl, templateId, extraData },
   });
-  if (result.status === 'S') {
+
+  if (payload.status === 'S') {
     notify(t('MSG_ALT_SAVE_DATA'));
   }
 };
