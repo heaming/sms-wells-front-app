@@ -32,11 +32,12 @@
             first-option="all"
           />
           <kw-select
-            v-model="searchParams.ogCd"
+            v-model="searchParams.ogId"
             :options="serviceCenters"
             first-option="all"
             option-label="ogNm"
-            option-value="ogCd"
+            option-value="ogId"
+            @update:model-value="onUpdateServiceCenter"
           />
           <kw-select
             v-model="searchParams.prtnrNo"
@@ -212,16 +213,13 @@ const customCodes = {
   ],
 };
 const searchParams = ref({
-  // testDt: now.format('YYYYMMDD'),
-  // startDt: '20230701',
-  // endDt: '20230701',
   startDt: now.format('YYYYMMDD'),
   endDt: now.format('YYYYMMDD'),
   serviceType: '',
   prtnrNo: '',
   refriType: '0',
   pdGrpCd: '',
-  ogCd: '',
+  ogId: '',
   installBase: '',
   itmKndCd: '',
   svBizDclsfCd: '',
@@ -235,7 +233,20 @@ let cachedParams;
 const serviceCenters = ref((await dataService.get('/sms/wells/service/organizations/service-center', { params: { authYn: 'N' } })).data);
 
 // 엔지니어
-const engineers = ref((await dataService.get('/sms/wells/service/organizations/engineer', { params: { authYn: 'N' } })).data);
+const engineers = ref([]);
+
+async function setEngineers() {
+  if (searchParams.value.ogId === '') {
+    engineers.value = [];
+  } else {
+    engineers.value = (await dataService.get('/sms/wells/service/organizations/engineer', { params: { dgr1LevlOgId: searchParams.value.ogId, authYn: 'N' } })).data;
+  }
+}
+
+async function onUpdateServiceCenter() {
+  searchParams.value.prtnrNo = '';
+  setEngineers();
+}
 
 const totalCount = ref(0);
 async function fetchData() {
@@ -261,7 +272,7 @@ async function onClickExcelDownload() {
   });
 }
 async function onClickOZ() {
-  if (searchParams.value.ogCd === '') {
+  if (searchParams.value.ogId === '') {
     await alert(t('MSG_ALT_SV_CNR_SELCT'));
     return;
   }
@@ -272,7 +283,7 @@ async function onClickOZ() {
       {
         VST_SDT: searchParams.value.startDt,
         VST_EDT: searchParams.value.endDt,
-        DEPT_ID: searchParams.value.ogCd,
+        DEPT_ID: searchParams.value.ogId,
         CHAG_GB: searchParams.value.refriType,
       },
     height: 1300,
