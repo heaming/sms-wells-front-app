@@ -685,6 +685,7 @@ const initGrdMain13 = defineGrid((data, view) => {
   const fields = [
 
     { fieldName: 'refundDivision' }, // 전금구분
+    { fieldName: 'spRfndDsbAmt', dataType: 'number' }, /* 일시불 */
     { fieldName: 'rtRfndDsbAmt', dataType: 'number' }, /* 렌탈 */
     { fieldName: 'lsRfndDsbAmt', dataType: 'number' }, /* 리스 */
     { fieldName: 'elRfndDsbAmt', dataType: 'number' }, /* 환경리스 */
@@ -700,17 +701,18 @@ const initGrdMain13 = defineGrid((data, view) => {
   ];
 
   const columns = [
-    { fieldName: 'refundDivision', header: t('MSG_TXT_BLTF_DV'), width: '176' }, // 전금구분
-    { fieldName: 'rtRfndDsbAmt', header: t('MSG_TXT_RENTAL'), width: '111', styleName: 'text-right' }, // 렌탈
-    { fieldName: 'lsRfndDsbAmt', header: t('MSG_TXT_LEASE'), width: '111', styleName: 'text-right' }, // 리스
-    { fieldName: 'elRfndDsbAmt', header: t('MSG_TXT_ENVR_LEASE'), width: '111', styleName: 'text-right' }, // 환경리스
-    { fieldName: 'mbRfndDsbAmt', header: t('MSG_TXT_MEMBERSHIP'), width: '111', styleName: 'text-right' }, // 멤버십
-    { fieldName: 'hcRfndDsbAmt', header: t('MSG_TXT_HCR_MSH'), width: '150', styleName: 'text-right' }, // 홈케어멤버십
-    { fieldName: 'lnRfndDsbAmt', header: t('MSG_TXT_LTM_ISTM'), width: '111', styleName: 'text-right' }, // 장기할부
-    { fieldName: 'lmRfndDsbAmt', header: t('MSG_TXT_INTAM'), width: '111', styleName: 'text-right' }, // 할부금
-    { fieldName: 'kmRfndDsbAmt', header: t('MSG_TXT_K_MON'), width: '111', styleName: 'text-right' }, // K머니
-    { fieldName: 'rgRfndDsbAmt', header: t('MSG_TXT_REG_DLVR'), width: '176', styleName: 'text-right' }, // 정기배송
-    { fieldName: 'sumRfndDsbAmt', header: t('MSG_TXT_BLTF_SUM'), width: '213', styleName: 'text-right' }, // 전금 합계
+    { fieldName: 'refundDivision', header: t('MSG_TXT_BLTF_DV'), width: '130' }, // 전금구분
+    { fieldName: 'spRfndDsbAmt', header: t('MSG_TXT_SNGL_PMNT'), width: '100', styleName: 'text-right' }, // 일시불
+    { fieldName: 'rtRfndDsbAmt', header: t('MSG_TXT_RENTAL'), width: '100', styleName: 'text-right' }, // 렌탈
+    { fieldName: 'lsRfndDsbAmt', header: t('MSG_TXT_LEASE'), width: '100', styleName: 'text-right' }, // 리스
+    { fieldName: 'elRfndDsbAmt', header: t('MSG_TXT_ENVR_LEASE'), width: '100', styleName: 'text-right' }, // 환경리스
+    { fieldName: 'mbRfndDsbAmt', header: t('MSG_TXT_MEMBERSHIP'), width: '100', styleName: 'text-right' }, // 멤버십
+    { fieldName: 'hcRfndDsbAmt', header: t('MSG_TXT_HCR_MSH'), width: '100', styleName: 'text-right' }, // 홈케어멤버십
+    { fieldName: 'lnRfndDsbAmt', header: t('MSG_TXT_LTM_ISTM'), width: '100', styleName: 'text-right' }, // 장기할부
+    { fieldName: 'lmRfndDsbAmt', header: t('MSG_TXT_INTAM'), width: '100', styleName: 'text-right' }, // 할부금
+    { fieldName: 'kmRfndDsbAmt', header: t('MSG_TXT_K_MON'), width: '100', styleName: 'text-right' }, // K머니
+    { fieldName: 'rgRfndDsbAmt', header: t('MSG_TXT_REG_DLVR'), width: '100', styleName: 'text-right' }, // 정기배송
+    { fieldName: 'sumRfndDsbAmt', header: t('MSG_TXT_BLTF_SUM'), width: '150', styleName: 'text-right' }, // 전금 합계
   ];
 
   data.setFields(fields);
@@ -723,6 +725,7 @@ const initGrdMain13 = defineGrid((data, view) => {
     items: [{ height: 40 }],
   });
   view.columnByName('refundDivision').setHeaderSummaries({ text: t('MSG_TXT_SUM'), styleName: 'text-center' });
+  view.columnByName('spRfndDsbAmt').setHeaderSummaries({ numberFormat: '#,##0', expression: 'sum' });
   view.columnByName('rtRfndDsbAmt').setHeaderSummaries({ numberFormat: '#,##0', expression: 'sum' });
   view.columnByName('lsRfndDsbAmt').setHeaderSummaries({ numberFormat: '#,##0', expression: 'sum' });
   view.columnByName('elRfndDsbAmt').setHeaderSummaries({ numberFormat: '#,##0', expression: 'sum' });
