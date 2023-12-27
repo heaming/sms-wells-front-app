@@ -709,7 +709,6 @@ const initGrdMain = defineGrid((data, view) => {
       header: t('MSG_TXT_RTNGD_CONF_YN'),
       width: '100',
       styleName: 'text-center',
-      editable: true,
       editor: {
         type: 'dropdown' },
       options: codes.YN_CD },
@@ -731,7 +730,6 @@ const initGrdMain = defineGrid((data, view) => {
       styleName: 'text-center',
       rules: 'required',
       datetimeFormat: 'yyyy-MM-dd',
-      editable: true,
       editor: { type: 'btdate' },
     },
 
@@ -740,7 +738,6 @@ const initGrdMain = defineGrid((data, view) => {
       width: '150',
       styleName: 'text-center',
       datetimeFormat: 'yyyy-MM-dd',
-      // styleCallback: setCellEditableFalse,
     },
     { fieldName: 'rtngdProcsTpCd',
       header: t('MSG_TXT_RTNGD_PROCS_TP'),
@@ -748,9 +745,7 @@ const initGrdMain = defineGrid((data, view) => {
       styleName: 'text-center',
       rules: 'required',
       options: codes.RTNGD_PROCS_TP_CD,
-      editable: true,
-      editor: { type: 'list' },
-      // styleCallback: setCellEditableFalse,
+      editor: { type: 'dropdown' },
     },
     { fieldName: 'rmkCn', header: t('MSG_TXT_UNUITM'), width: '150', styleName: 'text-center', editable: true },
     { fieldName: 'cntrNoNew', header: t('MSG_TXT_NW_CST_NO'), width: '100', styleName: 'text-center' },
@@ -758,7 +753,7 @@ const initGrdMain = defineGrid((data, view) => {
     { fieldName: 'asLctNm', header: t('MSG_TXT_LCT'), width: '100', styleName: 'text-center' },
     { fieldName: 'asphnNm', header: t('MSG_TXT_PHN'), width: '100', styleName: 'text-center' },
     { fieldName: 'asCausNm', header: t('MSG_TXT_CAUS'), width: '100', styleName: 'text-center' },
-    { fieldName: 'svProcsCn', header: t('MSG_TIT_APRV_DTLS'), width: '397', styleName: 'text-center' },
+    { fieldName: 'svProcsCn', header: t('MSG_TIT_APRV_DTLS'), width: '397', styleName: 'text-left' },
     { fieldName: 'ichrPrtnrNo', header: t('MSG_TXT_ICHR_EGER'), width: '100', styleName: 'text-center' },
     { fieldName: 'empNm', header: t('MSG_TXT_ICHR_EGER_NM'), width: '120', styleName: 'text-center' },
     { fieldName: 'rcpIchrPrtnrNo', header: t('MSG_TXT_REQD_AK_EMPNO'), width: '150', styleName: 'text-center' },
@@ -825,16 +820,18 @@ const initGrdMain = defineGrid((data, view) => {
   view.checkBar.visible = true;
   view.rowIndicator.visible = true;
   view.setFixedOptions({ colCount: 4, resizable: true });
-  view.editOptions.columnEditableFirst = true;
+  view.editOptions.editable = true;
   view.filteringOptions.enabled = false;
 
-  view.setRowStyleCallback((grid, item) => {
-    const { rtngdRvpyProcsYn } = gridUtil.getRowValue(grid, item.index);
+  view.onCellEditable = (grid, index) => {
+    const rtngdRvpyProcsYn = gridUtil.getCellValue(view, index.dataRow, 'rtngdRvpyProcsYn');
 
-    if (rtngdRvpyProcsYn === 'Y') {
-      return { editable: false };
+    if (rtngdRvpyProcsYn !== 'Y' && ['rtngdConfYn', 'ostrConfDt', 'ostrDt'].includes(index.column)) {
+      return true;
     }
-  });
+
+    return false;
+  };
 
   const f = function checked(dataSource, item) {
     if ((data.getValue(item.dataRow, 'rtngdRvpyProcsYn') !== 'N') && (Number(data.getValue(item.dataRow, 'useQty')) > 0)) {
