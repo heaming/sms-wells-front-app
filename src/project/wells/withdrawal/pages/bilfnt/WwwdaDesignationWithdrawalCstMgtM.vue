@@ -201,9 +201,6 @@ async function fetchData() {
   const res = await dataService.get('/sms/wells/withdrawal/bilfnt/designation-wdrw-csts', { params: { ...cachedParams, ...pageInfo.value } });
   const { list: person, pageInfo: pageResult } = res.data;
 
-  person.forEach((v) => {
-    v.cntr = `${v.cntrNo}-${v.cntrSn}`;
-  });
   // const person = res.data.list.map((v) => ({ ...v, cntr: v.cntr.replace(tenantCd, '') }));
   // const pageResult = res.data.pageInfo;
   pageInfo.value = pageResult;
