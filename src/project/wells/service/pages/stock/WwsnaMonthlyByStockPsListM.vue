@@ -255,11 +255,14 @@ const getHgrWareNos = async () => {
   // 창고번호 클리어
   searchParams.value.wareNo = '';
   optionsWareNo.value = [];
+
+  const { baseYm, wareDvCd } = searchParams.value;
+
   const result = await dataService.get(
     '/sms/wells/service/monthly-by-stock-state/ware-houses',
     { params: {
-      baseYm: searchParams.value.baseYm,
-      wareDvCd: searchParams.value.wareDvCd,
+      baseYm,
+      wareDvCd,
     } },
   );
   optionsHgrWareNo.value = result.data;
@@ -270,16 +273,16 @@ async function onChangeHgrWareNo() {
   // 창고번호 클리어
   searchParams.value.wareNo = '';
   optionsWareNo.value = [];
-  const { baseYm, hgrWareNo } = searchParams.value;
+  const { baseYm, hgrWareNo, wareDvCd } = searchParams.value;
 
   if (isEmpty(baseYm) || isEmpty(hgrWareNo)) return;
 
   const result = await dataService.get(
     '/sms/wells/service/monthly-by-stock-state/ware-houses',
     { params: {
-      baseYm: searchParams.value.baseYm,
-      wareDvCd: searchParams.value.wareDvCd,
-      hgrWareNo: searchParams.value.hgrWareNo,
+      baseYm,
+      wareDvCd,
+      hgrWareNo,
     } },
   );
   optionsWareNo.value = result.data;
