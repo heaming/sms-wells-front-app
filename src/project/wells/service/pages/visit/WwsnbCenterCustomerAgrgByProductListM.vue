@@ -140,7 +140,7 @@ const pageInfo = ref({
 
 async function fetchData() {
   // eslint-disable-next-line max-len
-  const res = await dataService.get('/sms/wells/service/center-customer-agrg-by-product/paging', { params: { ...cachedParams, ...pageInfo.value } });
+  const res = await dataService.get('/sms/wells/service/center-customer-agrg-by-product/paging', { params: { ...cachedParams, ...pageInfo.value }, timeout: 100000 });
   const { list: state, pageInfo: pagingResult } = res.data;
 
   pageInfo.value = pagingResult;
@@ -156,7 +156,7 @@ async function onClickExcelDownload() {
   const view = grdMainRef.value.getView();
 
   // eslint-disable-next-line max-len
-  const res = await dataService.get('/sms/wells/service/center-customer-agrg-by-product/excel-download', { params: searchParams.value });
+  const res = await dataService.get('/sms/wells/service/center-customer-agrg-by-product/excel-download', { params: searchParams.value, timeout: 100000 });
 
   await gridUtil.exportView(view, {
     fileName: currentRoute.value.meta.menuName,

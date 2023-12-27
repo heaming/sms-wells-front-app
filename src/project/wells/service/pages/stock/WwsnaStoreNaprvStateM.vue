@@ -35,6 +35,7 @@
           :label3="$t('MSG_TXT_WARE')"
           :label4="$t('MSG_TXT_WARE')"
           @update:ware-dv-cd="onChangeWareDvCd"
+          @update:ware-no-d="onChangeStrWareNoD"
         />
         <!-- @update:ware-no-m="onChagneHgrWareNo" -->
         <kw-search-item :label="$t('MSG_TXT_WARE_DTL_DV')">
@@ -42,6 +43,7 @@
             v-model="searchParams.wareDtlDvCd"
             :options="filterWareDtlDvCd"
             first-option="all"
+            @update:model-value="onChangeWareDtlDvCd"
           />
         </kw-search-item>
       </kw-search-row>
@@ -162,14 +164,26 @@ const wareDtlDvCd = [
   { codeId: '32', codeName: '독립창고(영업센터)', strWareDvCd: '3' },
 ];
 const filterWareDtlDvCd = ref([]);
+// wareDvCd(물류, 서비스센터, 영업센터 구분 변경시) -> 창고상세구분 변경
 const onChangeWareDvCd = async () => {
   filterWareDtlDvCd.value = wareDtlDvCd;
   filterWareDtlDvCd.value = wareDtlDvCd.filter((v) => v.strWareDvCd === searchParams.value.strWareDvCd);
 };
+// wareDtlDvCd(창고상세구분 변경시) -> 창고코드 초기화
+const onChangeWareDtlDvCd = async (val) => {
+  console.log(val);
+  if (val.includes('20') || val.includes('30') || val.includes('32') || isEmpty(val)) {
+    searchParams.value.strWareNoD = '';
+  }
+};
+// strWareNoD 변경시 -> wareDtlDvCd(창고상세구분) 초기화
+const onChangeStrWareNoD = async () => {
+  searchParams.value.wareDtlDvCd = '';
+};
 
 async function fetchData() {
   // eslint-disable-next-line max-len
-  const res = await dataService.get('/sms/wells/service/store-not-approve/paging', { params: { ...cachedParams, ...pageInfo.value } });
+  const res = await dataService.get('/sms/wells/service/store-not-approve/paging', { params: { ...cachedParams, ...pageInfo.value }, timeout: 100000 });
   const { list: state, pageInfo: pagingResult } = res.data;
 
   pageInfo.value = pagingResult;
@@ -194,7 +208,7 @@ async function onClickExcelDownload() {
   const view = grdMainRef.value.getView();
 
   // eslint-disable-next-line max-len
-  const res = await dataService.get('/sms/wells/service/store-not-approve/excel-download', { params: searchParams.value });
+  const res = await dataService.get('/sms/wells/service/store-not-approve/excel-download', { params: searchParams.value, timeout: 100000 });
 
   await gridUtil.exportView(view, {
     fileName: currentRoute.value.meta.menuName,
