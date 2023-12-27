@@ -82,14 +82,18 @@
       <kw-action-top>
         <template #left>
           <kw-paging-info
-            :total-count="totalCount"
+            v-model:page-index="pageInfo.pageIndex"
+            v-model:page-size="pageInfo.pageSize"
+            :total-count="pageInfo.totalCount"
+            :page-size-options="codes.COD_PAGE_SIZE_OPTIONS"
+            @change="fetchData"
           />
           <span class="ml8">{{ t('MSG_TXT_UNIT_WON') }}</span>
         </template>
         <kw-btn
           v-permission:download
           icon="download_on"
-          :disable="totalCount === 0"
+          :disable="pageInfo.totalCount === 0"
           dense
           secondary
           :label="$t('MSG_BTN_EXCEL_DOWN')"
@@ -127,15 +131,25 @@
         v-if="isShowGrd"
         ref="grdTotalRef"
         name="grdTotal"
-        :visible-rows="9"
+        :visible-rows="pageInfo.pageSize"
+        :page-size="pageInfo.pageSize"
+        :total-count="pageInfo.totalCount"
         @init="initGrdTotal"
       />
       <kw-grid
         v-if="!isShowGrd"
         ref="grdDetailRef"
         name="grdDetail"
-        :visible-rows="9"
+        :visible-rows="pageInfo.pageSize"
+        :page-size="pageInfo.pageSize"
+        :total-count="pageInfo.totalCount"
         @init="initGrdDetail"
+      />
+      <kw-pagination
+        v-model:page-index="pageInfo.pageIndex"
+        v-model:page-size="pageInfo.pageSize"
+        :total-count="pageInfo.totalCount"
+        @change="fetchData"
       />
     </div>
   </kw-page>
@@ -145,8 +159,8 @@
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
-import { codeUtil, gridUtil, defineGrid, getComponentType, useDataService, useGlobal } from 'kw-lib';
-import { cloneDeep, isEmpty } from 'lodash-es';
+import { codeUtil, gridUtil, defineGrid, getComponentType, useDataService, useGlobal, useMeta } from 'kw-lib';
+import { isEmpty } from 'lodash-es';
 import dayjs from 'dayjs';
 import ZctzContractDetailNumber from '~sms-common/contract/components/ZctzContractDetailNumber.vue';
 
@@ -155,6 +169,7 @@ const { t } = useI18n();
 const dataService = useDataService();
 const { currentRoute } = useRouter();
 const { modal, alert } = useGlobal();
+const { getConfig } = useMeta();
 
 // -------------------------------------------------------------------------------------------------
 // Function & Event
@@ -162,12 +177,12 @@ const { modal, alert } = useGlobal();
 const grdTotalRef = ref(getComponentType('KwGrid'));
 const grdDetailRef = ref(getComponentType('KwGrid'));
 
-const totalCount = ref(0);
 const isShowGrd = ref(true);
 
 const codes = await codeUtil.getMultiCodes(
   'SELL_TP_CD',
   'SELL_TP_DTL_CD',
+  'COD_PAGE_SIZE_OPTIONS',
 );
 
 const codeLists = await dataService.get('/sms/wells/closing/business-atam-adjusts/codes');
@@ -183,6 +198,12 @@ const searchParams = ref({
   sapPdDvCd: 'ALL',
 });
 
+const pageInfo = ref({
+  totalCount: 0,
+  pageIndex: 1,
+  pageSize: Number(getConfig('CFG_CMZ_DEFAULT_PAGE_SIZE')),
+});
+
 const cachedParams = ref({});
 // 조회
 async function fetchData() {
@@ -192,20 +213,22 @@ async function fetchData() {
   } else if (searchGubun === '2') { // 상세
     isShowGrd.value = false;
   }
-  cachedParams.value = cloneDeep(searchParams.value);
-  console.log(searchParams.value);
+  cachedParams.value = {
+    ...searchParams.value,
+    ...pageInfo.value,
+  };
 
   let res;
   console.log('searchGubun:', searchGubun);
   if (searchGubun === '1') { // 집계
-    res = await dataService.get('/sms/wells/closing/business-atam-adjusts/total', { params: cachedParams.value });
+    res = await dataService.get('/sms/wells/closing/business-atam-adjusts/total/paging', { params: cachedParams.value });
   } else if (searchGubun === '2') { // 상세
-    res = await dataService.get('/sms/wells/closing/business-atam-adjusts/detail', { params: cachedParams.value, timeout: 180000 });
+    res = await dataService.get('/sms/wells/closing/business-atam-adjusts/detail/paging', { params: cachedParams.value, timeout: 180000 });
   }
 
-  console.log(res.data);
-  const mainList = res.data;
-  totalCount.value = mainList.length;
+  const { list: mainList, pageInfo: pagingResult } = res.data;
+  pageInfo.value = pagingResult;
+
   let mainView;
   if (isShowGrd.value === true) {
     mainView = grdTotalRef.value.getView();
@@ -229,10 +252,19 @@ async function onClickExportView() {
   } else if (isShowGrd.value === false) {
     view = grdDetailRef.value.getView();
   }
+
+  const { searchGubun } = cachedParams.value;
+  let res;
+  if (searchGubun === '1') { // 집계
+    res = await dataService.get('/sms/wells/closing/business-atam-adjusts/total/excel-download', { params: cachedParams.value });
+  } else if (searchGubun === '2') { // 상세
+    res = await dataService.get('/sms/wells/closing/business-atam-adjusts/detail/excel-download', { params: cachedParams.value, timeout: 180000 });
+  }
+
   await gridUtil.exportView(view, {
     fileName: currentRoute.value.meta.menuName,
     timePostfix: true,
-    exportData: gridUtil.getAllRowValues(view),
+    exportData: res.data,
   });
 }
 
