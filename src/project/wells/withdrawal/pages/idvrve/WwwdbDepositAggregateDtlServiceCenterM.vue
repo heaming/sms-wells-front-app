@@ -164,7 +164,7 @@
 // -------------------------------------------------------------------------------------------------
 import { defineGrid, codeUtil, useMeta, useDataService, getComponentType, gridUtil, useGlobal } from 'kw-lib';
 import dayjs from 'dayjs';
-import { cloneDeep } from 'lodash-es';
+import { cloneDeep, isEmpty } from 'lodash-es';
 import useSnCode from '~sms-wells/service/composables/useSnCode';
 // import WwsnEngineerOgSearchItemGroup from '~sms-wells/service/components/WwsnEngineerOgSearchItemGroup.vue';
 
@@ -417,6 +417,11 @@ const initGrid = defineGrid((data, view) => {
       styleName: 'text-center',
       displayCallback(grid, index) {
         const { cntrNo, cntrSn } = grid.getValues(index.itemIndex);
+
+        if (isEmpty(cntrNo)) {
+          return '';
+        }
+
         return `${cntrNo}-${cntrSn}`;
       },
     },
