@@ -75,7 +75,7 @@
 // Initialize Component
 // -------------------------------------------------------------------------------------------------
 import { gridUtil, getComponentType, useDataService, useGlobal, defineGrid, codeUtil } from 'kw-lib';
-import { cloneDeep } from 'lodash-es';
+import { cloneDeep, isEmpty } from 'lodash-es';
 
 const dataService = useDataService();
 const { modal, notify, alert } = useGlobal();
@@ -145,11 +145,12 @@ async function setData(paramData) {
 // 저장
 async function onClickSave() {
   const view = grdFirstRef.value.getView();
+  view.commit();
+  view.commitEditor();
   const viewRows = gridUtil.getAllRowValues(view); // 모든 데이터
   const checkedRows = gridUtil.getCheckedRowValues(view); // 체크된 데이터
 
-  view.commit();
-  view.commitEditor();
+  if (isEmpty(checkedRows)) { alert(t('MSG_TXT_NO_ITEMS_SELECTED')); return; }
   if (await gridUtil.alertIfIsNotModified(view)) { return; }
   if (!await gridUtil.validate(view)) { return; }
 
