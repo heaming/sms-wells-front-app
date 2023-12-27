@@ -609,7 +609,7 @@ function initGrid(data, view) {
     { fieldName: 'sellDscTpCd', header: t('MSG_TXT_DSC_SYST'), width: '100', styleName: 'text-center' },
     { fieldName: 'pakSn', header: t('MSG_TXT_PKG_SN'), width: '120', styleName: 'text-center' },
     { fieldName: 'feeAckmtBaseAmt', header: t('MSG_TXT_FEE_ACKMT_BASE_AMT'), width: '120', styleName: 'text-right', numberFormat: '#,##0' },
-    { fieldName: 'ackmtPerfAmt', header: t('MSG_TXT_FEE_ACKMT_PERF'), width: '120', styleName: 'text-right', numberFormat: '#,##0' },
+    { fieldName: 'ackmtPerfAmt', header: t('MSG_TXT_REDF_ACKMT_PERF'), width: '120', styleName: 'text-right', numberFormat: '#,##0' },
     { fieldName: 'booYn', header: t('MSG_TXT_RSV_YN'), width: '100', styleName: 'text-center' },
     { fieldName: 'ogCd', header: t('MSG_TXT_BRANCH'), width: '100', styleName: 'text-center' },
     { fieldName: 'cntrPdStrtdt', header: t('MSG_TXT_IST_DT'), width: '120', styleName: 'text-center', datetimeFormat: 'date' },
