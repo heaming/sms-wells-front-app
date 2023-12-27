@@ -259,9 +259,9 @@
                   maxlength="100"
                   grow
                   :disable="!isFetched
-                    || fieldData.slClYn==='Y'
-                    || !isEmpty(fieldData.istDt)
-                    || !isEmpty(fieldData.vstSchDt)
+                    // || fieldData.slClYn==='Y'
+                    // || !isEmpty(fieldData.istDt)
+                    // || !isEmpty(fieldData.vstSchDt)
                     || fieldData.svcPdChYn==='Y'"
                   @click-icon="onClickSelectProduct"
                 />
@@ -275,7 +275,9 @@
                 :model-value="orderProduct"
                 :bas="fieldData"
                 modify
-                :readonly="!isEmpty(fieldData.istDt) || fieldData.svcPdChYn==='Y'"
+                :readonly="
+                  //!isEmpty(fieldData.istDt) ||
+                  fieldData.svcPdChYn==='Y'"
                 @select:one-plus-one="onClickOnePlusOne"
                 @delete:one-plus-one="onDeleteOnePlusOne"
                 @select:device="onClickDeviceChange"
@@ -298,7 +300,6 @@
                       v-model="productExtra.alncmpCd"
                       :options="codes.ALNCMP_CD"
                       first-option="select"
-                      :disable="fieldData.slClYn==='Y'"
                     />
                   </kw-form-item>
                 </kw-form-row>
@@ -313,7 +314,6 @@
                       type="textarea"
                       maxlength="1000"
                       :rows="3"
-                      :disable="fieldData.slClYn==='Y'"
                     />
                   </kw-form-item>
                 </kw-form-row>
@@ -366,7 +366,7 @@
                 class="ml10"
                 padding="12px"
                 label="저장"
-                :disable="!isFetched || fieldData.slClYn==='Y' || !isCnfmPd"
+                :disable="!isFetched || !isCnfmPd"
                 @click="onClickProductChangeSave"
               />
             </div>
