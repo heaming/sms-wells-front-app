@@ -221,7 +221,7 @@ const initGrdMain = defineGrid((data, view) => {
     { fieldName: 'prtnrKnm', header: t('MSG_TXT_EMPL_NM'), width: '128', styleName: 'text-center', editable: false },
     { fieldName: 'hirFomCd', header: t('MSG_TXT_ROLE_1'), width: '107', styleName: 'text-center', editable: false },
     { fieldName: 'cntrDt', header: t('MSG_TXT_ENTCO_D'), width: '104', styleName: 'text-center', datetimeFormat: 'yyyy-MM-dd', editable: false },
-    { fieldName: 'cnrNm', header: t('MSG_TXT_CAR_TP'), width: '106', styleName: 'text-center', editable: false }, // 차종
+    { fieldName: 'carnm', header: t('MSG_TXT_CAR_TP'), width: '106', styleName: 'text-center', editable: false }, // 차종
     { fieldName: 'carNo', header: t('MSG_TXT_CARNO'), width: '106', styleName: 'text-center', editable: false }, // 차량번호
     { fieldName: 'vhcOprtnDt', header: t('MSG_TXT_OPERATION_DT'), width: '107', styleName: 'text-center', datetimeFormat: 'yyyy-MM-dd', editable: false }, // 일자
     { fieldName: 'dptuAcuDstn', header: `${t('MSG_TXT_ACML_DSTN')}(ON)`, width: '106', styleName: 'text-center', dataType: 'number', editable: false }, // 누적거리(시동ON)
@@ -265,4 +265,4 @@ const initGrdMain = defineGrid((data, view) => {
   //   createFooterCallback: () => (false),
   // });
 });
-</script>
+</script>3
