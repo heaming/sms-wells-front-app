@@ -36,7 +36,7 @@
         <!-- 관리창고번호 -->
         <kw-search-item
           :label="$t('MSG_TXT_MNGT_WARE_NO')"
-          :colspan="3"
+          :colspan="2"
         >
           <kw-select
             v-model="searchParams.wareDvCd"
@@ -46,11 +46,12 @@
             :disable="true"
           />
           <kw-select
-            v-model="searchParams.wareDtlDvCd"
-            :options="filterCodes.wareDtlDvCd"
-            :label="$t('MSG_TXT_MNGT_WARE_NO')"
+            v-model="searchParams.hgrWareNo"
+            :options="optionsHgrWareNo"
+            option-value="wareNo"
+            option-label="wareNm"
             first-option="all"
-            @change="onChangeWareDtlDvCd"
+            @change="onChangeHgrWareNo"
           />
           <kw-select
             v-model="searchParams.wareNo"
@@ -59,6 +60,16 @@
             option-label="wareNm"
             :label="$t('MSG_TXT_MNGT_WARE_NO')"
             first-option="all"
+            @change="onChangeWareNo"
+          />
+        </kw-search-item>
+        <!-- 창고상세구분 -->
+        <kw-search-item :label="$t('MSG_TXT_WARE_DTL_DV')">
+          <kw-select
+            v-model="searchParams.wareDtlDvCd"
+            :options="filterCodes.wareDtlDvCd"
+            first-option="all"
+            @change="onChangeWareDtlDvCd"
           />
         </kw-search-item>
       </kw-search-row>
@@ -202,6 +213,7 @@ const searchParams = ref({
   baseYm: dayjs().format('YYYYMM'), // 기준년월
   wareDvCd: '2',
   wareDtlDvCd: '',
+  hgrWareNo: '',
   wareNo: '',
   itmKndCd: '6',
   useYn: 'Y',
@@ -244,17 +256,47 @@ function makeCrtItmMngtGdCd() {
   optionsCrtItmMngtGdCd.push({ codeId: 'D', codeName: 'D' });
 }
 
+const optionsHgrWareNo = ref([]);
 const optionsWareNo = ref();
-// 창고번호 조회
-const onChangeWareHouse = async () => {
+
+// 창고조회
+const getHgrWareNos = async () => {
+  // 상위창고번호 클리어
+  searchParams.value.hgrWareNo = '';
+  optionsHgrWareNo.value = [];
   // 창고번호 클리어
   searchParams.value.wareNo = '';
+  optionsWareNo.value = [];
+
+  const { baseYm, wareDvCd } = searchParams.value;
+
   const result = await dataService.get(
     '/sms/wells/service/as-material-item-grades/ware-houses',
     { params: {
-      baseYm: searchParams.value.baseYm,
-      wareDvCd: searchParams.value.wareDvCd,
-      wareDtlDvCd: searchParams.value.wareDtlDvCd,
+      baseYm,
+      wareDvCd,
+      wareDtlDvCd: '20',
+    } },
+  );
+  optionsHgrWareNo.value = result.data;
+};
+
+// 창고번호 조회
+const onChangeHgrWareNo = async () => {
+  // 창고번호 클리어
+  searchParams.value.wareNo = '';
+  optionsWareNo.value = [];
+  const { baseYm, wareDvCd, hgrWareNo } = searchParams.value;
+
+  if (isEmpty(baseYm) || isEmpty(hgrWareNo)) return;
+
+  const result = await dataService.get(
+    '/sms/wells/service/as-material-item-grades/ware-houses',
+    { params: {
+      baseYm,
+      wareDvCd,
+      hgrWareNo,
+      wareDtlDvCd: '21',
     } },
   );
   optionsWareNo.value = result.data;
@@ -263,23 +305,42 @@ const onChangeWareHouse = async () => {
 await Promise.all([
   wareDtlDvCdFilter(),
   makeCrtItmMngtGdCd(),
-  onChangeWareHouse(),
+  getHgrWareNos(),
 ]);
 
 // 기준년월이 변경되었을 때 창고번호 재조회
-function onChangeBaseYm() {
+async function onChangeBaseYm() {
   const searchBaseYm = searchParams.value.baseYm;
   if (isEmpty(searchBaseYm)) {
+    // 상위창고번호 클리어
+    searchParams.value.hgrWareNo = '';
+    optionsHgrWareNo.value = [];
+    // 창고번호 클리어
     searchParams.value.wareNo = '';
     optionsWareNo.value = [];
     return;
   }
-  onChangeWareHouse();
+  await getHgrWareNos();
 }
 
-// 창고세부구분이 변경되었을 때 창고번호 재조회
+// 창고 변경 시
+function onChangeWareNo() {
+  const { wareDtlDvCd, wareNo } = searchParams.value;
+
+  // 창고번호가 있고, 창고상세구분이 조직창고인 경우 창고상세구분 클리어
+  if (!isEmpty(wareNo) && wareDtlDvCd === '20') {
+    searchParams.value.wareDtlDvCd = '';
+  }
+}
+
+// 창고상세구분 변경시
 function onChangeWareDtlDvCd() {
-  onChangeWareHouse();
+  const { wareDtlDvCd } = searchParams.value;
+
+  // 창고상세구분이 조직창고인 경우 개인창고번호 클리어
+  if (wareDtlDvCd === '20') {
+    searchParams.value.wareNo = '';
+  }
 }
 
 // 조회
