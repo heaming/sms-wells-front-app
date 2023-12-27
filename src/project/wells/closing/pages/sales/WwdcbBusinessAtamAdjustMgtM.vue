@@ -115,7 +115,7 @@
         />
         <kw-btn
           v-permission:create
-          :disable="searchParams.searchGubun==='2' || beforeMonth !== searchParams.baseYm"
+          :disable="cachedParams.searchGubun==='2'"
           primary
           dense
           :label="$t('MSG_BTN_SLIP_CRT')"
@@ -172,7 +172,6 @@ const codes = await codeUtil.getMultiCodes(
 
 const codeLists = await dataService.get('/sms/wells/closing/business-atam-adjusts/codes');
 const optionList = codeLists.data;
-const beforeMonth = dayjs().add(-1, 'month').format('YYYYMM');
 
 const searchParams = ref({
   baseYm: now.format('YYYYMM'), // 기준년월
@@ -184,7 +183,7 @@ const searchParams = ref({
   sapPdDvCd: 'ALL',
 });
 
-let cachedParams;
+const cachedParams = ref({});
 // 조회
 async function fetchData() {
   const { searchGubun } = searchParams.value;
@@ -193,15 +192,15 @@ async function fetchData() {
   } else if (searchGubun === '2') { // 상세
     isShowGrd.value = false;
   }
-  cachedParams = cloneDeep(searchParams.value);
+  cachedParams.value = cloneDeep(searchParams.value);
   console.log(searchParams.value);
 
   let res;
   console.log('searchGubun:', searchGubun);
   if (searchGubun === '1') { // 집계
-    res = await dataService.get('/sms/wells/closing/business-atam-adjusts/total', { params: cachedParams });
+    res = await dataService.get('/sms/wells/closing/business-atam-adjusts/total', { params: cachedParams.value });
   } else if (searchGubun === '2') { // 상세
-    res = await dataService.get('/sms/wells/closing/business-atam-adjusts/detail', { params: cachedParams, timeout: 180000 });
+    res = await dataService.get('/sms/wells/closing/business-atam-adjusts/detail', { params: cachedParams.value, timeout: 180000 });
   }
 
   console.log(res.data);
