@@ -238,6 +238,7 @@ async function getFeeCodes() {
 
 async function onClickExcelDownload() {
   const view = grdMainRef.value.getView();
+  cachedParams.isSum = 'N';
   const res = await dataService.get('/sms/wells/fee/fee-specifications', { params: cachedParams });
   const newData = res.data.map((obj) => {
     obj.dsbamt = Number(obj.feeSum) - Number(obj.ddtnsum);
