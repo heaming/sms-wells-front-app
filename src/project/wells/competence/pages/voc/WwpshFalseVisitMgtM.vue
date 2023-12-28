@@ -196,8 +196,6 @@ async function fetchData() {
 async function onClickSearch() {
   // 필요한 초기화 처리
   cachedParams = cloneDeep(searchParams.value);
-
-  console.log(searchParams.value);
   await fetchData();
 }
 
@@ -233,6 +231,19 @@ async function onClickExportView() {
   });
 }
 
+const fetchBranchManager = async (grid, row) => {
+  const { prtnrNo, fsVstYm } = gridUtil.getRowValue(grid, row);
+  const data = grid.getDataSource();
+  const res = await dataService.get('/sms/wells/competence/falsevisit/branch-manager', { params: { prtnrNo, baseYm: fsVstYm } });
+  if (res.data) {
+    data.setValue(row, 'hooPrtnrNo', res.data.hooPrtnrNo);
+    data.setValue(row, 'hooPrtnrNm', res.data.hooPrtnrNm);
+  } else {
+    data.setValue(row, 'hooPrtnrNo', '');
+    data.setValue(row, 'hooPrtnrNm', '');
+  }
+};
+
 // -------------------------------------------------------------------------------------------------
 // Initialize Grid
 // -------------------------------------------------------------------------------------------------
@@ -256,7 +267,7 @@ const initGrdMain = defineGrid((data, view) => {
 
   ];
   const columns = [
-    { fieldName: 'ocYm', header: t('MSG_TXT_YEAR_OCCURNCE'), width: '100', styleName: 'text-center', editable: false },
+    { fieldName: 'ocYm', header: t('MSG_TXT_YEAR_OCCURNCE'), width: '100', styleName: 'text-center', editable: false, datetimeFormat: 'YYYY-MM' },
     { fieldName: 'prtnrNo',
       rules: 'required',
       header: { text: t('MSG_TXT_SEQUENCE_NUMBER') },
@@ -314,21 +325,24 @@ const initGrdMain = defineGrid((data, view) => {
   view.checkBar.visible = true;
   view.rowIndicator.visible = true;
 
-  /*
-  view.onCellEditable = (grid, index) => {
-    if (!gridUtil.isCreatedRow(grid, index.dataRow) && index.column === 'cntr') { return false; }
+  view.onCellEdited = async (grid, itemIndex) => {
+    const { fieldName } = grid.getCurrent();
+    if (fieldName === 'fsVstYm') {
+      grid.commit();
+      await fetchBranchManager(grid, itemIndex);
+    }
   };
-  */
 
-  view.onCellButtonClicked = async (g, { dataRow, column }) => {
-    const { prtnrNo, cntrCstKnm/* cntrNo, cntrSn */ } = gridUtil.getRowValue(g, dataRow);
-    if (column === 'prtnrNo') {
+  view.onCellButtonClicked = async (grid, { itemIndex }) => {
+    const prtnrNo = grid.getValue(itemIndex, 'prtnrNo');
+    const cntrNoSn = grid.getValue(itemIndex, 'cntrNoSn');
+    const { fieldName } = grid.getCurrent();
+    if (fieldName === 'prtnrNo') {
       const { result, payload } = await modal({
         component: 'ZwogzPartnerListP',
         componentProps: {
           prtnrNo,
         },
-
       });
       if (result) {
         if (prtnrPopupValidateChk.value - 1 < 0) {
@@ -336,34 +350,31 @@ const initGrdMain = defineGrid((data, view) => {
         } else {
           prtnrPopupValidateChk.value -= 1;
         }
-        data.setValue(dataRow, 'ogTpCd', payload.ogTpCd);
-        data.setValue(dataRow, 'prtnrNo', payload.prtnrNo);
-        data.setValue(dataRow, 'prtnrKnm', payload.prtnrKnm);
-        data.setValue(dataRow, 'hooPrtnrNo', payload.dgr3LevlDgPrtnrNo);
-        data.setValue(dataRow, 'hooPrtnrNm', payload.dgr3LevlDgPrtnrNm);
+        data.setValue(itemIndex, 'ogTpCd', payload.ogTpCd);
+        data.setValue(itemIndex, 'prtnrNo', payload.prtnrNo);
+        data.setValue(itemIndex, 'prtnrKnm', payload.prtnrKnm);
+
+        await fetchBranchManager(grid, itemIndex);
       }
     }
-    if (column === 'cntrNoSn') {
+    if (fieldName === 'cntrNoSn') {
       prtnrPopupValidateChk.value = 0;
       const { result, payload } = await modal({
         component: `${userInfo.tenantCd}wctaContractNumberListP`,
 
         componentProps: {
-          cntrCstKnm,
+          cntrNoSn,
         },
 
       });
       if (result) {
-        data.setValue(dataRow, 'cntrNo', payload.cntrNo);
-        data.setValue(dataRow, 'cntrSn', payload.cntrSn);
-        data.setValue(dataRow, 'cstKnm', payload.cntrCstKnm);
-        data.setValue(dataRow, 'cntrNoSn', `${payload.cntrNo}-${payload.cntrSn}`);
+        data.setValue(itemIndex, 'cntrNo', payload.cntrNo);
+        data.setValue(itemIndex, 'cntrSn', payload.cntrSn);
+        data.setValue(itemIndex, 'cstKnm', payload.cntrCstKnm);
+        data.setValue(itemIndex, 'cntrNoSn', `${payload.cntrNo}-${payload.cntrSn}`);
       }
     }
   };
 });
 
-onMounted(async () => {
-  await onClickSearch();
-});
 </script>
