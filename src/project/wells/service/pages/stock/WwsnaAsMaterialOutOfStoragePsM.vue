@@ -84,7 +84,7 @@
           />
         </kw-search-item>
         <kw-search-item
-          :label="$t('MSG_TXT_PRDT_CODE')"
+          :label="$t('MSG_TXT_ITM_CD')"
           :colspan="2"
         >
           <kw-input
@@ -120,7 +120,7 @@
           <kw-date-range-picker
             v-model:from="searchParams.startDt"
             v-model:to="searchParams.endDt"
-            rules="date_range_days:1"
+            rules="date_range_months:1"
           />
         </kw-search-item>
         <kw-search-item
