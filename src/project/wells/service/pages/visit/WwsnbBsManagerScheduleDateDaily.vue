@@ -3,7 +3,7 @@
  * 프로그램 개요
  ****************************************************************************************************
  1. 모듈 : SNB (방문관리)
- 2. 프로그램 ID : WwsnbBsManagerScheduleDateDaily - BS관리일정조회
+ 2. 프로그램 ID : WwsnbBsManagerScheduleDateDaily - BS관리일정조회(일자별)
  3. 작성자 : 홍세기
  4. 작성일 : 2023.06.01
  ****************************************************************************************************
@@ -212,15 +212,6 @@ onMounted(async () => {
 // Initialize front Grid
 // -------------------------------------------------------------------------------------------------
 const initfrontGrdMain = defineGrid((data, view) => {
-  const fields = [
-    { fieldName: 'recntrDt' },
-    { fieldName: 'cntrDt' },
-    { fieldName: 'mngtAcc' },
-    { fieldName: 'vstAcc' },
-    { fieldName: 'fshAcc' },
-    { fieldName: 'svcProc' },
-  ];
-
   const columns = [
     { fieldName: 'cntrDt',
       header: t('MSG_TXT_INIT_CNTR_DT'),
@@ -233,7 +224,7 @@ const initfrontGrdMain = defineGrid((data, view) => {
     { fieldName: 'svcProc', header: t('MSG_TXT_SVC_PROC'), width: '150', styleName: 'text-center' }, // 서비스처리율(%)
   ];
 
-  data.setFields(fields);
+  data.setFields(columns.map(({ fieldName, dataType }) => (dataType ? { fieldName, dataType } : { fieldName })));
   view.setColumns(columns);
 
   const columnLayout = [
@@ -255,56 +246,66 @@ const initfrontGrdMain = defineGrid((data, view) => {
 // Initialize Grid
 // -------------------------------------------------------------------------------------------------
 const initGrdMain = defineGrid((data, view) => {
-  const fields = [
-    { fieldName: 'vstDt' },
-    { fieldName: 'vstTm' },
-    { fieldName: 'cstNm' },
-    { fieldName: 'cntrNo' },
-    { fieldName: 'goodsNm' },
-    { fieldName: 'mpNo' },
-    { fieldName: 'puPart1' },
-    { fieldName: 'puPart2' },
-    { fieldName: 'puPart3' },
-    { fieldName: 'puPart4' },
-    { fieldName: 'puPart5' },
-    { fieldName: 'puPart6' },
-  ];
-
   const columns = [
-    { fieldName: 'vstDt',
+    { // 방문일자
+      fieldName: 'vstDt',
       header: t('MSG_TXT_VST_DT'),
       width: '150',
-      styleName: 'text-center rg-button-link',
+      styleName: 'text-center',
       footer: { text: t('MSG_TXT_SUM') },
-      renderer: {
-        type: 'button',
-      } }, // 방문일자
-    { fieldName: 'vstTm', header: t('MSG_TXT_VST_TM'), width: '100' }, // 방문시간
+      displayCallback(grid, index) {
+        const { vstDt } = grid.getValues(index.itemIndex);
+        return dayjs(vstDt).format('YYYY-MM-DD');
+      },
+    },
+    { // 방문시간
+      fieldName: 'vstTm',
+      header: t('MSG_TXT_VST_TM'),
+      width: '100',
+      displayCallback(grid, index) {
+        const { vstTm } = grid.getValues(index.itemIndex);
+        return `${vstTm.substring(0, 2)}:${vstTm.substring(2, 4)}:${vstTm.substring(4, vstTm.length)}`;
+      },
+    },
     { fieldName: 'cstNm',
       header: t('MSG_TXT_CST_NM'),
       width: '150',
       styleName: 'text-center',
       options: codes.COPN_DV_CD }, // 고객명
-    { fieldName: 'cntrNo',
-      header: t('MSG_TXT_CNTR_NO'),
+    { // 계약상세번호
+      fieldName: 'cntrNo',
+      header: t('MSG_TXT_CNTR_DTL_NO'),
       width: '150',
-      styleName: 'text-center rg-button-link',
+      styleName: 'text-center',
       footer: { text: t('MSG_TXT_SUM') },
-      renderer: {
-        type: 'button',
-      } }, // 계약번호
+    },
     { fieldName: 'goodsNm', header: t('MSG_TXT_GOODS_NM'), width: '150', styleName: 'text-center' }, // 제품명
-    { fieldName: 'mpNo', header: t('MSG_TXT_MPNO'), width: '150', styleName: 'text-center' }, // 휴대전화번호
+    { // 휴대전화번호
+      fieldName: 'mpNo',
+      header: t('MSG_TXT_MPNO'),
+      width: '150',
+      styleName: 'text-center',
+      displayCallback(grid, index) {
+        const { cralLocaraTno, mexnoEncr, cralIdvTno } = grid.getValues(index.itemIndex);
+
+        if (!isEmpty(cralLocaraTno) && isEmpty(mexnoEncr) && !isEmpty(cralIdvTno)) {
+          return `${cralLocaraTno}--${cralIdvTno}`;
+        }
+        return isEmpty(cralLocaraTno) && isEmpty(mexnoEncr) && isEmpty(cralIdvTno) ? '' : `${cralLocaraTno}-${mexnoEncr}-${cralIdvTno}`;
+      },
+    },
     { fieldName: 'puPart1', header: t('MSG_TXT_PU_PART') || '1', width: '100', styleName: 'text-center' }, // 투입부품1
     { fieldName: 'puPart2', header: t('MSG_TXT_PU_PART') || '2', width: '100', styleName: 'text-center' }, // 투입부품2
     { fieldName: 'puPart3', header: t('MSG_TXT_PU_PART') || '3', width: '100', styleName: 'text-center' }, // 투입부품3
     { fieldName: 'puPart4', header: t('MSG_TXT_PU_PART') || '4', width: '100', styleName: 'text-center' }, // 투입부품4
     { fieldName: 'puPart5', header: t('MSG_TXT_PU_PART') || '5', width: '100', styleName: 'text-center' }, // 투입부품5
     { fieldName: 'puPart6', header: t('MSG_TXT_PU_PART') || '6', width: '100', styleName: 'text-center' }, // 투입부품6
-
+    { fieldName: 'cralLocaraTno', visible: false },
+    { fieldName: 'mexnoEncr', visible: false },
+    { fieldName: 'cralIdvTno', visible: false },
   ];
 
-  data.setFields(fields);
+  data.setFields(columns.map(({ fieldName, dataType }) => (dataType ? { fieldName, dataType } : { fieldName })));
   view.setColumns(columns);
 
   const columnLayout = [
