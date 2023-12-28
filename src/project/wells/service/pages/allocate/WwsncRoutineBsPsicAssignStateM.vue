@@ -251,7 +251,6 @@ const { getPartMaster } = smsCommon();
 const grdMainRef = ref(getComponentType('KwGrid'));
 const dataService = useDataService();
 const { getConfig } = useMeta();
-const { alert } = useGlobal();
 
 const { modal } = useGlobal();
 const { t } = useI18n();
@@ -417,11 +416,11 @@ async function onClickExpPartPs() {
 
 async function onClickOZ() {
   const ozWkDvCdList = searchParams.value.wkDvCds;
-  const prtnrNos = searchParams.value.prtnrNo;
-  if (prtnrNos === '') {
-    await alert(t('MSG_ALT_SLCT_MNGR_OR_ENGR'));
-    return;
-  }
+  // const prtnrNos = searchParams.value.prtnrNo;
+  // if (prtnrNos === '') {
+  //   await alert(t('MSG_ALT_SLCT_MNGR_OR_ENGR'));
+  //   return;
+  // }
   if (ozWkDvCdList.length !== 0) {
     ozWkDvCdList.forEach((row) => {
       searchParams.value.ozWkDvCds += `'${row}',`;
@@ -668,7 +667,7 @@ const initGrdMain = defineGrid((data, view) => {
     if (clickData.column === 'cstSign') {
       const cstSignCn = grid.getValue(clickData.itemIndex, 'cstSignCn');
       await modal({
-        component: 'WwsnzSignPreviewP',
+        component: 'WwsnzSignPreviewP', // 서명 미리보기 팝업
         componentProps: { sign: cstSignCn },
       });
     } else if (clickData.column === 'cntrDtlNo') {
@@ -683,13 +682,16 @@ const initGrdMain = defineGrid((data, view) => {
         },
       });
       // 투입(예정)부품 현황 팝업
+      // TODO..
+      // 20231226 인수인계 내용
+      // 예정부품 조회권한 없음 외 1종..아직 권한 채번 안됨
     } else if (clickData.column === 'expPart') {
       const cntrNo = grid.getValue(clickData.itemIndex, 'cntrNo');
       const cntrSn = grid.getValue(clickData.itemIndex, 'cntrSn');
       const cstSvAsnNo = grid.getValue(clickData.itemIndex, 'cstSvAsnNo');
 
       await modal({
-        component: 'WwsncExpProductP',
+        component: 'WwsncExpProductP', // 예정부품
         componentProps: { cntrNo, cntrSn, cstSvAsnNo },
       });
     }
