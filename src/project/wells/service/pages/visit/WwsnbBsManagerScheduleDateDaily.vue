@@ -64,7 +64,7 @@
           v-model:page-size="pageInfo.pageSize"
           :total-count="pageInfo.totalCount"
           :page-size-options="codes.COD_PAGE_SIZE_OPTIONS"
-          @change="fetchData"
+          @change="fetchData2"
         />
       </template>
       <kw-btn
@@ -82,6 +82,12 @@
       class="mt12"
       :visible-rows="pageInfo.pageSize"
       @init="initGrdMain"
+    />
+    <kw-pagination
+      v-model:page-index="pageInfo.pageIndex"
+      v-model:page-size="pageInfo.pageSize"
+      :total-count="pageInfo.totalCount"
+      @change="fetchData2"
     />
   </div>
 </template>
@@ -148,19 +154,20 @@ async function fetchData1() {
 async function fetchData2() {
   /** 위 집계 그리드 * */
   const res2 = await dataService.get('/sms/wells/service/bs-manager-schedule/dt-paging', { params: { ...cachedParams, ...pageInfo.value } });
+  const { list, pageInfo: pagingResult } = res2.data;
+  pageInfo.value = pagingResult;
 
   const view2 = grdMainRef.value.getView();
-  view2.getDataSource().setRows(res2.data);
+  view2.getDataSource().setRows(list);
   view2.resetCurrent();
 }
 
 async function onClickSearch() {
-  console.log('zippo0209 0003 >>');
   if (!searchParams.value.fxnPrtnrNo) {
     notify(t('MSG_ALT_NCELL_REQUIRED_VAL', [t('MSG_TXT_PIC')]));
     return;
   }
-  pageInfo.value.pageIndex = 1;
+  // pageInfo.value.pageIndex = 1;
   cachedParams = cloneDeep(searchParams.value);
   await fetchData1();
   await fetchData2();
@@ -200,10 +207,9 @@ async function onFxnPrtnrNoSearchPopup() {
 }
 
 onMounted(async () => {
-  console.log('zippo0209 0001 searchParams.value >>', searchParams.value);
+  // 다른 화면에서 넘어온 값을 기준으로 바로 조회하도록 처리
   const { baseDateFrom, baseDateTo, fxnPrtnrNo, fxnPrtnrKnm } = searchParams.value;
   if (!isEmpty(baseDateFrom) && !isEmpty(baseDateTo) && !isEmpty(fxnPrtnrNo) && !isEmpty(fxnPrtnrKnm)) {
-    console.log('zippo0209 0002 >>');
     await onClickSearch();
   }
 });
