@@ -290,6 +290,7 @@ async function onChangeHgrWareNo() {
 
 // 창고구분 변경 시
 async function onChangeWareDvCd() {
+  searchParams.value.wareDtlDvCd = '';
   // 창고세부구분 코드 필터링
   wareDtlDvCdFilter();
 

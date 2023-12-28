@@ -241,6 +241,7 @@ function wareDtlDvCdFilter() {
 function onChangeWareDvCd() {
   searchParams.value.hgrWareNo = '';
   searchParams.value.searchWareNo = '';
+  searchParams.value.wareDtlDvCd = '';
   // 창고상세구분 필터링
   wareDtlDvCdFilter();
 }
