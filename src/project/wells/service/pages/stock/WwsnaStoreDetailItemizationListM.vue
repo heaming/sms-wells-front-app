@@ -298,6 +298,7 @@ function onChangeItmKndCd() {
 function onChangeOstrDvCd() {
   searchParams.value.ostrWareNoM = '';
   searchParams.value.ostrWareNoD = '';
+  searchParams.value.ostrWareDtlDvCd = '';
 }
 
 // 출고상위창고 변경 시
@@ -329,6 +330,7 @@ function onChangeOstrWareDtlDvCd() {
 function onChangeStrDvCd() {
   searchParams.value.strWareNoM = '';
   searchParams.value.strWareNoD = '';
+  searchParams.value.strWareDtlDvCd = '';
 }
 
 // 입고상위창고 변경 시
