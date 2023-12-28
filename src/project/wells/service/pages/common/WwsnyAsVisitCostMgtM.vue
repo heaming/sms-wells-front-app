@@ -262,7 +262,10 @@ async function onClickExcelDownload() {
 async function onClickDelete() {
   const view = grdMainRef.value.getView();
   const checkedRows = gridUtil.getCheckedRowValues(view);
-  if (checkedRows.length === 0) return;
+  if (checkedRows.length === 0) {
+    notify(t('MSG_ALT_NOT_SEL_ITEM')); // 데이터를 선택해주세요.
+    return;
+  }
   if (checkedRows[0].isLast === 'Y') {
     gridUtil.deleteCheckedRows(view);
     isDisable.value = false;
