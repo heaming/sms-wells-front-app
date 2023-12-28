@@ -119,7 +119,7 @@ const pageInfo = ref({
 });
 
 async function fetchData() {
-  const res = await dataService.get('/sms/wells/withdrawal/bilfnt/sales-perf-checks', { params: { ...cachedParams, ...pageInfo.value, timeout: 30000000 } });
+  const res = await dataService.get('/sms/wells/withdrawal/bilfnt/sales-perf-checks', { params: { ...cachedParams, ...pageInfo.value }, timeout: 300000 });
   const { list, pageInfo: pagingResult } = res.data;
 
   pageInfo.value = pagingResult;
@@ -137,7 +137,7 @@ async function onClickSearch() {
 
 // 엑셀 다운로드
 async function onClickExcelDownload() {
-  const res = await dataService.get('/sms/wells/withdrawal/bilfnt/sales-perf-checks/excel-download', { params: cachedParams, timeout: 30000000 });
+  const res = await dataService.get('/sms/wells/withdrawal/bilfnt/sales-perf-checks/excel-download', { params: cachedParams, timeout: 300000 });
   const view = grdMainRef.value.getView();
 
   await gridUtil.exportView(view, {
