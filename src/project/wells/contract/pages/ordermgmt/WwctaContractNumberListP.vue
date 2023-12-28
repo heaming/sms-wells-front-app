@@ -306,7 +306,7 @@ const initGrid = defineGrid((data, view) => {
   ];
 
   const columns = [
-    { fieldName: 'cntrCnfmDtm', header: t('MSG_TXT_CNTR_DATE'), width: 100, styleName: 'text-center', datetimeFormat: 'date' }, // 계약일자
+    { fieldName: 'cntrCnfmDtm', header: t('계약확정일자'), width: 100, styleName: 'text-center', datetimeFormat: 'date' }, // 계약일자
     { fieldName: 'sellTpCd', header: t('MSG_TXT_SEL_TYPE'), width: 100, options: codes.SELL_TP_CD }, // 판매유형
     { fieldName: 'cntrNo',
       header: t('MSG_TXT_CNTR_DTL_NO'), // 계약상세번호
