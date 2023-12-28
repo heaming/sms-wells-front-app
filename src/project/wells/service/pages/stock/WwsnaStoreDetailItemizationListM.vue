@@ -18,6 +18,7 @@
     <kw-search
       :cols="9"
       @search="onClickSearch"
+      @reset="onClickReset"
     >
       <kw-search-row>
         <!-- 입고기간 -->
@@ -37,7 +38,6 @@
         <ZwcmWareHouseSearch
           v-model:start-ym="searchParams.stStrDt"
           v-model:end-ym="searchParams.edStrDt"
-          v-model:options-ware-dv-cd="strWareDvCd"
           v-model:ware-dv-cd="searchParams.strWareDvCd"
           v-model:ware-no-m="searchParams.strWareNoM"
           v-model:ware-no-d="searchParams.strWareNoD"
@@ -60,7 +60,6 @@
             v-model="searchParams.strWareDtlDvCd"
             :options="filterCodes.filterStrWareDtlDvCd"
             first-option="all"
-            :disable="isStrOk"
             @change="onChangeStrWareDtlDvCd"
           />
         </kw-search-item>
@@ -73,8 +72,9 @@
         >
           <kw-select
             v-model="searchParams.strTpCd"
-            :options="strTpCd"
+            :options="codes.STR_TP_CD"
             first-option="all"
+            @change="onChangeStrTpCd"
           />
         </kw-search-item>
         <!-- 출고창고 -->
@@ -90,6 +90,7 @@
           :label2="$t('MSG_TXT_OSTR_WARE')"
           :label3="$t('MSG_TXT_WARE')"
           :label4="$t('MSG_TXT_WARE')"
+          :disable="isPurchase"
           @update:ware-dv-cd="onChangeOstrDvCd"
           @update:ware-no-m="onChagneOstrWareHgrNo"
           @update:ware-no-d="onChagneOstrWareNo"
@@ -103,7 +104,7 @@
             v-model="searchParams.ostrWareDtlDvCd"
             :options="filterCodes.filterOstrWareDtlDvCd"
             first-option="all"
-            :disable="isOstrOk"
+            :disable="isPurchase"
             @change="onChangeOstrWareDtlDvCd"
           />
         </kw-search-item>
@@ -241,9 +242,6 @@ const filterCodes = ref({
   filterOstrWareDtlDvCd: [],
 });
 
-const isOstrOk = ref();
-const isStrOk = ref();
-
 const codes = await codeUtil.getMultiCodes(
   'COD_PAGE_SIZE_OPTIONS',
   'STR_TP_CD',
@@ -260,12 +258,6 @@ const pageInfo = ref({
   pageSize: Number(getConfig('CFG_CMZ_DEFAULT_PAGE_SIZE')),
   needTotalCount: true,
 });
-
-const strTpCd = codes.STR_TP_CD.filter((v) => v.codeId !== '110');
-const strWareDvCd = { WARE_DV_CD: [
-  { codeId: '2', codeName: t('MSG_TXT_SV_CNR') },
-  { codeId: '3', codeName: t('MSG_TXT_BSNS_CNTR') },
-] };
 
 // 등급 필터링
 codes.PD_GD_CD = codes.PD_GD_CD.filter((v) => ['A', 'B', 'E', 'R', 'X'].includes(v.codeId));
@@ -292,6 +284,23 @@ function onChangeItmKndCd() {
   }
 
   optionsItmPdCd.value = optionsAllItmPdCd.value.filter((v) => itmKndCd === v.itmKndCd);
+}
+const isPurchase = ref(false);
+// 입고유형 변경 시
+function onChangeStrTpCd() {
+  const { strTpCd } = searchParams.value;
+
+  // 구매입고일 경우 출고창고 관련 조건 비활성화 처리
+  if (strTpCd === '110') {
+    isPurchase.value = true;
+    searchParams.value.ostrWareDvCd = '';
+    searchParams.value.ostrWareDtlDvCd = '';
+    searchParams.value.ostrWareNoM = '';
+    searchParams.value.ostrWareNoD = '';
+  } else {
+    isPurchase.value = false;
+    searchParams.value.ostrWareDvCd = '1';
+  }
 }
 
 // 출고창고구분 변경 시
@@ -428,6 +437,12 @@ async function onClickSearch() {
   pageInfo.value.pageIndex = 1;
   cachedParams = cloneDeep(searchParams.value);
   await fetchData();
+}
+
+// 초기화 버튼 클릭
+function onClickReset() {
+  // 입고유형 변경 이벤트
+  onChangeStrTpCd();
 }
 
 onMounted(async () => {
