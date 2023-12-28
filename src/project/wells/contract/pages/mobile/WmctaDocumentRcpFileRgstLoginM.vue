@@ -92,7 +92,8 @@ const params = decryptEncryptedParam(props.encryptedParam, {
 
 function close(payload) {
   postMessage(payload, false);
-  window.close();
+  window.open('about:blank', '_self');
+  // window.close();
 }
 
 async function validateProps() {
@@ -104,17 +105,17 @@ async function validateProps() {
   let contractAlert;
   const invalid = params.cntrBasis.some(({ cntrNo, cntrSn }) => {
     if (!cntrNo) {
-      contractAlert = alert('계약번호가 없는 계약정보가 있습니다.');
+      contractAlert = '계약번호가 없는 계약정보가 있습니다.';
       return true;
     }
     if (!cntrSn) {
-      contractAlert = alert('계약일련번호가 없는 계약정보가 있습니다.');
+      contractAlert = '계약일련번호가 없는 계약정보가 있습니다.';
       return true;
     }
     return false;
   });
   if (invalid) {
-    await contractAlert;
+    await alert(contractAlert);
     close('Some props is wrong!');
     return;
   }
