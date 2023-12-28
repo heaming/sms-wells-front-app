@@ -254,17 +254,20 @@ async function onClickExportView() {
   }
 
   const { searchGubun } = cachedParams.value;
-  let res;
+
+  let url;
   if (searchGubun === '1') { // 집계
-    res = await dataService.get('/sms/wells/closing/business-atam-adjusts/total/excel-download', { params: cachedParams.value });
+    url = '/sms/wells/closing/business-atam-adjusts/total/bulk-excel-download';
   } else if (searchGubun === '2') { // 상세
-    res = await dataService.get('/sms/wells/closing/business-atam-adjusts/detail/excel-download', { params: cachedParams.value, timeout: 180000 });
+    url = '/sms/wells/closing/business-atam-adjusts/detail/bulk-excel-download';
   }
 
-  await gridUtil.exportView(view, {
-    fileName: currentRoute.value.meta.menuName,
-    timePostfix: true,
-    exportData: res.data,
+  gridUtil.exportBulkView(view, {
+    url,
+    parameter: {
+      ...cachedParams, timeout: 6000000,
+    },
+    fileName: `${currentRoute.value.meta.menuName}_${now.format('YYYYMMDD_HHmmss')}_Bulk`,
   });
 }
 
