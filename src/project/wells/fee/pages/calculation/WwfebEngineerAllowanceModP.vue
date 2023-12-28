@@ -23,11 +23,13 @@
       @init="initGridMain"
     />
     <template #action>
+      <!-- 취소 -->
       <kw-btn
         negative
         :label="$t('MSG_TXT_CANCEL')"
         @click="onclickCancel"
       />
+      <!-- 확정 -->
       <kw-btn
         v-permission:update
         primary
@@ -96,11 +98,11 @@ onMounted(async () => {
 // -------------------------------------------------------------------------------------------------
 const initGridMain = defineGrid((data, view) => {
   const columns = [
-    { fieldName: 'baseYm', header: t('MSG_TXT_CNT_NM'), width: '150', styleName: 'text-left', visible: false },
-    { fieldName: 'ogId', header: t('MSG_TXT_CNT_NM'), width: '150', styleName: 'text-left', visible: false },
-    { fieldName: 'ogNm', header: t('MSG_TXT_CNT_NM'), width: '150', styleName: 'text-left' },
-    { fieldName: 'ogCd', header: t('MSG_TXT_CNT_NM'), width: '150', styleName: 'text-left', visible: false },
-    { fieldName: 'cnrAwCnfmDtm', header: t('MSG_TXT_CNR_CNFM_DTM'), width: '210', styleName: 'text-center', datetimeFormat: 'yyyy-MM-dd' },
+    { fieldName: 'baseYm', header: t('MSG_TXT_PERF_YM'), width: '150', styleName: 'text-left', visible: false }, // 기준년월
+    { fieldName: 'ogId', header: t('MSG_TXT_CENTER_DIVISION'), width: '150', styleName: 'text-left', visible: false }, // 조직
+    { fieldName: 'ogNm', header: t('MSG_TXT_CENTER_DIVISION'), width: '150', styleName: 'text-left' }, // 조직명
+    { fieldName: 'ogCd', header: t('MSG_TXT_CENTER_DIVISION'), width: '150', styleName: 'text-left', visible: false }, // 조직코드
+    { fieldName: 'cnrAwCnfmDtm', header: t('MSG_TXT_CNR_CNFM_DTM'), width: '210', styleName: 'text-center', datetimeFormat: 'yyyy-MM-dd' }, // 확정일시
     {
       fieldName: 'cnfmBtnYn',
       header: t('MSG_TXT_CNFM_CAN'),
@@ -109,8 +111,8 @@ const initGridMain = defineGrid((data, view) => {
         type: 'button',
         hideWhenEmpty: true, // 빈 값일 때 버튼을 표시할지의 여부
       },
-      displayCallback: () => '확정취소',
-    },
+      displayCallback: () => t('MSG_TXT_CNFM_CAN'),
+    }, // 확정취소 버튼
   ];
 
   const fields = columns.map(({ fieldName, dataType }) => (dataType ? { fieldName, dataType } : { fieldName }));

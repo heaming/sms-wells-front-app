@@ -19,6 +19,7 @@
       @search="onClickSearch"
     >
       <kw-search-row>
+        <!-- 기준년월 -->
         <kw-search-item
           :label="$t('MSG_TXT_BASE_YM')"
           required
@@ -30,6 +31,7 @@
             type="month"
           />
         </kw-search-item>
+        <!-- 조회구분 -->
         <kw-search-item
           :label="$t('MSG_TXT_INQR_DV')"
           required
@@ -40,6 +42,7 @@
             rules="required"
           />
         </kw-search-item>
+        <!-- 번호 -->
         <kw-search-item
           :label="$t('MSG_TXT_SEQUENCE_NUMBER')"
         >
@@ -55,6 +58,7 @@
         </kw-search-item>
       </kw-search-row>
       <kw-search-row>
+        <!-- 조직레벨 -->
         <kw-search-item
           :label="$t('MSG_TXT_OG_LEVL')"
           colspan="2"
@@ -80,6 +84,7 @@
           />
           <span class="ml8">{{ $t('MSG_TXT_UNIT_WON') }}</span>
         </template>
+        <!-- 엑셀다운로드 -->
         <kw-btn
           v-permission:download
           icon="download_on"
@@ -123,12 +128,16 @@ const grdVisitFeeRef = ref(getComponentType('KwGrid'));
 const codes = await codeUtil.getMultiCodes(
   'SV_FEE_PD_DV_CD',
 );
+
+// 조회구분
 const inqrDv = [
   { codeId: '01', codeName: t('MSG_TXT_MANAGEMENT_DEPARTMENT') },
   { codeId: '02', codeName: t('MSG_TXT_RGNL_GRP') },
   { codeId: '03', codeName: t('MSG_TXT_BRANCH') },
   { codeId: '04', codeName: t('MSG_TXT_INDV') },
 ];
+
+// 조회조건
 const searchParams = ref({
   baseYm: dayjs().subtract(1, 'month').format('YYYYMM'),
   inqrDv: '01',
@@ -155,6 +164,7 @@ async function onClickSearchNo() {
   }
 }
 
+// 조회
 async function fetchData() {
   const res = await dataService.get('/sms/wells/fee/manager-visit-fees', { params: searchParams.value, timeout: 300000 });
 
@@ -164,10 +174,12 @@ async function fetchData() {
   view.getDataSource().setRows(res.data);
 }
 
+// 조회 버튼 클릭 이벤트
 async function onClickSearch() {
   await fetchData();
 }
 
+// 엑셀다운로드
 async function onClickExcelDownload() {
   const view = grdVisitFeeRef.value.getView();
   const response = await dataService.get('/sms/wells/fee/manager-visit-fees', { params: searchParams.value });
@@ -178,6 +190,7 @@ async function onClickExcelDownload() {
   });
 }
 
+// 파라미터 세팅
 function setParams() {
   if (!isEmpty(route.params)) {
     searchParams.value.ogLevlDvCd1 = route.params.ogLv1Id;
@@ -215,18 +228,18 @@ onActivated(() => {
 // -------------------------------------------------------------------------------------------------
 const initGridMain = defineGrid((data, view) => {
   const columns = [
-    { fieldName: 'prtnrNo', header: t('MSG_TXT_SEQUENCE_NUMBER'), width: '154', styleName: 'text-center' },
-    { fieldName: 'prtnrKnm', header: t('MSG_TXT_EMPL_NM'), width: '92', styleName: 'text-center' },
-    { fieldName: 'cntrNo', header: t('MSG_TXT_CST_CD'), width: '106', styleName: 'text-center' },
-    { fieldName: 'basePdCd', header: t('MSG_TXT_PRDT_CODE'), width: '106', styleName: 'text-center' },
-    { fieldName: 'pdNm', header: t('MSG_TXT_PRDT_NM'), width: '300', styleName: 'text-left' },
-    { fieldName: 'svFeePdDvCd', header: t('MSG_TXT_BS') + t('MSG_TXT_PDGRP'), width: '112', styleName: 'text-center', options: codes.SV_FEE_PD_DV_CD },
-    { fieldName: 'svFeeBaseAmt', header: t('MSG_TXT_PD_STD_FEE'), width: '122', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' },
-    { fieldName: 'feeUprcAmt', header: t('MSG_TXT_AGRG') + t('MSG_TXT_FEE'), width: '122', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' },
-    { fieldName: 'feeCalcAmt', header: t('MSG_TXT_VST_FEE'), width: '122', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' },
-    { fieldName: 'vstRglvlGdNm', header: t('MSG_TXT_VST_RGLVL'), width: '106', styleName: 'text-center' },
-    { fieldName: 'wkExcnDt', header: t('MSG_TXT_VST_DT'), width: '130', styleName: 'text-center', datetimeFormat: 'date' },
-    { fieldName: 'canYn', header: t('MSG_TXT_CNCL_YN'), width: '106', styleName: 'text-center' },
+    { fieldName: 'prtnrNo', header: t('MSG_TXT_SEQUENCE_NUMBER'), width: '154', styleName: 'text-center' }, // 번호
+    { fieldName: 'prtnrKnm', header: t('MSG_TXT_EMPL_NM'), width: '92', styleName: 'text-center' }, // 성명
+    { fieldName: 'cntrNo', header: t('MSG_TXT_CST_CD'), width: '106', styleName: 'text-center' }, // 고객코드
+    { fieldName: 'basePdCd', header: t('MSG_TXT_PRDT_CODE'), width: '106', styleName: 'text-center' }, // 상품코드
+    { fieldName: 'pdNm', header: t('MSG_TXT_PRDT_NM'), width: '300', styleName: 'text-left' }, // 상품명
+    { fieldName: 'svFeePdDvCd', header: t('MSG_TXT_BS') + t('MSG_TXT_PDGRP'), width: '112', styleName: 'text-center', options: codes.SV_FEE_PD_DV_CD }, // BS상품군
+    { fieldName: 'svFeeBaseAmt', header: t('MSG_TXT_PD_STD_FEE'), width: '122', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' }, // 기준수수료
+    { fieldName: 'feeUprcAmt', header: t('MSG_TXT_AGRG') + t('MSG_TXT_FEE'), width: '122', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' }, // 집계수수료
+    { fieldName: 'feeCalcAmt', header: t('MSG_TXT_VST_FEE'), width: '122', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' }, // 방문수수료
+    { fieldName: 'vstRglvlGdNm', header: t('MSG_TXT_VST_RGLVL'), width: '106', styleName: 'text-center' }, // 방문급지
+    { fieldName: 'wkExcnDt', header: t('MSG_TXT_VST_DT'), width: '130', styleName: 'text-center', datetimeFormat: 'date' }, // 방문일자
+    { fieldName: 'canYn', header: t('MSG_TXT_CNCL_YN'), width: '106', styleName: 'text-center' }, // 취소여부
   ];
 
   const fields = columns.map(({ fieldName, dataType }) => (dataType ? { fieldName, dataType } : { fieldName }));

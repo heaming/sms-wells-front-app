@@ -18,27 +18,32 @@
   >
     <kw-form :cols="1">
       <kw-form-row>
+        <!-- 실적년월 -->
         <kw-form-item :label="$t('MSG_TXT_PERF_YM')">
           <p>{{ params.perfYm.substring(0,4) }}-{{ params.perfYm.substring(4) }}</p>
         </kw-form-item>
       </kw-form-row>
       <kw-form-row>
+        <!-- 조직유형 -->
         <kw-form-item :label="$t('MSG_TXT_OG_TP')">
           <p>{{ codes.OG_TP_CD.find((v) => v.codeId === params?.ogTpCd)?.codeName }}</p>
         </kw-form-item>
       </kw-form-row>
       <kw-form-row>
+        <!-- 차수 -->
         <kw-form-item :label="$t('MSG_TXT_ORDR')">
           <p>{{ codes.FEE_TCNT_DV_CD.find((v) => v.codeId === params?.feeTcntDvCd)?.codeName }}</p>
         </kw-form-item>
       </kw-form-row>
     </kw-form>
     <template #action>
+      <!-- 취소 -->
       <kw-btn
         negative
         :label="$t('MSG_TXT_CANCEL')"
         @click="onClickCancel"
       />
+      <!-- 집계 -->
       <kw-btn
         v-permission:create
         primary
@@ -75,6 +80,7 @@ const props = defineProps({
   },
 });
 
+// 조회조건
 const params = ref({
   perfYm: props.perfYm,
   ogTpCd: props.ogTpCd,
@@ -90,10 +96,12 @@ const codes = await codeUtil.getMultiCodes(
   'OG_TP_CD',
 );
 
+// 취소
 async function onClickCancel() {
   cancel();
 }
 
+// 집계
 async function onClickSave() {
   if (!await confirm(t('MSG_ALT_AGRG'))) { return; }
   // params.value.perfAgrgCrtDvCd = params.value.ogTpCd === 'W02' ? '201' : '301';

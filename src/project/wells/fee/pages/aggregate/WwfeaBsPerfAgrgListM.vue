@@ -19,6 +19,7 @@
       @search="onClickSearch"
     >
       <kw-search-row>
+        <!-- 채널구분 -->
         <kw-search-item
           :label="$t('MSG_TXT_CHNL_DV')"
         >
@@ -28,6 +29,7 @@
             :options="codes.BFSVC_OG_TP_CD"
           />
         </kw-search-item>
+        <!-- 차수 -->
         <kw-search-item
           :label="$t('MSG_TXT_ORDR')"
         >
@@ -37,6 +39,7 @@
             :options="codes.FEE_TCNT_DV_CD"
           />
         </kw-search-item>
+        <!-- 상품코드 -->
         <kw-search-item
           :label="$t('MSG_TXT_PRDT_CODE')"
         >
@@ -54,6 +57,7 @@
         </kw-search-item>
       </kw-search-row>
       <kw-search-row>
+        <!-- 실적년월 -->
         <kw-search-item
           :label="$t('MSG_TXT_PERF_YM')"
           required
@@ -65,6 +69,7 @@
             rules="required"
           />
         </kw-search-item>
+        <!-- 방문일자 -->
         <kw-search-item
           :label="$t('MSG_TXT_VST_DT')"
         >
@@ -75,6 +80,7 @@
             rules="date_range_months:3"
           />
         </kw-search-item>
+        <!-- 번호 -->
         <kw-search-item :label="$t('MSG_TXT_SEQUENCE_NUMBER')">
           <kw-input
             v-model="searchParams.prtnrNo"
@@ -94,6 +100,7 @@
           <kw-paging-info :total-count="totalCount" />
           <span class="ml8">{{ $t('MSG_TXT_UNIT_WON') }}</span>
         </template>
+        <!-- 엑셀다운로드 -->
         <kw-btn
           v-permission:download
           icon="download_on"
@@ -108,6 +115,7 @@
           inset
           spaced
         />
+        <!-- BS실적집계 -->
         <kw-btn
           v-permission:create
           secondary
@@ -163,6 +171,7 @@ const searchParams = ref({
   endVstDt: dayjs().subtract(1, 'month').endOf('month').format('YYYYMMDD'),
 });
 
+// 채널구분 변경시
 watch(() => searchParams.value.bfsvcOgTpCd, async (val) => {
   searchParams.value.ogTpCd = val === '01' ? 'W02' : 'W03';
 }, { immediate: true });
@@ -250,25 +259,25 @@ async function onClickBsPerfAgrg() {
 // -------------------------------------------------------------------------------------------------
 const initGridMain = defineGrid((data, view) => {
   const columns = [
-    { fieldName: 'ogCd', header: t('MSG_TXT_BLG'), width: '100', styleName: 'text-center' },
-    { fieldName: 'prtnrNo', header: t('MSG_TXT_SEQUENCE_NUMBER'), width: '100', styleName: 'text-center' },
-    { fieldName: 'prtnrKnm', header: t('MSG_TXT_EMPL_NM'), width: '100', styleName: 'text-center' },
-    { fieldName: 'cntrNo', header: t('MSG_TXT_CNTR_DTL_NO'), width: '140', styleName: 'text-center' },
-    { fieldName: 'bfOrdNo', header: t('MSG_TXT_PREV') + t('MSG_TXT_CNTR_DTL_NO'), width: '140', styleName: 'text-center' },
-    { fieldName: 'basePdCd', header: t('MSG_TXT_PRDT_CODE'), width: '100', styleName: 'text-center' },
-    { fieldName: 'pdNm', header: t('MSG_TXT_PRDT_NM'), width: '130', styleName: 'text-left' },
-    { fieldName: 'svFeePdDvCd', header: t('MSG_TXT_BS') + t('MSG_TXT_PDGRP'), width: '100', styleName: 'text-center', options: codes.SV_FEE_PD_DV_CD },
-    { fieldName: 'svFeeBaseAmt', header: t('MSG_TXT_PD_STD_FEE'), width: '122', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' },
-    { fieldName: 'feeUprcAmt', header: t('MSG_TXT_AGRG') + t('MSG_TXT_FEE'), width: '122', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' },
-    { fieldName: 'feeCalcAmt', header: t('MSG_TXT_VST_FEE'), width: '122', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' },
-    { fieldName: 'svBizDclsfCd', header: t('MSG_TXT_WORK_TYPE'), width: '100', styleName: 'text-center' },
-    { fieldName: 'vstRglvlGdNm', header: t('MSG_TXT_VST_RGLVL'), width: '100', styleName: 'text-center' },
-    { fieldName: 'sellTpCd', header: t('MSG_TXT_SLS_CAT'), width: '100', styleName: 'text-center', options: codes.SELL_TP_CD },
-    { fieldName: 'uswyNm', header: t('MSG_TXT_USWY_DV'), width: '100', styleName: 'text-center' },
-    { fieldName: 'prrVstYn', header: t('MSG_TXT_PRR_VST_YN'), width: '100', styleName: 'text-center' },
-    { fieldName: 'vstDuedt', header: t('MSG_TXT_SCHD_DT'), width: '100', styleName: 'text-center', datetimeFormat: 'date' },
-    { fieldName: 'wkExcnDt', header: t('MSG_TXT_VST_DT'), width: '100', styleName: 'text-center', datetimeFormat: 'date' },
-    { fieldName: 'canYn', header: t('MSG_TXT_CNCL_YN'), width: '100', styleName: 'text-center' },
+    { fieldName: 'ogCd', header: t('MSG_TXT_BLG'), width: '100', styleName: 'text-center' }, // 소속
+    { fieldName: 'prtnrNo', header: t('MSG_TXT_SEQUENCE_NUMBER'), width: '100', styleName: 'text-center' }, // 번호
+    { fieldName: 'prtnrKnm', header: t('MSG_TXT_EMPL_NM'), width: '100', styleName: 'text-center' }, // 성명
+    { fieldName: 'cntrNo', header: t('MSG_TXT_CNTR_DTL_NO'), width: '140', styleName: 'text-center' }, // 계약상세번호
+    { fieldName: 'bfOrdNo', header: t('MSG_TXT_PREV') + t('MSG_TXT_CNTR_DTL_NO'), width: '140', styleName: 'text-center' }, // 이전계약상세번호
+    { fieldName: 'basePdCd', header: t('MSG_TXT_PRDT_CODE'), width: '100', styleName: 'text-center' }, // 상품코드
+    { fieldName: 'pdNm', header: t('MSG_TXT_PRDT_NM'), width: '130', styleName: 'text-left' }, // 상품명
+    { fieldName: 'svFeePdDvCd', header: t('MSG_TXT_BS') + t('MSG_TXT_PDGRP'), width: '100', styleName: 'text-center', options: codes.SV_FEE_PD_DV_CD }, // BS상품군
+    { fieldName: 'svFeeBaseAmt', header: t('MSG_TXT_PD_STD_FEE'), width: '122', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' }, // 기준수수료
+    { fieldName: 'feeUprcAmt', header: t('MSG_TXT_AGRG') + t('MSG_TXT_FEE'), width: '122', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' }, // 집계수수료
+    { fieldName: 'feeCalcAmt', header: t('MSG_TXT_VST_FEE'), width: '122', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' }, // 방문수수료
+    { fieldName: 'svBizDclsfCd', header: t('MSG_TXT_WORK_TYPE'), width: '100', styleName: 'text-center' }, // 작업유형
+    { fieldName: 'vstRglvlGdNm', header: t('MSG_TXT_VST_RGLVL'), width: '100', styleName: 'text-center' }, // 방문급지
+    { fieldName: 'sellTpCd', header: t('MSG_TXT_SLS_CAT'), width: '100', styleName: 'text-center', options: codes.SELL_TP_CD }, // 판매유형
+    { fieldName: 'uswyNm', header: t('MSG_TXT_USWY_DV'), width: '100', styleName: 'text-center' }, // 용도구분
+    { fieldName: 'prrVstYn', header: t('MSG_TXT_PRR_VST_YN'), width: '100', styleName: 'text-center' }, // 사전방문여부
+    { fieldName: 'vstDuedt', header: t('MSG_TXT_SCHD_DT'), width: '100', styleName: 'text-center', datetimeFormat: 'date' }, // 예정일자
+    { fieldName: 'wkExcnDt', header: t('MSG_TXT_VST_DT'), width: '100', styleName: 'text-center', datetimeFormat: 'date' }, // 방문일자
+    { fieldName: 'canYn', header: t('MSG_TXT_CNCL_YN'), width: '100', styleName: 'text-center' }, // 취소여부
   ];
 
   const fields = columns.map(({ fieldName, dataType }) => (dataType ? { fieldName, dataType } : { fieldName }));

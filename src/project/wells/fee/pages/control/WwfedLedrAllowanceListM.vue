@@ -19,6 +19,7 @@
       @search="onClickSearch"
     >
       <kw-search-row>
+        <!-- 실적년월 -->
         <kw-search-item
           :label="$t('MSG_TXT_PERF_YM')"
           required
@@ -39,6 +40,7 @@
             :options="codes.SELL_OG_DV_ACD"
           />
         </kw-search-item> -->
+        <!-- 직책 -->
         <kw-search-item
           :label="$t('MSG_TXT_RSB')"
         >
@@ -52,6 +54,7 @@
         </kw-search-item>
       </kw-search-row>
       <kw-search-row>
+        <!-- 조회구분 -->
         <kw-search-item :label="$t('MSG_TXT_INQR_DV')">
           <kw-option-group
             v-model="searchParams.inqrDvCd"
@@ -59,6 +62,7 @@
             :options="codes.WELS_MNGR_INQR_DV_CD"
           />
         </kw-search-item>
+        <!-- 번호 -->
         <kw-search-item
           :label="$t('MSG_TXT_SEQUENCE_NUMBER')"
         >
@@ -79,7 +83,7 @@
         <template #left>
           <kw-paging-info :total-count="totalCount" />
         </template>
-
+        <!-- 엑셀업로드 -->
         <kw-btn
           v-permission:create
           icon="upload_on"
@@ -88,7 +92,7 @@
           :label="$t('MSG_BTN_EXCEL_UP')"
           @click="onClickExcelUpload"
         />
-
+        <!-- 엑셀다운로드 -->
         <kw-btn
           v-permission:download
           icon="download_on"
@@ -99,6 +103,7 @@
           @click="onClickExcelDownload"
         />
       </kw-action-top>
+      <!-- 개인별그리드 -->
       <kw-grid
         v-if="isGrdIndvVisible"
         ref="grdIndvRef"
@@ -106,6 +111,7 @@
         :visible-rows="10"
         @init="initGridIndv"
       />
+      <!-- 합계그리드 -->
       <kw-grid
         v-if="isGrdSumVisible"
         ref="grdSumRef"
@@ -143,6 +149,7 @@ const codes = await codeUtil.getMultiCodes(
 );
 const rsbDvCd = codes.RSB_DV_CD.filter((v) => ['W0103', 'W0202', 'W0203'].includes(v.codeId));
 
+// 조회조건
 const searchParams = ref({
   perfYm: dayjs().subtract(1, 'month').format('YYYYMM'),
   rsbDvCd: '',
@@ -160,6 +167,7 @@ watch(() => searchParams.value.ogDvCd, async (val) => {
 }, { immediate: true });
 */
 
+// 조회구분 변경
 watch(() => searchParams.value.inqrDvCd, async (val) => {
   totalCount.value = 0;
   if (val === '01') {
@@ -171,6 +179,7 @@ watch(() => searchParams.value.inqrDvCd, async (val) => {
   }
 }, { immediate: true });
 
+// 실적년월 변경
 watch(() => searchParams.value.perfYm, async (val) => {
   const view = grdIndvRef.value.getView();
 
@@ -183,6 +192,7 @@ watch(() => searchParams.value.perfYm, async (val) => {
   }
 }, { immediate: false });
 
+// 엑셀다운로드
 async function onClickExcelDownload() {
   let type;
   if (searchParams.value.inqrDvCd === '01') type = 'indv';
@@ -200,6 +210,7 @@ async function onClickExcelDownload() {
   });
 }
 
+// 엑셀업로드
 async function openUploadPopup(componentProps) {
   const { result: isUploadSuccess, payload } = await modal({
     component: 'ZwfezXlsUpP',
@@ -210,10 +221,12 @@ async function openUploadPopup(componentProps) {
   }
 }
 
+// 엑셀업로드 버튼 클릭 이벤트
 async function onClickExcelUpload() {
   openUploadPopup({ formatId: 'FOM_FEZ_0027', baseYm: searchParams.value.perfYm });
 }
 
+// 번호 버튼 클릭 이벤트
 async function onClickSearchNo() {
   const { result, payload } = await modal({
     component: 'ZwogzMonthPartnerListP',
@@ -230,6 +243,7 @@ async function onClickSearchNo() {
   }
 }
 
+// 조회
 async function fetchData(type) {
   searchParams.value.ogTpCd = searchParams.value.ogDvCd === '7' ? 'W02' : 'W01';
   const res = await dataService.get(`/sms/wells/fee/ledr-allowances/${type}`, { params: searchParams.value });
@@ -245,6 +259,7 @@ async function fetchData(type) {
   view.resetCurrent();
 }
 
+// 조회 버튼 클릭 이벤트
 async function onClickSearch() {
   if (searchParams.value.inqrDvCd === '01') await fetchData('indv');
   else if (searchParams.value.inqrDvCd === '02') await fetchData('sum');
@@ -260,12 +275,12 @@ const initGridIndv = defineGrid((data, view) => {
       styleName: 'text-center',
       headerSummary: {
         text: t('MSG_TXT_SUM'),
-      } },
-    { fieldName: 'rsbDvNm', header: t('MSG_TXT_RSB_TP'), width: '96', styleName: 'text-center' },
-    { fieldName: 'ogNm', header: t('MSG_TXT_BLG_NM'), width: '96', styleName: 'text-center' },
-    { fieldName: 'ogCd', header: t('MSG_TXT_BLG'), width: '96', styleName: 'text-center' },
-    { fieldName: 'prtnrKnm', header: t('MSG_TXT_EMPL_NM'), width: '96', styleName: 'text-center' },
-    { fieldName: 'hmnrscEmpno', header: t('MSG_TXT_SEQUENCE_NUMBER'), width: '106', styleName: 'text-center' },
+      } }, // 실적년월
+    { fieldName: 'rsbDvNm', header: t('MSG_TXT_RSB_TP'), width: '96', styleName: 'text-center' }, // 직책유형
+    { fieldName: 'ogNm', header: t('MSG_TXT_BLG_NM'), width: '96', styleName: 'text-center' }, // 소속명
+    { fieldName: 'ogCd', header: t('MSG_TXT_BLG'), width: '96', styleName: 'text-center' }, // 소속
+    { fieldName: 'prtnrKnm', header: t('MSG_TXT_EMPL_NM'), width: '96', styleName: 'text-center' }, // 성명
+    { fieldName: 'hmnrscEmpno', header: t('MSG_TXT_SEQUENCE_NUMBER'), width: '106', styleName: 'text-center' }, // 번호
     { fieldName: 'brchCt',
       header: t('MSG_TXT_BRCH_N'),
       width: '106',
@@ -275,7 +290,7 @@ const initGridIndv = defineGrid((data, view) => {
       headerSummary: {
         numberFormat: '#,##0',
         expression: 'sum',
-      } },
+      } }, // 지점수
 
     { fieldName: 'basAwAmt',
       header: t('MSG_TXT_BAS_SAL'),
@@ -286,7 +301,7 @@ const initGridIndv = defineGrid((data, view) => {
       headerSummary: {
         numberFormat: '#,##0',
         expression: 'sum',
-      } },
+      } }, // 기본급
     { fieldName: 'hhExcpAwAmt',
       header: t('MSG_TXT_HH_EXCP_AW'),
       width: '120',
@@ -296,7 +311,7 @@ const initGridIndv = defineGrid((data, view) => {
       headerSummary: {
         numberFormat: '#,##0',
         expression: 'sum',
-      } },
+      } }, // 시간외수당
     { fieldName: 'rsbAwAmt',
       header: t('MSG_TXT_RSB') + t('MSG_TXT_AW'),
       width: '120',
@@ -306,7 +321,7 @@ const initGridIndv = defineGrid((data, view) => {
       headerSummary: {
         numberFormat: '#,##0',
         expression: 'sum',
-      } },
+      } }, // 직책수당
     { fieldName: 'fxnAwSumAmt',
       header: t('MSG_TXT_FXN_SAL_SUM'),
       width: '120',
@@ -316,7 +331,7 @@ const initGridIndv = defineGrid((data, view) => {
       headerSummary: {
         numberFormat: '#,##0',
         expression: 'sum',
-      } },
+      } }, // 고정급계
 
     { fieldName: 'trgCt',
       header: t('MSG_TXT_TRG'),
@@ -327,7 +342,7 @@ const initGridIndv = defineGrid((data, view) => {
       headerSummary: {
         numberFormat: '#,##0',
         expression: 'sum',
-      } },
+      } }, // 목표
     { fieldName: 'perfCt',
       header: t('MSG_TXT_PERF'),
       width: '133',
@@ -337,7 +352,7 @@ const initGridIndv = defineGrid((data, view) => {
       headerSummary: {
         numberFormat: '#,##0',
         expression: 'sum',
-      } },
+      } }, // 실적
     { fieldName: 'perfAchvRat',
       header: t('MSG_TXT_ACHV_RT'),
       width: '133',
@@ -347,7 +362,7 @@ const initGridIndv = defineGrid((data, view) => {
       headerSummary: {
         numberFormat: '#,##0.#',
         expression: 'avg',
-      } },
+      } }, // 달성률
     { fieldName: 'trgAchvAwAmt',
       header: t('MSG_TXT_TRG') + t('MSG_TXT_ACHV') + t('MSG_TXT_AW'),
       width: '133',
@@ -357,7 +372,7 @@ const initGridIndv = defineGrid((data, view) => {
       headerSummary: {
         numberFormat: '#,##0',
         expression: 'sum',
-      } },
+      } }, // 목표달성수당
     { fieldName: 'mngrPerfGdCd', header: t('MSG_TXT_GD'), width: '133', styleName: 'text-right' }, // 등급(2021년 1월까지)
     { fieldName: 'ogAwAmt',
       header: t('MSG_TXT_OG') + t('MSG_TXT_AW'),
@@ -378,7 +393,7 @@ const initGridIndv = defineGrid((data, view) => {
       headerSummary: {
         numberFormat: '#,##0',
         expression: 'sum',
-      } },
+      } }, // 평가수당
     { fieldName: 'perfAwSumAmt',
       header: t('MSG_TXT_OUTC_AW_SUM'),
       width: '133',
@@ -388,7 +403,7 @@ const initGridIndv = defineGrid((data, view) => {
       headerSummary: {
         numberFormat: '#,##0',
         expression: 'sum',
-      } },
+      } }, // 업적수당계
 
     { fieldName: 'exclDivAwAmt',
       header: t('MSG_TXT_EXCL_DIV'),
@@ -399,7 +414,7 @@ const initGridIndv = defineGrid((data, view) => {
       headerSummary: {
         numberFormat: '#,##0',
         expression: 'sum',
-      } },
+      } }, // 우수사업부
     { fieldName: 'ictAwAmt',
       header: t('MSG_TXT_ICT'),
       width: '133',
@@ -409,7 +424,7 @@ const initGridIndv = defineGrid((data, view) => {
       headerSummary: {
         numberFormat: '#,##0',
         expression: 'sum',
-      } },
+      } }, // 인센티브
     { fieldName: 'ldstcAtdcAwAmt',
       header: t('MSG_TXT_LDSTC_ATDC_LVOF'),
       width: '133',
@@ -419,7 +434,7 @@ const initGridIndv = defineGrid((data, view) => {
       headerSummary: {
         numberFormat: '#,##0',
         expression: 'sum',
-      } },
+      } }, // 원거리출퇴근
     { fieldName: 'mrntSpptAwAmt',
       header: t('MSG_TXT_MRNT_SPPT'),
       width: '133',
@@ -429,7 +444,7 @@ const initGridIndv = defineGrid((data, view) => {
       headerSummary: {
         numberFormat: '#,##0',
         expression: 'sum',
-      } },
+      } }, // 월세지원
     { fieldName: 'lectrAdnAwAmt',
       header: t('MSG_TXT_LECT_CHRAM'),
       width: '133',
@@ -439,7 +454,7 @@ const initGridIndv = defineGrid((data, view) => {
       headerSummary: {
         numberFormat: '#,##0',
         expression: 'sum',
-      } },
+      } }, // 강사료
     { fieldName: 'etcAdnAwAmt',
       header: t('MSG_TXT_ETC'),
       width: '133',
@@ -449,7 +464,7 @@ const initGridIndv = defineGrid((data, view) => {
       headerSummary: {
         numberFormat: '#,##0',
         expression: 'sum',
-      } },
+      } }, // 기타
     { fieldName: 'etcAdnAwSumAmt',
       header: t('MSG_TXT_ETC') + t('MSG_TXT_AW_SUM'),
       width: '133',
@@ -459,7 +474,7 @@ const initGridIndv = defineGrid((data, view) => {
       headerSummary: {
         numberFormat: '#,##0',
         expression: 'sum',
-      } },
+      } }, // 기타수당계
 
     { fieldName: 'fxnPerfAwSumAmt',
       header: `${t('MSG_TXT_FXN_SAL')}+${t('MSG_TXT_OUTC_AW')}`,
@@ -470,7 +485,7 @@ const initGridIndv = defineGrid((data, view) => {
       headerSummary: {
         numberFormat: '#,##0',
         expression: 'sum',
-      } },
+      } }, // 고정급+업적수당
     { fieldName: 'awCalcSumAmt',
       header: t('MSG_TXT_DSB_SUM'),
       width: '146',
@@ -480,7 +495,7 @@ const initGridIndv = defineGrid((data, view) => {
       headerSummary: {
         numberFormat: '#,##0',
         expression: 'sum',
-      } },
+      } }, // 지급계
 
     { fieldName: 'hinsrDdctam',
       header: t('MSG_TXT_HL_INSR'),
@@ -491,7 +506,7 @@ const initGridIndv = defineGrid((data, view) => {
       headerSummary: {
         numberFormat: '#,##0',
         expression: 'sum',
-      } },
+      } }, // 건강보험
     { fieldName: 'nrsnInsrDdctam',
       header: t('MSG_TXT_LTM_NRSN_INSR'),
       width: '133',
@@ -501,7 +516,7 @@ const initGridIndv = defineGrid((data, view) => {
       headerSummary: {
         numberFormat: '#,##0',
         expression: 'sum',
-      } },
+      } }, // 장기요양보험
     { fieldName: 'ntnlPnsnDdctam',
       header: t('MSG_TXT_NTNL_INSR'),
       width: '133',
@@ -511,7 +526,7 @@ const initGridIndv = defineGrid((data, view) => {
       headerSummary: {
         numberFormat: '#,##0',
         expression: 'sum',
-      } },
+      } }, // 국민연금
     { fieldName: 'einsrDdctam',
       header: t('MSG_TXT_HIR_INSR'),
       width: '133',
@@ -521,7 +536,7 @@ const initGridIndv = defineGrid((data, view) => {
       headerSummary: {
         numberFormat: '#,##0',
         expression: 'sum',
-      } },
+      } }, // 고용보험
     { fieldName: 'erntx',
       header: t('MSG_TXT_ERNTX'),
       width: '133',
@@ -531,7 +546,7 @@ const initGridIndv = defineGrid((data, view) => {
       headerSummary: {
         numberFormat: '#,##0',
         expression: 'sum',
-      } },
+      } }, // 소득세
     { fieldName: 'rsdntx',
       header: t('MSG_TXT_RSDNTX'),
       width: '133',
@@ -541,7 +556,7 @@ const initGridIndv = defineGrid((data, view) => {
       headerSummary: {
         numberFormat: '#,##0',
         expression: 'sum',
-      } },
+      } }, // 주민세
     { fieldName: 'crptBznsDdctam',
       header: t('MSG_TXT_IRG_BZNS'),
       width: '133',
@@ -551,7 +566,7 @@ const initGridIndv = defineGrid((data, view) => {
       headerSummary: {
         numberFormat: '#,##0',
         expression: 'sum',
-      } },
+      } }, // 비정도영업조치금
     { fieldName: 'eddtnAmt',
       header: t('MSG_TXT_ETC'),
       width: '133',
@@ -561,7 +576,7 @@ const initGridIndv = defineGrid((data, view) => {
       headerSummary: {
         numberFormat: '#,##0',
         expression: 'sum',
-      } },
+      } }, // 기타
 
     { fieldName: 'ddtnSumAmt',
       header: t('MSG_TXT_DDTN_SUM'),
@@ -572,7 +587,7 @@ const initGridIndv = defineGrid((data, view) => {
       headerSummary: {
         numberFormat: '#,##0',
         expression: 'sum',
-      } },
+      } }, // 공제계
     { fieldName: 'acpyAmt',
       header: t('MSG_TXT_TOT_DSB_AMT'),
       width: '146',
@@ -582,7 +597,7 @@ const initGridIndv = defineGrid((data, view) => {
       headerSummary: {
         numberFormat: '#,##0',
         expression: 'sum',
-      } },
+      } }, // 총지급액
   ];
 
   const fields = columns.map(({ fieldName, dataType }) => (dataType ? { fieldName, dataType } : { fieldName }));
@@ -656,8 +671,8 @@ const initGridSum = defineGrid((data, view) => {
       headerSummary: {
         text: t('MSG_TXT_SUM'),
       },
-    },
-    { fieldName: 'rsbDvNm', header: t('MSG_TXT_RSB_TP'), width: '96', styleName: 'text-center' },
+    }, // 실적년월
+    { fieldName: 'rsbDvNm', header: t('MSG_TXT_RSB_TP'), width: '96', styleName: 'text-center' }, // 직책유형
     { fieldName: 'hmnrscEmpnoCnt',
       header: t('MSG_TXT_PPL_N'),
       width: '106',
@@ -668,7 +683,7 @@ const initGridSum = defineGrid((data, view) => {
         numberFormat: '#,##0',
         expression: 'sum',
       },
-    },
+    }, // 인원수
 
     { fieldName: 'basAwAmt',
       header: t('MSG_TXT_BAS_SAL'),
@@ -680,7 +695,7 @@ const initGridSum = defineGrid((data, view) => {
         numberFormat: '#,##0',
         expression: 'sum',
       },
-    },
+    }, // 기본급
     { fieldName: 'hhExcpAwAmt',
       header: t('MSG_TXT_HH_EXCP_AW'),
       width: '120',
@@ -691,7 +706,7 @@ const initGridSum = defineGrid((data, view) => {
         numberFormat: '#,##0',
         expression: 'sum',
       },
-    },
+    }, // 시간외수당
     { fieldName: 'rsbAwAmt',
       header: t('MSG_TXT_RSB') + t('MSG_TXT_AW'),
       width: '120',
@@ -702,7 +717,7 @@ const initGridSum = defineGrid((data, view) => {
         numberFormat: '#,##0',
         expression: 'sum',
       },
-    },
+    }, // 직책수당
     { fieldName: 'fxnAwSumAmt',
       header: t('MSG_TXT_FXN_SAL_SUM'),
       width: '120',
@@ -713,7 +728,7 @@ const initGridSum = defineGrid((data, view) => {
         numberFormat: '#,##0',
         expression: 'sum',
       },
-    },
+    }, // 고정급계
 
     { fieldName: 'trgCt',
       header: t('MSG_TXT_TRG'),
@@ -725,7 +740,7 @@ const initGridSum = defineGrid((data, view) => {
         numberFormat: '#,##0',
         expression: 'sum',
       },
-    },
+    }, // 목표
     { fieldName: 'perfCt',
       header: t('MSG_TXT_PERF'),
       width: '133',
@@ -736,7 +751,7 @@ const initGridSum = defineGrid((data, view) => {
         numberFormat: '#,##0',
         expression: 'sum',
       },
-    },
+    }, // 실적
     { fieldName: 'perfAchvRat',
       header: t('MSG_TXT_ACHV_RT'),
       width: '133',
@@ -747,7 +762,7 @@ const initGridSum = defineGrid((data, view) => {
         numberFormat: '#,##0.#',
         expression: 'avg',
       },
-    },
+    }, // 달성률
     { fieldName: 'trgAchvAwAmt',
       header: t('MSG_TXT_TRG') + t('MSG_TXT_ACHV') + t('MSG_TXT_AW'),
       width: '133',
@@ -758,7 +773,7 @@ const initGridSum = defineGrid((data, view) => {
         numberFormat: '#,##0',
         expression: 'sum',
       },
-    },
+    }, // 목표달성수당
     { fieldName: 'ogAwAmt',
       header: t('MSG_TXT_OG') + t('MSG_TXT_AW'),
       width: '133',
@@ -769,7 +784,7 @@ const initGridSum = defineGrid((data, view) => {
         numberFormat: '#,##0',
         expression: 'sum',
       },
-    },
+    }, // 조직수당
     { fieldName: 'evlAwAmt',
       header: t('MSG_TXT_EVL') + t('MSG_TXT_AW'),
       width: '133',
@@ -780,7 +795,7 @@ const initGridSum = defineGrid((data, view) => {
         numberFormat: '#,##0',
         expression: 'sum',
       },
-    },
+    }, // 평가수당
     { fieldName: 'perfAwSumAmt',
       header: t('MSG_TXT_OUTC_AW_SUM'),
       width: '133',
@@ -791,7 +806,7 @@ const initGridSum = defineGrid((data, view) => {
         numberFormat: '#,##0',
         expression: 'sum',
       },
-    },
+    }, // 업적수당계
 
     { fieldName: 'exclDivAwAmt',
       header: t('MSG_TXT_EXCL_DIV'),
@@ -803,7 +818,7 @@ const initGridSum = defineGrid((data, view) => {
         numberFormat: '#,##0',
         expression: 'sum',
       },
-    },
+    }, // 우수사업부
     { fieldName: 'ictAwAmt',
       header: t('MSG_TXT_ICT'),
       width: '133',
@@ -814,7 +829,7 @@ const initGridSum = defineGrid((data, view) => {
         numberFormat: '#,##0',
         expression: 'sum',
       },
-    },
+    }, // 인센티브
     { fieldName: 'ldstcAtdcAwAmt',
       header: t('MSG_TXT_LDSTC_ATDC_LVOF'),
       width: '133',
@@ -825,7 +840,7 @@ const initGridSum = defineGrid((data, view) => {
         numberFormat: '#,##0',
         expression: 'sum',
       },
-    },
+    }, // 원거리출퇴근
     { fieldName: 'mrntSpptAwAmt',
       header: t('MSG_TXT_MRNT_SPPT'),
       width: '133',
@@ -836,7 +851,7 @@ const initGridSum = defineGrid((data, view) => {
         numberFormat: '#,##0',
         expression: 'sum',
       },
-    },
+    }, // 월세지원
     { fieldName: 'lectrAdnAwAmt',
       header: t('MSG_TXT_LECT_CHRAM'),
       width: '133',
@@ -847,7 +862,7 @@ const initGridSum = defineGrid((data, view) => {
         numberFormat: '#,##0',
         expression: 'sum',
       },
-    },
+    }, // 강사료
     { fieldName: 'etcAdnAwAmt',
       header: t('MSG_TXT_ETC'),
       width: '133',
@@ -858,7 +873,7 @@ const initGridSum = defineGrid((data, view) => {
         numberFormat: '#,##0',
         expression: 'sum',
       },
-    },
+    }, // 기타
     { fieldName: 'etcAdnAwSumAmt',
       header: t('MSG_TXT_ETC') + t('MSG_TXT_AW_SUM'),
       width: '133',
@@ -869,7 +884,7 @@ const initGridSum = defineGrid((data, view) => {
         numberFormat: '#,##0',
         expression: 'sum',
       },
-    },
+    }, // 기타수당계
 
     { fieldName: 'fxnPerfAwSumAmt',
       header: `${t('MSG_TXT_FXN_SAL')}+${t('MSG_TXT_OUTC_AW')}`,
@@ -881,7 +896,7 @@ const initGridSum = defineGrid((data, view) => {
         numberFormat: '#,##0',
         expression: 'sum',
       },
-    },
+    }, // 고정급+업적수당
     { fieldName: 'awCalcSumAmt',
       header: t('MSG_TXT_DSB_SUM'),
       width: '146',
@@ -892,7 +907,7 @@ const initGridSum = defineGrid((data, view) => {
         numberFormat: '#,##0',
         expression: 'sum',
       },
-    },
+    }, // 지급계
 
     { fieldName: 'hinsrDdctam',
       header: t('MSG_TXT_HL_INSR'),
@@ -904,7 +919,7 @@ const initGridSum = defineGrid((data, view) => {
         numberFormat: '#,##0',
         expression: 'sum',
       },
-    },
+    }, // 건강보험
     { fieldName: 'nrsnInsrDdctam',
       header: t('MSG_TXT_LTM_NRSN_INSR'),
       width: '133',
@@ -915,7 +930,7 @@ const initGridSum = defineGrid((data, view) => {
         numberFormat: '#,##0',
         expression: 'sum',
       },
-    },
+    }, // 장기요양보험
     { fieldName: 'ntnlPnsnDdctam',
       header: t('MSG_TXT_NTNL_INSR'),
       width: '133',
@@ -926,7 +941,7 @@ const initGridSum = defineGrid((data, view) => {
         numberFormat: '#,##0',
         expression: 'sum',
       },
-    },
+    }, // 국민연금
     { fieldName: 'einsrDdctam',
       header: t('MSG_TXT_HIR_INSR'),
       width: '133',
@@ -937,7 +952,7 @@ const initGridSum = defineGrid((data, view) => {
         numberFormat: '#,##0',
         expression: 'sum',
       },
-    },
+    }, // 고용보험
     { fieldName: 'erntx',
       header: t('MSG_TXT_ERNTX'),
       width: '133',
@@ -948,7 +963,7 @@ const initGridSum = defineGrid((data, view) => {
         numberFormat: '#,##0',
         expression: 'sum',
       },
-    },
+    }, // 소득세
     { fieldName: 'rsdntx',
       header: t('MSG_TXT_RSDNTX'),
       width: '133',
@@ -959,7 +974,7 @@ const initGridSum = defineGrid((data, view) => {
         numberFormat: '#,##0',
         expression: 'sum',
       },
-    },
+    }, // 주민세
     { fieldName: 'crptBznsDdctam',
       header: t('MSG_TXT_IRG_BZNS'),
       width: '133',
@@ -970,7 +985,7 @@ const initGridSum = defineGrid((data, view) => {
         numberFormat: '#,##0',
         expression: 'sum',
       },
-    },
+    }, // 비정도영업조치금
     { fieldName: 'eddtnAmt',
       header: t('MSG_TXT_ETC'),
       width: '133',
@@ -981,7 +996,7 @@ const initGridSum = defineGrid((data, view) => {
         numberFormat: '#,##0',
         expression: 'sum',
       },
-    },
+    }, // 기타
 
     { fieldName: 'ddtnSumAmt',
       header: t('MSG_TXT_DDTN_SUM'),
@@ -993,7 +1008,7 @@ const initGridSum = defineGrid((data, view) => {
         numberFormat: '#,##0',
         expression: 'sum',
       },
-    },
+    }, // 공제계
     { fieldName: 'acpyAmt',
       header: t('MSG_TXT_TOT_DSB_AMT'),
       width: '146',
@@ -1004,7 +1019,7 @@ const initGridSum = defineGrid((data, view) => {
         numberFormat: '#,##0',
         expression: 'sum',
       },
-    },
+    }, // 총지급액
   ];
 
   const fields = columns.map(({ fieldName, dataType }) => (dataType ? { fieldName, dataType } : { fieldName }));

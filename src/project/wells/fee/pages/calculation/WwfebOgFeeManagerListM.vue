@@ -18,6 +18,7 @@
       @search="onClickSearch"
     >
       <kw-search-row>
+        <!-- 실적년월 -->
         <kw-search-item
           :label="$t('MSG_TXT_PERF_YM')"
           required
@@ -31,6 +32,7 @@
             @change="onChangedRsbTp"
           />
         </kw-search-item>
+        <!-- 차수 -->
         <kw-search-item
           :label="$t('MSG_TXT_ORDR')"
         >
@@ -41,6 +43,7 @@
             :options="codes.FEE_TCNT_DV_CD"
           />
         </kw-search-item>
+        <!-- 직책유형 -->
         <kw-search-item
           :label="$t('MSG_TXT_RSB_TP')"
         >
@@ -57,6 +60,7 @@
         </kw-search-item>
       </kw-search-row>
       <kw-search-row>
+        <!-- 번호 -->
         <kw-search-item
           :label="$t('MSG_TXT_SEQUENCE_NUMBER')"
         >
@@ -69,6 +73,7 @@
             :placeholder="$t('MSG_TXT_SEQUENCE_NUMBER')"
           />
         </kw-search-item>
+        <!-- 조직레벨 -->
         <kw-search-item :label="t('MSG_TXT_OG_LEVL')">
           <zwog-level-select
             v-model:og-levl-dv-cd1="searchParams.ogLevl1Id"
@@ -101,6 +106,7 @@
           />
           <span class="ml8">{{ $t('MSG_TXT_UNIT_COLON_WON') }}</span>
         </template>
+        <!-- 엑셀다운로드 -->
         <kw-btn
           v-permission:download
           icon="download_on"
@@ -115,6 +121,7 @@
           inset
           spaced
         />
+        <!-- 이력관리 -->
         <kw-btn
           dense
           secondary=""
@@ -175,6 +182,8 @@ const codes = await codeUtil.getMultiCodes(
 const { getUserInfo } = useMeta();
 const sessionUserInfo = getUserInfo();
 const filterRsbDvCd = codes.RSB_DV_CD.filter((v) => ['W0205', 'W0204'].includes(v.codeId));
+
+// 조회조건
 const searchParams = ref({
   perfYm: now.add(-1, 'month').format('YYYYMM'),
   feeTcntDvCd: '01',
@@ -192,6 +201,7 @@ const searchParams = ref({
 
 });
 
+// 품의 정보
 const approval = ref({
   gb: 'KST004', /* formId를 식별하는 구분 */
   empno: sessionUserInfo.employeeIDNumber, /* 결재자 사번 */
@@ -199,6 +209,7 @@ const approval = ref({
   appKey: '', /* 업무단에서 해당 결재를 확인할 KEY */
 });
 
+// 품의 저장정보
 const saveInfo = ref({
   perfYm: '',
   ogTpCd: 'W02',
@@ -206,6 +217,7 @@ const saveInfo = ref({
   unitCd: '',
 });
 
+// 진행상황 타이틀 세팅
 const statTitleText = computed(() => {
   const { perfYm, rsbDvCd } = searchParams.value;
   let titleText = `${perfYm.substring(0, 4) + t('MSG_TXT_YEAR')} ${perfYm.substring(4, 6)}${t('MSG_TXT_MON')}`;
@@ -1105,7 +1117,7 @@ function getGridColumns() {
           headerSummary: {
             numberFormat: '#,##0',
             expression: 'sum',
-          } },
+          } }, // 홈케어
         { fieldName: 'rstl',
           header: t('MSG_TXT_RSTL'),
           width: '129',
@@ -1114,7 +1126,7 @@ function getGridColumns() {
           headerSummary: {
             numberFormat: '#,##0',
             expression: 'sum',
-          } },
+          } }, // 재약정
         { fieldName: 'livePakg',
           header: t('MSG_TXT_LIVE_PAKG'),
           width: '129',
@@ -1123,7 +1135,7 @@ function getGridColumns() {
           headerSummary: {
             numberFormat: '#,##0',
             expression: 'sum',
-          } },
+          } }, // 라이브팩
         { fieldName: 'indv1Fee',
           header: t('MSG_TXT_ELHM_PRPN'),
           width: '129',
@@ -1133,7 +1145,7 @@ function getGridColumns() {
           headerSummary: {
             numberFormat: '#,##0',
             expression: 'sum',
-          } },
+          } }, // 가전비례
         { fieldName: 'indv2Fee',
           header: t('MSG_TXT_ELHM_EXCP_PRPN'),
           width: '129',
@@ -1143,7 +1155,7 @@ function getGridColumns() {
           headerSummary: {
             numberFormat: '#,##0',
             expression: 'sum',
-          } },
+          } }, // 가전외비례
         { fieldName: 'indv3Fee',
           header: t('MSG_TXT_ELHM') + t('MSG_TXT_SAL_INTV'),
           width: '129',
@@ -1153,7 +1165,7 @@ function getGridColumns() {
           headerSummary: {
             numberFormat: '#,##0',
             expression: 'sum',
-          } },
+          } }, // 가전판매장려
         { fieldName: 'indv4Fee',
           header: t('MSG_TXT_METG'),
           width: '129',
@@ -1163,7 +1175,7 @@ function getGridColumns() {
           headerSummary: {
             numberFormat: '#,##0',
             expression: 'sum',
-          } },
+          } }, // 미팅
         { fieldName: 'indv5Fee',
           header: t('MSG_TXT_EDUC'),
           width: '129',
@@ -1173,7 +1185,7 @@ function getGridColumns() {
           headerSummary: {
             numberFormat: '#,##0',
             expression: 'sum',
-          } },
+          } }, // 교육
         { fieldName: 'indv6Fee',
           header: t('MSG_TXT_STMNT'),
           width: '129',
@@ -1183,7 +1195,7 @@ function getGridColumns() {
           headerSummary: {
             numberFormat: '#,##0',
             expression: 'sum',
-          } },
+          } }, // 정착
         { fieldName: 'indv7Fee',
           header: t('MSG_TXT_MCHN_CH'),
           width: '129',
@@ -1193,7 +1205,7 @@ function getGridColumns() {
           headerSummary: {
             numberFormat: '#,##0',
             expression: 'sum',
-          } },
+          } }, // 기기변경
         { fieldName: 'indv8Fee',
           header: `BS${t('MSG_TXT_MGT')}`,
           width: '129',
@@ -1203,7 +1215,7 @@ function getGridColumns() {
           headerSummary: {
             numberFormat: '#,##0',
             expression: 'sum',
-          } },
+          } }, // BS관리
         { fieldName: 'indv9Fee',
           header: `BS${t('MSG_TXT_ENRG')}`,
           width: '129',
@@ -1213,7 +1225,7 @@ function getGridColumns() {
           headerSummary: {
             numberFormat: '#,##0',
             expression: 'sum',
-          } },
+          } }, // BS장려
         { fieldName: 'indv10Fee',
           header: t('MSG_TXT_RGLVL'),
           width: '129',
@@ -1223,7 +1235,7 @@ function getGridColumns() {
           headerSummary: {
             numberFormat: '#,##0',
             expression: 'sum',
-          } },
+          } }, // 급지
         { fieldName: 'indv11Fee',
           header: `WM${t('MSG_TXT_CMNC')}`,
           width: '129',
@@ -1233,7 +1245,7 @@ function getGridColumns() {
           headerSummary: {
             numberFormat: '#,##0',
             expression: 'sum',
-          } },
+          } }, // WM통신
         { fieldName: 'indv12Fee',
           header: `WM${t('MSG_TXT_ETC')}`,
           width: '129',
@@ -1243,7 +1255,7 @@ function getGridColumns() {
           headerSummary: {
             numberFormat: '#,##0',
             expression: 'sum',
-          } },
+          } }, // WM기타
         { fieldName: 'indv13Fee',
           header: t('MSG_TXT_PRR_VST'),
           width: '129',
@@ -1253,7 +1265,7 @@ function getGridColumns() {
           headerSummary: {
             numberFormat: '#,##0',
             expression: 'sum',
-          } },
+          } }, // 사전방문
         { fieldName: 'indv14Fee',
           header: t('MSG_TXT_UNIFORM'),
           width: '129',
@@ -1263,7 +1275,7 @@ function getGridColumns() {
           headerSummary: {
             numberFormat: '#,##0',
             expression: 'sum',
-          } },
+          } }, // 유니폼
         { fieldName: 'indv15Fee',
           header: t('MSG_TXT_MAT_HODT'),
           width: '129',
@@ -1273,7 +1285,7 @@ function getGridColumns() {
           headerSummary: {
             numberFormat: '#,##0',
             expression: 'sum',
-          } },
+          } }, // 자재실장
         { fieldName: 'indv16Fee',
           header: t('MSG_TXT_ADD') + t('MSG_TXT_ENRG'),
           width: '129',
@@ -1283,7 +1295,7 @@ function getGridColumns() {
           headerSummary: {
             numberFormat: '#,##0',
             expression: 'sum',
-          } },
+          } }, // 추가장려
         { fieldName: 'og1Fee',
           header: t('MSG_TXT_ELHM_OG_PRPN'),
           width: '129',
@@ -1293,7 +1305,7 @@ function getGridColumns() {
           headerSummary: {
             numberFormat: '#,##0',
             expression: 'sum',
-          } },
+          } }, // 가전조직비례
         { fieldName: 'og2Fee',
           header: t('MSG_TXT_ELHM_EXCP_OG_PRPN'),
           width: '129',
@@ -1303,7 +1315,7 @@ function getGridColumns() {
           headerSummary: {
             numberFormat: '#,##0',
             expression: 'sum',
-          } },
+          } }, // 가전외조직비례
         { fieldName: 'og3Fee',
           header: t('MSG_TXT_OG_SELL_ENCRG'),
           width: '129',
@@ -1313,7 +1325,7 @@ function getGridColumns() {
           headerSummary: {
             numberFormat: '#,##0',
             expression: 'sum',
-          } },
+          } }, // 조직판매장려
         { fieldName: 'og4Fee',
           header: t('MSG_TXT_EDUC'),
           width: '129',
@@ -1323,7 +1335,7 @@ function getGridColumns() {
           headerSummary: {
             numberFormat: '#,##0',
             expression: 'sum',
-          } },
+          } }, // 교육
         { fieldName: 'og5Fee',
           header: t('MSG_TXT_NINC_MGT'),
           width: '129',
@@ -1333,7 +1345,7 @@ function getGridColumns() {
           headerSummary: {
             numberFormat: '#,##0',
             expression: 'sum',
-          } },
+          } }, // 순증관리
         { fieldName: 'og6Fee',
           header: `${t('MSG_TXT_OG_EJT')}1`,
           width: '129',
@@ -1343,7 +1355,7 @@ function getGridColumns() {
           headerSummary: {
             numberFormat: '#,##0',
             expression: 'sum',
-          } },
+          } }, // 조직배출1
         { fieldName: 'og7Fee',
           header: `${t('MSG_TXT_OG_EJT')}2`,
           width: '129',
@@ -1353,7 +1365,7 @@ function getGridColumns() {
           headerSummary: {
             numberFormat: '#,##0',
             expression: 'sum',
-          } },
+          } }, // 조직배출2
         { fieldName: 'og8Fee',
           header: t('MSG_TXT_NB_BRCH'),
           width: '129',
@@ -1363,7 +1375,7 @@ function getGridColumns() {
           headerSummary: {
             numberFormat: '#,##0',
             expression: 'sum',
-          } },
+          } }, // 신설지점
         { fieldName: 'etc1Atc',
           header: t('MSG_TXT_ADSB'),
           width: '129',
@@ -1373,7 +1385,7 @@ function getGridColumns() {
           headerSummary: {
             numberFormat: '#,##0',
             expression: 'sum',
-          } },
+          } }, // 재지급
         { fieldName: 'etc2Atc',
           header: t('MSG_TXT_MEMBERSHIP'),
           width: '129',
@@ -1383,7 +1395,7 @@ function getGridColumns() {
           headerSummary: {
             numberFormat: '#,##0',
             expression: 'sum',
-          } },
+          } }, // 멤버십
         { fieldName: 'etc3Atc',
           header: t('MSG_TXT_ETC_SPPT'),
           width: '129',
@@ -1393,7 +1405,7 @@ function getGridColumns() {
           headerSummary: {
             numberFormat: '#,##0',
             expression: 'sum',
-          } },
+          } }, // 기타지원
       );
     }
 
