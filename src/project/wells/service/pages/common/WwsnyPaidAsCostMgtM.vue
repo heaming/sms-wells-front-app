@@ -141,14 +141,6 @@
             :label="$t('MSG_TXT_CRTL_APY_MTR')"
             @update:model-value="onChangeFilterApyDt"
           />
-          <!-- 현재적용자료필터링 : 그리드필터링 -->
-          <!-- <kw-option-group
-            dense
-            :model-value="apyDtOptions"
-            type="checkbox"
-            :options="tempOptions.apyDt"
-            @change="onChangeFilterApyDt"
-          /> -->
         </li>
       </ul>
 
@@ -203,13 +195,6 @@ const codes = await codeUtil.getMultiCodes(
   'COD_PAGE_SIZE_OPTIONS',
   'PD_GRP_CD',
 );
-
-/* 현재적용자료 필터링 : 그리드 필터링 */
-// const tempOptions = {
-//   apyDt: [
-//     { codeId: '1', codeName: t('MSG_TXT_CRTL_APY_MTR') }, // 현재적용자료
-//   ],
-// };
 
 const pageInfo = ref({
   totalCount: 0,
@@ -284,43 +269,6 @@ async function fetchData() {
   view.getDataSource().setRows(recapitalizationAsSvCs);
   view.rowIndicator.indexOffset = gridUtil.getPageIndexOffset(pageInfo);
 }
-
-// const apyDtOptions = ref([]);
-// /*현재적용자료 필터링 : 그리드 필터링*/
-// const onChangeFilterApyDt = (val) => {
-//   console.log(val);
-//   const view = grdMainRef.value.getView();
-//   const currentDate = now.format('YYYYMMDD');
-//   console.log(currentDate);
-
-//   // 적용시작일 필터링
-//   const filter1 = [{
-//     name: 'apydtFilter1',
-//     criteria: `value <= "${currentDate}"`,
-//   }];
-//   // 적용종료일 필터링
-//   const filter2 = [{
-//     name: 'apydtFilter2',
-//     criteria: `value >= "${currentDate}"`,
-//   }];
-//   // 필터등록
-//   view.setColumnFilters('apyStrtdt', filter1);
-//   view.setColumnFilters('apyEnddt', filter2);
-
-//   if (val.includes('1')) {
-//     console.log('1111');
-//     // 적용시작일 필터초기화 & 필터링
-//     view.activateColumnFilters('apyStrtdt', false);
-//     view.activateColumnFilters('apyStrtdt', ['apydtFilter1'], true);
-//     // 적용종료일 필터초기화 & 필터링
-//     view.activateColumnFilters('apyEnddt', false);
-//     view.activateColumnFilters('apyEnddt', ['apydtFilter2'], true);
-//   } else {
-//     console.log('2222');
-//     view.activateColumnFilters('apyStrtdt', ['apydtFilter1'], false);
-//     view.activateColumnFilters('apyEnddt', ['apydtFilter2'], false);
-//   }
-// };
 
 /* 현재적용자재필터링 : 재조회 */
 async function onChangeFilterApyDt() {
