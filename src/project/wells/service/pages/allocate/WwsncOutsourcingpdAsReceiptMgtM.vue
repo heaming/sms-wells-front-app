@@ -245,7 +245,10 @@ async function onClickSave() {
 async function onClicBiztalkSend() {
   const view = grdMainRef.value.getView();
   const chkRows = gridUtil.getCheckedRowValues(view);
-
+  if (chkRows.length === 0) {
+    notify(t('MSG_ALT_NOT_SEL_ITEM')); // 데이터를 선택해주세요.
+    return;
+  }
   if (chkRows.length > 1) {
     notify(t('MSG_ALT_MDFC_SEL')); // 하나의 항목을 선택하십시오
     return;
