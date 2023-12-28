@@ -69,6 +69,7 @@
           v-permission:delete
           grid-action
           :label="$t('MSG_BTN_DEL')"
+          :disable="pageInfo.totalCount === 0"
           @click="onClickRemove"
         />
         <kw-separator
@@ -215,14 +216,14 @@ async function onClickAdd() {
 
 async function onClickRemove() {
   const view = grdMainRef.value.getView();
+  const asCount = view.getDataSource().getRowCount();
   if (!await gridUtil.confirmIfIsModified(view)) { return; }
-  const checkedRowCount = view.getCheckedRows().length;
   const deletedRows = await gridUtil.confirmDeleteCheckedRows(view);
-  pageInfo.value.totalCount -= checkedRowCount - deletedRows.length;
   if (deletedRows.length > 0) {
     await dataService.delete(baseUrl, { data: deletedRows });
     await fetchData();
   }
+  pageInfo.value.totalCount -= (asCount - view.getDataSource().getRowCount());
 }
 async function checkDuplicationByPk() {
   let isInvailVal = false;

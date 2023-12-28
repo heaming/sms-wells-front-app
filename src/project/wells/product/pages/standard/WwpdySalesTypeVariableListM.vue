@@ -170,15 +170,15 @@ async function onClickSearch() {
 // 행 삭제
 async function onClickRemoveRows() {
   const view = grdMainRef.value.getView();
+  const asCount = view.getDataSource().getRowCount();
   if (!await gridUtil.confirmIfIsModified(view)) { return; }
-  const checkedRowCount = view.getCheckedRows().length;
   const deletedRows = await gridUtil.confirmDeleteCheckedRows(view);
-  pageInfo.value.totalCount -= checkedRowCount - deletedRows.length;
   if (deletedRows.length) {
     await dataService.delete('/sms/wells/product/variables', { data: deletedRows });
     gridUtil.reset(view);
     await fetchData();
   }
+  pageInfo.value.totalCount -= (asCount - view.getDataSource().getRowCount());
 }
 
 // 행 추가
