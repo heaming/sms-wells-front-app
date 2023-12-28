@@ -57,6 +57,7 @@
       </li>
     </ul>
     <kw-search
+      ref="searchRef"
       :cols="3"
       :disable="isReadonly || cntrTpIs.quot"
       @search="onClickSearch"
@@ -445,7 +446,7 @@
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
-import { alert, stringUtil, useDataService, useGlobal } from 'kw-lib';
+import { alert, getComponentType, stringUtil, useDataService, useGlobal } from 'kw-lib';
 import { cloneDeep, isEmpty } from 'lodash-es';
 import { useCtCode } from '~sms-common/contract/composable';
 import { CCS_BASE_RLE_CDS, CNTR_TP_CD, COPN_DV_CD } from '~sms-wells/contract/constants/ctConst';
@@ -501,6 +502,7 @@ let rstlCntrNo;
 let rstlCntrSn;
 let step1;
 const ogStep1 = ref({});
+const searchRef = ref(getComponentType('KwSearch'));
 
 function connectReactivity() {
   cntrNo = toRef(props.contract, 'cntrNo');
@@ -570,13 +572,14 @@ function setupSearchParams(newParams) {
   searchParams.value.copnDvCd = newParams?.copnDvCd || '1';
   searchParams.value.cstKnm = newParams?.cstKnm || '';
   searchParams.value.bzrno = newParams?.bzrno || '';
-  searchParams.value.cntrtTno = newParams.cntrtTno || '';
-  searchParams.value.cralLocaraTno = newParams.cralLocaraTno || '';
-  searchParams.value.mexnoEncr = newParams.mexnoEncr || '';
-  searchParams.value.cralIdvTno = newParams.cralIdvTno || '';
-  searchParams.value.alncPrtnrDvCd = newParams.alncPrtnrDvCd || '';
-  searchParams.value.alncPrtnrNo = newParams.alncPrtnrNo || '';
-  searchParams.value.alncPrtnrNm = newParams.alncPrtnrNm || '';
+  searchParams.value.cntrtTno = newParams?.cntrtTno || '';
+  searchParams.value.cralLocaraTno = newParams?.cralLocaraTno || '';
+  searchParams.value.mexnoEncr = newParams?.mexnoEncr || '';
+  searchParams.value.cralIdvTno = newParams?.cralIdvTno || '';
+  searchParams.value.alncPrtnrDvCd = newParams?.alncPrtnrDvCd || '';
+  searchParams.value.alncPrtnrNo = newParams?.alncPrtnrNo || '';
+  searchParams.value.alncPrtnrNm = newParams?.alncPrtnrNm || '';
+  searchRef.value?.resetValidation();
 }
 
 const cntrTpIs = ref({
@@ -952,12 +955,8 @@ async function onChangeAlncPrtnrComp(value) {
 }
 
 async function onClickReset() {
-  ['cstKnm', 'bzrno', 'cntrtTno', 'cralLocaraTno', 'mexnoEncr', 'cralIdvTno',
-    'alncPrtnrDvCd', 'alncPrtnrNo', 'alncPrtnrNm', 'alncPrtnrComp'].forEach((key) => {
-    searchParams.value[key] = '';
-  });
-  searchParams.value.copnDvCd = '1';
-  step1.value = {};
+  setupSearchParams();
+  clearSelected();
 }
 
 async function isPartnerStpa() {
@@ -1141,34 +1140,34 @@ async function initStep(forced = false) {
 
   if (cntrNo.value) {
     await getCntrInfo();
-    loaded.value = true;
-    return;
-  }
-
-  setupNewContract();
-
-  const { pspcCstId, cntrCstNo, cntrTpCd } = props;
-
-  if (pspcCstId) {
-    await fetchProspectContract();
   } else {
-    getCounts();
-  }
+    setupNewContract();
 
-  if (cntrCstNo) {
-    await fetchCntrtByCstNo(cntrCstNo);
-    await selectPartner();
-  }
+    const { pspcCstId, cntrCstNo, cntrTpCd } = props;
 
-  if (cntrTpCd) {
-    setupCntrTpCd(cntrTpCd);
+    if (pspcCstId) {
+      await fetchProspectContract();
+    } else {
+      getCounts();
+    }
+
+    if (cntrCstNo) {
+      await fetchCntrtByCstNo(cntrCstNo);
+      await selectPartner();
+    }
+
+    if (cntrTpCd) {
+      setupCntrTpCd(cntrTpCd);
+    }
   }
+  loaded.value = true;
 }
 
 exposed.isChangedStep = isChangedStep;
 exposed.isValidStep = isValidStep;
 exposed.initStep = initStep;
 exposed.saveStep = saveStep;
+exposed.setupSearchParams = setupSearchParams;
 
 onActivated(() => {
   initStep(true);

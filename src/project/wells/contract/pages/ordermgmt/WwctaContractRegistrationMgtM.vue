@@ -72,7 +72,7 @@
       >
         <div class="button-set--bottom-left">
           <kw-btn
-            v-if="currentStepIndex > 0 && !contract.step4?.isRestipulation"
+            v-if="currentStepIndex > 0"
             :label="$t('MSG_BTN_PREV')"
             @click="onClickPrevious"
           />
@@ -277,6 +277,8 @@ const isCnfmPds = ref(false); // step2 상품확정여부
 // -------------------------------------------------------------------------------------------------
 // Function & Event
 // -------------------------------------------------------------------------------------------------
+// const isRestipulation = computed(() => !!contract.value.rstlCntrNo);
+
 function showStep(step) {
   [0, 1, 2].forEach((n) => {
     if (n < step - 1) {
@@ -318,6 +320,17 @@ async function onClickPrevious() {
     if (contract.value[currentStepName.value]) {
       contract.value[currentStepName.value] = {};
     }
+  }
+
+  if (summary.value?.cntrBas?.cntrTpCd === CNTR_TP_CD.RE_STIPULATION) {
+    steps[0].done.value = false;
+    steps[1].done.value = false;
+    steps[2].done.value = false;
+    setupContract();
+    currentStepName.value = 'step1';
+    await nextTick();
+    await currentStepRef.value?.setupSearchParams?.();
+    return;
   }
 
   currentStepName.value = prevStep.value.name;
