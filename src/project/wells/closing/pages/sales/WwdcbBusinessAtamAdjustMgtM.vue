@@ -119,7 +119,7 @@
         />
         <kw-btn
           v-permission:create
-          :disable="cachedParams.searchGubun==='2'"
+          :disable="cachedSearchGubun==='2'"
           primary
           dense
           :label="$t('MSG_BTN_SLIP_CRT')"
@@ -204,7 +204,9 @@ const pageInfo = ref({
   pageSize: Number(getConfig('CFG_CMZ_DEFAULT_PAGE_SIZE')),
 });
 
-const cachedParams = ref({});
+const cachedSearchGubun = ref(searchParams.value.searchGubun);
+
+let cachedParams;
 // 조회
 async function fetchData() {
   const { searchGubun } = searchParams.value;
@@ -213,17 +215,18 @@ async function fetchData() {
   } else if (searchGubun === '2') { // 상세
     isShowGrd.value = false;
   }
-  cachedParams.value = {
+  cachedParams = {
     ...searchParams.value,
     ...pageInfo.value,
   };
+  cachedSearchGubun.value = searchParams.value.searchGubun;
 
   let res;
   console.log('searchGubun:', searchGubun);
   if (searchGubun === '1') { // 집계
-    res = await dataService.get('/sms/wells/closing/business-atam-adjusts/total/paging', { params: cachedParams.value });
+    res = await dataService.get('/sms/wells/closing/business-atam-adjusts/total/paging', { params: cachedParams });
   } else if (searchGubun === '2') { // 상세
-    res = await dataService.get('/sms/wells/closing/business-atam-adjusts/detail/paging', { params: cachedParams.value, timeout: 180000 });
+    res = await dataService.get('/sms/wells/closing/business-atam-adjusts/detail/paging', { params: cachedParams, timeout: 180000 });
   }
 
   const { list: mainList, pageInfo: pagingResult } = res.data;
@@ -253,7 +256,7 @@ async function onClickExportView() {
     view = grdDetailRef.value.getView();
   }
 
-  const { searchGubun } = cachedParams.value;
+  const { searchGubun } = cachedParams;
 
   let url;
   if (searchGubun === '1') { // 집계
