@@ -408,21 +408,51 @@ const initGridDetail = defineGrid((data, view) => {
       header: t('MSG_TXT_PD_DC_CLASS'),
       width: '98',
       styleName: 'text-center',
+      styleCallback(grid, dataCell) {
+        const { sellTpCd } = gridUtil.getRowValue(grid, dataCell.index.dataRow);
+        const ret = {};
+        if (sellTpCd === '1') {
+          ret.editor = {
+            type: 'list',
+            textReadOnly: true,
+            values: codes.SPAY_DSC_DV_CD.map((v) => v.codeId),
+            labels: codes.SPAY_DSC_DV_CD.map((v) => `[${v.codeId}] ${v.codeName}`),
+          };
+        } else if (sellTpCd === '2') {
+          ret.editor = {
+            type: 'list',
+            textReadOnly: true,
+            values: codes.RENTAL_DSC_DV_CD.map((v) => v.codeId),
+            labels: codes.RENTAL_DSC_DV_CD.map((v) => `[${v.codeId}] ${v.codeName}`),
+          };
+        } else if (['3', '4'].includes(sellTpCd)) {
+          ret.editor = {
+            type: 'list',
+            textReadOnly: true,
+            values: codes.MSH_DSC_DV_CD.map((v) => v.codeId),
+            labels: codes.MSH_DSC_DV_CD.map((v) => `[${v.codeId}] ${v.codeName}`),
+          };
+        } else {
+          ret.editor = {
+            type: 'text',
+            maxLength: '1',
+            textCase: 'upper',
+          };
+        }
+        return ret;
+      },
       displayCallback(grid, index, value) {
         let retValue = value;
         const { sellTpCd } = grid.getValues(index.itemIndex);
         if (sellTpCd === '1') {
-          if (codes.SPAY_DSC_DV_CD.map((v) => v.codeId).includes(value)) {
-            retValue = codes.SPAY_DSC_DV_CD.find((v) => v.codeId === value)?.codeName;
-          }
+          const v = codes.SPAY_DSC_DV_CD.find((r) => r.codeId === value);
+          retValue = v ? `[${v.codeId}] ${v.codeName}` : retValue;
         } else if (sellTpCd === '2') {
-          if (codes.RENTAL_DSC_DV_CD.map((v) => v.codeId).includes(value)) {
-            retValue = codes.RENTAL_DSC_DV_CD.find((v) => v.codeId === value)?.codeName;
-          }
+          const v = codes.RENTAL_DSC_DV_CD.find((r) => r.codeId === value);
+          retValue = v ? `[${v.codeId}] ${v.codeName}` : retValue;
         } else if (['3', '4'].includes(sellTpCd)) {
-          if (codes.MSH_DSC_DV_CD.map((v) => v.codeId).includes(value)) {
-            retValue = codes.MSH_DSC_DV_CD.find((v) => v.codeId === value)?.codeName;
-          }
+          const v = codes.MSH_DSC_DV_CD.find((r) => r.codeId === value);
+          retValue = v ? `[${v.codeId}] ${v.codeName}` : retValue;
         }
         return retValue;
       },
@@ -432,31 +462,64 @@ const initGridDetail = defineGrid((data, view) => {
       header: t('MSG_TXT_DISC_CODE'),
       width: '98',
       styleName: 'text-center',
+      styleCallback(grid, dataCell) {
+        const { sellTpCd, sellDscDvCd } = gridUtil.getRowValue(grid, dataCell.index.dataRow);
+        const ret = {};
+        if (sellTpCd === '2' && sellDscDvCd === '5') {
+          ret.editor = {
+            type: 'list',
+            textReadOnly: true,
+            values: codes.RENTAL_CRP_DSCR_CD.map((v) => v.codeId),
+            labels: codes.RENTAL_CRP_DSCR_CD.map((v) => `[${v.codeId}] ${v.codeName}`),
+          };
+        } else if (sellTpCd === '2' && sellDscDvCd === '7') {
+          ret.editor = {
+            type: 'list',
+            textReadOnly: true,
+            values: codes.RENTAL_MCHD_DSC_APY_DTL_CD.map((v) => v.codeId),
+            labels: codes.RENTAL_MCHD_DSC_APY_DTL_CD.map((v) => `[${v.codeId}] ${v.codeName}`),
+          };
+        } else if (sellTpCd === '2' && ['1', '3', '8'].includes(sellDscDvCd)) {
+          ret.editor = {
+            type: 'list',
+            textReadOnly: true,
+            values: codes.RENTAL_CRP_DSC_APY_DTL_CD.map((v) => v.codeId),
+            labels: codes.RENTAL_CRP_DSC_APY_DTL_CD.map((v) => `[${v.codeId}] ${v.codeName}`),
+          };
+        } else if (sellTpCd === '4' && sellDscDvCd === '4') {
+          ret.editor = {
+            type: 'list',
+            textReadOnly: true,
+            values: codes.MSH_PRC_BASE_DSC_TP_ACD.map((v) => v.codeId),
+            labels: codes.MSH_PRC_BASE_DSC_TP_ACD.map((v) => `[${v.codeId}] ${v.codeName}`),
+          };
+        } else {
+          ret.editor = {
+            type: 'text',
+            maxLength: '2',
+            textCase: 'upper',
+          };
+        }
+        return ret;
+      },
       displayCallback(grid, index, value) {
         let retValue = value;
-        // if (codes.SELL_DSCR_CD.map((v) => v.codeId).includes(value)) {
-        //   retValue = codes.SELL_DSCR_CD.find((v) => v.codeId === value)?.codeName;
-        // }
         const { sellTpCd, sellDscDvCd } = grid.getValues(index.itemIndex);
         if (sellTpCd === '2' && sellDscDvCd === '5') {
-          if (codes.RENTAL_CRP_DSCR_CD.map((v) => v.codeId).includes(value)) {
-            retValue = codes.RENTAL_CRP_DSCR_CD.find((v) => v.codeId === value)?.codeName;
-          }
+          const v = codes.RENTAL_CRP_DSCR_CD.find((r) => r.codeId === value);
+          retValue = v ? `[${v.codeId}] ${v.codeName}` : retValue;
         }
         if (sellTpCd === '2' && sellDscDvCd === '7') {
-          if (codes.RENTAL_MCHD_DSC_APY_DTL_CD.map((v) => v.codeId).includes(value)) {
-            retValue = codes.RENTAL_MCHD_DSC_APY_DTL_CD.find((v) => v.codeId === value)?.codeName;
-          }
+          const v = codes.RENTAL_MCHD_DSC_APY_DTL_CD.find((r) => r.codeId === value);
+          retValue = v ? `[${v.codeId}] ${v.codeName}` : retValue;
         }
-        if (sellTpCd === '2' && ['1', '8'].includes(sellDscDvCd)) {
-          if (codes.RENTAL_CRP_DSC_APY_DTL_CD.map((v) => v.codeId).includes(value)) {
-            retValue = codes.RENTAL_CRP_DSC_APY_DTL_CD.find((v) => v.codeId === value)?.codeName;
-          }
+        if (sellTpCd === '2' && ['1', '3', '8'].includes(sellDscDvCd)) {
+          const v = codes.RENTAL_CRP_DSC_APY_DTL_CD.find((r) => r.codeId === value);
+          retValue = v ? `[${v.codeId}] ${v.codeName}` : retValue;
         }
         if (sellTpCd === '4' && sellDscDvCd === '4') {
-          if (codes.MSH_PRC_BASE_DSC_TP_ACD.map((v) => v.codeId).includes(value)) {
-            retValue = codes.MSH_PRC_BASE_DSC_TP_ACD.find((v) => v.codeId === value)?.codeName;
-          }
+          const v = codes.MSH_PRC_BASE_DSC_TP_ACD.find((r) => r.codeId === value);
+          retValue = v ? `[${v.codeId}] ${v.codeName}` : retValue;
         }
         return retValue;
       },
@@ -466,11 +529,20 @@ const initGridDetail = defineGrid((data, view) => {
       header: t('MSG_TXT_DSC_SYST'),
       width: '98',
       styleName: 'text-center',
+      styleCallback() {
+        const ret = {};
+        ret.editor = {
+          type: 'list',
+          textReadOnly: true,
+          values: codes.SELL_DSC_TP_CD.map((v) => v.codeId),
+          labels: codes.SELL_DSC_TP_CD.map((v) => `[${v.codeId}] ${v.codeName}`),
+        };
+        return ret;
+      },
       displayCallback(grid, index, value) {
         let retValue = value;
-        if (codes.SELL_DSC_TP_CD.map((v) => v.codeId).includes(value)) {
-          retValue = codes.SELL_DSC_TP_CD.find((v) => v.codeId === value)?.codeName;
-        }
+        const v = codes.SELL_DSC_TP_CD.find((r) => r.codeId === value);
+        retValue = v ? `[${v.codeId}] ${v.codeName}` : retValue;
         return retValue;
       },
     }, // 할인제도
@@ -479,11 +551,20 @@ const initGridDetail = defineGrid((data, view) => {
       header: t('MSG_TXT_COMBI_DV'),
       width: '98',
       styleName: 'text-center',
+      styleCallback() {
+        const ret = {};
+        ret.editor = {
+          type: 'list',
+          textReadOnly: true,
+          values: codes.RENTAL_COMBI_DV_CD.map((v) => v.codeId),
+          labels: codes.RENTAL_COMBI_DV_CD.map((v) => `[${v.codeId}] ${v.codeName}`),
+        };
+        return ret;
+      },
       displayCallback(grid, index, value) {
         let retValue = value;
-        if (codes.RENTAL_COMBI_DV_CD.map((v) => v.codeId).includes(value)) {
-          retValue = codes.RENTAL_COMBI_DV_CD.find((v) => v.codeId === value)?.codeName;
-        }
+        const v = codes.RENTAL_COMBI_DV_CD.find((r) => r.codeId === value);
+        retValue = v ? `[${v.codeId}] ${v.codeName}` : retValue;
         return retValue;
       },
     }, // 결합구분
@@ -492,11 +573,20 @@ const initGridDetail = defineGrid((data, view) => {
       header: t('MSG_TXT_USWY_DV'),
       width: '98',
       styleName: 'text-center',
+      styleCallback() {
+        const ret = {};
+        ret.editor = {
+          type: 'list',
+          textReadOnly: true,
+          values: codes.SV_TP_CD.map((v) => v.codeId),
+          labels: codes.SV_TP_CD.map((v) => `[${v.codeId}] ${v.codeName}`),
+        };
+        return ret;
+      },
       displayCallback(grid, index, value) {
         let retValue = value;
-        if (codes.SV_TP_CD.map((v) => v.codeId).includes(value)) {
-          retValue = codes.SV_TP_CD.find((v) => v.codeId === value)?.codeName;
-        }
+        const v = codes.SV_TP_CD.find((r) => r.codeId === value);
+        retValue = v ? `[${v.codeId}] ${v.codeName}` : retValue;
         return retValue;
       },
     }, // 용도구분
