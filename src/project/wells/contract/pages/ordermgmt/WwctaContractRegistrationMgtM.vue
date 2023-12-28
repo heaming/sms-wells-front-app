@@ -377,7 +377,13 @@ async function onClickNext() {
   if (!nextStep.value) {
     // step4에서 '다음'은 계약 현황 목록으로 화면 이동
     await router.close(0, true);
-    await router.push({ path: '/contract/wwcta-contract-status-list' });
+    await router.push({
+      path: '/contract/wwcta-contract-status-list',
+      query: {
+        srchDv: 'NO',
+        srchCntrNo: summary.value?.cntrBas.cntrNo,
+      },
+    });
     return;
   }
   if (summary.value?.cntrBas?.cntrTpCd === CNTR_TP_CD.RE_STIPULATION) {
