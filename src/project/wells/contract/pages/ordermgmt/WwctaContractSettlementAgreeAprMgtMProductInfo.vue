@@ -33,7 +33,7 @@
         v-if="product.sellTpCd === '1'"
         :label="'최종결제금액'"
       >
-        <p>{{ `${stringUtil.getNumberWithComma(product.cntrTam || 0)}원` }}</p>
+        <p>{{ `${getNumberWithComma(product.cntrTam || 0)}원` }}</p>
       </kw-form-item>
       <kw-form-item label="계약상세번호">
         <p>{{ `${product.cntrNo}${product.cntrSn ? '-' + product.cntrSn : ''}` }}</p>
@@ -70,9 +70,9 @@
 </template>
 
 <script setup>
-import { stringUtil } from 'kw-lib';
 import WwctaContractSettlementAgreeItem
   from '~sms-wells/contract/components/ordermgmt/WwctaContractSettlementAgreeItem.vue';
+import { getNumberWithComma } from '~sms-common/contract/util';
 
 /* eslint-disable-next-line */
 const props = defineProps({
@@ -110,26 +110,27 @@ const productInfos = computed(() => {
     stplPtrm,
     cntrPtrm,
     fnlAmt,
-    sellAmt,
+    pdBaseAmt,
+    sellDscCtrAmt,
     dscAmt,
     cntrAmt,
     svPrd,
   } = props.product;
 
   if (sellTpCd === '1') { /* 일시불 */
-    infos.push({ label: labelForFnlAmt.value, value: `${stringUtil.getNumberWithComma(fnlAmt || 0)}원` });
-    infos.push({ label: '정상가', value: `${stringUtil.getNumberWithComma(sellAmt || 0)}원` });
-    infos.push({ label: '할인가', value: `${stringUtil.getNumberWithComma(dscAmt || 0)}원` });
+    infos.push({ label: labelForFnlAmt.value, value: `${getNumberWithComma(fnlAmt || 0)}원` });
+    infos.push({ label: '정상가', value: `${getNumberWithComma(pdBaseAmt || 0)}원` });
+    infos.push({ label: '할인가', value: `${getNumberWithComma((dscAmt || 0) + (sellDscCtrAmt || 0))}원` });
     if (cntrPtrm && Number(cntrPtrm) > 0) {
-      infos.push({ label: '유상멤버십', value: `${stringUtil.getNumberWithComma(cntrPtrm || 0)}개월` });
+      infos.push({ label: '유상멤버십', value: `${getNumberWithComma(cntrPtrm || 0)}개월` });
     }
   }
   if (sellTpCd === '2') { /* 렌탈 */
     if (stplPtrm) {
       infos.push({ label: '의무기간', value: `${stplPtrm}개월` });
     }
-    infos.push({ label: labelForFnlAmt.value, value: `${stringUtil.getNumberWithComma(fnlAmt || 0)}원` });
-    infos.push({ label: '등록비', value: `${stringUtil.getNumberWithComma(cntrAmt || 0)}원` });
+    infos.push({ label: labelForFnlAmt.value, value: `${getNumberWithComma(fnlAmt || 0)}원` });
+    infos.push({ label: '등록비', value: `${getNumberWithComma(cntrAmt || 0)}원` });
     if (svPrd) {
       infos.push({ label: '방문주기', value: `${svPrd}개월` });
     }
@@ -139,10 +140,10 @@ const productInfos = computed(() => {
     if (svPrd) {
       infos.push({ label: '방문주기', value: `${svPrd}개월` });
     }
-    infos.push({ label: labelForFnlAmt.value, value: `${stringUtil.getNumberWithComma(fnlAmt || 0)}원` });
+    infos.push({ label: labelForFnlAmt.value, value: `${getNumberWithComma(fnlAmt || 0)}원` });
   }
   if (sellTpCd === '6') { /* 정기배송 */
-    infos.push({ label: labelForFnlAmt.value, value: `${stringUtil.getNumberWithComma(fnlAmt || 0)}원` });
+    infos.push({ label: labelForFnlAmt.value, value: `${getNumberWithComma(fnlAmt || 0)}원` });
     if (svPrd) {
       infos.push({ label: '방문주기', value: `${svPrd}개월` });
     }
