@@ -63,6 +63,8 @@
                      { codeId: '7', codeName: t('MSG_TXT_DT_OF_SALE') },
                      { codeId: '8', codeName: t('MSG_TXT_CAN_D') }]"
           class="w150"
+          first-option="select"
+          first-option-value=""
         />
         <kw-date-range-picker
           v-model:from="searchParams.choStrtDt"
@@ -279,7 +281,7 @@
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
 import { codeUtil, defineGrid, getComponentType, useDataService, gridUtil, useGlobal, useMeta } from 'kw-lib';
-import { cloneDeep } from 'lodash-es';
+import { cloneDeep, isEmpty } from 'lodash-es';
 import pdConst from '~sms-common/product/constants/pdConst';
 import dayjs from 'dayjs';
 
@@ -314,6 +316,8 @@ const searchParams = ref({
   sellPrtnrNo: '', // 파트너코드
   cntrRcpFshDtYn: '', // 미가입자만보기
 });
+
+// const dateSeltDvYN = ref(false);
 
 const codes = await codeUtil.getMultiCodes(
   'COD_PAGE_SIZE_OPTIONS',
@@ -423,6 +427,20 @@ async function onUpdateHighClasses(selectedValues) {
 }
 
 async function onClickSearch() {
+  if (isEmpty(searchParams.value.dateSeltDv)) { // 일자선택 항목 미선택시
+    if (!isEmpty(searchParams.value.choStrtDt) || !isEmpty(searchParams.value.choEndDt)) { // 기간이 존재하면
+      alert('일자선택 항목 미선택 시, 기간은 비어있어야합니다.');
+      return;
+    }
+  }
+
+  if (!isEmpty(searchParams.value.dateSeltDv)) { // 일자선택에 항목 선택시
+    if (isEmpty(searchParams.value.choStrtDt) || isEmpty(searchParams.value.choEndDt)) { // 기간이 비어있으면
+      alert('일자선택 항목 선택 시, 기간은 필수 사항입니다');
+      return;
+    }
+  }
+
   // 선택한 상품분류 코드에 해당하는 참조상품분류값 세팅
   const highClasses = ref();
   highClasses.value = codesHighClasses.value
@@ -509,6 +527,14 @@ async function onClickSelectCntrNo() {
 }
 
 onMounted(async () => {
+});
+
+watch(() => searchParams.value.dateSeltDv, async (dateSeltDv) => {
+  // console.log('watch', dateSeltDv);
+  if (isEmpty(dateSeltDv)) {
+    searchParams.value.choStrtDt = '';
+    searchParams.value.choEndDt = '';
+  }
 });
 
 // -------------------------------------------------------------------------------------------------
