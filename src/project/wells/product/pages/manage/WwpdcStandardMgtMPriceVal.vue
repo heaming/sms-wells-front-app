@@ -397,6 +397,9 @@ async function onClickCheckVisible() {
         column.visible = true;
       } else {
         column.visible = false;
+        gridUtil.getAllRowValues(view).forEach((item) => {
+          view.setValue(item.dataRow, field.codeId, null);
+        });
       }
     }
   });
