@@ -469,11 +469,6 @@
           name="2"
           :label="$t('MSG_BTN_DLQ_INF')"
         />
-        <!-- <kw-tab
-          v-if="isVisibleTab"
-          name="2"
-          :label="$t('MSG_BTN_DLQ_INF')"
-        /> -->
         <!-- 컨택현황 -->
         <kw-tab
           name="3"
@@ -525,10 +520,6 @@
         <kw-tab-panel
           name="2"
         >
-          <!-- <kw-tab-panel
-        v-if="isVisibleTab"
-          name="2"
-        > -->
           <kw-action-top class="mt30">
             <template #left>
               <kw-paging-info :total-count="countInfo.delinquentCount" />
@@ -603,10 +594,8 @@ const grdIndividualStateRef = ref(getComponentType('KwGrid')); // 처리내역 �
 const grdIndividualCounselRef = ref(getComponentType('KwGrid')); // 상담내역 조회
 const grdIndividualDelinquentRef = ref(getComponentType('KwGrid')); // 연체정보 조회
 const individualParams = ref([]);
-// const isVisibleTab = computed(() => departmentId === '71301' || departmentId === '70526');
 const svHshdNum = ref('');
 const selectedTab = ref('1');
-// const cntrDtlNo = ref();
 const countInfo = ref({
   householdTotalCount: 0,
   contactTotalCount: 0,
@@ -643,14 +632,6 @@ const saveParams = ref({
   cstUnuitmCn: '',
 });
 const isDisableButton = computed(() => isEmpty(searchParams.value.cntrNo) || isEmpty(searchParams.value.cntrSn));
-
-// function isDisable() {
-//   // if (departmentId === '70526' || departmentId === '70254' || departmentId === '71301') {
-//   //   return false;
-//   // }
-//   // return true;
-//   return false;
-// }
 
 /* 개인별 서비스현황 조회 */
 async function getIndividualServicePs() {
@@ -731,8 +712,6 @@ async function getIndividualDelinquent() {
   const individualDelinquent = ref([
     { gubun: t('MSG_TXT_LSTMM'), suminamt: individualDelinquentData.psuminamt, dlyamt: individualDelinquentData.pdlyamt },
     { gubun: t('MSG_TXT_THM'), suminamt: individualDelinquentData.csuminamt, dlyamt: individualDelinquentData.cdlyamt },
-    // { gubun: t('MSG_TXT_TOT_SUM'), suminamt: individualDelinquentData.tsuminamt,
-    // dlyamt: individualDelinquentData.tdlyamt },
   ]);
 
   const individualDelinquentView = grdIndividualDelinquentRef.value.getView();
