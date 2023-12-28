@@ -20,106 +20,102 @@
       <h3 class="mt0">
         계약자정보-{{ getCodeName('CNTR_TP_CD', step4.bas?.cntrTpCd) }}
       </h3>
-
       <kw-form
+        v-if="step4.cntrt?.copnDvCd === COPN_DV_CD.INDIVIDUAL"
         :cols="2"
         dense
         class="mt20"
       >
-        <template
-          v-if="cntrTpIs.indv || cntrTpIs.ensm || (cntrTpIs.msh && step4.bas.copnDvCd === '1')"
-        >
-          <kw-form-row>
-            <kw-form-item
-              :label="$t('MSG_TXT_CNTRT')"
-            >
-              <p>
-                {{
-                  `${step4.cntrt.cstKnm || ''} / ${
-                    stringUtil.getDateFormat(step4.cntrt.bryyMmdd)} / ${
-                    getCodeName('SEX_DV_CD', step4.cntrt.sexDvCd) || ''}`
-                }}
-              </p>
-            </kw-form-item>
-            <kw-form-item
-              :label="$t('MSG_TXT_CST_NO')"
-            >
-              <p>
-                {{ step4.cntrt.cstNo }}
-              </p>
-            </kw-form-item>
-          </kw-form-row>
-          <kw-form-row>
-            <kw-form-item
-              :label="$t('MSG_TXT_MPNO')"
-            >
-              <p>
-                {{ step4.cntrt.cralLocaraTno }}-{{
-                  step4.cntrt.mexnoEncr
-                }}-{{ step4.cntrt.cralIdvTno }}
-              </p>
-            </kw-form-item>
-            <kw-form-item
-              :label="$t('MSG_TXT_ADDR')"
-            >
-              <p>
-                {{ step4.cntrt.zip }}<br>
-                {{ step4.cntrt.adr }} {{ step4.cntrt.adrDtl }}
-              </p>
-            </kw-form-item>
-          </kw-form-row>
-        </template>
-        <template
-          v-else-if="cntrTpIs.crp || (cntrTpIs.msh && step4.bas.copnDvCd === '2')"
-        >
-          <kw-form-row>
-            <kw-form-item
-              :label="$t('MSG_TXT_CNTRT')"
-            >
-              <p>{{ step4.cntrt.cstKnm }}</p>
-            </kw-form-item>
-            <kw-form-item
-              :label="$t('MSG_TXT_CRNO')"
-            >
-              <p>{{ step4.cntrt.bzrno }}</p>
-            </kw-form-item>
-          </kw-form-row>
-          <kw-form-row>
-            <kw-form-item
-              :label="$t('MSG_TXT_CST_NO')"
-            >
-              <p>{{ step4.cntrt.cstNo }}</p>
-            </kw-form-item>
-          </kw-form-row>
-          <kw-form-row>
-            <kw-form-item
-              :label="$t('MSG_TXT_MPNO')"
-            >
-              <p>
-                {{ step4.cntrt.cralLocaraTno }}-{{
-                  step4.cntrt.mexnoEncr
-                }}-{{ step4.cntrt.cralIdvTno }}
-              </p>
-            </kw-form-item>
-            <kw-form-item
-              :label="$t('MSG_TXT_TEL_NO')"
-            >
-              <p>
-                {{ step4.cntrt.locaraTno }}-{{ step4.cntrt.exnoEncr }}-{{ step4.cntrt.idvTno }}
-              </p>
-            </kw-form-item>
-          </kw-form-row>
-          <kw-form-row>
-            <kw-form-item
-              :label="$t('MSG_TXT_ADDR')"
-            >
-              <p>
-                {{ step4.cntrt.zip }}<br>
-                {{ step4.cntrt.adr }} {{ step4.cntrt.adrDtl }}
-              </p>
-            </kw-form-item>
-          </kw-form-row>
-        </template>
+        <kw-form-row>
+          <kw-form-item
+            :label="$t('MSG_TXT_CNTRT')"
+          >
+            <p>
+              {{
+                `${step4.cntrt.cstKnm || ''} / ${
+                  stringUtil.getDateFormat(step4.cntrt.bryyMmdd)} / ${
+                  getCodeName('SEX_DV_CD', step4.cntrt.sexDvCd) || ''}`
+              }}
+            </p>
+          </kw-form-item>
+          <kw-form-item
+            :label="$t('MSG_TXT_CST_NO')"
+          >
+            <p>
+              {{ step4.cntrt.cstNo }}
+            </p>
+          </kw-form-item>
+        </kw-form-row>
+        <kw-form-row>
+          <kw-form-item
+            :label="$t('MSG_TXT_MPNO')"
+          >
+            <p>
+              {{ step4.cntrt.cralLocaraTno }}-{{
+                step4.cntrt.mexnoEncr
+              }}-{{ step4.cntrt.cralIdvTno }}
+            </p>
+          </kw-form-item>
+          <kw-form-item
+            :label="$t('MSG_TXT_ADDR')"
+          >
+            <p>
+              {{ step4.cntrt.zip }}<br>
+              {{ step4.cntrt.adr }} {{ step4.cntrt.adrDtl }}
+            </p>
+          </kw-form-item>
+        </kw-form-row>
+      </kw-form>
+      <kw-form
+        v-else-if="step4.cntrt?.copnDvCd === COPN_DV_CD.COOPERATION"
+      >
+        <kw-form-row>
+          <kw-form-item
+            :label="$t('MSG_TXT_CNTRT')"
+          >
+            <p>{{ step4.cntrt.cstKnm }}</p>
+          </kw-form-item>
+          <kw-form-item
+            :label="$t('MSG_TXT_CRNO')"
+          >
+            <p>{{ step4.cntrt.bzrno }}</p>
+          </kw-form-item>
+        </kw-form-row>
+        <kw-form-row>
+          <kw-form-item
+            :label="$t('MSG_TXT_CST_NO')"
+          >
+            <p>{{ step4.cntrt.cstNo }}</p>
+          </kw-form-item>
+        </kw-form-row>
+        <kw-form-row>
+          <kw-form-item
+            :label="$t('MSG_TXT_MPNO')"
+          >
+            <p>
+              {{ step4.cntrt.cralLocaraTno }}-{{
+                step4.cntrt.mexnoEncr
+              }}-{{ step4.cntrt.cralIdvTno }}
+            </p>
+          </kw-form-item>
+          <kw-form-item
+            :label="$t('MSG_TXT_TEL_NO')"
+          >
+            <p>
+              {{ step4.cntrt.locaraTno }}-{{ step4.cntrt.exnoEncr }}-{{ step4.cntrt.idvTno }}
+            </p>
+          </kw-form-item>
+        </kw-form-row>
+        <kw-form-row>
+          <kw-form-item
+            :label="$t('MSG_TXT_ADDR')"
+          >
+            <p>
+              {{ step4.cntrt.zip }}<br>
+              {{ step4.cntrt.adr }} {{ step4.cntrt.adrDtl }}
+            </p>
+          </kw-form-item>
+        </kw-form-row>
       </kw-form>
 
       <kw-separator />
@@ -631,6 +627,7 @@ const dataService = useDataService();
 const { notify, alert } = useGlobal();
 const { getters } = useStore();
 const { codes, getCodeName } = await useCtCode(
+  'CNTR_TP_CD',
   'SEX_DV_CD',
   'CST_STLM_IN_MTH_CD',
   'IST_PLC_TP_CD',
@@ -678,14 +675,6 @@ const countGrdStlm = ref(1);
 
 const dtlSn = ref(1);
 const now = dayjs();
-const cntrTpIs = ref({
-  indv: computed(() => step4.value.bas?.cntrTpCd === '01'), // 개인
-  crp: computed(() => step4.value.bas?.cntrTpCd === '02'), // 법인
-  ensm: computed(() => step4.value.bas?.cntrTpCd === '03'), // 임직원
-  msh: computed(() => step4.value.bas?.cntrTpCd === '07'), // 멤버십
-  rstl: computed(() => step4.value.bas?.cntrTpCd === '08'), // 재약정
-  quot: computed(() => step4.value.bas?.cntrTpCd === '09'), // 견적서
-});
 const isReadonly = computed(() => step4.value.bas?.cntrPrgsStatCd > 20);
 const fileParams = ref({
   dcevdnDocs: [],

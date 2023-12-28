@@ -4,7 +4,7 @@
   >
     <div class="px40">
       <h2 class="pt5 row items-center">
-        <span>{{ cntrNo }}</span>
+        <span>{{ cntrNo || summary?.cntrBas?.cntrNo }}</span>
         <kw-chip
           label="임시저장"
           color="placeholder"
