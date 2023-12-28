@@ -197,6 +197,9 @@ const pdInfo = ref({});
 const pdRels = ref([]);
 // 가격 정보
 const pdPrcs = ref([]);
+// 판매유형
+const sellTpCd = ref();
+
 const codes = await codeUtil.getMultiCodes(
   'SELL_TP_CD',
   'SELL_TP_DTL_CD',
@@ -204,6 +207,8 @@ const codes = await codeUtil.getMultiCodes(
   'SV_VST_PRD_CD',
   'SELL_CHNL_DTL_CD',
   'SPAY_DSC_DV_CD',
+  'RENTAL_DSC_DV_CD',
+  'MSH_DSC_DV_CD',
   'STPL_PRD_CD',
   'SV_IST_PCSV_DV_CD',
   'BASE_PD_REL_DV_CD',
@@ -260,6 +265,13 @@ async function initGridRows() {
       view.setColumnFilters('sellChnlCd', sellChannelFilterCond, true);
     }
     view.getDataSource().setRows(pdPrcs.value);
+
+    // 판매유형이 일시불할인유형, 렌탈할인유형, 멤버십할인유형인 경우 [할인유형] 표시
+    if (['1', '2', '3'].includes(sellTpCd.value)) {
+      view.columnByName('dscDvCd').visible = true;
+    } else {
+      view.columnByName('dscDvCd').visible = false;
+    }
   }
 }
 
@@ -271,6 +283,8 @@ async function fetchData() {
   });
   if (!resPd || !resPd.data) return;
   pdInfo.value = resPd.data?.product;
+  // 판매유형
+  sellTpCd.value = pdInfo.value.sellTpCd;
 
   // 연결상품 정보
   const resRel = await dataService.get(`/sms/common/product/relations/products/${currentPdCd.value}`);
@@ -287,6 +301,20 @@ async function fetchData() {
       return rtn;
     }, []);
     usedChannelCds.value = codes.SELL_CHNL_DTL_CD.filter((item) => channels.includes(item.codeId));
+
+    // 순서 정렬
+    pdPrcs.value.forEach((item) => {
+      if (sellTpCd.value === '1') {
+        // 일시불할인구분
+        item.dscDvCd = item.spayDscDvCd;
+      } else if (sellTpCd.value === '2') {
+        // 렌탈할인구분
+        item.dscDvCd = item.rentalDscDvCd;
+      } else if (sellTpCd.value === '3') {
+        // 멤버쉽할인유형
+        item.dscDvCd = item.mshDscDvCd;
+      }
+    });
   }
 
   // 분류
@@ -357,6 +385,7 @@ async function initServiceGrid(data, view) {
       header: t('MSG_TXT_PD_UNIT_VISIT_PERI'),
       width: '170',
       styleName: 'text-center',
+      sortable: false,
       displayCallback(grid, index) {
         const svPrdUnitCd = getCodeNames(codes.SV_PRD_UNIT_CD, grid.getValue(index.itemIndex, 'svPrdUnitCd'));
         const svVstPrdCd = getCodeNames(codes.SV_VST_PRD_CD, grid.getValue(index.itemIndex, 'svVstPrdCd'));
@@ -371,6 +400,7 @@ async function initServiceGrid(data, view) {
       header: t('MSG_TXT_PD_UNIT_PARCEL_PERI'),
       width: '170',
       styleName: 'text-center',
+      sortable: false,
       displayCallback(grid, index) {
         const svPrdUnitCd = getCodeNames(codes.SV_PRD_UNIT_CD, grid.getValue(index.itemIndex, 'svPrdUnitCd'));
         const pcsvPrdCd = getCodeNames(codes.SV_VST_PRD_CD, grid.getValue(index.itemIndex, 'pcsvPrdCd'));
@@ -459,13 +489,34 @@ async function initGrid(data, view) {
     { fieldName: 'svPdNm', header: t('MSG_TXT_PD_FEE_LV1'), width: '220' },
     // LV.2(약정주기)
     { fieldName: 'stplPrdCd', header: t('MSG_TXT_PD_COM_PERI_LV2'), width: '120', styleName: 'text-center', options: codes.STPL_PRD_CD },
-    // 일시불할인구분
-    { fieldName: 'spayDscDvCd', header: t('MSG_TXT_PD_DC_CLASS'), width: '100', styleName: 'text-center', options: codes.SPAY_DSC_DV_CD },
+    // 할인구분
+    { fieldName: 'dscDvCd',
+      header: t('MSG_TXT_PD_DC_CLASS'),
+      width: '100',
+      styleName: 'text-center',
+      displayCallback(grid, index) {
+        if (sellTpCd.value === '1') {
+          // 일시불할인구분
+          return getCodeNames(codes?.SPAY_DSC_DV_CD, grid.getValue(index.itemIndex, 'spayDscDvCd'));
+        } if (sellTpCd.value === '2') {
+          // 렌탈할인구분
+          return getCodeNames(codes?.RENTAL_DSC_DV_CD, grid.getValue(index.itemIndex, 'rentalDscDvCd'));
+        } if (sellTpCd.value === '3') {
+          // 멤버십할인유형
+          return getCodeNames(codes?.MSH_DSC_DV_CD, grid.getValue(index.itemIndex, 'mshDscDvCd'));
+        }
+        return '';
+      },
+
+    },
     // 최종가격
     { fieldName: 'fnlVal', header: t('MSG_TXT_PD_FNL_PRC'), width: '100', styleName: 'text-right', numberFormat: '#,##0.##', dataType: 'number' },
   ];
 
   const fields = columns.map(({ fieldName, dataType }) => (dataType ? { fieldName, dataType } : { fieldName }));
+  fields.push({ fieldName: 'spayDscDvCd' }); // 일시불할인구분
+  fields.push({ fieldName: 'rentalDscDvCd' }); // 렌탈할인구분
+  fields.push({ fieldName: 'mshDscDvCd' }); // 멤버십할인유형
   data.setFields(fields);
   view.setColumns(columns);
 
