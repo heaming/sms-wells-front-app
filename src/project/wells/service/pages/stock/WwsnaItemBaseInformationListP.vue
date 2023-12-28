@@ -163,7 +163,7 @@ import { cloneDeep, isEmpty } from 'lodash-es';
 const { t } = useI18n();
 const dataService = useDataService();
 const { cancel: onClickClose, ok } = useModal();
-const { modal, notify } = useGlobal();
+const { modal, notify, alert } = useGlobal();
 const grdMainRef = ref(getComponentType('KwGrid'));
 const grdMainRef2 = ref(getComponentType('KwGrid'));
 
@@ -262,10 +262,12 @@ async function onClickSelt() {
   const checkedRows = gridUtil.getCheckedRowValues(view).map((v) => ({ ...v, itmGdCd: 'A' }));
 
   if (isEmpty(checkedRows)) {
-    ok(gridUtil.getSelectedRowValues(view));
-  } else {
-    ok(checkedRows);
+    // 선택된 데이터가 없습니다.
+    await alert(t('MSG_ALT_NO_CHECK_DATA'));
+    return;
   }
+
+  ok(checkedRows);
 }
 
 function validateChangeCode() {
