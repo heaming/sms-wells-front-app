@@ -19,6 +19,7 @@
       @search="onClickSearch"
     >
       <kw-search-row>
+        <!-- 실적기간 -->
         <kw-search-item
           :label="$t('MSG_TXT_PERF_PRD')"
           required
@@ -30,6 +31,7 @@
             rules="date_range_months:1"
           />
         </kw-search-item>
+        <!-- 번호 -->
         <kw-search-item
           :label="$t('MSG_TXT_SEQUENCE_NUMBER')"
         >
@@ -42,6 +44,7 @@
         </kw-search-item>
       </kw-search-row>
       <kw-search-row>
+        <!-- 직책구분 -->
         <kw-search-item :label="$t('MSG_TXT_RSB_DV')">
           <kw-select
             v-model="searchParams.rsbDvCd"
@@ -49,6 +52,7 @@
             :options="codes.WELS_MNGER_INQR_DV_CD"
           />
         </kw-search-item>
+        <!-- 조직레벨 -->
         <kw-search-item
           :label="$t('MSG_TXT_OG_LEVL')"
           colspan="2"
@@ -70,15 +74,17 @@
 
     <div class="result-area">
       <ul class="kw-notification">
-        <li>조회된 실적은 수수료 계산을 위한 영업부 현장 참고용입니다. 당월 실적은 접수기준입니다.</li>
+        <!-- 조회된 실적은 수수료 계산을 위한 영업부 현장 참고용입니다. 당월 실적은 접수기준입니다. -->
+        <li>{{ $t('MSG_TXT_BF_SVC_ET_PERF_INFO') }}</li>
       </ul>
       <kw-action-top>
         <template #left>
           <kw-paging-info
             :total-count="totalCount"
           />
-          <span class="ml8">(단위 : 건, %, 원)</span>
+          <span class="ml8">{{ $t('MSG_TXT_UNIT_CNT_PER_WON') }}</span>
         </template>
+        <!-- 엑셀다운로드 -->
         <kw-btn
           v-permission:download
           icon="download_on"

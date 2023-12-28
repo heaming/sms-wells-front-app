@@ -21,6 +21,7 @@
       dense
     >
       <kw-form-row>
+        <!--실적년월-->
         <kw-form-item
           :label="$t('MSG_TXT_PERF_YM')"
         >
@@ -28,6 +29,7 @@
         </kw-form-item>
       </kw-form-row>
       <kw-form-row>
+        <!--직책유형-->
         <kw-form-item
           :label="$t('MSG_TXT_RSB_TP')"
         >
@@ -36,11 +38,13 @@
       </kw-form-row>
     </kw-form>
     <template #action>
+      <!--취소-->
       <kw-btn
         negative
         :label="$t('MSG_TXT_CANCEL')"
         @click="onClickCancel"
       />
+      <!--집계-->
       <kw-btn
         v-permission:create
         primary
@@ -77,19 +81,23 @@ const props = defineProps({
 // Function & Event
 // -------------------------------------------------------------------------------------------------
 const now = dayjs().format('YYYYMM');
+
+// 조회조건
 const params = ref({
   perfYm: props.perfYm,
   rsbTp: props.rsbTp,
 });
 
+// 취소 버튼 클릭 이벤트
 async function onClickCancel() {
   cancel();
 }
 
+// 집계 버튼 클릭 이벤트
 async function onClickSave() {
   // 현재년월에는 일 30분씩 배치가 돌고 있기 때문에 배치 호출 못하게 우선 막음.
   if (now === params.value.perfYm) {
-    alert('집계가 가능한 실적년월이 아닙니다.');
+    alert(t('MSG_ALT_NOT_AGRG_PERF_YM')); // 집계가 가능한 실적년월이 아닙니다.
     return;
   }
 

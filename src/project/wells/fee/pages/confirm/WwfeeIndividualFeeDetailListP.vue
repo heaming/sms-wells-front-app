@@ -23,14 +23,14 @@
         />
         <span class="ml8">{{ $t('MSG_TXT_UNIT_WON') }}</span>
       </template>
-
+      <!-- 개인실적/지점실적 구분 -->
       <kw-option-group
         v-if="searchParams.rsbDvCd === 'W0104' || searchParams.rsbDvCd === 'W0204' || searchParams.rsbDvCd === 'W0301'"
         v-model="searchParams.feeSellPerfDvCd"
         type="radio"
         :options="codes.FEE_SELL_PERF_DV_CD"
       />
-
+      <!-- 엑셀다운로드 -->
       <kw-btn
         v-permission:download
         icon="download_on"
@@ -84,6 +84,7 @@ const props = defineProps({
   },
 });
 
+// 조회조건
 const searchParams = ref({
   perfYm: props.perfYm,
   ogTpCd: props.ogTpCd,

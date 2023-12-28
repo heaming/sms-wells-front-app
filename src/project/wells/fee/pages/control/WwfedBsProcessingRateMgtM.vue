@@ -20,6 +20,7 @@
       @search="onClickSearch"
     >
       <kw-search-row>
+        <!-- 실적년월 -->
         <kw-search-item
           :label="$t('MSG_TXT_PERF_YM')"
           required
@@ -31,6 +32,7 @@
             type="month"
           />
         </kw-search-item>
+        <!-- 번호 -->
         <kw-search-item
           :label="$t('MSG_TXT_SEQUENCE_NUMBER')"
         >
@@ -51,7 +53,7 @@
         <template #left>
           <kw-paging-info :total-count="totalCount" />
         </template>
-
+        <!-- 삭제 -->
         <kw-btn
           v-permission:delete
           :label="$t('MSG_BTN_DEL')"
@@ -63,12 +65,14 @@
           vertical
           inset
         />
+        <!-- 행추가 -->
         <kw-btn
           v-permission:create
           grid-action
           :label="$t('MSG_BTN_ROW_ADD')"
           @click="onClickAddRow"
         />
+        <!-- 저장 -->
         <kw-btn
           v-permission:create
           grid-action
@@ -80,6 +84,7 @@
           vertical
           inset
         />
+        <!-- 엑셀다운로드 -->
         <kw-btn
           v-permission:download
           icon="download_on"
@@ -120,6 +125,7 @@ const codes = await codeUtil.getMultiCodes(
   'RSB_DV_CD',
 );
 
+// 조회조건
 const searchParams = ref({
   perfYm: dayjs().subtract(1, 'month').format('YYYYMM'),
   prtnrNo: '',
@@ -240,8 +246,8 @@ async function onClickSave() {
 // -------------------------------------------------------------------------------------------------
 const initGridMain = defineGrid((data, view) => {
   const columns = [
-    { fieldName: 'baseYm', header: t('MSG_TXT_BASE_YM'), width: '98', editable: false, visible: false },
-    { fieldName: 'ogTpCd', header: t('MSG_TXT_OG_TP'), width: '98', editable: false, visible: false },
+    { fieldName: 'baseYm', header: t('MSG_TXT_BASE_YM'), width: '98', editable: false, visible: false }, // 기준년월
+    { fieldName: 'ogTpCd', header: t('MSG_TXT_OG_TP'), width: '98', editable: false, visible: false }, // 조직유형
     { fieldName: 'prtnrNo',
       header: t('MSG_TXT_SEQUENCE_NUMBER'),
       width: '133',
@@ -262,13 +268,13 @@ const initGridMain = defineGrid((data, view) => {
         }
         return { editable: false, renderer: { type: 'text' } };
       },
-    },
-    { fieldName: 'ogCd', header: t('MSG_TXT_BLG'), width: '98', styleName: 'text-center', editable: false },
-    { fieldName: 'prtnrKnm', header: t('MSG_TXT_EMPL_NM'), width: '127', styleName: 'text-center', editable: false },
-    { fieldName: 'rsbDvCd', header: t('MSG_TXT_RSB'), width: '151', styleName: 'text-center', editable: false, options: codes.RSB_DV_CD },
-    { fieldName: 'sv01999901', header: t('MSG_TXT_ASGN') + t('MSG_TXT_COUNT'), width: '98', styleName: 'text-right', editable: false, dataType: 'number', numberFormat: '#,##0' },
-    { fieldName: 'totSvCnt', header: t('MSG_TXT_FHS_CT'), width: '106', styleName: 'text-right', editable: false, dataType: 'number', numberFormat: '#,##0' },
-    { fieldName: 'sv01999909', header: `${t('MSG_TXT_PROCS_RT')}(%)`, width: '210', styleName: 'text-right', editable: false, dataType: 'number', numberFormat: '#,##0.##' },
+    }, // 번호
+    { fieldName: 'ogCd', header: t('MSG_TXT_BLG'), width: '98', styleName: 'text-center', editable: false }, // 소속
+    { fieldName: 'prtnrKnm', header: t('MSG_TXT_EMPL_NM'), width: '127', styleName: 'text-center', editable: false }, // 성명
+    { fieldName: 'rsbDvCd', header: t('MSG_TXT_RSB'), width: '151', styleName: 'text-center', editable: false, options: codes.RSB_DV_CD }, // 직책
+    { fieldName: 'sv01999901', header: t('MSG_TXT_ASGN') + t('MSG_TXT_COUNT'), width: '98', styleName: 'text-right', editable: false, dataType: 'number', numberFormat: '#,##0' }, // 배정건수
+    { fieldName: 'totSvCnt', header: t('MSG_TXT_FHS_CT'), width: '106', styleName: 'text-right', editable: false, dataType: 'number', numberFormat: '#,##0' }, // 완료건수
+    { fieldName: 'sv01999909', header: `${t('MSG_TXT_PROCS_RT')}(%)`, width: '210', styleName: 'text-right', editable: false, dataType: 'number', numberFormat: '#,##0.##' }, // 처리율
     { fieldName: 'sv01999910',
       header: `${t('MSG_TXT_PROCS_RT')}(%) ${t('MSG_TXT_MOD')}`,
       width: '98',
@@ -290,7 +296,7 @@ const initGridMain = defineGrid((data, view) => {
         return { editable: false };
       },
       */
-    },
+    }, // 수정처리율
   ];
   const fields = columns.map(({ fieldName, dataType }) => (dataType ? { fieldName, dataType } : { fieldName }));
   data.setFields(fields);
@@ -317,6 +323,7 @@ const initGridMain = defineGrid((data, view) => {
     }
   };
 
+  // 엔터클릭시
   view.onKeyDown = async (grid, event) => {
     const current = view.getCurrent();
     const dataProvider = view.getDataSource();

@@ -18,27 +18,32 @@
   >
     <kw-form :cols="1">
       <kw-form-row>
+        <!-- 실적년월 -->
         <kw-form-item :label="$t('MSG_TXT_PERF_YM')">
           <p>{{ params.perfYm.substring(0,4) }}-{{ params.perfYm.substring(4) }}</p>
         </kw-form-item>
       </kw-form-row>
       <kw-form-row>
+        <!-- 조직유형 -->
         <kw-form-item :label="$t('MSG_TXT_OG_TP')">
           <p>{{ codes.OG_TP_CD.find((v) => v.codeId === params?.ogTpCd)?.codeName }}</p>
         </kw-form-item>
       </kw-form-row>
       <kw-form-row>
+        <!-- 차수 -->
         <kw-form-item :label="$t('MSG_TXT_ORDR')">
           <p>{{ codes.FEE_TCNT_DV_CD.find((v) => v.codeId === params?.feeTcntDvCd)?.codeName }}</p>
         </kw-form-item>
       </kw-form-row>
     </kw-form>
     <template #action>
+      <!-- 취소 -->
       <kw-btn
         negative
         :label="$t('MSG_TXT_CANCEL')"
         @click="onClickCancel"
       />
+      <!-- 생성 -->
       <kw-btn
         v-if="params.dv==='CR'"
         v-permission:create
@@ -46,6 +51,7 @@
         :label="$t('MSG_TXT_CRT')"
         @click="onClickCreate"
       />
+      <!-- 확정 -->
       <kw-btn
         v-if="params.dv==='CO'"
         v-permission:update
@@ -53,6 +59,7 @@
         :label="$t('MSG_TXT_DTRM')"
         @click="onClickConfirm"
       />
+      <!-- 확정취소 -->
       <kw-btn
         v-if="params.dv==='CC'"
         v-permission:update
@@ -98,6 +105,7 @@ const props = defineProps({
   },
 });
 
+// 조회조건
 const params = ref({
   perfYm: props.perfYm,
   ogTpCd: props.ogTp,
@@ -114,16 +122,19 @@ const codes = await codeUtil.getMultiCodes(
   'OG_TP_CD',
 );
 
+// 취소 버튼 클릭이벤트
 async function onClickCancel() {
   cancel();
 }
 
+// 생성 버튼 클릭이벤트
 async function onClickCreate() {
   if (!await confirm(t('MSG_ALT_CREATED'))) { return; }
   const response = await dataService.post('/sms/wells/fee/organization-netorders/aggregates', params.value);
   if (response.data === 'S') ok(true);
 }
 
+// 확정 버튼 클릭이벤트
 async function onClickConfirm() {
   if (!await confirm(t('MSG_ALT_DTRM'))) { return; }
   await dataService.put('/sms/wells/fee/organization-netorders', params.value);
@@ -131,6 +142,7 @@ async function onClickConfirm() {
   ok(true);
 }
 
+// 확정취소 버튼 클릭이벤트
 async function onClickConfirmCancel() {
   if (!await confirm(t('MSG_ALT_WANT_CANCEL_DTRM'))) { return; }
   await dataService.put('/sms/wells/fee/organization-netorders', params.value);
