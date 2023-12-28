@@ -142,6 +142,10 @@ async function onClick(num) {
     },
   });
 }
+
+onMounted(async () => {
+  await onClick(1);
+});
 </script>
 
 <style lang="scss" scoped>

@@ -317,10 +317,9 @@ async function onClickSave() {
   const chkRows = gridUtil.getCheckedRowValues(view).map((v) => ({ ...v, dtlSn: '1' }));
   if (chkRows.length === 0) {
     notify(t('MSG_ALT_NOT_SEL_ITEM')); // 데이터를 선택해주세요.
-  } else {
-    await dataService.post('/sms/wells/service/installation-locations', chkRows);
+    return;
   }
-
+  await dataService.post('/sms/wells/service/installation-locations', chkRows);
   notify(t('MSG_ALT_SAVE_DATA')); // 저장되었습니다.
   await fetchData();
 }
