@@ -233,6 +233,7 @@ const onChangeWareDvCd = async () => {
 function onChangeStdWareDvCd() {
   searchParams.value.wareNoM = '';
   searchParams.value.wareNoD = '';
+  searchParams.value.wareDtlDvCd = '';
 }
 
 // 상위창고가 변경될때
