@@ -1497,6 +1497,11 @@ async function onClickProductChangeSave() {
     return;
   }
 
+  if (isEmpty(orderProduct.value.pdPrcFnlDtlId)) {
+    await alert('가격이 설정되지 않아, 저장할 수 없습니다. 가격을 확인해주세요.');
+    return;
+  }
+
   if (!isCnfmPd.value) {
     await alert('먼저 상품확정을 해주세요.');
     return;
