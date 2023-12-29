@@ -321,7 +321,7 @@ async function onClickBundleWithdrawalRgst() {
   }));
 
   await dataService.post('/sms/wells/withdrawal/bilfnt/bundle-registration', data);
-  notify('묶음 등록이 완료되었습니다.');
+  notify('묶음 등록 작업을 완료하였습니다.');
   await onClickSearch();
 }
 
