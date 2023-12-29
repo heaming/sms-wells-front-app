@@ -74,6 +74,15 @@
           />
         </kw-search-item>
         <kw-search-item
+          :label="$t('MSG_TXT_ORDR')"
+        >
+          <kw-select
+            v-model="searchParams.feeTcntDvCd"
+            :options="codes.FEE_TCNT_DV_CD"
+            :label="$t('MSG_TXT_ORDR')"
+          />
+        </kw-search-item>
+        <kw-search-item
           :label="$t('MSG_TXT_OG_LEVL')"
         >
           <zwog-level-select
@@ -145,6 +154,7 @@ const codes = await codeUtil.getMultiCodes(
   'OG_TP_CD',
   'RSB_DV_CD',
   'COD_PAGE_SIZE_OPTIONS',
+  'FEE_TCNT_DV_CD',
 );
 
 const pageInfo = ref({
@@ -162,6 +172,7 @@ const searchParams = ref({
   ogLevl3: '',
   prtnrNo: '',
   prtnrKnm: '',
+  feeTcntDvCd: '01',
 });
 
 async function onClickSearchNo() {
@@ -247,7 +258,9 @@ function initGrid(data, view) {
     { fieldName: 'intbsAmt', dataType: 'number' },
     { fieldName: 'dsbOjAmt', dataType: 'number' },
     { fieldName: 'ddctam', dataType: 'number' },
-    { fieldName: 'rdsTax', dataType: 'number' },
+    { fieldName: 'rds', dataType: 'number' },
+    { fieldName: 'erntx', dataType: 'number' },
+    { fieldName: 'rsdntx', dataType: 'number' },
 
     { fieldName: 'einsr', dataType: 'number' },
     { fieldName: 'buDdtn', dataType: 'number' },
@@ -273,7 +286,9 @@ function initGrid(data, view) {
     { fieldName: 'intbsAmt', header: t('MSG_TXT_DDTN_BF'), width: '120', styleName: 'text-right' }, // 공제전
     { fieldName: 'dsbOjAmt', header: t('MSG_TXT_DDTN_AFT'), width: '120', styleName: 'text-right' }, // 공제후
     { fieldName: 'ddctam', header: t('MSG_TXT_DDTN_SUM2'), width: '120', styleName: 'text-right' }, // 공제합계
-    { fieldName: 'rdsTax', header: t('MSG_TXT_RDS_TAX'), width: '120', styleName: 'text-right' }, // RDS/TAX
+    { fieldName: 'rds', header: t('MSG_TXT_RDS') + t('MSG_TXT_RV'), width: '120', styleName: 'text-right' }, // RDS
+    { fieldName: 'erntx', header: t('MSG_TXT_ERNTX'), width: '120', styleName: 'text-right' }, // 소득세
+    { fieldName: 'rsdntx', header: t('MSG_TXT_RSDNTX'), width: '120', styleName: 'text-right' }, // 주민세
 
     { fieldName: 'einsr', header: t('MSG_TXT_HIR_INSR'), width: '120', styleName: 'text-right' }, // 고용보험
     { fieldName: 'buDdtn', header: t('MSG_TXT_BU_DDTN'), width: '120', styleName: 'text-right' }, // 부담공제
@@ -309,7 +324,7 @@ function initGrid(data, view) {
     {
       header: t('MSG_TXT_DDTN_DTLP_IZ'),
       direction: 'horizontal',
-      items: ['rdsTax', 'einsr', 'buDdtn', 'inddInsr', 'telPc', 'redf', 'dlqRedf', 'etcRedf', 'mutuRedf', 'hdqFrnhExcp', 'ucInddInsr'],
+      items: ['rds', 'erntx', 'rsdntx', 'einsr', 'buDdtn', 'inddInsr', 'telPc', 'redf', 'dlqRedf', 'etcRedf', 'mutuRedf', 'hdqFrnhExcp', 'ucInddInsr'],
     },
     'rdsBlam',
     'pnpyamBlam',
