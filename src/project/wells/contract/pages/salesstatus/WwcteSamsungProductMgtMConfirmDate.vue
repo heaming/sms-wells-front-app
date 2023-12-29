@@ -116,6 +116,7 @@ import {
 } from 'kw-lib';
 import dayjs from 'dayjs';
 import useGridDataModel from '~sms-common/contract/composable/useGridDataModel';
+import { validateYYYYMMDD } from '~sms-common/contract/util';
 
 const meta = useMeta();
 const { currentRoute } = useRouter();
@@ -188,7 +189,7 @@ async function onClickExcelUpload() {
         wallCntrSn: { label: `벽걸이${t('MSG_TXT_CNTR_SN')}`, type: Number, width: 200, rules: 'max:5' },
         sppBzsOrdId: { label: t('MSG_TXT_ORD_NO') /* 주문번호 */, width: 200, required: true },
         notUse3: { label: t('MSG_TXT_UNUITM') /* 특이사항 */, width: 200 },
-        sppFshDt: { label: t('MSG_TXT_INST_DT'), width: 120, datetimeFormat: 'date', required: true },
+        sppFshDt: { label: t('MSG_TXT_INST_DT'), width: 120, datetimeFormat: 'date', required: true, rules: validateYYYYMMDD },
         pdctIdno: { label: t('MSG_TXT_SERIAL_NO'), width: 100, required: true },
         notUse4: { label: t('MSG_TXT_RSV_DATE') /* 예약일 */, width: 120, datetimeFormat: 'date' },
         notUse5: { label: t('MSG_TXT_STOCK_DT') /* 재고입고일 */, width: 120, datetimeFormat: 'date' },
@@ -230,6 +231,7 @@ const initGrd = defineGrid((data, view) => {
       width: 137,
       valueExpression: 'values["cntrNo"] + "-" + values["cntrSn"]',
       classes: 'text-center',
+
     },
     rcgvpKnm: { label: t('MSG_TXT_CNTOR_NM') /* 계약자명 */, width: 136, classes: 'text-center' },
     sellTpCd: { label: t('MSG_TXT_ORD_TYP') /* 주문유형 */, width: 136, options: codes.SELL_TP_CD },

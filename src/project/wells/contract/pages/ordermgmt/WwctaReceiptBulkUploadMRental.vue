@@ -270,6 +270,7 @@ const initGrd = defineGrid((data, view) => {
     pdPrcId: { displaying: false },
     sellDscCtrAmt: { displaying: false, type: Number },
     alncmpDgPrtnrOgTpCd: { displaying: false /* 코드가 불안정하며 서버에서 조회하도록 변경 */ },
+    promotions: { displaying: false /* JSON 직렬화된 객체값인데.. */ },
   });
 
   view.rowIndicator.visible = true;

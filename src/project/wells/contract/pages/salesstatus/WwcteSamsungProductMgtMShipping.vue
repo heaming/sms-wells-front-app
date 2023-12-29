@@ -27,7 +27,7 @@
       </kw-search-item>
       <kw-search-item
         :label="$t('MSG_TXT_PRDT_GUBUN')"
-        colspan="2"
+        :colspan="2"
       >
         <kw-field-wrap
           grow
