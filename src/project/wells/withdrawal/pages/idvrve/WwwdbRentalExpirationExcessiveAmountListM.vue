@@ -147,7 +147,7 @@ let cachedParams;
 
 async function fetchData() {
   cachedParams = { ...cachedParams, ...pageInfo.value };
-  const res = await dataService.get(`${apiUrl}/paging`, { params: { ...cachedParams } });
+  const res = await dataService.get(`${apiUrl}/paging`, { params: { ...cachedParams }, timeout: 200000 });
   const { list: pages, pageInfo: pagingResult } = res.data;
 
   pageInfo.value = pagingResult;
