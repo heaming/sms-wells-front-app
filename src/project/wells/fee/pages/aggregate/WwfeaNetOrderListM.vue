@@ -17,6 +17,7 @@
     <kw-search
       :cols="3"
       @search="onClickSearch"
+      @reset="onClickResetSearch"
     >
       <div
         v-if="isDtlVisible"
@@ -560,25 +561,6 @@ async function fetchData(uri) {
   }
 }
 
-async function onClickSearch() {
-  cachedParams = cloneDeep(searchParams.value);
-
-  if (searchParams.value.inqrDvCd === '01') { /* 상세선택 */
-    if (cachedParams.rcpDtFrom.substring(0, 6) !== cachedParams.rcpDtTo.substring(0, 6)) {
-      await alert(t('MSG_ALT_STRT_YM_END_YM_SMD')); // 시작년월과 종료년월의 월은 동일해야합니다.
-      return false;
-    }
-
-    if (searchParams.value.dvCd !== '04') {
-      await fetchData('detail-orders');
-    } else {
-      await fetchData('aggregate-orders');
-    }
-  } else {
-    await fetchData('status-orders');
-  }
-}
-
 /*
  *  Event - 조회구분 선택 시 하단 그리드 변경※
  */
@@ -619,6 +601,29 @@ async function onChangedDvcd() {
 
   cachedParams = cloneDeep(searchParams.value);
   fetchNetOrderStatus();
+}
+
+async function onClickSearch() {
+  cachedParams = cloneDeep(searchParams.value);
+
+  if (searchParams.value.inqrDvCd === '01') { /* 상세선택 */
+    if (cachedParams.rcpDtFrom.substring(0, 6) !== cachedParams.rcpDtTo.substring(0, 6)) {
+      await alert(t('MSG_ALT_STRT_YM_END_YM_SMD')); // 시작년월과 종료년월의 월은 동일해야합니다.
+      return false;
+    }
+
+    if (searchParams.value.dvCd !== '04') {
+      await fetchData('detail-orders');
+    } else {
+      await fetchData('aggregate-orders');
+    }
+  } else {
+    await fetchData('status-orders');
+  }
+}
+
+async function onClickResetSearch() {
+  onChangedDvcd();
 }
 
 async function onChangeDt() {
