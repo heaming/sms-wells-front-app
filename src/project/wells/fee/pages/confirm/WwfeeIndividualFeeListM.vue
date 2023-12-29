@@ -4,7 +4,7 @@
 ****************************************************************************************************
 1. 모듈 : FEE
 2. 프로그램 ID : WwfeeIndividualFeeListM - 수수료 조회
-3. 작성자 : min-kyu bae
+3. 작성자 : kyungmin.lim
 4. 작성일 : 2023.03.02
 ****************************************************************************************************
 * 프로그램 설명
@@ -16,6 +16,7 @@
   <kw-page>
     <kw-search
       @search="onClickSearch"
+      @reset="onClickResetSearch"
     >
       <kw-search-row>
         <kw-search-item
@@ -449,6 +450,10 @@ async function onChangeOgTp() {
     isSelectHrsbDvCdVisile.value = true;
     searchParams.value.rsbDvCd = 'W0302';
   }
+}
+
+async function onClickResetSearch() {
+  onChangeOgTp();
 }
 
 /*
