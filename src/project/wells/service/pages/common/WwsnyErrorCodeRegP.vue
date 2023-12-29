@@ -82,6 +82,15 @@
           />
         </kw-form-item>
       </kw-form-row>
+      <kw-form-row>
+        <kw-form-item>
+          <kw-image
+            :file-uid="errorCodeInfo.errImageUId"
+            width="500"
+            height="300"
+          />
+        </kw-form-item>
+      </kw-form-row>
     </kw-form>
     <template #action>
       <kw-btn
@@ -181,6 +190,8 @@ function resetErrorCodeInfo() {
   errorCodeInfo.value.errCnBefore = props.errCn;
   errorCodeInfo.value.attachFilesBefore = attachFiles.value;
   // errorCodeInfo.value.attachFiles = attachFiles.value;
+  console.log(errorCodeInfo.value.errImageUId);
+  console.log(errorCodeInfo.value.errImageDocId);
 }
 
 watch(() => errorCodeInfo.value.pdCd, async (val) => {
@@ -204,7 +215,7 @@ onMounted(async () => {
 async function onClickSave() {
   if (!await confirm(t('MSG_ALT_WANT_SAVE'))) { return; }
   errorCodeInfo.value.attachFiles = attachFiles.value;
-  errorCodeInfo.value.attachFilesBefore = attachFiles.value;
+
   const data = errorCodeInfo.value;
   console.log(data);
   await dataService.post('/sms/wells/service/error-code', data);
