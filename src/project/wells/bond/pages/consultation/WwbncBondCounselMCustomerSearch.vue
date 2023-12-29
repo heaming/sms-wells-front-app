@@ -34,7 +34,6 @@
         <kw-input
           v-model="searchParams.cstKnm"
           icon="search"
-          regex="alpha_hangul"
           maxlength="30"
           clearable
           :label="$t('MSG_TXT_CST_NM')"
