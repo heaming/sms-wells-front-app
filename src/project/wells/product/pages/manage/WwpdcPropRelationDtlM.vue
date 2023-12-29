@@ -63,7 +63,7 @@ const props = defineProps({
 // -------------------------------------------------------------------------------------------------
 // Function & Event
 // -------------------------------------------------------------------------------------------------
-const codes = await codeUtil.getMultiCodes('PDCT_REL_DV_CD');
+const codes = await codeUtil.getMultiCodes('PDCT_REL_DV_CD', 'PD_TEMP_SAVE_CD');
 
 const visibleRowCnt = ref(3);
 const grd1stTit = ref([]);
@@ -75,13 +75,11 @@ async function validateProps() {
   return validOk;
 }
 
-const currentCodes = ref({});
-
 // -------------------------------------------------------------------------------------------------
 // Initialize Grid
 // -------------------------------------------------------------------------------------------------
 const columns = [
-  { fieldName: 'tempSaveYn', header: t('MSG_TXT_STT', null, '상태'), width: '85', styleName: 'text-center', options: currentCodes.value.PD_TEMP_SAVE_CD },
+  { fieldName: 'tempSaveYn', header: t('MSG_TXT_STT', null, '상태'), width: '85', styleName: 'text-center', options: codes.PD_TEMP_SAVE_CD },
   { fieldName: 'vlStrtDtm', header: t('MSG_TXT_APY_STRTDT', null, '적용시작일자'), width: '100', styleName: 'text-center', dataType: 'date', datetimeFormat: 'date' },
   { fieldName: 'vlEndDtm', header: t('MSG_TXT_APY_ENDDT', null, '적용종료일자'), width: '100', styleName: 'text-center', dataType: 'date', datetimeFormat: 'date' },
   { fieldName: 'pdRelTpCd', header: t('MSG_TXT_RELATION_CLSF', null, '관계구분'), width: '106', styleName: 'text-center', options: codes.PDCT_REL_DV_CD },
@@ -145,8 +143,6 @@ async function setData() {
   grd1DataProvider.fillJsonData(relData.filter((v) => v.pdRelTpCd === '14'), { fillMode: 'set' });
   grd2DataProvider.fillJsonData(relData.filter((v) => v.pdRelTpCd === '13'), { fillMode: 'set' });
   grd3DataProvider.fillJsonData(relData.filter((v) => v.pdRelTpCd === '06'), { fillMode: 'set' });
-
-  currentCodes.value = props?.value?.codes;
 }
 
 onMounted(async () => {
