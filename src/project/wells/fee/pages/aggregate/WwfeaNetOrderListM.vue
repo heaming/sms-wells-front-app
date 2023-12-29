@@ -627,12 +627,14 @@ async function onChangeDt() {
   }
 }
 
-// 상품코드 검색 아이콘 클릭 이벤트
+/*
+ *  Event - 상품코드 검색 아이콘 클릭 이벤트
+ */
 async function onClickSearchPdCdPopup(arg) {
   if (arg === 'S') {
-    searchParams.value.pdCd = searchParams.value.pdStrtCd;
+    searchParams.value.pdCd = searchParams.value.pdCdFrom;
   } else {
-    searchParams.value.pdCd = searchParams.value.pdEndCd;
+    searchParams.value.pdCd = searchParams.value.pdCdTo;
   }
   const searchPopupParams = {
     searchType: pdConst.PD_SEARCH_CODE,
@@ -644,9 +646,9 @@ async function onClickSearchPdCdPopup(arg) {
     componentProps: searchPopupParams,
   });
   if (arg === 'S') {
-    searchParams.value.pdStrtCd = rtn.payload?.[0]?.pdCd;
+    searchParams.value.pdCdFrom = rtn.payload?.[0]?.pdCd;
   } else {
-    searchParams.value.pdEndCd = rtn.payload?.[0]?.pdCd;
+    searchParams.value.pdCdTo = rtn.payload?.[0]?.pdCd;
   }
 }
 
