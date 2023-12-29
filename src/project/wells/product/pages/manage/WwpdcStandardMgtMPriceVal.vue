@@ -394,9 +394,12 @@ async function onClickCheckVisible() {
     const column = view.columnByName(field.codeId);
     if (column) {
       if (checkedSelVals.value && checkedSelVals.value.includes(field.colNm)) {
+        // 선택컬럼 표시
         column.visible = true;
-      } else {
+      } else if (column.visible) {
+        // 선택컬럼 표시 해제
         column.visible = false;
+        // 해당 컬럼 데이터 초기화
         gridUtil.getAllRowValues(view).forEach((item) => {
           view.setValue(item.dataRow, field.codeId, null);
         });
