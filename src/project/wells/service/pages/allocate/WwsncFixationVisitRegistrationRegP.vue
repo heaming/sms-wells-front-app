@@ -377,7 +377,8 @@ function getAddress(rnadr, rdadr) {
  */
 async function onClickSave() {
   if (!await frmRef.value.validate()) return false;
-  if (isEmpty(searchParams.value.cntrNo) || isEmpty(searchParams.value.cntrSn)) {
+  // if (isEmpty(searchParams.value.cntrNo) || isEmpty(searchParams.value.cntrSn)) {
+  if (isEmpty(searchParams.value.cntrNo) || searchParams.value.cntrSn === '' || searchParams.value.cntrSn === undefined) {
     await alert('계약정보를 조회한 후 저장할 수 있습니다.');
     return;
   }
