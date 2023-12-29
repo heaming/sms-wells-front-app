@@ -840,6 +840,23 @@ async function saveStep(isTemp) {
     return savedCntr?.data?.key;
   }
 
+  const { cikVal, hsCtfYn, itgCstNo, copnDvCd } = step4.value.cntrt;
+
+  if (copnDvCd === COPN_DV_CD.INDIVIDUAL) {
+    if (!cikVal) {
+      await alert('본인인증 미완료 상태입니다.\n완료 후 계약자를 재 조회해 주세요.');
+      // return false; // TODO: re-rollback 다시살리기, 20231228 rollback: 전아영 매니저님 요청에 의한 일시 제거
+    }
+    if (hsCtfYn !== 'Y') {
+      await alert('고객 정보 변경으로 본인인증이 필요합니다.\n완료 후 계약자를 재 조회해 주세요.');
+      // return false; // 20231228 rollback: 전아영 매니저님 요청에 의한 일시 제거
+    }
+    if (!itgCstNo) {
+      await alert('통합고객 약관동의 미완료 상태입니다.\n완료 후 계약자를 재 조회해 주세요.');
+      // return false; // 20231228 rollback: 전아영 매니저님 요청에 의한 일시 제거
+    }
+  }
+
   // 법인할인고객 주소변경 첨부파일이 존재하는 경우,
   if (!isEmpty(fileParams.value.dcevdnDocs)) {
     step4.value.bas.dcevdnDocs = fileParams.value.dcevdnDocs;
@@ -915,7 +932,6 @@ exposed.isValidStep = isValidStep;
 exposed.initStep = initStep;
 exposed.loaded = loaded;
 exposed.saveStep = saveStep;
-/* exposed.setRestipulation = setRestipulation; */
 
 onActivated(() => {
   initStep();
