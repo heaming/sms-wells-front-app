@@ -282,7 +282,7 @@ async function calculateOutcomeAllowance(view) {
       const { dataRow: index, trgCt, perfCt, aclActiTrgCt, aclActiAchvCt, thm1OptnAchvCt, thm1OptnTrgCt } = row;
       const newTrgAchvRt = trgCt > 0 ? (Math.round((perfCt / trgCt) * 10000) / 100) : 0;
       const newAclActiAchvRt = aclActiTrgCt > 0 ? (Math.round((aclActiAchvCt / aclActiTrgCt) * 1000) / 10) : 0;
-      const newThm1OptnAchvRt = thm1OptnAchvCt > 0 ? (Math.round((thm1OptnTrgCt / thm1OptnAchvCt) * 1000) / 10) : 0;
+      const newThm1OptnAchvRt = thm1OptnAchvCt > 0 ? (Math.round((thm1OptnAchvCt / thm1OptnTrgCt) * 1000) / 10) : 0;
       const newTrgAchvAwAmt = getManagerAwBase(ogTpCd, rsbDv, 'TAR', newTrgAchvRt) * perfCt;
       const newAclActiAwAmt = getManagerAwBase(ogTpCd, rsbDv, 'ACT', newAclActiAchvRt) * aclActiAchvCt;
       const newThm1OptnAwAmt = getManagerAwBase(ogTpCd, rsbDv, 'OPT', newThm1OptnAchvRt) * thm1OptnTrgCt;
@@ -376,7 +376,7 @@ const initGridMOg = defineGrid((data, view) => {
     { fieldName: 'prtnrKnm', header: t('MSG_TXT_EMPL_NM'), width: '96', editable: false, styleName: 'text-center' }, // 성명
     { fieldName: 'prtnrNo', header: t('MSG_TXT_SEQUENCE_NUMBER'), width: '106', editable: false, styleName: 'text-center' }, // 사번
     { fieldName: 'dtrcN',
-      header: { template: `${t('MSG_TXT_BRCH_N')}<br>(${t('MSG_TXT_THM')})` },
+      header: `${t('MSG_TXT_BRCH_N')}(${t('MSG_TXT_THM')})`,
       width: '106',
       styleName: 'text-right',
       dataType: 'number',
@@ -398,7 +398,7 @@ const initGridMOg = defineGrid((data, view) => {
         expression: 'sum',
       } }, // 목표
     { fieldName: 'baseDtrcN',
-      header: { template: `${t('MSG_TXT_BRCH_N')}<br>(${t('MSG_TXT_FXN')})` },
+      header: `${t('MSG_TXT_BRCH_N')}(${t('MSG_TXT_FXN')})`,
       width: '106',
       styleName: 'text-right',
       dataType: 'number',
@@ -409,7 +409,7 @@ const initGridMOg = defineGrid((data, view) => {
         expression: 'sum',
       } }, // 지점수(고정)
     { fieldName: 'perfCt',
-      header: { template: `${t('MSG_TXT_PERF')}<br>(${t('MSG_TXT_MCHN_CH_INC')})` },
+      header: `${t('MSG_TXT_PERF')}(${t('MSG_TXT_MCHN_CH_INC')})`,
       width: '120',
       styleName: 'text-right',
       dataType: 'number',
@@ -515,15 +515,15 @@ const initGridMOg = defineGrid((data, view) => {
         expression: 'sum',
       } }, // 누계
     { fieldName: 'mngrDangGd',
-      header: { template: `${t('MSG_TXT_ADMIN')}<br>(${t('MSG_TXT_DANG_GD')})` },
-      width: '106',
+      header: `${t('MSG_TXT_ADMIN')}(${t('MSG_TXT_DANG_GD')})`,
+      width: '146',
       styleName: 'text-right',
       dataType: 'number',
       numberFormat: '#,##0',
       rules: 'required|max_value:9999999' }, // 관리자 위험등급
     { fieldName: 'trgAchvAwAmt',
-      header: { template: `${t('MSG_TXT_TRG_ACHV_AW')}<br>(${t('MSG_TXT_PD_ACC_CNT')})` },
-      width: '133',
+      header: `${t('MSG_TXT_TRG_ACHV_AW')}(${t('MSG_TXT_PD_ACC_CNT')})`,
+      width: '153',
       editable: false,
       styleName: 'text-right',
       dataType: 'number',
@@ -555,7 +555,7 @@ const initGridMOg = defineGrid((data, view) => {
         expression: 'sum',
       } }, // WM
     { fieldName: 'bfsvcAclActiCt',
-      header: ' Pre-M(BS)',
+      header: 'Pre-M(BS)',
       width: '106',
       styleName: 'text-right',
       dataType: 'number',
@@ -566,7 +566,7 @@ const initGridMOg = defineGrid((data, view) => {
         expression: 'sum',
       } }, // Pre-M(BS)
     { fieldName: 'aclActiBrchAvCt',
-      header: { template: `${t('MSG_TXT_ACL_ACTI')}<br>(${t('MSG_TXT_BRNCH_OFFC_AVG')})` },
+      header: `${t('MSG_TXT_ACL_ACTI')}(${t('MSG_TXT_BRNCH_OFFC_AVG')})`,
       width: '106',
       editable: false,
       styleName: 'text-right',

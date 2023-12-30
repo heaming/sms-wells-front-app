@@ -306,9 +306,10 @@ let cachedParams;
  *  Event - 수수료조정 버튼 클릭
  */
 async function openFeeControlPopup() {
+  const { perfYm, no } = cachedParams;
   const param = {
-    perfYm: searchParams.value.perfYm,
-    prtnrNo: searchParams.value.no,
+    perfYm,
+    prtnrNo: no,
     ogTpCd: 'W01',
   };
 
@@ -393,7 +394,7 @@ async function onClickSearch() {
  *  Event - 부담공제조정 버튼 클릭
  */
 async function openZwfedFeeBurdenDeductionRegP() {
-  const { perfYm, no } = searchParams.value;
+  const { perfYm, no } = cachedParams;
   const param = {
     ddtnYm: perfYm,
     coCd: '2000',
@@ -409,11 +410,12 @@ async function openZwfedFeeBurdenDeductionRegP() {
  *  Event - 가지급금조정 버튼 클릭
  */
 async function openZwfedFeePnpyamDeductionRegP() {
+  const { perfYm, no } = cachedParams;
   const param = {
-    ddtnYm: searchParams.value.perfYm,
+    ddtnYm: perfYm,
     coCd: '2000',
     ogTpCd: 'W01',
-    prtnrNo: searchParams.value.no,
+    prtnrNo: no,
   };
   const { result: isChanged } = await modal({
     component: 'ZwfedFeePnpyamDeductionRegP',
@@ -498,7 +500,7 @@ const initGrd3Main = defineGrid((data, view) => {
     { fieldName: 'ctrBf', header: t('MSG_TXT_CTR_BF'), width: '200', styleName: 'text-right' },
     { fieldName: 'ctrAf', header: t('MSG_TXT_CTR_AF'), width: '200', styleName: 'text-right' },
     { fieldName: 'rsn', header: t('MSG_TXT_RSN'), width: '328', styleName: 'text-left' },
-    { fieldName: 'ctrDtm', header: t('MSG_TXT_CTR_DTM'), width: '200', styleName: 'text-center' },
+    { fieldName: 'ctrDtm', header: t('MSG_TXT_CTR_DTM'), width: '200', styleName: 'text-center', datetimeFormat: 'YYYY-MM-DD HH:mm:ss' },
     { fieldName: 'ctrr', header: t('MSG_TXT_CTRR'), width: '161', styleName: 'text-left' },
   ];
 
