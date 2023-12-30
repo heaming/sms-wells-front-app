@@ -2332,12 +2332,12 @@ function setGridColumnLayout(view) {
           direction: 'horizontal',
           items: ['strtup', 'preStrtup', 'eduCmpf', 'eduMngerSettle1', 'eduMngerSettle2', 'eduMngerSettle345', 'edu2Pre', 'topmrSettle', 'topmrNmn'],
         },
-        'aclActiWmAchv',
         {
           header: t('MSG_TXT_MANAGER') + t('MSG_TXT_OPNG_ARTC'), // 매니저개시사항
           direction: 'horizontal',
           items: ['mngerFstOpng', 'mngerOpng', 'mngerFnlCltn', 'mngerBizCltn', 'mngerBltnNmn', 'mngerSettleDsbTp', 'indvD5AsnCnt'],
         },
+        'aclActiWmAchv',
         {
           header: `${t('MSG_TXT_INDV')}BS`, // 개인BS
           direction: 'horizontal',
