@@ -28,7 +28,7 @@
         >
           <kw-select
             v-model="searchParams.pstnDv"
-            :options="codes.DDTN_RPLC_WELLS_PSTN_DV_CD"
+            :options="filterOgTpCd"
           />
         </kw-search-item>
       </kw-search-row>
@@ -107,14 +107,21 @@ const pageInfo = ref({
 // -------------------------------------------------------------------------------------------------
 let cachedParams;
 let cachedParamsTotal;
+const filterOgTpCd = ref([]);
 const grdMainRef = ref(getComponentType('KwGrid'));
 
 const codes = await codeUtil.getMultiCodes(
   'DDTN_RPLC_WELLS_PSTN_DV_CD', // 공제대체WELLS직급구분코드
 );
 
+if (props.ogTpCd === 'W01') {
+  filterOgTpCd.value = codes.DDTN_RPLC_WELLS_PSTN_DV_CD.filter((e) => ['15', '7'].includes(e.codeId));
+} else {
+  filterOgTpCd.value = codes.DDTN_RPLC_WELLS_PSTN_DV_CD;
+}
+
 const searchParams = ref({
-  pstnDv: codes.DDTN_RPLC_WELLS_PSTN_DV_CD[0].codeId, // 직급구분,
+  pstnDv: filterOgTpCd.value[0].codeId, // 직급구분,
   prtnrNo: props.prtnrNo,
   ogTpCd: props.ogTpCd,
 });

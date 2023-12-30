@@ -28,7 +28,7 @@
         >
           <kw-select
             v-model="searchParams.perfDvCd"
-            :options="codes.WELS_REDF_PERF_DV_CD"
+            :options="filterOgTpCd"
           />
         </kw-search-item>
 
@@ -114,6 +114,7 @@ const popupRef = ref();
 
 let pageCnt = 0;
 let cachedParams;
+const filterOgTpCd = ref([]);
 
 const codes = await codeUtil.getMultiCodes(
   'REDF_INQR_TP_CD',
@@ -121,10 +122,16 @@ const codes = await codeUtil.getMultiCodes(
   'WELS_REDF_PERF_DV_CD', // 웰스되물림실적구분코드
 );
 
+if (props.ogTpCd === 'W01') {
+  filterOgTpCd.value = codes.WELS_REDF_PERF_DV_CD.filter((e) => ['0', '2'].includes(e.codeId));
+} else {
+  filterOgTpCd.value = codes.WELS_REDF_PERF_DV_CD;
+}
+
 const searchParams = ref({
   ogTpCd: '',
   prtnrNo: '',
-  perfDvCd: codes.WELS_REDF_PERF_DV_CD[0].codeId,
+  perfDvCd: filterOgTpCd.value[0].codeId,
 });
 
 const pageInfo = ref({

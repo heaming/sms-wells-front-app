@@ -83,7 +83,7 @@
       <kw-search-row>
         <kw-search-item
           v-if="!searchType.ogTpCdW04AndW05"
-          :label="t('MSG_TXT_PRTNR_NUMBER')"
+          :label="t('MSG_TXT_PRTNR_NUM')"
           required
         >
           <kw-input
@@ -477,7 +477,7 @@ async function onClickPageMove(routerType) {
   } else if (routerType === 'HM') {
     pageUrl = '/fee/wwdea-home-master-redf-create';
   } else if (routerType === 'MUTU') {
-    pageUrl = '/fee/zwdea-mutual-aid-fee-mgt';
+    pageUrl = '/fee/wwdea-mutual-aid-fee-mgt';
   }
 
   router.push({
@@ -542,10 +542,10 @@ function initGrid(data, view) {
     { fieldName: 'cstKnm' },
     { fieldName: 'prtnrKnm' },
     { fieldName: 'prtnrNo' },
-    { fieldName: 'gnlrLedrNo' }, // TODO: 총괄단장 ~ 지구장 조직에서 정의 완벽해질 시 주석해제
-    { fieldName: 'localAreaManagerNo' },
-    { fieldName: 'branchManagerNo' },
-    { fieldName: 'dstrcManagerNo' },
+    { fieldName: 'gnlrLedr' }, // TODO: 총괄단장 ~ 지구장 조직에서 정의 완벽해질 시 주석해제
+    { fieldName: 'localAreaManager' },
+    { fieldName: 'branchManager' },
+    { fieldName: 'dstrcManager' },
     { fieldName: 'perfTpCd' },
     { fieldName: 'thmOcDlqAmt', dataType: 'number' },
     { fieldName: 'cntrDtlStatChRsonNm' },
@@ -589,10 +589,10 @@ function initGrid(data, view) {
     { fieldName: 'cstKnm', header: t('MSG_TXT_CUST_STMT'), width: '100', styleName: 'text-center' },
     { fieldName: 'prtnrKnm', header: t('MSG_TXT_SELLER_PERSON'), width: '100', styleName: 'text-center' },
     { fieldName: 'prtnrNo', header: t('MSG_TXT_PRTNR_NUMBER'), width: '100', styleName: 'text-center' },
-    { fieldName: 'gnlrLedrNo', header: t('MSG_TXT_GNLR_LEDR'), width: '100', styleName: 'text-center' },
-    { fieldName: 'localAreaManagerNo', header: t('MSG_TXT_REG_DIR'), width: '100', styleName: 'text-center' },
-    { fieldName: 'branchManagerNo', header: t('MSG_TXT_BRMGR'), width: '100', styleName: 'text-center' },
-    { fieldName: 'dstrcManagerNo', header: t('MSG_TXT_DSTRC_MN'), width: '100', styleName: 'text-center' },
+    { fieldName: 'gnlrLedr', header: t('MSG_TXT_GNLR_LEDR'), width: '100', styleName: 'text-center' },
+    { fieldName: 'localAreaManager', header: t('MSG_TXT_REG_DIR'), width: '100', styleName: 'text-center' },
+    { fieldName: 'branchManager', header: t('MSG_TXT_BRMGR'), width: '100', styleName: 'text-center' },
+    { fieldName: 'dstrcManager', header: t('MSG_TXT_DSTRC_MN'), width: '100', styleName: 'text-center' },
     { fieldName: 'perfTpCd', header: t('MSG_TXT_PROCS_TP'), width: '100', styleName: 'text-center' },
     { fieldName: 'thmOcDlqAmt', header: t('MSG_TXT_DLQ_AMT'), width: '100', styleName: 'text-right', numberFormat: '#,##0' },
     { fieldName: 'cntrDtlStatChRsonNm', header: t('MSG_TXT_CNCL_TP'), width: '100', styleName: 'text-left' },
@@ -609,7 +609,7 @@ function initGrid(data, view) {
     { fieldName: 'sellDscTpCd', header: t('MSG_TXT_DSC_SYST'), width: '100', styleName: 'text-center' },
     { fieldName: 'pakSn', header: t('MSG_TXT_PKG_SN'), width: '120', styleName: 'text-center' },
     { fieldName: 'feeAckmtBaseAmt', header: t('MSG_TXT_FEE_ACKMT_BASE_AMT'), width: '120', styleName: 'text-right', numberFormat: '#,##0' },
-    { fieldName: 'ackmtPerfAmt', header: t('MSG_TXT_REDF_ACKMT_PERF'), width: '120', styleName: 'text-right', numberFormat: '#,##0' },
+    { fieldName: 'ackmtPerfAmt', header: t('MSG_TXT_FEE_ACKMT_PERF'), width: '120', styleName: 'text-right', numberFormat: '#,##0' },
     { fieldName: 'booYn', header: t('MSG_TXT_RSV_YN'), width: '100', styleName: 'text-center' },
     { fieldName: 'ogCd', header: t('MSG_TXT_BRANCH'), width: '100', styleName: 'text-center' },
     { fieldName: 'cntrPdStrtdt', header: t('MSG_TXT_IST_DT'), width: '120', styleName: 'text-center', datetimeFormat: 'date' },
@@ -621,10 +621,10 @@ function initGrid(data, view) {
   const wellsMLayout = [
     'redfAdsbOcYm', 'slYm', 'pdGub', 'envrYn', 'pdCd', 'pdClsfNm',
     'cntrNoSn', 'cstKnm', 'prtnrKnm', 'prtnrNo',
-    'gnlrLedrNo',
-    'localAreaManagerNo',
-    'branchManagerNo',
-    'dstrcManagerNo',
+    'gnlrLedr',
+    'localAreaManager',
+    'branchManager',
+    'dstrcManager',
     'perfTpCd', 'thmOcDlqAmt', 'cntrDtlStatChRsonNm', 'dlqYm', 'rdsbYm',
     'rentalAmt', 'mchnChTpCd', 'feeFxamYn', 'feeAckmtCt', 'perfVal1',
     'perfVal2', 'sellDscDvCd', 'sellDscrCd', 'sellDscTpCd', 'pakSn',
@@ -635,10 +635,10 @@ function initGrid(data, view) {
   const wellsPLayout = [
     'redfAdsbOcYm', 'slYm', 'pdGub', 'envrYn', 'pdCd', 'pdClsfNm',
     'cntrNoSn', 'cstKnm', 'prtnrKnm', 'prtnrNo',
-    'gnlrLedrNo',
-    'localAreaManagerNo',
-    'branchManagerNo',
-    'dstrcManagerNo',
+    'gnlrLedr',
+    'localAreaManager',
+    'branchManager',
+    'dstrcManager',
     'perfTpCd', 'thmOcDlqAmt', 'cntrDtlStatChRsonNm', 'dlqYm', 'rdsbYm',
     'rentalAmt', 'mchnChTpCd', 'feeFxamYn', 'feeAckmtCt', 'perfVal1',
     'perfVal2', 'sellDscDvCd', 'sellDscrCd', 'sellDscTpCd', 'pakSn',
