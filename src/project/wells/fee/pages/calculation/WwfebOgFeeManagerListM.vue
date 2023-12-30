@@ -288,6 +288,7 @@ function getGridColumns() {
         { fieldName: 'mngerBltnNmn', header: t('MSG_TXT_OPNG_NMN'), width: '91.4', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' }, // 매니저개시사항-개시차월
         { fieldName: 'mngerSettleDsbTp', header: t('MSG_TXT_STMNT') + t('MSG_TXT_PAY_TYPE'), width: '91.4', styleName: 'text-center', options: codes.OPNG_CD }, // 매니저개시사항-정착지급유형
         { fieldName: 'indvD5AsnCnt', header: `5${t('MSG_TXT_D')}${t('MSG_TXT_ASN_N')}`, width: '91.4', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' }, // 매니저개시사항-5일배정수
+        { fieldName: 'aclActiWmAchv', header: `${t('MSG_TXT_ACL_ACTI')} WM ${t('MSG_TXT_ACHV')}`, width: '91.4', styleName: 'text-center' }, // 실활동 WM 달성
         { fieldName: 'indvAsnCnt',
           header: t('MSG_TXT_ASGN_CT'),
           width: '91.4',
@@ -469,6 +470,7 @@ function getGridColumns() {
         { fieldName: 'qlfDvNm', header: t('MSG_TXT_FEE') + t('MSG_TXT_MON'), width: '91.4', styleName: 'text-center' }, // 자격-수수료월
         { fieldName: 'nmnQlfDvNm', header: 'M+1', width: '140', styleName: 'text-center' }, // 자격-M+1
         { fieldName: 'eduBrmgrOnl', header: t('MSG_TXT_BRANCH') + t('MSG_TXT_ONL'), width: '91.4', styleName: 'text-center', datetimeFormat: 'yyyy-MM' }, // 교육-지점온라인
+        { fieldName: 'aclActiWmAchvCnt', header: `${t('MSG_TXT_ACL_ACTI')} WM ${t('MSG_TXT_PERSONS')}`, width: '91.4', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' }, // 실활동 WM 인원
         { fieldName: 'indvAsnCnt',
           header: t('MSG_TXT_ASGN_CT'),
           width: '91.4',
@@ -2330,6 +2332,7 @@ function setGridColumnLayout(view) {
           direction: 'horizontal',
           items: ['strtup', 'preStrtup', 'eduCmpf', 'eduMngerSettle1', 'eduMngerSettle2', 'eduMngerSettle345', 'edu2Pre', 'topmrSettle', 'topmrNmn'],
         },
+        'aclActiWmAchv',
         {
           header: t('MSG_TXT_MANAGER') + t('MSG_TXT_OPNG_ARTC'), // 매니저개시사항
           direction: 'horizontal',
@@ -2390,6 +2393,7 @@ function setGridColumnLayout(view) {
           direction: 'horizontal',
           items: ['eduBrmgrOnl'],
         },
+        'aclActiWmAchvCnt',
         {
           header: `${t('MSG_TXT_INDV')}BS`, // 개인BS
           direction: 'horizontal',
