@@ -210,7 +210,7 @@
         :label="$t('MSG_TXT_WDWAL_DT')"
       >
         <p>
-          {{ sales.wdwalDt }}
+          {{ sales.canDt }}
         </p>
       </kw-form-item>
       <kw-form-item
