@@ -166,7 +166,7 @@ async function checkFeeCalcPrtcContStatus(feeCalcPrtcId, totalFeeCount) {
     }, 1500);
   } else if (res.data.feeCalcPrtcStatCd === '01') {
     calculationFeeStatus.value = `${res.data.calcFeeName} 계산 중 (${res.data.calcFeeCount}/${totalFeeCount})`;
-    setTimeout(async () => await checkFeeCalcPrtcContStatus(res.data.feeCalcPrtcId, totalFeeCount), 1000);
+    setTimeout(async () => await checkFeeCalcPrtcContStatus(feeCalcPrtcId, totalFeeCount), 1000);
   }
 }
 
@@ -178,7 +178,7 @@ async function checkFeeCalcPrtcStatus() {
     setTimeout(() => {
       ok(true);
       notify(t('MSG_ALT_CRT_FSH')); // 생성되었습니다.
-    }, 2000);
+    }, 1500);
   } else if (res.data.feeCalcPrtcStatCd === '01') {
     calculationFeeStatus.value = `${res.data.calcFeeName} 계산 중 (${res.data.calcFeeCount}/${res.data.totalFeeCount})`;
     setTimeout(async () => await checkFeeCalcPrtcContStatus(res.data.feeCalcPrtcId, res.data.totalFeeCount), 1000);
