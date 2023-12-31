@@ -23,7 +23,7 @@
     <kw-form-row>
       <kw-form-item :label="$t('MSG_TXT_CCAM_TOT_AMT')">
         <p>
-          {{ breachOfPromise.eotBorAmt }}
+          {{ breachOfPromise.borAmt }}
         </p>
       </kw-form-item>
       <kw-form-item :label="$t('MSG_TXT_BOR_DP')">
@@ -129,7 +129,7 @@ async function fetchData() {
   const res = await dataService.get('/sms/wells/bond/same-customer-contracts/breach-of-promise', { params: paramData.value });
   breachOfPromise.value = res.data;
 
-  breachOfPromise.value.eotBorAmt = stringUtil.getNumberWithComma(breachOfPromise.value.eotBorAmt);
+  breachOfPromise.value.borAmt = stringUtil.getNumberWithComma(breachOfPromise.value.borAmt);
   breachOfPromise.value.dpCcamSumAmt = stringUtil.getNumberWithComma(breachOfPromise.value.dpCcamSumAmt);
   breachOfPromise.value.borBlam = stringUtil.getNumberWithComma(breachOfPromise.value.borBlam);
   breachOfPromise.value.thmSlSumAmt = stringUtil.getNumberWithComma(breachOfPromise.value.thmSlSumAmt);

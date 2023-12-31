@@ -97,8 +97,8 @@
             <kw-form-item :label="$t('MSG_TXT_CCAM')">
               <p>{{ deposit.rsgBorAmt }}</p>
             </kw-form-item>
-            <kw-form-item :label="$t('MSG_TXT_DLQ_AMT')">
-              <p>{{ deposit.dlqAmt }}</p>
+            <kw-form-item :label="$t('MSG_TXT_TOT_DLQ_AMT')">
+              <p>{{ deposit.totDlqAmt }}</p>
             </kw-form-item>
             <kw-form-item :label="$t('MSG_TXT_SL_AGG')">
               <p>{{ deposit.slAggAmt }}</p>
@@ -112,8 +112,8 @@
             <kw-form-item :label="$t('MSG_TXT_LSFE')">
               <p>{{ deposit.lsRntf }}</p>
             </kw-form-item>
-            <kw-form-item :label="$t('MSG_TXT_DLQ_DP')">
-              <p>{{ deposit.dlqDpAmt }}</p>
+            <kw-form-item :label="$t('MSG_TXT_TOT_DLQ_DP')">
+              <p>{{ deposit.totDlqDpAmt }}</p>
             </kw-form-item>
             <kw-form-item :label="$t('MSG_TXT_DP_AGG')">
               <p>{{ deposit.dpAggAmt }}</p>
@@ -127,8 +127,8 @@
             <kw-form-item :label="$t('MSG_TXT_DLQ_MCNT')">
               <p>{{ deposit.dlqMcn }}</p>
             </kw-form-item>
-            <kw-form-item :label="$t('MSG_TXT_DLQ_BLAM')">
-              <p>{{ deposit.dlqBlam }}</p>
+            <kw-form-item :label="$t('MSG_TXT_TOT_DLQ_BLAM')">
+              <p>{{ deposit.totDlqBlam }}</p>
             </kw-form-item>
             <kw-form-item :label="$t('MSG_TXT_DSC_AGG')">
               <p>{{ deposit.dscAggAmt }}</p>
@@ -283,14 +283,14 @@ async function fetchDeposit() {
 
   deposit.value.ojAmt = stringUtil.getNumberWithComma(deposit.value.ojAmt);
   deposit.value.rsgBorAmt = stringUtil.getNumberWithComma(deposit.value.rsgBorAmt);
-  deposit.value.dlqAmt = stringUtil.getNumberWithComma(deposit.value.dlqAmt);
+  deposit.value.totDlqAmt = stringUtil.getNumberWithComma(deposit.value.totDlqAmt);
   deposit.value.slAggAmt = stringUtil.getNumberWithComma(deposit.value.slAggAmt);
   deposit.value.ojDpAmt = stringUtil.getNumberWithComma(deposit.value.ojDpAmt);
   deposit.value.lsRntf = stringUtil.getNumberWithComma(deposit.value.lsRntf);
-  deposit.value.dlqDpAmt = stringUtil.getNumberWithComma(deposit.value.dlqDpAmt);
+  deposit.value.totDlqDpAmt = stringUtil.getNumberWithComma(deposit.value.totDlqDpAmt);
   deposit.value.dpAggAmt = stringUtil.getNumberWithComma(deposit.value.dpAggAmt);
   deposit.value.ojBlam = stringUtil.getNumberWithComma(deposit.value.ojBlam);
-  deposit.value.dlqBlam = stringUtil.getNumberWithComma(deposit.value.dlqBlam);
+  deposit.value.totDlqBlam = stringUtil.getNumberWithComma(deposit.value.totDlqBlam);
   deposit.value.dscAggAmt = stringUtil.getNumberWithComma(deposit.value.dscAggAmt);
   deposit.value.ucAmt = stringUtil.getNumberWithComma(deposit.value.ucAmt);
   deposit.value.thmChramAmt = stringUtil.getNumberWithComma(deposit.value.thmChramAmt);
@@ -394,8 +394,8 @@ const initLentalGrid = defineGrid((data, view) => {
     { fieldName: 'perfYm', header: t('MSG_TXT_PERF_MM'), width: '160', styleName: 'text-center', datetimeFormat: 'yyyy-MM' }, // 실적월
     { fieldName: 'rentalTn', header: t('MSG_TXT_NMN'), width: '130', styleName: 'text-center' }, // 차월
     { fieldName: 'thmSlSumAmt', header: t('MSG_TXT_SL_AMT'), width: '240', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' }, // 매출금액
-    { fieldName: 'dpAmt', header: t('MSG_TXT_DP_AMT'), width: '240', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' }, // 입금금액
-    { fieldName: 'atamCvAmt', header: t('MSG_TXT_BZNS_PRPD_AMT'), width: '240', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' }, // 영업선수금액
+    { fieldName: 'dpAmtFnl', header: t('MSG_TXT_DP_AMT'), width: '240', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' }, // 입금금액
+    { fieldName: 'prmAmt', header: t('MSG_TXT_BZNS_PRPD_AMT'), width: '240', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' }, // 영업선수금액
     { fieldName: 'dlqAmt', header: t('MSG_TXT_DLQ_AMT'), width: '242', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' }, // 연체금액
   ];
 
@@ -414,13 +414,13 @@ const initMembershipGrid = defineGrid((data, view) => {
   const columns = [
     { fieldName: 'rentalTn', header: t('MSG_TXT_NMN'), width: '110', styleName: 'text-center' }, // 차월
     { fieldName: 'thmSlSumAmt', header: t('MSG_TXT_SL_AMT'), width: '130', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' }, // 매출금액
-    { fieldName: 'dpAmt', header: t('MSG_TXT_DP_AMT'), width: '130', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' }, // 입금금액
-    { fieldName: 'atamCvAmt', header: t('MSG_TXT_BZNS_PRPD_AMT'), width: '130', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' }, // 영업선수금액
+    { fieldName: 'dpAmtFnl', header: t('MSG_TXT_DP_AMT'), width: '130', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' }, // 입금금액
+    { fieldName: 'prmAmt', header: t('MSG_TXT_BZNS_PRPD_AMT'), width: '130', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' }, // 영업선수금액
     { fieldName: 'dlqAmt', header: t('MSG_TXT_DLQ_AMT'), width: '130', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' }, // 연체금액
-    { fieldName: 'dlqMcn', header: t('MSG_TXT_DLQ_MCNT'), width: '130', styleName: 'text-center', dataType: 'number', numberFormat: '#,##0' }, // 연체개월
-    { fieldName: 'dlqAddAmt', header: t('MSG_BTN_DLQ_ADAMT'), width: '130', styleName: 'text-right' }, // 연체가산금
-    { fieldName: 'dlqAddDpAmt', header: t('MSG_TXT_DLQ_ADD_DP'), width: '130', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' }, // 연체가산입금
-    { fieldName: 'dlqAddBlam', header: t('MSG_TXT_DLQ_ADD_BLAM'), width: '130', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' }, // 연체가산잔액
+    { fieldName: 'dlqMcn1', header: t('MSG_TXT_DLQ_MCNT'), width: '130', styleName: 'text-center', dataType: 'number', numberFormat: '#,##0' }, // 연체개월
+    { fieldName: 'dlqAddAmt1', header: t('MSG_BTN_DLQ_ADAMT'), width: '130', styleName: 'text-right' }, // 연체가산금
+    { fieldName: 'dlqAddDpAmt1', header: t('MSG_TXT_DLQ_ADD_DP'), width: '130', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' }, // 연체가산입금
+    { fieldName: 'dlqAddBlam1', header: t('MSG_TXT_DLQ_ADD_BLAM'), width: '130', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' }, // 연체가산잔액
     { fieldName: 'ucAmt', header: t('MSG_TXT_UCAM'), width: '130', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' }, // 미수금
   ];
 
