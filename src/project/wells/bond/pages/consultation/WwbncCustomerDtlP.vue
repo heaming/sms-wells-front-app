@@ -1649,7 +1649,7 @@ const initGrdMain = defineGrid((data, view) => {
     { fieldName: 'cntrDtlNo' },
     { fieldName: 'cstKnm' },
     { fieldName: 'dlqMcn' },
-    { fieldName: 'authRsgCnfmdt' },
+    { fieldName: 'authRsg' },
     { fieldName: 'ojAmt', dataType: 'number' },
     { fieldName: 'ojDp', dataType: 'number' },
     { fieldName: 'ojBlam', dataType: 'number' },
@@ -1719,7 +1719,7 @@ const initGrdMain = defineGrid((data, view) => {
     { fieldName: 'vacNo', header: t('MSG_TXT_VT_AC_NO'), width: '160', styleName: 'text-center' }, // 가상계좌번호
     { fieldName: 'prtnrNo', header: '', width: '100', styleName: 'text-center', visible: false }, // 집금담당번호
     { fieldName: 'prtnrNm', header: t('MSG_TXT_CLCTAM_ICHR'), styleName: 'text-center' }, // 집금담당명
-    { fieldName: 'authRsgCnfmdt', header: t('MSG_TXT_AUTH_RSG_DT'), width: '130', styleName: 'text-center', datetimeFormat: 'date' }, // 직권해지일자
+    { fieldName: 'authRsg', header: t('MSG_TXT_AUTH_RSG_DT'), width: '130', styleName: 'text-center' }, // 직권해지일자
     { fieldName: 'mmChramDp', header: t('MSG_TXT_MM_CHRAM_DP'), width: '130', styleName: 'text-right', numberFormat: '#,##0', headerSummaries: { valueCallback: summaryCallback, numberFormat: '#,##0' } }, // 월요금입금
     { fieldName: 'mmChramBlam', header: t('MSG_TXT_MM_CHRAM_BLAM'), width: '130', styleName: 'text-right', numberFormat: '#,##0', headerSummaries: { valueCallback: summaryCallback, numberFormat: '#,##0' } }, // 월요금잔액
     { fieldName: 'dlqAddDp', header: t('MSG_TXT_DLQ_ADD_DP'), width: '130', styleName: 'text-right', numberFormat: '#,##0', headerSummaries: { valueCallback: summaryCallback, numberFormat: '#,##0' } }, // 연체가산입금
