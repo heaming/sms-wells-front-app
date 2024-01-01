@@ -33,6 +33,15 @@
           <p>{{ data.tcntDvTxt }}</p>
         </kw-form-item>
       </kw-form-row>
+      <kw-form-row>
+        <kw-form-item
+          :label="$t('MSG_TXT_PRGS_STATUS')"
+        >
+          <p>
+            {{ perfAgrgStatus }}
+          </p>
+        </kw-form-item>
+      </kw-form-row>
     </kw-form>
     <template #action>
       <kw-btn
@@ -81,6 +90,7 @@ const data = ref({
   feeTcntDvCd: props.feeTcntDvCd,
   tcntDvTxt: codes.FEE_TCNT_DV_CD.find((v) => v.codeId === props.feeTcntDvCd).codeName,
 });
+const perfAgrgStatus = ref('');
 
 // -------------------------------------------------------------------------------------------------
 // Function & Event
@@ -89,12 +99,49 @@ async function onClickCancel() {
   cancel();
 }
 
+/* 수수료계산진행상태 체크 - 두번째 이상 */
+async function checkPerfAgrgPrtcContStatus(perfAgrgPrtcId) {
+  const res = await dataService.get(`/sms/common/fee/perf-agrg-prtc-hist/perf-agrg-prtc-status/${perfAgrgPrtcId}`, { spinner: false });
+
+  if (res.data.perfAgrgPrtcStatCd === '01') {
+    perfAgrgStatus.value = res.data.perfAgrgStatusString;
+    setTimeout(async () => await checkPerfAgrgPrtcContStatus(perfAgrgPrtcId), 1000);
+  } else {
+    // eslint-disable-next-line no-alert
+    alert(t('MSG_ALT_ERR_CONTACT_ADMIN'));
+  }
+}
+
+/* 수수료계산진행상태 체크 - 최초, 배치를 호출하고 실행ID가 변경될 때까지 반복 */
+async function checkPerfAgrgPrtcStatus(beforePerfAgrgPrtcId = undefined) {
+  const res = await dataService.get(`/sms/common/fee/perf-agrg-prtc-hist/perf-agrg-prtc-first-status/${data.value.perfYm}-${data.value.feeTcntDvCd}-01-01`, { spinner: false });
+
+  if (beforePerfAgrgPrtcId === undefined) {
+    setTimeout(async () => await checkPerfAgrgPrtcStatus(res.data.perfAgrgPrtcId), 1000);
+  } else if (beforePerfAgrgPrtcId !== res.data.perfAgrgPrtcId) {
+    if (res.data.perfAgrgPrtcStatCd === '01') {
+      perfAgrgStatus.value = res.data.perfAgrgStatusString;
+      setTimeout(async () => await checkPerfAgrgPrtcContStatus(res.data.perfAgrgPrtcId), 1000);
+    } else {
+      // eslint-disable-next-line no-alert
+      alert(t('MSG_ALT_ERR_CONTACT_ADMIN'));
+    }
+  }
+}
 /*
  *  Event - 수수료 집계정보 생성
  */
 async function onClickSave() {
   if (!await confirm(t('MSG_ALT_AGRG'))) { return; }
-  const response = await dataService.post('/sms/wells/fee/monthly-net/aggregations', data.value);
+
+  perfAgrgStatus.value = '실적집계 호출 중';
+  const [response] = await Promise.all([
+    dataService.post('/sms/wells/fee/monthly-net/aggregations', data.value),
+    checkPerfAgrgPrtcStatus(undefined),
+  ]);
+
+  console.log(response);
+
   if (response.data === 'S') ok(response.data);
 }
 
