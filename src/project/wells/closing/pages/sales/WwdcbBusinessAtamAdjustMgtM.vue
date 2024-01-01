@@ -224,7 +224,6 @@ async function fetchData() {
   cachedSapPdDvCd.value = searchParams.value.sapPdDvCd;
 
   let res;
-  console.log('searchGubun:', searchGubun);
   if (searchGubun === '1') { // 집계
     res = await dataService.get('/sms/wells/closing/business-atam-adjusts/total/paging', { params: cachedParams });
   } else if (searchGubun === '2') { // 상세
@@ -242,6 +241,12 @@ async function fetchData() {
   }
 
   mainView.getDataSource().setRows(mainList);
+
+  const { data: { slBndAlrpyAmt, dpBlam, ucAmt } } = await dataService.get('/sms/wells/closing/business-atam-adjusts/summary', { params: cachedParams });
+
+  mainView.columnByName('slBndAlrpyAmt').setHeaderSummaries({ valueCallback: () => Number(slBndAlrpyAmt), styleName: 'text-right', numberFormat: '#,##0' });
+  mainView.columnByName('dpBlam').setHeaderSummaries({ valueCallback: () => Number(dpBlam), styleName: 'text-right', numberFormat: '#,##0' });
+  mainView.columnByName('ucAmt').setHeaderSummaries({ valueCallback: () => Number(ucAmt), styleName: 'text-right', numberFormat: '#,##0' });
 }
 
 // 조회 버튼 클릭
@@ -377,9 +382,6 @@ const initGrdTotal = defineGrid((data, view) => {
   });
 
   view.columnByName('sellTpCd').setHeaderSummaries({ text: t('MSG_TXT_SUM'), styleName: 'text-center' });
-  view.columnByName('slBndAlrpyAmt').setHeaderSummaries({ numberFormat: '#,##0', expression: 'sum' });
-  view.columnByName('dpBlam').setHeaderSummaries({ numberFormat: '#,##0', expression: 'sum' });
-  view.columnByName('ucAmt').setHeaderSummaries({ numberFormat: '#,##0', expression: 'sum' });
 
   view.layoutByColumn('sellTpCd').summaryUserSpans = [{ colspan: 5 }];
 
@@ -449,9 +451,6 @@ const initGrdDetail = defineGrid((data, view) => {
   });
 
   view.columnByName('sellTpCd').setHeaderSummaries({ text: t('MSG_TXT_SUM'), styleName: 'text-center' });
-  view.columnByName('slBndAlrpyAmt').setHeaderSummaries({ numberFormat: '#,##0', expression: 'sum' });
-  view.columnByName('dpBlam').setHeaderSummaries({ numberFormat: '#,##0', expression: 'sum' });
-  view.columnByName('ucAmt').setHeaderSummaries({ numberFormat: '#,##0', expression: 'sum' });
 
   view.layoutByColumn('sellTpCd').summaryUserSpans = [{ colspan: 8 }];
   view.checkBar.visible = false;
