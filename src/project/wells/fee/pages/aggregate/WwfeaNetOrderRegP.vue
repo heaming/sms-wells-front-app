@@ -106,9 +106,6 @@ async function checkPerfAgrgPrtcContStatus(perfAgrgPrtcId) {
   if (res.data.perfAgrgPrtcStatCd === '01') {
     perfAgrgStatus.value = res.data.perfAgrgStatusString;
     setTimeout(async () => await checkPerfAgrgPrtcContStatus(perfAgrgPrtcId), 1000);
-  } else {
-    // eslint-disable-next-line no-alert
-    alert(t('MSG_ALT_ERR_CONTACT_ADMIN'));
   }
 }
 
@@ -122,9 +119,6 @@ async function checkPerfAgrgPrtcStatus(beforePerfAgrgPrtcId = undefined) {
     if (res.data.perfAgrgPrtcStatCd === '01') {
       perfAgrgStatus.value = res.data.perfAgrgStatusString;
       setTimeout(async () => await checkPerfAgrgPrtcContStatus(res.data.perfAgrgPrtcId), 1000);
-    } else {
-      // eslint-disable-next-line no-alert
-      alert(t('MSG_ALT_ERR_CONTACT_ADMIN'));
     }
   }
 }
@@ -139,8 +133,6 @@ async function onClickSave() {
     dataService.post('/sms/wells/fee/monthly-net/aggregations', data.value),
     checkPerfAgrgPrtcStatus(undefined),
   ]);
-
-  console.log(response);
 
   if (response.data === 'S') ok(response.data);
 }
