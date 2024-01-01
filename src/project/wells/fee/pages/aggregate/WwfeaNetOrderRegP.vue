@@ -99,7 +99,7 @@ async function onClickCancel() {
   cancel();
 }
 
-/* 수수료계산진행상태 체크 - 두번째 이상 */
+/* 실적집계진행상태 체크 - 두번째 이상 */
 async function checkPerfAgrgPrtcContStatus(perfAgrgPrtcId) {
   const res = await dataService.get(`/sms/common/fee/perf-agrg-prtc-hist/perf-agrg-prtc-status/${perfAgrgPrtcId}`, { spinner: false });
 
@@ -109,7 +109,7 @@ async function checkPerfAgrgPrtcContStatus(perfAgrgPrtcId) {
   }
 }
 
-/* 수수료계산진행상태 체크 - 최초, 배치를 호출하고 실행ID가 변경될 때까지 반복 */
+/* 실적집계진행상태 체크 - 최초, 배치를 호출하고 실행ID가 변경될 때까지 반복 */
 async function checkPerfAgrgPrtcStatus(beforePerfAgrgPrtcId = undefined) {
   const res = await dataService.get(`/sms/common/fee/perf-agrg-prtc-hist/perf-agrg-prtc-first-status/${data.value.perfYm}-${data.value.feeTcntDvCd}-01-01`, { spinner: false });
 
