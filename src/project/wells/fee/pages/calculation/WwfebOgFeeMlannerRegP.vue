@@ -157,10 +157,7 @@ async function onClickCancel() {
 async function checkFeeCalcPrtcContStatus(feeCalcPrtcId) {
   const res = await dataService.get(`/sms/common/fee/fee-calc-prtc-hist/fee-calc-prtc-status/${feeCalcPrtcId}`);
 
-  if (res.data.feeCalcPrtcStatCd === '02') {
-    ok(true);
-    notify(t('MSG_ALT_CRT_FSH')); // 생성되었습니다.
-  } else if (res.data.feeCalcPrtcStatCd === '01') {
+  if (res.data.feeCalcPrtcStatCd === '01') {
     calculationFeeStatus.value = res.data.calculationFeeStatusString;
     setTimeout(async () => await checkFeeCalcPrtcContStatus(feeCalcPrtcId), 1000);
   }
@@ -170,10 +167,7 @@ async function checkFeeCalcPrtcContStatus(feeCalcPrtcId) {
 async function checkFeeCalcPrtcStatus() {
   const res = await dataService.get(`/sms/common/fee/fee-calc-prtc-hist/fee-calc-prtc-first-status/${regData.value.perfYm}-${regData.value.feeTcntDvCd}-${regData.value.feeCalcUnitTpCd}`);
 
-  if (res.data.feeCalcPrtcStatCd === '02') {
-    ok(true);
-    notify(t('MSG_ALT_CRT_FSH')); // 생성되었습니다.
-  } else if (res.data.feeCalcPrtcStatCd === '01') {
+  if (res.data.feeCalcPrtcStatCd === '01') {
     calculationFeeStatus.value = res.data.calculationFeeStatusString;
     setTimeout(async () => await checkFeeCalcPrtcContStatus(res.data.feeCalcPrtcId), 1000);
   }
@@ -181,10 +175,13 @@ async function checkFeeCalcPrtcStatus() {
 // 생성
 async function onClickCreate() {
   if (!await popupRef.value.validate()) { return; }
-  dataService.post(`/sms/common/fee/fee-calculation/${regData.value.perfYm}-${regData.value.feeTcntDvCd}-${regData.value.feeCalcUnitTpCd}`, null, { timeout: 5 * 60 * 1000 });
+  await Promise.all([
+    dataService.post(`/sms/common/fee/fee-calculation/${regData.value.perfYm}-${regData.value.feeTcntDvCd}-${regData.value.feeCalcUnitTpCd}`, null, { timeout: 5 * 60 * 1000 }),
+    setTimeout(() => checkFeeCalcPrtcStatus(), 1000),
+  ]);
 
-  /* 수수료계산진행상태 체크 */
-  setTimeout(async () => await checkFeeCalcPrtcStatus(), 2000);
+  ok(true);
+  notify(t('MSG_ALT_CRT_FSH')); // 생성되었습니다.
 }
 // -------------------------------------------------------------------------------------------------
 // Initialize Grid
