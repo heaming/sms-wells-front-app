@@ -296,7 +296,7 @@ async function fetchSummaryData(apiParam) {
     setSummaryData('ttrmCsAmt', res);
     setSummaryData('piaFeeEotBlam', res);
   } else if (apiParam === 'details') {
-    setSummaryData('slAmt', res);
+    // setSummaryData('slAmt', res);
     setSummaryData('feeOcAmt', res);
     setSummaryData('piaFeeOcAmt', res);
     setSummaryData('piaCsYn', res);
@@ -442,7 +442,7 @@ const initGridDtl = defineGrid((data, view) => {
     { fieldName: 'pdHclsfNm', header: t('MSG_TXT_PD_HCLSF_NM'), width: '150', styleName: 'text-center' },
     { fieldName: 'pdMclsfNm', header: t('MSG_TXT_PD_MCLSF_NM'), width: '150', styleName: 'text-center' },
     { fieldName: 'baseYm', header: t('MSG_TXT_BASE_YM'), width: '120', styleName: 'text-center', datetimeFormat: 'yyyy-MM' },
-    { fieldName: 'cntrNo', header: t('MSG_TXT_CNTR_DTL_NO'), width: '120', styleName: 'text-center' },
+    { fieldName: 'cntrNo', header: t('MSG_TXT_CNTR_DTL_NO'), width: '150', styleName: 'text-center' },
     { fieldName: 'pdCd', header: t('MSG_TXT_PRDT_CODE'), width: '150', styleName: 'text-center' },
     { fieldName: 'pdNm', header: t('MSG_TXT_PRDT_NM'), width: '150', styleName: 'text-center' },
     { fieldName: 'feeOcAmt', header: t('MSG_TXT_FEE_OC_AMT'), width: '120', styleName: 'text-right', numberFormat: '#,##0', dataType: 'number' },
