@@ -119,7 +119,7 @@
         />
         <kw-btn
           v-permission:create
-          :disable="cachedSearchGubun==='2'"
+          :disable="cachedSearchGubun==='2' || cachedSapPdDvCd !== 'ALL'"
           primary
           dense
           :label="$t('MSG_BTN_SLIP_CRT')"
@@ -205,6 +205,7 @@ const pageInfo = ref({
 });
 
 const cachedSearchGubun = ref(searchParams.value.searchGubun);
+const cachedSapPdDvCd = ref(searchParams.value.sapPdDvCd);
 
 let cachedParams;
 // 조회
@@ -220,6 +221,7 @@ async function fetchData() {
     ...pageInfo.value,
   };
   cachedSearchGubun.value = searchParams.value.searchGubun;
+  cachedSapPdDvCd.value = searchParams.value.sapPdDvCd;
 
   let res;
   console.log('searchGubun:', searchGubun);
