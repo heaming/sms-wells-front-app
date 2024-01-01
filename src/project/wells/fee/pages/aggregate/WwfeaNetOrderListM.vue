@@ -385,6 +385,12 @@
           label="가지급금생성"
           @click="TEST2()"
         />
+        <kw-btn
+          v-if="isTestVisile"
+          dense
+          label="미팅참석집계"
+          @click="TEST3()"
+        />
       </kw-action-top>
       <kw-grid
         v-if="isGridDtlVisible"
@@ -815,6 +821,18 @@ async function TEST2() {
   await modal({
     component: 'ZwfecFeePnpyamDeductionRegP',
     componentProps: param,
+  });
+}
+
+async function TEST3() {
+  await modal({
+    component: 'ZwfeaFeeMeetingAttendanceRegP',
+    componentProps: {
+      ogTpCd: 'W02',
+      perfYm: '202311',
+      feeTcntDvCd: '02',
+      rsbDvCd: 'W0205',
+    },
   });
 }
 
