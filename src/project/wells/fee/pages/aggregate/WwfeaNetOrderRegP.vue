@@ -113,7 +113,7 @@ async function checkPerfAgrgPrtcContStatus(perfAgrgPrtcId) {
 async function checkPerfAgrgPrtcStatus(beforePerfAgrgPrtcId = undefined) {
   const res = await dataService.get(`/sms/common/fee/perf-agrg-prtc-hist/perf-agrg-prtc-first-status/${data.value.perfYm}-${data.value.feeTcntDvCd}-01-01`, { spinner: false });
 
-  if (beforePerfAgrgPrtcId === undefined) {
+  if (beforePerfAgrgPrtcId === undefined || beforePerfAgrgPrtcId === res.data.perfAgrgPrtcId) {
     setTimeout(async () => await checkPerfAgrgPrtcStatus(res.data.perfAgrgPrtcId), 1000);
   } else if (beforePerfAgrgPrtcId !== res.data.perfAgrgPrtcId) {
     if (res.data.perfAgrgPrtcStatCd === '01') {
