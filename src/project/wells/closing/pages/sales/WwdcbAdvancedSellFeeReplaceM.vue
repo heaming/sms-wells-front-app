@@ -259,11 +259,11 @@ const gridControl = ref({
 
 async function setSummaryData(column, res) {
   const view = grdMainRef.value.getView();
-  const valueY = res.data[0];
-  const valueN = res.data[1];
+  const valueY = res.data.filter((row) => row.piaCsYn === 'Y')[0] ?? {};
+  const valueN = res.data.filter((row) => row.piaCsYn === 'N')[0] ?? {};
 
   if (column !== 'piaCsYn') {
-    const valueSum = `${valueY[column] * 1 + valueN[column] * 1}`;
+    const valueSum = `${(valueY[column] ?? 0) * 1 + (valueN[column] ?? 0) * 1}`;
     const strSum = textToNumberFormatter(valueSum);
     const strY = textToNumberFormatter(valueY[column]);
     const strN = textToNumberFormatter(valueN[column]);
@@ -390,10 +390,10 @@ const initGrid = defineGrid((data, view) => {
     { fieldName: 'ogTpCd', header: t('MSG_TXT_OG_TP'), width: '140', styleName: 'text-center', options: codes.OG_TP_CD }, // 조직유형
     { fieldName: 'sellTpCd', header: t('MSG_TXT_SEL_TYPE'), width: '120', styleName: 'text-center', options: codes.SELL_TP_CD }, // 판매유형
     { fieldName: 'sellTpDtlCd', header: t('MSG_TXT_SELL_TP_DTL'), width: '150', styleName: 'text-center', options: codes.SELL_TP_DTL_CD }, // 판매유형상세
-    { fieldName: 'pdHclsfNm', header: t('MSG_TXT_PD_HCLSF_NM'), width: '150', styleName: 'text-center' }, // 상품대분류
-    { fieldName: 'pdMclsfNm', header: t('MSG_TXT_PD_MCLSF_NM'), width: '150', styleName: 'text-center' }, // 상품중분류
+    // { fieldName: 'pdHclsfNm', header: t('MSG_TXT_PD_HCLSF_NM'), width: '150', styleName: 'text-center' }, // 상품대분류
+    // { fieldName: 'pdMclsfNm', header: t('MSG_TXT_PD_MCLSF_NM'), width: '150', styleName: 'text-center' }, // 상품중분류
     { fieldName: 'baseYm', header: t('MSG_TXT_BASE_YM'), width: '120', styleName: 'text-center', datetimeFormat: 'yyyy-MM' }, // 기준년월
-    { fieldName: 'slAmt', header: t('MSG_TXT_SL_AMT'), width: '120', styleName: 'text-right', numberFormat: '#,##0', dataType: 'number' }, // 매출금액
+    { fieldName: 'slAmt', header: t('MSG_TXT_SL_AMT'), width: '150', styleName: 'text-right', numberFormat: '#,##0', dataType: 'number' }, // 매출금액
     { fieldName: 'feeOcAmt', header: `①${t('MSG_TXT_FEE_OC_AMT')}`, width: '140', styleName: 'text-right', numberFormat: '#,##0', dataType: 'number' }, // 수수료발생금액
     { fieldName: 'feeOcYm', header: t('MSG_TXT_FEE_OC_YM'), width: '120', styleName: 'text-center', datetimeFormat: 'yyyy-MM' }, // 수수료발생년월
     { fieldName: 'piaCsYn', header: t('MSG_TXT_PIA_TARGET_YN'), width: '120', styleName: 'text-center', options: piaCsYnCode }, // 선급대상여부
@@ -422,9 +422,9 @@ const initGrid = defineGrid((data, view) => {
   });
 
   view.layoutByColumn('ogTpCd').summaryUserSpans = [
-    { colspan: 6 },
-    { colspan: 6 },
-    { colspan: 6 },
+    { colspan: 4 },
+    { colspan: 4 },
+    { colspan: 4 },
   ];
 
   view.columnByName('ogTpCd').setHeaderSummaries([
