@@ -156,7 +156,7 @@ async function onClickCancel() {
 
 /* 수수료계산진행상태 체크 - 두번째 이상 */
 async function checkFeeCalcPrtcContStatus(feeCalcPrtcId) {
-  const res = await dataService.get(`/sms/common/fee/fee-calc-prtc-hist/fee-calc-prtc-status/${feeCalcPrtcId}`);
+  const res = await dataService.get(`/sms/common/fee/fee-calc-prtc-hist/fee-calc-prtc-status/${feeCalcPrtcId}`, { spinner: false });
 
   if (res.data.feeCalcPrtcStatCd === '01') {
     calculationFeeStatus.value = res.data.calculationFeeStatusString;
@@ -166,7 +166,7 @@ async function checkFeeCalcPrtcContStatus(feeCalcPrtcId) {
 
 /* 수수료계산진행상태 체크 - 최초 */
 async function checkFeeCalcPrtcStatus() {
-  const res = await dataService.get(`/sms/common/fee/fee-calc-prtc-hist/fee-calc-prtc-first-status/${regData.value.perfYm}-${regData.value.feeTcntDvCd}-${regData.value.feeCalcUnitTpCd}`);
+  const res = await dataService.get(`/sms/common/fee/fee-calc-prtc-hist/fee-calc-prtc-first-status/${regData.value.perfYm}-${regData.value.feeTcntDvCd}-${regData.value.feeCalcUnitTpCd}`, { spinner: false });
 
   if (res.data.feeCalcPrtcStatCd === '01') {
     calculationFeeStatus.value = res.data.calculationFeeStatusString;
