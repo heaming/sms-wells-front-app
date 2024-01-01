@@ -283,8 +283,8 @@ async function onClickCreate() {
   }
   */
 
-  if (feeCnfmYn === 'Y') {
-    await alert(t('MSG_ALT_FEE_CL_CRT_IMP')); // 수수료 마감 이후 생성불가
+  if (feeCnfmYn === 'N') {
+    await alert(t('MSG_ALT_HDQ_PERF_CHECK')); // 본부 집계 완료 이전 생성불가
   } else if (opngCnfmYn === 'Y') {
     await alert(t('MSG_ALT_BF_CNFM_CONF')); // 개시구분 확정 이후 생성불가
   } else if (opngCnfmCnt > 0) {
