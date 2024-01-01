@@ -75,7 +75,6 @@ const { alert } = useGlobal();
 // const { ok } = useModal();
 const dataService = useDataService();
 const companyCode = ref([{ codeId: store.getters['meta/getUserInfo'].companyCode, codeName: store.getters['meta/getUserInfo'].companyName }]);
-const now = dayjs();
 // -------------------------------------------------------------------------------------------------
 // Function & Event
 // -------------------------------------------------------------------------------------------------
@@ -111,7 +110,7 @@ onMounted(async () => {
 });
 
 const saveParams = ref({
-  baseYm: now.format('YYYYMM'),
+  baseYm: props.chkDataRows[0].baseYm,
   sapBzDvCd: '1110',
   dpKndCd: props.dpKndCd,
 });
