@@ -53,10 +53,7 @@
       </kw-search-row>
 
       <kw-search-row>
-        <kw-search-item
-          v-if="ogTpCdW01"
-          :label="t('MSG_TXT_PROCS_TP')"
-        >
+        <kw-search-item :label="t('MSG_TXT_PROCS_TP')">
           <kw-select
             v-model="searchParams.redfAdsbTpCd"
             :options="filterRedfAdsbTpCd"
@@ -164,7 +161,6 @@ const { getConfig } = useMeta();
 const currentMonth = dayjs().subtract(0, 'month').format('YYYYMM');
 const { getUserInfo } = useMeta();
 const userInfo = getUserInfo();
-const ogTpCdW01 = ref(true);
 
 const codes = await codeUtil.getMultiCodes(
   'REDF_OG_TP_CD',
@@ -212,6 +208,7 @@ const searchParams = ref({
   rsbDvCd: codes.DDTN_RPLC_RSB_DV_CD[0].codeId, // 직책구분코드
   prtnrNo: '', // 파트너번호
   ogCd: '', // 조직코드
+
 });
 
 /* 되물림 금액 생성 */
@@ -879,16 +876,7 @@ watch(() => [searchParams.value.perfYmFrom,
   grdMainRef.value.getData().clearRows();
   const view = grdMainRef.value.getView();
 
-  if (searchParams.value.ogTpCd === 'W01') {
-    ogTpCdW01.value = false;
-    searchParams.value.redfAdsbTpCd = '';
-  }
-  if (searchParams.value.ogTpCd === 'W02') {
-    ogTpCdW01.value = true;
-    searchParams.value.redfAdsbTpCd = filterRedfAdsbTpCd.value[0].codeId;
-  }
-
-  if (searchParams.value.ogTpCd !== 'W01') {
+  if (searchParams.value.redfAdsbTpCd === '0202' && searchParams.value.ogTpCd !== 'W01') {
     if (searchParams.value.perfYmTo <= '201903' && searchParams.value.rsbDvCd === '01') {
       /* 2019년 3월 이전, 직책구분 - 지구장 이하 */
       view.setColumnLayout(perfLast201903AndDstrcColumnLayout);
@@ -931,7 +919,7 @@ watch(() => [searchParams.value.perfYmFrom,
     }
   }
 
-  if (searchParams.value.ogTpCd === 'W01') {
+  if (searchParams.value.redfAdsbTpCd === '0202' && searchParams.value.ogTpCd === 'W01') {
     if (searchParams.value.rsbDvCd === '01') {
       /* 조직유형이 WELLS-P, 직책구분이 지구장 이하일 때 */
       view.setColumnLayout(wpAndDstrcColumnLayout);
