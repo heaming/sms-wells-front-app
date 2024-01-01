@@ -133,7 +133,7 @@ const initGrdDetail = defineGrid((data, view) => {
     { fieldName: 'dgCstId', header: t('MSG_TXT_RPRS_CUST_NO'), width: '120', styleName: 'text-center', editable: false }, // 대표고객ID
     { fieldName: 'dgCstNm', header: t('MSG_TXT_DG_CST_CD_NM'), width: '120', styleName: 'text-center', editable: false }, // 대표고객명
     { fieldName: 'slBndAlrpyAmt', header: t('MSG_TXT_ALRPY_AMT') + t('MSG_TXT_WON'), width: '150', styleName: 'text-right', dataType: 'number', editable: false }, // 채권반제금액
-    { fieldName: 'bktxt', header: t('MSG_TXT_SMRY'), width: '300', styleName: 'text-left', editor: { maxLength: 333 } }, // 전표적요
+    { fieldName: 'bktxt', header: t('MSG_TXT_SMRY'), width: '300', styleName: 'text-center', editable: false, displayCallback: (fieldName, dataRow, value) => (value || `${dayjs(props.chkDataRows[0].baseYm).format('YYYY.MM')} 매출채권반제`) }, // 전표적요
     { fieldName: 'budat', width: '100', visible: false }, // 전기일자
     { fieldName: 'kwGrpCoCd', width: '100', visible: false }, // 교원그룹회사코드
   ];
