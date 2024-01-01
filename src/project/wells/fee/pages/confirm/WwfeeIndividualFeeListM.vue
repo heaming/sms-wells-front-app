@@ -130,6 +130,7 @@
           spaced
         />
         <kw-btn
+          v-if="isInqrPtrmSeVisible"
           v-permission:update
           :label="$t('MSG_BTN_FEE_INQR_PTRM_SE')"
           dense
@@ -175,6 +176,7 @@ const grdMainRef = ref(getComponentType('KwGrid'));
 const isSelectMrsbDvCdVisile = ref(true);
 const isSelectPrsbDvCdVisile = ref(false);
 const isSelectHrsbDvCdVisile = ref(false);
+const isInqrPtrmSeVisible = ref(false);
 const isReportVisible = ref(false);
 const { getUserInfo } = useMeta();
 const { roles } = getUserInfo();
@@ -305,19 +307,26 @@ async function fetchData() {
   const getDate = dayjs().format('YYYYMMDD');
 
   isReportVisible.value = false;
+  isInqrPtrmSeVisible.value = false;
 
   if (searchParams.value.ogTpCd === 'W01' && roleNickNames.includes('ROL_W1580')) { // P조직 + wells영업지원팀
     isReportVisible.value = true;
+    isInqrPtrmSeVisible.value = true;
   } else if (searchParams.value.ogTpCd === 'W02' && roleNickNames.includes('ROL_W1580')) { // M조직 + wells영업지원팀
     isReportVisible.value = true;
+    isInqrPtrmSeVisible.value = true;
   } else if (searchParams.value.ogTpCd === 'W03' && roleNickNames.includes('ROL_W1560')) { // 홈마스터 + wellsCS운영팀
     isReportVisible.value = true;
+    isInqrPtrmSeVisible.value = true;
   } else if (searchParams.value.ogTpCd === 'W04' && roleNickNames.includes('ROL_W1520')) { // B2B + wellsB2B사업팀
     isReportVisible.value = true;
+    isInqrPtrmSeVisible.value = true;
   } else if (searchParams.value.ogTpCd === 'W05' && roleNickNames.includes('ROL_W1510')) { // 온라인총판 + wells신채널영업팀
     isReportVisible.value = true;
+    isInqrPtrmSeVisible.value = true;
   } else if (searchParams.value.ogTpCd === 'W06' && roleNickNames.includes('ROL_W1560')) { // 엔지니어 + wellsCS운영팀
     isReportVisible.value = true;
+    isInqrPtrmSeVisible.value = true;
   } else if (getDate >= resDeadLine.data.startDt + resDeadLine.data.startHm
   && getDate <= resDeadLine.data.finsDt + resDeadLine.data.finsHm) { // 수수료조회기간일때 해당 버튼을 표시한다.
     isReportVisible.value = true;
