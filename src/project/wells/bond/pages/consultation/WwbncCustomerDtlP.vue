@@ -1758,7 +1758,7 @@ const initGrdMain = defineGrid((data, view) => {
     visible: true,
     items: [{ height: 40 }],
   });
-  view.layoutByColumn('ctt').summaryUserSpans = [{ colspan: 11 }];
+  view.layoutByColumn('ctt').summaryUserSpans = [{ colspan: 7 }];
   view.layoutByColumn('vacVncoDvCd').summaryUserSpans = [{ colspan: 3 }];
   view.layoutByColumn('dprNm').summaryUserSpans = [{ colspan: 4 }];
 
