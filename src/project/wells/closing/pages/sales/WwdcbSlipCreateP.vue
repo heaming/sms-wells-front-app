@@ -103,6 +103,7 @@ onMounted(async () => {
   const view = grdDetailRef.value.getView();
   view.getDataSource().setRows(props.chkDataRows);
   if (props.chkDataRows != null && props.chkDataRows.length > 0) {
+    detailInf.value.budat = dayjs(props.chkDataRows[0].baseYm).endOf('month');
     for (let i = 0; i < props.chkDataRows.length; i += 1) {
       detailInf.value.slBndAlrpyAmt += props.chkDataRows[i].slBndAlrpyAmt;
     }
