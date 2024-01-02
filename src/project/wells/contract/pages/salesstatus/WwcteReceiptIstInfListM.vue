@@ -606,9 +606,12 @@ const initGrid = defineGrid((data, view) => {
     { fieldName: 'lkCntrNo' }, /* 상대코드 1 */
     { fieldName: 'useTn' }, /* 사용차월 - 기변 상대코드 렌탈차월 1 */
     { fieldName: 'lkPdNm' }, /* 상대상품명 1 */
+    { fieldName: 'mchnClnOjYn' }, /* 자사회수여부 */
     { fieldName: 'sellTpNm' }, /* 판매유형 1 */
+    { fieldName: 'copnDvNm' }, /* 고객구분 */
     { fieldName: 'cntrSno' }, /* 계약(상세)번호 1-컬럼명 수정 */
     { fieldName: 'cstKnm' }, /* 계약자명 1 */
+    { fieldName: 'cntrTelNo' }, /* 계약자 연락처 */
     { fieldName: 'emadr' }, /* 이메일 1 */
     { fieldName: 'bzrno' }, /* 사업자등록번호 1 */
     { fieldName: 'bryyMmdd' }, /* 고객생년(YY) 1 */
@@ -651,6 +654,7 @@ const initGrid = defineGrid((data, view) => {
     { fieldName: 'fnlMdfcTm' }, /* 최종수정일시-최종변경일 1 */
     { fieldName: 'sppDuedt' }, /* 배송예정일자-예정일 1 */
     { fieldName: 'istDt' }, /* 설치일 1 */
+    { fieldName: 'slDt' }, /* 매출일 */
     { fieldName: 'reqdDt' }, /* 철거일 1 */
     { fieldName: 'ssBooDt' }, /* 삼성예약일 1 */
     { fieldName: 'ssStocStrDt' }, /* 삼성재고입고일 1 */
@@ -691,10 +695,13 @@ const initGrid = defineGrid((data, view) => {
     { fieldName: 'lkCntrNo', header: t('MSG_TXT_PTY_CD'), width: '129', styleName: 'text-center' }, // 상대코드
     { fieldName: 'useTn', header: t('MSG_TXT_USE_NMN'), width: '129', styleName: 'text-center' }, // 사용차월
     { fieldName: 'lkPdNm', header: t('MSG_TXT_PTY_PD_NM'), width: '462', styleName: 'text-left' }, // 상대상품명
+    { fieldName: 'mchnClnOjYn', header: t('MSG_TXT_MYCO_CLN'), width: '129', styleName: 'text-center' }, // 자사회수여부
 
     { fieldName: 'sellTpNm', header: t('MSG_TXT_CNTR_DV'), width: '129', styleName: 'text-center' }, // 계약구분
+    { fieldName: 'copnDvNm', header: t('MSG_TXT_CST_DV'), width: '129', styleName: 'text-center' }, // 고객구분
     { fieldName: 'cntrSno', header: t('MSG_TXT_CNTR_NO'), width: '129', styleName: 'text-center' }, // 계약번호
     { fieldName: 'cstKnm', header: t('MSG_TXT_CNTOR_NM'), width: '129', styleName: 'text-center' }, // 계약자명
+    { fieldName: 'cntrTelNo', header: t('MSG_TXT_CNTRT_TNO'), width: '129', styleName: 'text-center' }, // 계약자 연락처
     { fieldName: 'emadr', header: t('MSG_TXT_EMAIL'), width: '257', styleName: 'text-left' }, // 이메일
     { fieldName: 'bzrno', header: t('MSG_TXT_ENTRP_NO'), width: '129', styleName: 'text-center' }, // 사업자번호
     { fieldName: 'bryyMmdd', header: t('MSG_TXT_CST_BRYY'), width: '129', styleName: 'text-center' }, // 고객생년
@@ -716,6 +723,8 @@ const initGrid = defineGrid((data, view) => {
     { fieldName: 'istOgNm', header: t('MSG_TXT_INSTL_THTM_BL'), width: '129', styleName: 'text-center' }, // 설치당시소속
     { fieldName: 'dgr3LevlDgPrtnrNm', header: t('MSG_TXT_BRMGR'), width: '129', styleName: 'text-center' }, // 지점장
     { fieldName: 'dgr3LevlDgPrtnrNo', header: t('MSG_TXT_BRMGR_EPNO'), width: '129', styleName: 'text-center' }, // 지점장 사번
+    { fieldName: 'sellPrtnrNo', header: t('MSG_TXT_PTNR_NO'), width: '129', styleName: 'text-center' }, // 판매자 사번
+    { fieldName: 'prtnrKnm', header: t('MSG_TXT_SELL_NM'), width: '129', styleName: 'text-center' }, // 판매자명
     { fieldName: 'pstnDvCd', header: t('MSG_TXT_CRLV'), width: '129', styleName: 'text-center' }, // 직급
     { fieldName: 'a3', header: t('MSG_TXT_TASK_NMN'), width: '129', styleName: 'text-center' }, // 업무차월
     { fieldName: 'cntrDt', header: t('MSG_TXT_BIZ_RGST_D'), width: '129', styleName: 'text-center', datetimeFormat: 'date' }, // 업무등록일
@@ -731,6 +740,7 @@ const initGrid = defineGrid((data, view) => {
     { fieldName: 'fnlMdfcTm', header: `${t('MSG_TXT_FNL')}${t('MSG_TXT_RCPT_HH')}`, width: '129', styleName: 'text-center', datetimeFormat: 'time' }, // 최종변경시간
     { fieldName: 'sppDuedt', header: t('MSG_TXT_DUEDT'), width: '129', styleName: 'text-center', datetimeFormat: 'date' }, // 예정일
     { fieldName: 'istDt', header: t('MSG_TXT_IST_DT'), width: '129', styleName: 'text-center', datetimeFormat: 'date' }, // 설치일
+    { fieldName: 'slDt', header: t('MSG_TXT_SL_DT'), width: '129', styleName: 'text-center', datetimeFormat: 'date' }, // 매출일
     { fieldName: 'reqdDt', header: t('MSG_TXT_DEM_DT'), width: '129', styleName: 'text-center', datetimeFormat: 'date' }, // 철거일
     { fieldName: 'ssBooDt', header: `${t('MSG_TXT_SS')} ${t('MSG_TXT_RSVN_DT')}`, width: '129', styleName: 'text-center', datetimeFormat: 'date' }, // 삼성예약일
     { fieldName: 'ssStocStrDt', header: `${t('MSG_TXT_SS')} ${t('MSG_TXT_STOC')} ${t('MSG_TXT_STR_DT')}`, width: '129', styleName: 'text-center', datetimeFormat: 'date' }, // 삼성재고 입고일
@@ -757,7 +767,6 @@ const initGrid = defineGrid((data, view) => {
     { fieldName: 'rentalTn', header: t('MSG_TXT_RENTAL_NMN'), width: '129', styleName: 'text-right' }, // 렌탈차월
     { fieldName: 'f2', header: t('MSG_TXT_INSI_PRCHS'), width: '146', styleName: 'text-center' }, // 내부구매
     { fieldName: 'sapMatCd', header: t('MSG_TXT_SAP_PD_CD'), width: '129', styleName: 'text-center' }, // SAP상품코드
-    { fieldName: 'sellPrtnrNo', header: t('MSG_TXT_BRMGR_EPNO'), width: '129', styleName: 'text-center' }, // 지점장 사번
     { fieldName: 'bfsvcBzsDvCd', header: t('MSG_TXT_CLSF_BS'), width: '129', styleName: 'text-center' }, // 업체BS구분
     { fieldName: 'splyBzsDvCd', header: t('MSG_TXT_CLSF_BUS'), width: '129', styleName: 'text-center' }, // 업체구분
   ];
@@ -769,14 +778,9 @@ const initGrid = defineGrid((data, view) => {
 
   const columnLayout = [
     {
-      header: t('MSG_TXT_SELL_INF'), // 판매정보
-      direction: 'horizontal', // merge type
-      items: ['sellDvNm', 'dpTpNm', 'mpyBsdt', 'newCstYn', 'mchnCh', 'rentalYn', 'lkCntrNo', 'useTn', 'lkPdNm'],
-    },
-    {
       header: t('MSG_TXT_CNTRT_INF'), // 계약자 정보
       direction: 'horizontal', // merge type
-      items: ['sellTpNm', 'cntrSno', 'cstKnm', 'emadr', 'bzrno', 'bryyMmdd', 'sfkVal'],
+      items: [/* 'sellTpNm', */'copnDvNm', 'cntrSno', 'cstKnm', 'cntrTelNo', 'emadr', 'bzrno', 'bryyMmdd', 'sfkVal'],
     },
     {
       header: t('MSG_TXT_PD_INF'), // 상품정보
@@ -784,25 +788,71 @@ const initGrid = defineGrid((data, view) => {
       items: ['pdClsfDv', 'basePdCd', 'pdNm', 'mmIstmAmt', 'stplPtrm', 'sdingNm', 'sdingCntrSno', 'sdingIstmAmt', 'mngSv'],
     },
     {
+      header: t('MSG_TXT_SELL_INF'), // 판매정보
+      direction: 'horizontal', // merge type
+      items: ['sellDvNm', 'dpTpNm', 'mpyBsdt', 'newCstYn', 'mchnCh', 'rentalYn', 'lkCntrNo', 'useTn', 'lkPdNm'],
+    },
+    {
       header: t('MSG_TXT_PRTNR_INF'), // 파트너 정보
       direction: 'horizontal', // merge type
-      items: ['dgr1LevlOgCd', 'dgr2LevlOgCd', 'rcpOgNm', 'istOgNm', 'dgr3LevlDgPrtnrNo', 'dgr3LevlDgPrtnrNm', 'pstnDvCd', 'a3', 'cntrDt', 'prtnrSexDv', 'prtnrGdYn', 'prtnrMngYn'],
+      items: ['dgr1LevlOgCd', 'dgr2LevlOgCd', 'rcpOgNm', 'istOgNm', 'dgr3LevlDgPrtnrNo', 'dgr3LevlDgPrtnrNm', 'sellPrtnrNo', 'prtnrKnm', 'pstnDvCd', 'a3', 'cntrDt', 'prtnrSexDv', 'prtnrGdYn', 'prtnrMngYn'],
     },
     {
       header: t('MSG_TXT_RCP_AND_INST_INF'), // 접수 및 설치 정보
       direction: 'horizontal', // merge type
-      items: ['cntrCnfmDt', 'cntrCnfmTm', 'prrCntrCnfmDt', 'prrCntrCnfmTm', 'fnlMdfcDt', 'fnlMdfcTm', 'sppDuedt', 'istDt', 'reqdDt', 'ssBooDt', 'ssStocStrDt'],
+      items: ['cntrCnfmDt', 'cntrCnfmTm', 'prrCntrCnfmDt', 'prrCntrCnfmTm', 'fnlMdfcDt', 'fnlMdfcTm', 'sppDuedt', 'istDt', 'slDt', 'reqdDt', 'ssBooDt', 'ssStocStrDt'],
+    },
+    {
+      header: t('MSG_TXT_MYCO_CLN'), // 자사회수여부
+      direction: 'horizontal', // merge type
+      items: ['mchnClnOjYn'],
+      hideChildHeaders: true,
     },
     {
       header: t('MSG_TXT_ETC'), // 기타
       direction: 'horizontal', // merge type
-      items: ['pkgCd', 'pkgSn', { header: 'DC', direction: 'horizontal', items: ['dc1', 'dc2', 'dc3'], hideChildHeaders: true }, 'ackmtPerfAmt', 'ackmtPerfRt', 'booSellTpCd', 'e2', 'cttRsCd', 'sellEvCd'],
+      items: [
+        'pkgCd',
+        'pkgSn',
+        { header: 'DC', direction: 'horizontal', items: ['dc1', 'dc2', 'dc3'], hideChildHeaders: true },
+        'ackmtPerfAmt',
+        'ackmtPerfRt',
+        'booSellTpCd',
+        'e2',
+        'cttRsCd',
+        'sellEvCd',
+        'feeAckmtBaseAmt',
+        'feeAckmtRstlBaseAmt',
+        'feeFxamYn',
+        'ocoCpsBzsDvNm',
+        'zip',
+        'fmmbN',
+        'feeAckmtCt',
+        'rentalTn',
+        'f2',
+        'sapMatCd',
+        'bfsvcBzsDvCd',
+        'splyBzsDvCd',
+      ],
     },
-    {
-      header: t('MSG_TXT_ETC'), // 기타
-      direction: 'horizontal', // merge type
-      items: ['feeAckmtBaseAmt', 'feeAckmtRstlBaseAmt', 'feeFxamYn', 'ocoCpsBzsDvNm', 'zip', 'fmmbN', 'feeAckmtCt', 'rentalTn', 'f2', 'sapMatCd', 'sellPrtnrNo', 'bfsvcBzsDvCd', 'splyBzsDvCd'],
-    },
+    // {
+    //   header: t('MSG_TXT_ETC'), // 기타
+    //   direction: 'horizontal', // merge type
+    //   items: [
+    //     'feeAckmtBaseAmt',
+    //     'feeAckmtRstlBaseAmt',
+    //     'feeFxamYn',
+    //     'ocoCpsBzsDvNm',
+    //     'zip',
+    //     'fmmbN',
+    //     'feeAckmtCt',
+    //     'rentalTn',
+    //     'f2',
+    //     'sapMatCd',
+    //     'bfsvcBzsDvCd',
+    //     'splyBzsDvCd',
+    //   ],
+    // },
   ];
 
   // multi row header setting
