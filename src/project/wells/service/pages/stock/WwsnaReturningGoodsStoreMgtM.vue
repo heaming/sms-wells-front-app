@@ -558,13 +558,7 @@ async function onClickRtnGd() {
   const strRtngdProcsTpCd = ['10', '11', '20', '21', '22', '80', '81', '82'];
 
   for (let i = 0; i < checkedRows.length; i += 1) {
-    const { rtngdRvpyProcsYn, rtngdProcsTpCd, rtngdConfYn, rtngdConfYn1 } = checkedRows[i];
-
-    if (rtngdConfYn === rtngdConfYn1) {
-      // 변경사항이 없습니다.
-      notify(t('MSG_ALT_NO_CHG_CNTN'));
-      return;
-    }
+    const { rtngdRvpyProcsYn, rtngdProcsTpCd } = checkedRows[i];
 
     if (rtngdRvpyProcsYn === 'Y') {
       // 이미 반품 완료된 건이 포함되었습니다. \n확인해주십시오.
