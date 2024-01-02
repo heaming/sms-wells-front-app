@@ -27,7 +27,7 @@
           v-model:from="searchParams.strtdt"
           v-model:to="searchParams.enddt"
           :label="$t('MSG_TXT_RSV_DATE')"
-          rules="date_range_required"
+          rules="date_range_required|date_range_months:3"
         />
       </kw-search-item>
       <kw-search-item :label="$t('MSG_TXT_ORD_TYP')">
