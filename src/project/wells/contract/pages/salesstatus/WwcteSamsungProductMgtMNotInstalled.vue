@@ -23,7 +23,7 @@
           v-model:from="searchParams.strtdt"
           v-model:to="searchParams.enddt"
           :label="$t('MSG_TXT_APPL_PRD')"
-          rules="date_range_required"
+          rules="date_range_required|date_range_months:3"
         />
       </kw-search-item>
       <kw-search-item

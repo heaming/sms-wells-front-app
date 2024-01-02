@@ -37,6 +37,7 @@
           v-model:to="searchParams.cntrCnfmEnddt"
           :label="$t('MSG_TXT_LOOKUP_PERIOD')"
           :disable="!searchParams.searchDateRangeType"
+          rules="date_range_months:3"
         />
         <kw-date-range-picker
           v-else
@@ -44,6 +45,7 @@
           v-model:to="searchParams.istEnddt"
           :label="$t('MSG_TXT_LOOKUP_PERIOD')"
           :disable="!searchParams.searchDateRangeType"
+          rules="date_range_months:3"
         />
       </kw-search-item>
       <kw-search-item :label="$t('MSG_TXT_CNTR_STAT')">
