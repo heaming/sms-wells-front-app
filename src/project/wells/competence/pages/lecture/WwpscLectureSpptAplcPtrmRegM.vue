@@ -149,7 +149,7 @@ let cachedParams;
 // 검색조건 Parameter
 const searchParams = ref({
   lectrSpptOgTpCd: userInfo.ogTpCd, // 조직유형
-  lectrYm: now.format('YYYYMM'), // 교육년월
+  lectrYm: dayjs(now).add(1, 'month').format('YYYYMM'),
 });
 
 const saveData = ref({

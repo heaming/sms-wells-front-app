@@ -83,17 +83,20 @@
           />
         </template>
         <kw-btn
+          v-if="applicationPeriodTermNotice.visible"
           :label="$t('MSG_BTN_DEL')"
           dense
           grid-action
           @click="onClickRemove"
         />
         <kw-separator
+          v-if="applicationPeriodTermNotice.visible"
           vertical
           inset
           spaced
         />
         <kw-btn
+          v-if="applicationPeriodTermNotice.visible"
           v-permission:create
           :label="$t('MSG_BTN_ROW_ADD')"
           dense
@@ -101,6 +104,7 @@
           @click="onClickAdd"
         />
         <kw-btn
+          v-if="applicationPeriodTermNotice.visible"
           v-permission:update
           :label="$t('MSG_BTN_SAVE')"
           grid-action
@@ -218,13 +222,13 @@ const onClickSearch = async () => {
   await fetchData();
 };
 
-async function onClickAdd() {
+const onClickAdd = async () => {
   const view = grdMainRef.value.getView();
   const row = { lectrSpptOgTpCd: searchParams.value.lectrSpptOgTpCd, lectrYm: searchParams.value.lectrYm };
   gridUtil.insertRowAndFocus(view, 0, row);
-}
+};
 
-async function onClickRemove() {
+const onClickRemove = async () => {
   const view = grdMainRef.value.getView();
   const deletedRows = await gridUtil.confirmDeleteCheckedRows(view);
   if (!enableApplicatiton.value) {
@@ -235,35 +239,21 @@ async function onClickRemove() {
     await dataService.delete('/sms/wells/competence/lecture-sppt-application', { data: deletedRows });
     await fetchData();
   }
-}
-
-async function onClickSave() {
-  const view = grdMainRef.value.getView();
-  if (await gridUtil.alertIfIsNotModified(view)) { return; }
-  if (!await gridUtil.validate(view)) { return; }
-  if (!enableApplicatiton.value) {
-    await alert(t('MSG_ALT_LECT_SPPT_APLC_PTRM_PSB'));
-    return;
-  }
-  const changedRows = gridUtil.getChangedRowValues(view);
-  await dataService.post('/sms/wells/competence/lecture-sppt-application', changedRows);
-
-  notify(t('MSG_ALT_SAVE_DATA'));
-  await fetchData();
-}
+};
 
 const fetLectureSpptApplicationPeriodTerm = async () => {
   const res = await dataService.get('/sms/wells/competence/lecture-sppt-aplc-ptrm', { params: { lectrSpptOgTpCd: searchParams.value.lectrSpptOgTpCd, lectrYm: searchParams.value.lectrYm } });
   if (!isEmpty(res.data)) {
     applicationPeriodTermNotice.value = res.data;
-    applicationPeriodTermNotice.value.visible = true;
     const today = dayjs().format('YYYYMMDDHHmm');
     const preDate = res.data.aplcStrtdt.concat(res.data.aplcStrtHm);
     const toDate = res.data.aplcEnddt.concat(res.data.aplcEndHm);
     if (preDate <= today && today <= toDate) {
       enableApplicatiton.value = true;
+      applicationPeriodTermNotice.value.visible = true;
     } else {
       enableApplicatiton.value = false;
+      applicationPeriodTermNotice.value.visible = false;
     }
   } else {
     applicationPeriodTermNotice.value.visible = false;
@@ -297,6 +287,22 @@ const bindingSelectOptions = async () => {
     optionValue: 'lectrSpptLectrCd',
     optionLabel: 'lectrNm',
   });
+};
+
+const onClickSave = async () => {
+  await fetLectureSpptApplicationPeriodTerm();
+  const view = grdMainRef.value.getView();
+  if (await gridUtil.alertIfIsNotModified(view)) { return; }
+  if (!await gridUtil.validate(view)) { return; }
+  if (!enableApplicatiton.value) {
+    await alert(t('MSG_ALT_LECT_SPPT_APLC_PTRM_PSB'));
+    return;
+  }
+  const changedRows = gridUtil.getChangedRowValues(view);
+  await dataService.post('/sms/wells/competence/lecture-sppt-application', changedRows);
+
+  notify(t('MSG_ALT_SAVE_DATA'));
+  await fetchData();
 };
 
 watch(() => [searchParams.value.lectrSpptOgTpCd, searchParams.value.lectrYm], async () => {
