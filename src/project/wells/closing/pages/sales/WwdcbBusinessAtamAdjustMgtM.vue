@@ -160,7 +160,6 @@
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
 import { codeUtil, gridUtil, defineGrid, getComponentType, useDataService, useGlobal, useMeta } from 'kw-lib';
-import { isEmpty } from 'lodash-es';
 import dayjs from 'dayjs';
 import ZctzContractDetailNumber from '~sms-common/contract/components/ZctzContractDetailNumber.vue';
 
@@ -168,7 +167,7 @@ const now = dayjs();
 const { t } = useI18n();
 const dataService = useDataService();
 const { currentRoute } = useRouter();
-const { modal, alert } = useGlobal();
+const { modal } = useGlobal();
 const { getConfig } = useMeta();
 
 // -------------------------------------------------------------------------------------------------
@@ -309,16 +308,6 @@ async function onClickSlipCrt() {
   const chkDataRows = gridUtil.getAllRowValues(view);
   const { dpKndCd } = searchParams.value;
 
-  let chk = 0;
-  for (let i = 0; i < chkDataRows.length; i += 1) {
-    if (!isEmpty(chkDataRows[i].slBndAlrpySlipTrsNo)) {
-      chk += 1;
-    }
-  }
-  if (chk > 0) {
-    await alert(t('MSG_ALT_SLIP_CRT_DTA_INC')); // 이미 전표가 생성된 데이터가 포함되어 있습니다.
-    return false;
-  }
   // console.log('팝업으로 보내는 데이터:', chkDataRows);
   const res = await modal({
     component: 'WwdcbSlipCreateP',
