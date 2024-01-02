@@ -93,7 +93,7 @@
             :placeholder="t('MSG_TXT_INP')"
             :maxlength="50"
           />
-          <!-- 고객번호/세이프키 -->
+          <!-- 고객번호 -->
           <kw-input
             v-if="isSearchCntrCstNoVisible"
             v-model="searchParams.cntrCstNo"
@@ -112,6 +112,8 @@
             v-model:telNo1="searchParams.mexnoEncr"
             v-model:telNo2="searchParams.cralIdvTno"
             :placeholder="t('MSG_TXT_INP')"
+            rules="required|telephone"
+            :label="$t('MSG_TXT_MPNO')"
             mask="telephone"
           />
           <!-- 사업자번호 -->
@@ -120,7 +122,7 @@
             v-model="searchParams.bzrno"
             :placeholder="t('MSG_TXT_INP')"
             rules="required|max:10|numeric"
-            :label="$t('MSG_TXT_CBNO')"
+            :label="$t('MSG_TXT_ENTRP_NO')"
             :type="number"
             :regex="/^[0-9]*$/i"
             :maxlength="10"
@@ -130,7 +132,7 @@
             v-if="isSearchSfkValVisible"
             v-model="searchParams.sfkVal"
             :placeholder="t('MSG_TXT_INP')"
-            rules="required|max:100|numeric"
+            rules="max:100|numeric"
             :label="$t('MSG_TXT_SFK')"
             :type="number"
             :regex="/^[0-9]*$/i"
@@ -701,7 +703,7 @@ const initGrid = defineGrid((data, view) => {
 
   view.checkBar.visible = false;
   view.rowIndicator.visible = true;
-  view.setFixedOptions({ colCount: 6 });
+  view.setFixedOptions({ colCount: 3 });
 
   // multi row header setting
   view.setColumnLayout([
