@@ -63,11 +63,9 @@
             v-if="searchParams.inqrDv === '2'"
             v-model="searchParams.sellChnl"
             :label="$t('MSG_TXT_SEL_CHNL')"
-            :model-value="'ALL'"
             :disable="true"
             :options="codes.SELL_CHNL_DTL_CD"
-            first-option="all"
-            first-option-value="ALL"
+            multiple
             rules="required"
           />
         </kw-search-item>
