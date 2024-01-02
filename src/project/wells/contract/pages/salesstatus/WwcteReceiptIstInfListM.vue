@@ -666,8 +666,10 @@ const initGrid = defineGrid((data, view) => {
     { fieldName: 'ackmtPerfAmt', dataType: 'number' }, /* 인정실적금액 1 */
     { fieldName: 'ackmtPerfRt' }, /* 인정실적율 1 */
     { fieldName: 'booSellTpCd' }, /* 예약 1 */
-    { fieldName: 'e2' }, /* 제휴 (추후추가) 1 */
+    { fieldName: 'alncmpCd' }, /* 제휴 (추후추가) 1 */
+    { fieldName: 'alncmpNm' }, /* 제휴 (추후추가) 1 */
     { fieldName: 'cttRsCd' }, /* 컨택코드 1 */
+    { fieldName: 'cttRsNm' }, /* 컨택코드 1 */
     { fieldName: 'sellEvCd' }, /* 행사코드 1 */
     { fieldName: 'feeAckmtBaseAmt', dataType: 'number' }, /* 수수료인정기준금액 - 기준수수료 1 */
     { fieldName: 'feeAckmtRstlBaseAmt', dataType: 'number' }, /* 수수료인정기준금액 - 재약정기준수수료 T12.FEE_ACKMT_BASE_AMT 1 */
@@ -681,7 +683,7 @@ const initGrid = defineGrid((data, view) => {
     { fieldName: 'sapMatCd' }, /* SAP자재코드 1 */
     { fieldName: 'bfsvcBzsDvCd' }, /* 업체BS구분 1 */
     { fieldName: 'splyBzsDvCd' }, /* 업체구분 1 */
-    { fieldName: 'rentalTn' }, /* 렌탈차월 RENTAL_TN 1 */
+    { fieldName: 'rentalTn', dataType: 'number' }, /* 렌탈차월 RENTAL_TN 1 */
     { fieldName: 'cntrDv' }, /* 계약구분 RENTAL_TN 1 */
   ];
 
@@ -750,8 +752,8 @@ const initGrid = defineGrid((data, view) => {
     { fieldName: 'ackmtPerfAmt', header: t('MSG_TXT_PD_ACC_RSLT'), width: '129', styleName: 'text-right' }, // 인정실적
     { fieldName: 'ackmtPerfRt', header: `${t('MSG_TXT_ACKMT_PERF_RAT')}(%)`, width: '129', styleName: 'text-right' }, // 인정실적률(%)
     { fieldName: 'booSellTpCd', header: t('MSG_TXT_RSV'), width: '129', styleName: 'text-center' }, // 예약
-    { fieldName: 'e2', header: t('MSG_TXT_ALNC'), width: '129', styleName: 'text-center' }, // 제휴
-    { fieldName: 'cttRsCd', header: t('MSG_TXT_CTT_CD'), width: '257', styleName: 'text-center' }, // 컨택코드
+    { fieldName: 'alncmpNm', header: t('MSG_TXT_ALNC'), width: '129', styleName: 'text-center' }, // 제휴
+    { fieldName: 'cttRsNm', header: t('MSG_TXT_CTT_CD'), width: '257', styleName: 'text-center' }, // 컨택코드
     { fieldName: 'sellEvCd', header: t('MSG_TXT_EV_CD'), width: '129', styleName: 'text-center' }, // 행사코드
     { fieldName: 'dc1', header: t('MSG_TXT_SELL_DSC_DV_CD'), width: '129', styleName: 'text-center' }, // 판매할인구분코드
     { fieldName: 'dc2', header: t('MSG_TXT_SELL_DSC_RT_CD'), width: '129', styleName: 'text-center' }, // 판매할인율코드
@@ -818,8 +820,8 @@ const initGrid = defineGrid((data, view) => {
         'ackmtPerfAmt',
         'ackmtPerfRt',
         'booSellTpCd',
-        'e2',
-        'cttRsCd',
+        'alncmpNm',
+        'cttRsNm',
         'sellEvCd',
         'feeAckmtBaseAmt',
         'feeAckmtRstlBaseAmt',
