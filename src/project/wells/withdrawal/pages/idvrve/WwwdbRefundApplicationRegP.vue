@@ -187,7 +187,27 @@
           </span>
         </p>
       </template>
-
+      <!-- 개인별 서비스 현황 -->
+      <kw-btn
+        v-permission:read
+        :label="t('개인별 서비스 현황')"
+        secondry
+        dense
+        @click="onClickPage('INDV_SV_PS')"
+      />
+      <!-- 매출실적현황 -->
+      <kw-btn
+        v-permission:read
+        :label="t('매출실적현황')"
+        secondry
+        dense
+        @click="onClickPage('SL_PERF_PS')"
+      />
+      <kw-separator
+        vertical
+        inset
+        spaced
+      />
       <!-- label="엑셀다운로드" -->
       <kw-btn
         icon="download_on"
@@ -378,7 +398,7 @@
 // -------------------------------------------------------------------------------------------------
 
 // eslint-disable-next-line no-unused-vars
-import { codeUtil, useGlobal, useMeta, defineGrid, getComponentType, gridUtil, alert, confirm, useDataService, fileUtil, modal, useModal, stringUtil } from 'kw-lib';
+import { codeUtil, useGlobal, useMeta, defineGrid, getComponentType, gridUtil, alert, confirm, useDataService, fileUtil, modal, useModal, stringUtil, popupUtil } from 'kw-lib';
 // eslint-disable-next-line no-unused-vars
 import { cloneDeep, isEqual, isEmpty } from 'lodash-es';
 import ZctzContractDetailNumber from '~sms-common/contract/components/ZctzContractDetailNumber.vue';
@@ -1120,6 +1140,16 @@ async function onClickRfndDelete() {
 
   await onCheckTotalData();
 }
+
+// 개인별서비스현황 및 매출실적현황 버튼 클릭
+async function onClickPage(pageDv) {
+  popupUtil.open(
+    pageDv === 'INDV_SV_PS' ? '/popup#/service/wwsnb-individual-service-list' : '/popup#/closing/wwdcc-sales-perform',
+    { width: 1600, height: 1000 },
+    { 'modal-popup': true },
+  );
+}
+
 // -------------------------------------------------------------------------------------------------
 // Initialize Grid
 // -------------------------------------------------------------------------------------------------
@@ -1194,7 +1224,7 @@ const initGrid = defineGrid((data, view) => {
       header: t('MSG_TXT_REFUND_AMT'),
       // header: '환불가능금액',
       width: '110',
-      styleName: 'text-right',
+      styleName: 'text-right kw-fc--error',
     },
     { fieldName: 'dpAmt',
       header: t('MSG_TXT_RVE_AMT'),
@@ -1335,6 +1365,8 @@ const initGrid2 = defineGrid((data, view) => {
     { fieldName: 'dpMesCd' }, /* 입금수단 */
     { fieldName: 'rveDvCd' }, /* 입금유형 -> 수납유형(사양서기준) */
     { fieldName: 'dpAmt', dataType: 'number' }, /* 입금액 */
+    { fieldName: 'rfndAmt', dataType: 'number' }, /* 환불액 */
+    { fieldName: 'rfndPsbBlam', dataType: 'number' }, /* 환불가능잔액 */
     { fieldName: 'rfndCshAkAmt', dataType: 'number' },
     { fieldName: 'rfndCardAkAmt', dataType: 'number' },
     { fieldName: 'crdcdFeeAmt', dataType: 'number' }, /* 카드수수료 */
@@ -1416,6 +1448,26 @@ const initGrid2 = defineGrid((data, view) => {
     { fieldName: 'dpAmt',
       header: t('MSG_TXT_DEPOSIT_AMT'),
       // 입금액
+      editor: {
+        type: 'number',
+      },
+      width: '110',
+      styleName: 'text-right',
+      editable: false,
+    },
+    { fieldName: 'rfndAmt',
+      header: t('MSG_TXT_RFND_AMT_SUB'),
+      // 환불액
+      editor: {
+        type: 'number',
+      },
+      width: '110',
+      styleName: 'text-right',
+      editable: false,
+    },
+    { fieldName: 'rfndPsbBlam',
+      header: t('MSG_TXT_RFND_PSB_BLAM'),
+      // 환불가능잔액
       editor: {
         type: 'number',
       },
@@ -1870,7 +1922,7 @@ const initGrid4 = defineGrid((data, view) => {
       header: t('MSG_TXT_TOT_RFND_ET_AMT'),
       //  '총 환불 예상금액'
       width: 'auto',
-      styleName: 'text-right',
+      styleName: 'text-right kw-fc--error',
       numberFormat: '#,##0',
     },
   ];
