@@ -89,6 +89,7 @@
             :readonly="props.page !== pageProps.confirm"
             rules="required"
             type="date"
+            :label="$t('MSG_TXT_OSTR_DT')"
             :min-date="minDate"
           />
         </kw-form-item>
