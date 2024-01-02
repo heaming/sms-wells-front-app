@@ -262,7 +262,7 @@ async function onClickProduct() {
   const { result, payload } = await modal({
     component: 'ZwpdcMaterialsSelectListP',
     componentProps: {
-      searchType: 'prodCd',
+      searchType: pdConst.PD_SEARCH_PRODUCT,
       searchValue: searchParams.value.pdCd,
       selectType: pdConst.PD_SEARCH_SINGLE,
       searchLvl: 3,
@@ -410,7 +410,7 @@ const initGrdMain = defineGrid((data, view) => {
     { fieldName: 'pdTpCd', header: t('MSG_TXT_DIV', null, '구분'), width: '90', styleName: 'text-center', options: codes.PD_TP_CD },
     { fieldName: 'pdClsfNm', header: t('MSG_TXT_CLSF', null, '분류'), width: '176' },
     { fieldName: 'pdNm', header: t('MSG_TIT_AS_PART_NM', null, 'AS부품명'), width: '195' },
-    { fieldName: 'pdAbbrNm', header: t('MSG_TXT_PD_ABBREVIATION_1', null, '약어1'), width: '195' },
+    { fieldName: 'pdAbbrNm', header: t('MSG_TXT_ABBR', null, '약어'), width: '195' },
     { fieldName: 'sapMatCd', header: t('MSG_TXT_MATI_CD', null, '자재코드'), width: '180', styleName: 'text-center' },
     { fieldName: 'pdCd', header: t('MSG_TIT_AS_PART_CD', null, 'AS부품코드'), width: '130', styleName: 'text-center' },
     { fieldName: 'asItmCd', header: t('TXT_MSG_AS_ITM_CD', null, '품목코드'), width: '200', styleName: 'text-center' },

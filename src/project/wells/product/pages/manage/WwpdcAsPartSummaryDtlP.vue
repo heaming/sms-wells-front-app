@@ -45,13 +45,13 @@
           <p>{{ pdBas.modelNo }}</p>
         </kw-form-item>
         <kw-form-item :label="$t('MSG_TXT_ITM_CD', null, '품목코드')">
-          <p>{{ asMatCd }}</p>
+          <p>{{ asItmCd }}</p>
         </kw-form-item>
       </kw-form-row>
 
       <kw-form-row>
         <kw-form-item :label="$t('TXT_MSG_AS_MAT_CD', null, 'AS자재번호')">
-          <p>{{ asItmCd }}</p>
+          <p>{{ asMatCd }}</p>
         </kw-form-item>
       </kw-form-row>
     </kw-form>
