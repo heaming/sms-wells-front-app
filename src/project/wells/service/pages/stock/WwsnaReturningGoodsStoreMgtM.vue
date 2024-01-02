@@ -101,6 +101,8 @@
             v-model:to="searchParams.edFnlVstFshDtTo"
             rules="date_range_months:1|required"
             :label="$t('MSG_TXT_PRCSDT')"
+            @update:from="onChangeDate"
+            @update:to="onChangeDate"
           />
         </kw-search-item>
         <!-- 확인일자 -->
@@ -389,13 +391,26 @@ function onClickGridBulkChange(val, type) {
 
 // 로그인한 사용자의 상위창고 조회
 const getWareHouses = async () => {
-  const res = await dataService.get('/sms/wells/service/returning-goods-store/login-warehouse', { params: { prtnrNo: searchParams.value.prtnrNo } });
+  loginWare.value = [];
+
+  const { prtnrNo, stFnlVstFshDtFrom, edFnlVstFshDtTo } = searchParams.value;
+  if (isEmpty(prtnrNo) || isEmpty(stFnlVstFshDtFrom) || isEmpty(edFnlVstFshDtTo)
+    || stFnlVstFshDtFrom.substring(0, 6) !== edFnlVstFshDtTo.substring(0, 6)) return;
+
+  const res = await dataService.get('/sms/wells/service/returning-goods-store/login-warehouse', { params: { prtnrNo, stFnlVstFshDtFrom, edFnlVstFshDtTo } });
 
   if (!isEmpty(res.data)) {
     loginWare.value = res.data;
     searchParams.value.strWareNoM = loginWare.value[0].hgrWareNo;
+  } else {
+    searchParams.value.strWareNoM = '';
   }
 };
+
+// 날짜 변경 시
+async function onChangeDate() {
+  await getWareHouses();
+}
 
 const itemKndCdD = ref();
 
@@ -543,13 +558,7 @@ async function onClickRtnGd() {
   const strRtngdProcsTpCd = ['10', '11', '20', '21', '22', '80', '81', '82'];
 
   for (let i = 0; i < checkedRows.length; i += 1) {
-    const { rtngdRvpyProcsYn, rtngdProcsTpCd, rtngdConfYn, rtngdConfYn1 } = checkedRows[i];
-
-    if (rtngdConfYn === rtngdConfYn1) {
-      // 변경사항이 없습니다.
-      notify(t('MSG_ALT_NO_CHG_CNTN'));
-      return;
-    }
+    const { rtngdRvpyProcsYn, rtngdProcsTpCd } = checkedRows[i];
 
     if (rtngdRvpyProcsYn === 'Y') {
       // 이미 반품 완료된 건이 포함되었습니다. \n확인해주십시오.
@@ -747,7 +756,7 @@ const initGrdMain = defineGrid((data, view) => {
       options: codes.RTNGD_PROCS_TP_CD,
       editor: { type: 'dropdown' },
     },
-    { fieldName: 'rmkCn', header: t('MSG_TXT_UNUITM'), width: '150', styleName: 'text-center', editable: true },
+    { fieldName: 'rmkCn', header: t('MSG_TXT_UNUITM'), width: '150', styleName: 'text-left' },
     { fieldName: 'cntrNoNew', header: t('MSG_TXT_NW_CST_NO'), width: '100', styleName: 'text-center' },
     { fieldName: 'barCd', header: t('MSG_TXT_MNFT_NO'), width: '150', styleName: 'text-center' },
     { fieldName: 'asLctNm', header: t('MSG_TXT_LCT'), width: '100', styleName: 'text-center' },
@@ -763,9 +772,6 @@ const initGrdMain = defineGrid((data, view) => {
     { fieldName: 'ogNm', header: t('MSG_TXT_RCST_BLG_IST'), width: '150', styleName: 'text-center' },
     { fieldName: 'prtnrNm', header: t('MSG_TXT_RCST_NM_IST'), width: '100', styleName: 'text-center' },
     { fieldName: 'badDvNm', header: t('MSG_TXT_BAD_DV'), width: '100', styleName: 'text-center' },
-    // { fieldName: 'asLctNm', header: '고장위치', width: '100', styleName: 'text-center' },
-    // { fieldName: 'asphnNm', header: '고장현상', width: '100', styleName: 'text-center' },
-    // { fieldName: 'asCausNm', header: '위치상세', width: '100', styleName: 'text-center' },
 
   ];
 
@@ -803,10 +809,8 @@ const initGrdMain = defineGrid((data, view) => {
     'svProcsCn',
     'ichrPrtnrNo',
     'empNm',
-    // 'empNm',
     { direction: 'horizontal', items: ['rcpIchrPrtnrNo', 'fstRgstUserNm'], header: { text: t('MSG_TXT_REQD_AK_EMPNO_NM') }, hideChildHeaders: true },
     'rcstDv',
-    // 'fstRgstUserNm',
     'cnslMoCn',
     'ogNm',
     'prtnrNm',
@@ -826,7 +830,7 @@ const initGrdMain = defineGrid((data, view) => {
   view.onCellEditable = (grid, index) => {
     const rtngdRvpyProcsYn = gridUtil.getCellValue(view, index.dataRow, 'rtngdRvpyProcsYn');
 
-    if (rtngdRvpyProcsYn !== 'Y' && ['rtngdConfYn', 'ostrConfDt', 'ostrDt'].includes(index.column)) {
+    if (rtngdRvpyProcsYn !== 'Y' && ['rtngdConfYn', 'ostrConfDt', 'rtngdProcsTpCd', 'rmkCn'].includes(index.column)) {
       return true;
     }
 

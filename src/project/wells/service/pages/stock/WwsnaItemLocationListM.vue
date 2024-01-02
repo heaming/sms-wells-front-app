@@ -216,7 +216,7 @@ const { currentRoute } = useRouter();
 const { notify } = useGlobal();
 const store = useStore();
 const stdWareUri = '/sms/wells/service/normal-out-of-storages/standard-ware';
-const loginWareUri = 'sms/wells/service/returning-goods-store/login-warehouse';
+const loginWareUri = '/sms/wells/service/returning-goods-store/login-warehouse';
 // -------------------------------------------------------------------------------------------------
 // Function & Event
 // -------------------------------------------------------------------------------------------------
