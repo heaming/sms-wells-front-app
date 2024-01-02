@@ -583,6 +583,7 @@ const initGrdMain = defineGrid((data, view) => {
   const fields = [
     { fieldName: 'ctt' },
     { fieldName: 'bizDv' },
+    { fieldName: 'bizDvNm' },
     { fieldName: 'prdf' },
     { fieldName: 'pdctNm' },
     { fieldName: 'cntrNo' },
@@ -660,7 +661,8 @@ const initGrdMain = defineGrid((data, view) => {
 
   const columns = [
     { fieldName: 'ctt', header: t('MSG_TXT_CTT'), width: '52', styleName: 'text-center', headerSummaries: { text: '합계', styleName: 'text-center' } }, // 컨택
-    { fieldName: 'bizDv', header: t('MSG_TXT_TASK_DIV'), width: '100', styleName: 'text-center' }, // 업무구분
+    { fieldName: 'bizDv', header: t('MSG_TXT_TASK_DIV'), width: '100', styleName: 'text-center', visible: false }, // 업무구분
+    { fieldName: 'bizDvNm', header: t('MSG_TXT_TASK_DIV'), width: '100', styleName: 'text-center' }, // 업무구분명
     { fieldName: 'prdf', header: t('MSG_TXT_PRD_GRP'), width: '180', styleName: 'text-center' }, // 제품군
     { fieldName: 'pdctNm', header: t('MSG_TXT_GOODS_NM'), width: '260', styleName: 'text-center' }, // 제품명
     { fieldName: 'cntrNo', header: t('MSG_TXT_CNTR_NO'), width: '140', styleName: 'text-center' }, // 계약번호
