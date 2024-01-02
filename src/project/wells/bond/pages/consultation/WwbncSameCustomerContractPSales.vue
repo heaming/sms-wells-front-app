@@ -334,7 +334,7 @@
         :label="$t('MSG_TXT_RECAP_MSH')"
       >
         <p>
-          {{ sales.frisuAsPtrmN }}
+          {{ sales.stplPtrm }}
         </p>
       </kw-form-item>
       <kw-form-item
