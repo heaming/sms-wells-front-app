@@ -285,9 +285,9 @@ const pageInfo = ref({
   needTotalCount: true,
 });
 
-// const defaultDate = dayjs().format('YYYYMM');
-console.log(dayjs().format('YYYYMM'));
-const defaultDate = '202312';
+const defaultDate = dayjs().format('YYYYMM');
+// console.log(dayjs().format('YYYYMM'));
+// const defaultDate = '202312';
 const { tenantId } = getters['meta/getUserInfo'];
 
 let cachedParams;
