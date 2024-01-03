@@ -57,11 +57,11 @@
         </kw-search-item>
 
         <kw-search-item
-          :label="$t('MSG_TXT_PRTNR_NO')"
+          :label="$t('MSG_TXT_SELL_PRTNR_NO')"
         >
           <kw-input
             v-model="searchParams.prtnrNo"
-            :label="$t('MSG_TXT_PRTNR_NO')"
+            :label="$t('MSG_TXT_SELL_PRTNR_NO')"
             icon="search"
             maxlength="10"
             rules="max:10|numeric"
@@ -198,8 +198,8 @@ const searchDtType = ref(BASE_DT);
 let cachedParams;
 const searchParams = ref({
   baseDt: now.format('YYYYMMDD'),
-  strtDt: now.startOf('month').format('YYYYMMDD'),
-  endDt: now.format('YYYYMMDD'),
+  strtDt: '',
+  endDt: '',
   exProcsCd: '',
   prtnrNo: '',
   cstNo: '',
@@ -358,7 +358,7 @@ const initGrid = defineGrid((data, view) => {
     },
     {
       fieldName: 'prtnrNo',
-      header: t('MSG_TXT_PRTNR_NO'),
+      header: t('MSG_TXT_SELL_PRTNR_NO'),
       width: 150,
       styleName: 'text-center rg-button-icon--search',
       button: 'action',
