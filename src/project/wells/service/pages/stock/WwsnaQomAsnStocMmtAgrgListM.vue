@@ -171,8 +171,9 @@ const optionsAllItmPdCd = ref();
 // 품목조회
 const getProducts = async () => {
   const result = await dataService.get('/sms/wells/service/qom-asn-stock-aggs/products');
-  optionsItmPdCd.value = result.data;
-  optionsAllItmPdCd.value = result.data;
+  const pdCds = result.data.map((v) => v.pdCd);
+  optionsAllItmPdCd.value = result.data.filter((v, i) => pdCds.indexOf(v.pdCd) === i);
+  optionsItmPdCd.value = optionsAllItmPdCd.value;
 };
 
 // 품목종류 변경 시 품목 필터링
