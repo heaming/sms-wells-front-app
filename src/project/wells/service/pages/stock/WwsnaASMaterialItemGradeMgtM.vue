@@ -118,12 +118,15 @@
       </kw-search-row>
       <kw-search-row>
         <!-- 자재구분 -->
-        <kw-search-item :label="t('MSG_TXT_MAT_DV')">
-          <kw-select
-            v-model="searchParams.matUtlzDvCd"
-            :options="codes.CMN_PART_DV_CD"
+        <kw-search-item
+          :label="t('MSG_TXT_MAT_DV')"
+          :colspan="2"
+        >
+          <kw-option-group
+            v-model="searchParams.matUtlzDvCds"
+            type="checkbox"
             :label="$t('MSG_TXT_MAT_DV')"
-            first-option="all"
+            :options="codes.MAT_UTLZ_DV_CD"
           />
         </kw-search-item>
       </kw-search-row>
@@ -219,7 +222,10 @@ const searchParams = ref({
   useYn: 'Y',
   itmMngtGdCd: '',
   itmPdCd: '',
-  matUtlzDvCd: '',
+  matUtlzDvCds: [''],
+  commGb: '',
+  baseGb: '',
+  turnoverGb: '',
 });
 
 const pageInfo = ref({
@@ -235,19 +241,21 @@ const codes = await codeUtil.getMultiCodes(
   'WARE_DTL_DV_CD',
   'USE_YN',
   'ITM_KND_CD',
-  'CMN_PART_DV_CD',
+  'MAT_UTLZ_DV_CD',
 );
 
 const filterCodes = ref({
   wareDtlDvCd: [],
 });
 
+// 창고상세구분 필터링
 function wareDtlDvCdFilter() {
   filterCodes.value.wareDtlDvCd = codes.WARE_DTL_DV_CD.filter((v) => ['20', '21'].includes(v.codeId));
 }
 
 const optionsCrtItmMngtGdCd = [];
 
+// 품목등급 데이터 생성
 function makeCrtItmMngtGdCd() {
   optionsCrtItmMngtGdCd.push({ codeId: 'S', codeName: 'S' });
   optionsCrtItmMngtGdCd.push({ codeId: 'A', codeName: 'A' });
@@ -385,6 +393,22 @@ async function fetchData() {
   }
 }
 
+// 체크박스 조건 변환
+function convertCheckBox() {
+  const { matUtlzDvCds } = cachedParams;
+
+  // 중수리자재 여부
+  const commGb = isEmpty(matUtlzDvCds.find((v) => v === '01')) ? 'N' : 'Y';
+  // 기초자재 여부
+  const baseGb = isEmpty(matUtlzDvCds.find((v) => v === '02')) ? 'N' : 'Y';
+  // 회전율대상 여부
+  const turnoverGb = isEmpty(matUtlzDvCds.find((v) => v === '03')) ? 'N' : 'Y';
+
+  cachedParams.commGb = commGb;
+  cachedParams.baseGb = baseGb;
+  cachedParams.turnoverGb = turnoverGb;
+}
+
 // 조회버튼 클릭
 async function onClickSearch() {
   const currentMonth = dayjs().format('YYYYMM');
@@ -402,6 +426,8 @@ async function onClickSearch() {
   const { itmMngtGdCd } = searchParams.value;
   searchParams.value.itmMngtGdCd = itmMngtGdCd.replace(/\+/gi, '');
   cachedParams = cloneDeep(searchParams.value);
+  // 체크박스 조건 변환
+  convertCheckBox();
   await fetchData();
 }
 
