@@ -51,6 +51,7 @@
             v-model:from="searchParams.strtDt"
             v-model:to="searchParams.endDt"
             type="date"
+            :rules="searchParams.strtDt || searchParams.endDt ? 'date_range_required':''"
             :label="$t('MSG_TXT_CNTRCT_DT')"
           />
         </kw-search-item>
