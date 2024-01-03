@@ -28,7 +28,7 @@
           v-model="searchParams.prdEnqry"
           :options="[{ codeId: '1', codeName: t('MSG_TXT_RCP_D') },
                      { codeId: '2', codeName: t('MSG_TXT_CAN_D') },
-                     { codeId: '3', codeName: t('MSG_TXT_DT_OF_SALE') },
+                     { codeId: '3', codeName: t('MSG_TXT_SL_D') },
                      { codeId: '4', codeName: t('MSG_TXT_EXP_DT') }]"
           class="w166"
           rules="required"
@@ -40,7 +40,7 @@
           rules="date_range_required|date_range_months:1"
           :label="searchParams.prdEnqry === '1' ? $t('MSG_TXT_RCP_D'):
             searchParams.prdEnqry === '2' ? $t('MSG_TXT_CAN_D'):
-            searchParams.prdEnqry === '3' ? $t('MSG_TXT_DT_OF_SALE'):
+            searchParams.prdEnqry === '3' ? $t('MSG_TXT_SL_D'):
             searchParams.prdEnqry === '4' ? $t('MSG_TXT_EXP_DT'):$t('MSG_TXT_RCP_D')"
         />
       </kw-search-item>
@@ -654,7 +654,7 @@ const initGridRglrDlvrContractList = defineGrid((data, view) => {
     { fieldName: 'cntrRcpFshDt', header: t('MSG_TXT_RCP_D'), width: '134', styleName: 'text-center', datetimeFormat: 'date' }, // 접수일
     { fieldName: 'sppDuedt', header: t('MSG_TXT_DUEDT'), width: '134', styleName: 'text-center', datetimeFormat: 'date' }, // 예정일
     { fieldName: 'fshSppFshDt', header: t('MSG_TXT_FST_SPP_D'), width: '134', styleName: 'text-center', datetimeFormat: 'date' }, // 최초배송일
-    { fieldName: 'istDt', header: t('MSG_TXT_DT_OF_SALE'), width: '134', styleName: 'text-center', datetimeFormat: 'date' }, // 매출일
+    { fieldName: 'istDt', header: t('MSG_TXT_SL_D'), width: '134', styleName: 'text-center', datetimeFormat: 'date' }, // 매출일
     { fieldName: 'cntrPdEnddt', header: t('MSG_TXT_EXP_DT'), width: '134', styleName: 'text-center', datetimeFormat: 'date' }, // 만료일
     { fieldName: 'cltnRqdt', header: t('MSG_TXT_CLTN_AK_D'), width: '134', styleName: 'text-center', datetimeFormat: 'date' }, // 해약요청일
     { fieldName: 'reqdDt', header: t('MSG_TXT_CLTN_D'), width: '134', styleName: 'text-center', datetimeFormat: 'date' }, // 해약일

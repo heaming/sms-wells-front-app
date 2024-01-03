@@ -28,7 +28,7 @@
         <kw-select
           v-model="searchParams.prdEnqry"
           :options="[{ codeId: '1', codeName: t('MSG_TXT_RCP_D') },
-                     { codeId: '2', codeName: t('MSG_TXT_DT_OF_SALE') },
+                     { codeId: '2', codeName: t('MSG_TXT_SL_D') },
                      { codeId: '3', codeName: t('MSG_TXT_CAN_D') }]"
           rules="required"
         />
@@ -37,7 +37,7 @@
           v-model:from="searchParams.strtDt"
           v-model:to="searchParams.endDt"
           :label="searchParams.prdEnqry === '1' ? $t('MSG_TXT_RCP_D'):
-            searchParams.prdEnqry === '2' ? $t('MSG_TXT_DT_OF_SALE'):
+            searchParams.prdEnqry === '2' ? $t('MSG_TXT_SL_D'):
             searchParams.prdEnqry === '3' ? $t('MSG_TXT_CAN_D'):$t('MSG_TXT_RCP_D')"
           rules="date_range_required|date_range_months:1"
         />
@@ -716,7 +716,7 @@ const initGridSnglPmntContractList = defineGrid((data, view) => {
     { fieldName: 'sellDscTpNm', header: `${t('MSG_TXT_DISC_CODE')}${t('MSG_TXT_NM')}`, width: '138', styleName: 'text-center' }, // 할인유형명
     { fieldName: 'cntrRcpFshDtm', header: t('MSG_TXT_RCP_D'), width: '136', styleName: 'text-center', datetimeFormat: 'date' }, // 접수일
     { fieldName: 'sppDuedt', header: t('MSG_TXT_DUEDT'), width: '136', styleName: 'text-center', datetimeFormat: 'date' }, // 예정일
-    { fieldName: 'slDt', header: t('MSG_TXT_DT_OF_SALE'), width: '136', styleName: 'text-center', datetimeFormat: 'date' }, // 매출일
+    { fieldName: 'slDt', header: t('MSG_TXT_SL_D'), width: '136', styleName: 'text-center', datetimeFormat: 'date' }, // 매출일
     { fieldName: 'cntrCanDt', header: t('MSG_TXT_CAN_D'), width: '136', styleName: 'text-center', datetimeFormat: 'date' }, // 취소일
     { fieldName: 'cpsDt', header: t('MSG_TXT_COMP_D'), width: '136', styleName: 'text-center', datetimeFormat: 'date' }, // 보상일
     { fieldName: 'slPasgDt', header: t('MSG_TXT_SL_PASG_DT'), width: '136', styleName: 'text-center', datetimeFormat: 'date' }, // 매출경과일
