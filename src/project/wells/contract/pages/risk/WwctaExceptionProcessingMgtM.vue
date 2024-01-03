@@ -21,19 +21,33 @@
     >
       <kw-search-row>
         <kw-search-item
-          :label="$t('MSG_TXT_ACEPT_PERIOD')"
-          required
+          :label="$t('MSG_TXT_ACEPT_PERIOD', undefined, '!적용기간')"
         >
+          <template #label>
+            <kw-select
+              v-model="searchDtType"
+              borderless
+              :options="codes.SEARCH_DT_TYPE"
+              @update:model-value="onUpdateSearchDtType"
+            />
+          </template>
           <kw-date-range-picker
+            v-if="searchDtType === PERIOD"
             v-model:from="searchParams.strtDt"
             v-model:to="searchParams.endDt"
             :label="$t('MSG_TXT_ACEPT_PERIOD')"
             rules="date_range_required"
           />
+          <kw-date-picker
+            v-if="searchDtType === BASE_DT"
+            v-model="searchParams.baseDt"
+            :label="$t('기준일자', undefined, '!기준일자')"
+            rules="date_range_required"
+          />
         </kw-search-item>
 
         <kw-search-item
-          :label="$t('MSG_TXT_EX_PROCS_CD')"
+          :label="$t('MSG_TXT_EX_PROCS_CD', undefined, '!예외 처리 구분')"
         >
           <kw-select
             v-model="searchParams.exProcsCd"
@@ -43,11 +57,11 @@
         </kw-search-item>
 
         <kw-search-item
-          :label="$t('MSG_TXT_PRTNR_NO')"
+          :label="$t('MSG_TXT_SELL_PRTNR_NO')"
         >
           <kw-input
             v-model="searchParams.prtnrNo"
-            :label="$t('MSG_TXT_PRTNR_NO')"
+            :label="$t('MSG_TXT_SELL_PRTNR_NO')"
             icon="search"
             maxlength="10"
             rules="max:10|numeric"
@@ -156,9 +170,10 @@
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
 import ZctzContractDetailNumber from '~sms-common/contract/components/ZctzContractDetailNumber.vue';
-import { codeUtil, defineGrid, getComponentType, gridUtil, useDataService, useGlobal, useMeta } from 'kw-lib';
+import { defineGrid, getComponentType, gridUtil, useDataService, useGlobal, useMeta } from 'kw-lib';
 import dayjs from 'dayjs';
 import { cloneDeep } from 'lodash-es';
+import { useCtCode } from '~sms-common/contract/composable';
 
 const dataService = useDataService();
 const { getConfig } = useMeta();
@@ -167,15 +182,24 @@ const { modal, notify } = useGlobal();
 const { currentRoute } = useRouter();
 const grdMainRef = ref(getComponentType('KwGrid'));
 const now = dayjs();
-const codes = await codeUtil.getMultiCodes(
+const { codes, addCode } = await useCtCode(
   'COD_PAGE_SIZE_OPTIONS',
   'EX_PROCS_CD',
 );
-codes.STATUS = [{ codeId: 'N', codeName: t('MSG_TXT_LIMIT') }, { codeId: 'Y', codeName: t('MSG_TXT_PRMSN') }];
+
+await addCode('STATUS', [{ codeId: 'N', codeName: t('MSG_TXT_LIMIT') }, { codeId: 'Y', codeName: t('MSG_TXT_PRMSN') }]);
+const BASE_DT = 'baseDt';
+const PERIOD = 'period';
+await addCode('SEARCH_DT_TYPE', [
+  { codeId: BASE_DT, codeName: t('기준일자') },
+  { codeId: PERIOD, codeName: t('MSG_TXT_ACEPT_PERIOD', undefined, '!!적용기간') },
+]);
+const searchDtType = ref(BASE_DT);
 let cachedParams;
 const searchParams = ref({
-  strtDt: now.startOf('month').format('YYYYMMDD'),
-  endDt: now.format('YYYYMMDD'),
+  baseDt: now.format('YYYYMMDD'),
+  strtDt: '',
+  endDt: '',
   exProcsCd: '',
   prtnrNo: '',
   cstNo: '',
@@ -278,6 +302,19 @@ async function onClickExcelDownload() {
   });
 }
 
+function onUpdateSearchDtType(value) {
+  if (value === BASE_DT) {
+    searchParams.value.strtDt = undefined;
+    searchParams.value.endDt = undefined;
+    searchParams.value.baseDt = cachedParams?.baseDt || now.format('YYYYMMDD');
+  }
+  if (value === PERIOD) {
+    searchParams.value.strtDt = cachedParams?.strtDt || now.startOf('month').format('YYYYMMDD');
+    searchParams.value.endDt = cachedParams?.endDt || now.format('YYYYMMDD');
+    searchParams.value.baseDt = undefined;
+  }
+}
+
 // -------------------------------------------------------------------------------------------------
 // Initialize Grid
 // -------------------------------------------------------------------------------------------------
@@ -300,7 +337,7 @@ const initGrid = defineGrid((data, view) => {
 
   const columns = [
     { fieldName: 'exProcsCd',
-      header: t('MSG_TXT_SLS_CAT'),
+      header: t('MSG_TXT_EX_PROCS_CD', undefined, '!예외 처리 구분'),
       width: 250,
       options: codes.EX_PROCS_CD,
       required: true,
@@ -321,7 +358,7 @@ const initGrid = defineGrid((data, view) => {
     },
     {
       fieldName: 'prtnrNo',
-      header: t('MSG_TXT_PRTNR_NO'),
+      header: t('MSG_TXT_SELL_PRTNR_NO'),
       width: 150,
       styleName: 'text-center rg-button-icon--search',
       button: 'action',

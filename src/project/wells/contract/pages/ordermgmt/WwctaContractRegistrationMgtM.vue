@@ -150,7 +150,7 @@
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
-import { useGlobal } from 'kw-lib';
+import { confirm, useGlobal } from 'kw-lib';
 import { warn } from 'vue';
 import { CNTR_TP_CD } from '~sms-wells/contract/constants/ctConst';
 import WwctaContractRegistrationMgtMStep1 from './WwctaContractRegistrationMgtMStep1.vue';
@@ -385,6 +385,13 @@ async function onClickConfirmQuote() {
 async function onClickNext() {
   if (currentStepRef.value.isValidStep && !await currentStepRef.value.isValidStep()) {
     return;
+  }
+  if (summary.value.cntrBas.cstStlmInMthCd === '30'
+    && summary.value.cntrBas.sellOgTpCd === 'W05'
+    && !nextStep.value) {
+    if (!await confirm('총판 비대면 건은 작성완료 시 수정이 불가합니다.(이후 고객센터 계약확정 진행) 완료하시겠습니까?')) {
+      return;
+    }
   }
   await currentStepRef.value.saveStep();
   if (!nextStep.value) {
