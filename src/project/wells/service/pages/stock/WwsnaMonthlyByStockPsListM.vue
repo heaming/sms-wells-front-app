@@ -89,7 +89,15 @@
             v-model="searchParams.itmKndCd"
             :options="codes.ITM_KND_CD"
             first-option="all"
-            @change="onChangeItmKndCd"
+            class="w150"
+            @change="onChangeItmDvCd"
+          />
+          <kw-select
+            v-model="searchParams.itmGrpCd"
+            :options="codes.PD_GRP_CD"
+            first-option="all"
+            class="w150"
+            @change="onChangeItmDvCd"
           />
           <kw-select
             v-model="searchParams.itmPdCds"
@@ -99,11 +107,13 @@
             :multiple="true"
           />
         </kw-search-item>
-        <!-- 사용여부 -->
-        <kw-search-item :label="$t('MSG_TXT_USE_SEL')">
+        <!-- 자재그룹 -->
+        <kw-search-item
+          :label="t('TXT_MSG_SAP_MAT_GRP_VAL')"
+        >
           <kw-select
-            v-model="searchParams.useYn"
-            :options="codes.USE_YN"
+            v-model="searchParams.svMatGrpCd"
+            :options="codes.SV_MAT_GRP_CD"
             first-option="all"
           />
         </kw-search-item>
@@ -138,13 +148,26 @@
             @change="onChangeEndSapCd"
           />
         </kw-search-item>
-        <!-- 자재구분 -->
-        <kw-search-item :label="t('MSG_TXT_MAT_DV')">
+        <!-- 사용여부 -->
+        <kw-search-item :label="$t('MSG_TXT_USE_SEL')">
           <kw-select
-            v-model="searchParams.matUtlzDvCd"
-            :options="codes.CMN_PART_DV_CD"
-            :label="$t('MSG_TXT_MAT_DV')"
+            v-model="searchParams.useYn"
+            :options="codes.USE_YN"
             first-option="all"
+          />
+        </kw-search-item>
+      </kw-search-row>
+      <kw-search-row>
+        <!-- 자재구분 -->
+        <kw-search-item
+          :label="t('MSG_TXT_MAT_DV')"
+          :colspan="2"
+        >
+          <kw-option-group
+            v-model="searchParams.matUtlzDvCds"
+            type="checkbox"
+            :label="$t('MSG_TXT_MAT_DV')"
+            :options="codes.MAT_UTLZ_DV_CD"
           />
         </kw-search-item>
       </kw-search-row>
@@ -212,11 +235,16 @@ const searchParams = ref({
   itmGdCd: '',
   useYn: '',
   itmKndCd: '',
+  itmGrpCd: '',
   itmPdCds: [],
   itmPdCd: '',
   strtSapCd: '',
   endSapCd: '',
-  matUtlzDvCd: '',
+  svMatGrpCd: '',
+  matUtlzDvCds: [''],
+  commGb: '',
+  baseGb: '',
+  turnoverGb: '',
 });
 
 const codes = await codeUtil.getMultiCodes(
@@ -225,7 +253,9 @@ const codes = await codeUtil.getMultiCodes(
   'PD_GD_CD',
   'ITM_KND_CD',
   'USE_YN',
-  'CMN_PART_DV_CD',
+  'SV_MAT_GRP_CD',
+  'MAT_UTLZ_DV_CD',
+  'PD_GRP_CD',
 );
 
 const filterCodes = ref({
@@ -338,22 +368,28 @@ const optionsAllItmPdCd = ref();
 // 품목조회
 const getProducts = async () => {
   const result = await dataService.get('/sms/wells/service/monthly-by-stock-state/products');
-  optionsItmPdCd.value = result.data;
+  const pdCds = result.data.map((v) => v.pdCd);
+  optionsItmPdCd.value = result.data.filter((v, i) => pdCds.indexOf(v.pdCd) === i);
   optionsAllItmPdCd.value = result.data;
 };
 
-// 품목종류 변경 시 품목 필터링
-function onChangeItmKndCd() {
+// 품목종류, 품목그룹 변경 시 품목 필터링
+function onChangeItmDvCd() {
   // 품목코드 클리어
   searchParams.value.itmPdCds = [];
-  const { itmKndCd } = searchParams.value;
+  const { itmKndCd, itmGrpCd } = searchParams.value;
 
-  if (isEmpty(itmKndCd)) {
-    optionsItmPdCd.value = optionsAllItmPdCd.value;
+  if (isEmpty(itmKndCd) && isEmpty(itmGrpCd)) {
+    const pdCds = optionsAllItmPdCd.value.map((v) => v.pdCd);
+    optionsItmPdCd.value = optionsAllItmPdCd.value.filter((v, i) => pdCds.indexOf(v.pdCd) === i);
     return;
   }
+  const filterPdInfos = optionsAllItmPdCd.value.filter(
+    (v) => (isEmpty(itmKndCd) || itmKndCd === v.itmKndCd) && (isEmpty(itmGrpCd) || itmGrpCd === v.itmGrpCd),
+  );
+  const pdCds = filterPdInfos.map((v) => v.pdCd);
 
-  optionsItmPdCd.value = optionsAllItmPdCd.value.filter((v) => itmKndCd === v.itmKndCd);
+  optionsItmPdCd.value = filterPdInfos.filter((v, i) => pdCds.indexOf(v.pdCd) === i);
 }
 
 // SAP 시작코드 변경 시
@@ -387,7 +423,7 @@ const totalCount = ref(0);
 
 // 조회
 async function fetchData() {
-  const res = await dataService.get('/sms/wells/service/monthly-by-stock-state', { params: { ...cachedParams } });
+  const res = await dataService.get('/sms/wells/service/monthly-by-stock-state', { params: { ...cachedParams }, timeout: 300000 });
   const stocks = res.data;
   totalCount.value = stocks.length;
 
@@ -397,9 +433,29 @@ async function fetchData() {
   }
 }
 
+// 체크박스 조건 변환
+function convertCheckBox() {
+  const { matUtlzDvCds } = cachedParams;
+
+  // 중수리자재 여부
+  const commGb = isEmpty(matUtlzDvCds.find((v) => v === '01')) ? 'N' : 'Y';
+  // 기초자재 여부
+  const baseGb = isEmpty(matUtlzDvCds.find((v) => v === '02')) ? 'N' : 'Y';
+  // 회전율대상 여부
+  const turnoverGb = isEmpty(matUtlzDvCds.find((v) => v === '03')) ? 'N' : 'Y';
+
+  cachedParams.commGb = commGb;
+  cachedParams.baseGb = baseGb;
+  cachedParams.turnoverGb = turnoverGb;
+}
+
 // 조회버튼 클릭
 async function onClickSearch() {
   cachedParams = cloneDeep(searchParams.value);
+
+  // 체크박스 조건 변환
+  convertCheckBox();
+
   await fetchData();
 }
 
