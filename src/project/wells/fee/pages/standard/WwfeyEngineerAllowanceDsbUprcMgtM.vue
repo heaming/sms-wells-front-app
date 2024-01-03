@@ -92,7 +92,7 @@
           primary
           dense
           :disable="totalCount.value === 0"
-          @click="openManagementPopup('CREATE')"
+          @click="()=> {openManagementPopup('CREATE')}"
         />
       </kw-action-top>
       <kw-grid
@@ -117,8 +117,11 @@ import {
   modal,
   notify,
   useDataService,
+  useGlobal,
 } from 'kw-lib';
 import { cloneDeep } from 'lodash-es';
+
+const { alert } = useGlobal();
 
 const dataService = useDataService('PGE_FEY_00052');
 const { t } = useI18n();
@@ -167,7 +170,10 @@ async function onClickSearch() {
 async function openManagementPopup(mode) {
   const view = grdMainRef.value.getView();
   const selectedRowData = gridUtil.getSelectedRowValues(view);
-  if (selectedRowData.length === 0) return;
+  if (selectedRowData.length === 0) {
+    await alert(t('MSG_ALT_NOT_SEL_ITEM'));
+    return;
+  }
   const managementPopupName = 'WwfeyEngineerAllowanceDsbUprcMgtP';
   const { result, payload } = await modal({
     component: managementPopupName,
