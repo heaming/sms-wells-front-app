@@ -560,12 +560,12 @@ function getGridColumns() {
     { fieldName: 'hcrMshY3', header: t('MSG_TXT_HCR_MSH_Y3'), width: '120', styleName: 'text-right' }, // 홈케어멤버십3년
     { fieldName: 'feeFxamYn', header: t('MSG_TXT_FXAM_YN'), width: '120', styleName: 'text-right' }, // 정액여부
     { fieldName: 'fnnLease', header: t('MSG_TXT_FNN_LEASE'), width: '120', styleName: 'text-right' }, // 금융리스
-    { fieldName: 'feeAckmtCt', header: t('MSG_TXT_PD_ACC_CNT'), width: '120', styleName: 'text-right' }, // 인정건수
+    { fieldName: 'feeAckmtCt', header: t('MSG_TXT_OLD') + t('MSG_TXT_PD_ACC_CNT'), width: '120', styleName: 'text-right' }, // 구 인정건수
   );
 
   if (searchParams.value.dvCd === '04') {
     columns.push(
-      { fieldName: 'bsFeeAckmtCt', header: `BS${t('MSG_TXT_PD_ACC_CNT')}`, width: '120', styleName: 'text-right' }, // BS인정건수
+      { fieldName: 'bsFeeAckmtCt', header: t('MSG_TXT_NOW') + t('MSG_TXT_PD_ACC_CNT'), width: '120', styleName: 'text-right' }, // 현 인정건수
     );
   }
 
