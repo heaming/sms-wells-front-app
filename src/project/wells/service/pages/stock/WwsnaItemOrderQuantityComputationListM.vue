@@ -14,7 +14,10 @@
 --->
 <template>
   <kw-page>
-    <kw-search @search="onClickSearch">
+    <kw-search
+      :cols="4"
+      @search="onClickSearch"
+    >
       <kw-search-row>
         <!-- 관리년월 -->
         <kw-search-item
@@ -31,12 +34,14 @@
         <!-- 품목구분 -->
         <kw-search-item
           :label="$t('MSG_TXT_ITM_DV')"
+          :colspan="2"
         >
           <kw-select
             v-model="searchParams.itmKndCd"
             :options="filterCodes.itmKndCd"
             :label="$t('MSG_TXT_ITM_DV')"
             first-option="all"
+            class="w150"
             @change="onChangeItmKndCd"
           />
           <kw-select
@@ -65,6 +70,7 @@
         <!-- SAP코드 -->
         <kw-search-item
           :label="$t('MSG_TXT_SAPCD')"
+          :colspan="2"
         >
           <kw-input
             v-model="searchParams.strtSapCd"
@@ -301,6 +307,13 @@ async function onClickSearch() {
   pageInfo.value.pageIndex = 1;
   // 조회버튼 클릭 시에만 총 건수 조회하도록
   pageInfo.value.needTotalCount = true;
+
+  const selPdLength = cachedParams.itmPdCds.length;
+  const allPdLength = optionsItmPdCd.value.length;
+
+  if (selPdLength === allPdLength) {
+    cachedParams.itmPdCds = [];
+  }
 
   isSearch.value = false;
   // 필드 설정
