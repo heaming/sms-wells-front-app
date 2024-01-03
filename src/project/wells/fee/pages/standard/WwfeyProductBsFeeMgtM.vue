@@ -47,9 +47,8 @@
         >
           <kw-input
             v-model.trim="searchParams.vstMcn"
-            rules="numeric"
-            :maxlength="10"
-            type="number"
+            mask="#####"
+            type="text"
             :label="$t('MSG_TXT_VISIT_MN')"
           />
         </kw-search-item>
