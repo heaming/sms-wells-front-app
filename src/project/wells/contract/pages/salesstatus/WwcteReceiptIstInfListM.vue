@@ -690,7 +690,7 @@ const initGrid = defineGrid((data, view) => {
   const columns = [
     { fieldName: 'sellDvNm', header: t('MSG_TXT_RCP_DV'), width: '129', styleName: 'text-center' }, // 접수구분
     { fieldName: 'dpTpNm', header: t('MSG_TXT_FNT_DV'), width: '129', styleName: 'text-center' }, // 이체구분
-    { fieldName: 'mpyBsdt', header: t('MSG_TXT_FNT_STPL_D'), width: '129', styleName: 'text-center' }, // 이체약정일
+    { fieldName: 'mpyBsdt', header: t('MSG_TXT_FNT_STPL_D'), width: '129', styleName: 'text-right' }, // 이체약정일
     { fieldName: 'newCstYn', header: `${t('MSG_TXT_KWK')} ${t('MSG_TXT_NEW')}`, width: '129', styleName: 'text-center' }, // 교원키 신규
     { fieldName: 'mchnCh', header: t('MSG_TXT_CHNG'), width: '129', styleName: 'text-center' }, // 기변
     { fieldName: 'rentalYn', header: t('MSG_TXT_RE_RENTAL'), width: '129', styleName: 'text-center' }, // 재렌탈
@@ -701,7 +701,7 @@ const initGrid = defineGrid((data, view) => {
 
     { fieldName: 'sellTpNm', header: t('MSG_TXT_CNTR_DV'), width: '129', styleName: 'text-center' }, // 계약구분
     { fieldName: 'copnDvNm', header: t('MSG_TXT_CST_DV'), width: '129', styleName: 'text-center' }, // 고객구분
-    { fieldName: 'cntrSno', header: t('MSG_TXT_CNTR_NO'), width: '129', styleName: 'text-center' }, // 계약번호
+    { fieldName: 'cntrSno', header: t('MSG_TXT_CNTR_NO'), width: '138', styleName: 'text-center' }, // 계약번호
     { fieldName: 'cstKnm', header: t('MSG_TXT_CNTOR_NM'), width: '129', styleName: 'text-center' }, // 계약자명
     { fieldName: 'cntrTelNo', header: t('MSG_TXT_CNTRT_TNO'), width: '129', styleName: 'text-center' }, // 계약자 연락처
     { fieldName: 'emadr', header: t('MSG_TXT_EMAIL'), width: '257', styleName: 'text-left' }, // 이메일
@@ -709,9 +709,9 @@ const initGrid = defineGrid((data, view) => {
     { fieldName: 'bryyMmdd', header: t('MSG_TXT_CST_BRYY'), width: '129', styleName: 'text-center' }, // 고객생년
     { fieldName: 'sfkVal', header: t('MSG_TXT_SFK'), width: '129', styleName: 'text-center' }, // 세이프키
 
-    { fieldName: 'pdClsfDv', header: t('MSG_TXT_PRDT_CATE'), width: '129', styleName: 'text-left' }, // 상품분류
+    { fieldName: 'pdClsfDv', header: t('MSG_TXT_PRDT_CATE'), width: '138', styleName: 'text-left' }, // 상품분류
     { fieldName: 'basePdCd', header: t('MSG_TXT_PRDT_CODE'), width: '129', styleName: 'text-center' }, // 상품코드
-    { fieldName: 'pdNm', header: t('MSG_TXT_PRDT_NM'), width: '129', styleName: 'text-center' }, // 상품명
+    { fieldName: 'pdNm', header: t('MSG_TXT_PRDT_NM'), width: '180', styleName: 'text-center' }, // 상품명
     { fieldName: 'mmIstmAmt', header: t('MSG_TXT_RTLFE'), width: '129', styleName: 'text-right' }, // 렌탈료
     { fieldName: 'stplPtrm', header: t('MSG_TXT_DUTY_PTRM'), width: '129', styleName: 'text-right' }, // 의무기간
     { fieldName: 'sdingNm', header: t('MSG_TXT_SDING'), width: '129', styleName: 'text-center' }, // 모종
@@ -764,11 +764,11 @@ const initGrid = defineGrid((data, view) => {
     { fieldName: 'feeFxamYn', header: t('MSG_TXT_FXAM_YN'), width: '129', styleName: 'text-center' }, // 정액여부
     { fieldName: 'ocoCpsBzsDvNm', header: t('MSG_TXT_OCO_COMP_CMPNY'), width: '177', styleName: 'text-center' }, // 타사보상업체
     { fieldName: 'zip', header: t('MSG_TXT_CNTRT_ZIP'), width: '129', styleName: 'text-center' }, // 계약자 우편번호
-    { fieldName: 'fmmbN', header: t('MSG_TXT_HHLD_MBR_N'), width: '128', styleName: 'text-center' }, // 세대구성원수
+    { fieldName: 'fmmbN', header: t('MSG_TXT_HHLD_MBR_N'), width: '128', styleName: 'text-right' }, // 세대구성원수
     { fieldName: 'feeAckmtCt', header: t('MSG_TXT_PD_ACC_CNT'), width: '129', styleName: 'text-right' }, // 인정건수
     { fieldName: 'rentalTn', header: t('MSG_TXT_RENTAL_NMN'), width: '129', styleName: 'text-right' }, // 렌탈차월
     { fieldName: 'f2', header: t('MSG_TXT_INSI_PRCHS'), width: '146', styleName: 'text-center' }, // 내부구매
-    { fieldName: 'sapMatCd', header: t('MSG_TXT_SAP_PD_CD'), width: '129', styleName: 'text-center' }, // SAP상품코드
+    { fieldName: 'sapMatCd', header: t('MSG_TXT_SAP_PD_CD'), width: '180', styleName: 'text-center' }, // SAP상품코드
     { fieldName: 'bfsvcBzsDvCd', header: t('MSG_TXT_CLSF_BS'), width: '129', styleName: 'text-center' }, // 업체BS구분
     { fieldName: 'splyBzsDvCd', header: t('MSG_TXT_CLSF_BUS'), width: '129', styleName: 'text-center' }, // 업체구분
   ];
