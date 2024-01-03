@@ -148,7 +148,7 @@ function next() {
 async function onClickConfirm() {
   if (!await frmRef.value.validate()) { return; }
 
-  const response = await dataService.post('/sms/wells/contract/contracts/settlements/login', {
+  const response = await dataService.post('/sms/wells/contract/contracts/settlements/login/document-receipts', {
     cntrNo: params.cntrBasis[0].cntrNo,
     ...authInfo,
   });
@@ -159,7 +159,7 @@ async function onClickConfirm() {
 }
 
 async function fetchBasicContractInfo() {
-  const res = await dataService.get('/sms/wells/contract/contracts/settlements/basic-info', {
+  const res = await dataService.get('/sms/wells/contract/contracts/settlements/basic-info/document-receipts', {
     params: { cntrNo: params.cntrBasis[0].cntrNo },
   }).catch(async () => {
     close('Fetch failed');
