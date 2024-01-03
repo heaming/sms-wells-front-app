@@ -576,6 +576,11 @@ async function onChangedDvcd() {
     isOgLevlVisible.value = true;
   } else {
     isOgLevlVisible.value = false;
+    searchParams.value.ogLevl1 = '';
+    searchParams.value.ogLevl2 = '';
+    searchParams.value.ogLevl3 = '';
+    searchParams.value.ogLevl4 = '';
+    searchParams.value.ogLevl5 = '';
   }
 
   if (searchParams.value.inqrDvCd === '01') { /* 상세선택 */
