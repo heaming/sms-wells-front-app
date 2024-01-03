@@ -162,6 +162,7 @@ function validatePdSellLimit(pdSellLimit) {
     bznsClYn,
     pcntrMndtYn,
     pcntrExistYn,
+    sodbtOtherOgMclsfCntrExistYn,
   } = pdSellLimit;
 
   const validationObject = {
@@ -173,6 +174,12 @@ function validatePdSellLimit(pdSellLimit) {
   };
 
   validationObject.precontractRequired = pcntrMndtYn === 'Y';
+
+  if (sodbtOtherOgMclsfCntrExistYn === 'Y') {
+    validationObject.valid = false;
+    validationObject.reason = '타조직 총판 계약 건이 존재합니다.';
+    return validationObject;
+  }
 
   if (pcntrMndtYn === 'Y' && pcntrExistYn === 'N') {
     validationObject.valid = false;

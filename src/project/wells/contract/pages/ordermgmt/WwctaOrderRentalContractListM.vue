@@ -29,7 +29,7 @@
         <kw-select
           v-model="searchParams.prdEnqry"
           :options="[{ codeId: '1', codeName: t('MSG_TXT_RCP_D') },
-                     { codeId: '2', codeName: t('MSG_TXT_DT_OF_SALE') },
+                     { codeId: '2', codeName: t('MSG_TXT_SL_D') },
                      { codeId: '3', codeName: t('MSG_TXT_CAN_D') },
                      { codeId: '4', codeName: t('MSG_TXT_INST_DT') },
                      { codeId: '5', codeName: t('MSG_TXT_EXP_DT') },
@@ -44,7 +44,7 @@
           v-model:to="searchParams.endDt"
           rules="date_range_required|date_range_months:1"
           :label="searchParams.prdEnqry === '1' ? $t('MSG_TXT_RCP_D'):
-            searchParams.prdEnqry === '2' ? $t('MSG_TXT_DT_OF_SALE'):
+            searchParams.prdEnqry === '2' ? $t('MSG_TXT_SL_D'):
             searchParams.prdEnqry === '3' ? $t('MSG_TXT_CAN_D'):
             searchParams.prdEnqry === '4' ? $t('MSG_TXT_INST_DT'):
             searchParams.prdEnqry === '5' ? $t('MSG_TXT_EXP_DT'):
@@ -833,7 +833,7 @@ const initGridRentalContractList = defineGrid((data, view) => {
     { fieldName: 'cntrRcpFshDt', header: t('MSG_TXT_RCP_D'), width: '136', styleName: 'text-center', datetimeFormat: 'date' }, // 접수일
     { fieldName: 'sppDuedt', header: t('MSG_TXT_DUEDT'), width: '136', styleName: 'text-center', datetimeFormat: 'date' }, // 예정일
     { fieldName: 'istDt', header: t('MSG_TXT_INST_DT'), width: '136', styleName: 'text-center', datetimeFormat: 'date' }, // 설치일
-    { fieldName: 'slDt', header: t('MSG_TXT_DT_OF_SALE'), width: '136', styleName: 'text-center', datetimeFormat: 'date' }, // 매출일
+    { fieldName: 'slDt', header: t('MSG_TXT_SL_D'), width: '136', styleName: 'text-center', datetimeFormat: 'date' }, // 매출일
     { fieldName: 'cntrPtrm', header: t('MSG_TXT_CNTR_PTRM'), width: '136', styleName: 'text-right', numberFormat: '#' }, // 계약기간
     { fieldName: 'cntrPdEnddt', header: t('MSG_TXT_EXP_DT'), width: '136', styleName: 'text-center', datetimeFormat: 'date' }, // 만료일
     { fieldName: 'canDt', header: t('MSG_TXT_CAN_D'), width: '136', styleName: 'text-center', datetimeFormat: 'date' }, // 취소일

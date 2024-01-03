@@ -26,17 +26,15 @@
           <p>{{ frmMainData.cntrDtlNo }}</p>
         </kw-form-item>
         <!-- 계약상품리스트 -->
-        <slot v-if="frmMainData.sellTpCd !== '6'">
-          <kw-form-item :label="$t('MSG_TXT_CNTRCT_PD_LIST')">
-            <kw-select
-              v-model="frmMainData.cntrDtlNo"
-              :options="optionList"
-              option-label="pdNm"
-              option-value="cntrDtlNo"
-              @change="onSelectCntrctPdList"
-            />
-          </kw-form-item>
-        </slot>
+        <kw-form-item :label="$t('MSG_TXT_CNTRCT_PD_LIST')">
+          <kw-select
+            v-model="frmMainData.cntrDtlNo"
+            :options="optionList"
+            option-label="pdNm"
+            option-value="cntrDtlNo"
+            @change="onSelectCntrctPdList"
+          />
+        </kw-form-item>
       </kw-form-row>
     </kw-form>
     <kw-separator />

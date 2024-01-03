@@ -50,7 +50,15 @@
             v-model="searchParams.itmKndCd"
             :options="codes.ITM_KND_CD"
             first-option="all"
-            @change="onChangeItmKndCd"
+            class="w150"
+            @change="onChangeItmDvCd"
+          />
+          <kw-select
+            v-model="searchParams.itmGrpCd"
+            :options="codes.PD_GRP_CD"
+            first-option="all"
+            class="w150"
+            @change="onChangeItmDvCd"
           />
           <kw-select
             v-model="searchParams.itmPdCds"
@@ -94,12 +102,13 @@
             first-option="all"
           />
         </kw-search-item>
-        <!-- 자재구분 -->
-        <kw-search-item :label="t('MSG_TXT_MAT_DV')">
+        <!-- 자재그룹 -->
+        <kw-search-item
+          :label="t('TXT_MSG_SAP_MAT_GRP_VAL')"
+        >
           <kw-select
-            v-model="searchParams.matUtlzDvCd"
-            :options="codes.CMN_PART_DV_CD"
-            :label="$t('MSG_TXT_MAT_DV')"
+            v-model="searchParams.svMatGrpCd"
+            :options="codes.SV_MAT_GRP_CD"
             first-option="all"
           />
         </kw-search-item>
@@ -142,6 +151,20 @@
             :label="$t('MSG_TXT_END_SAP_CD')"
             rules="numeric|max:18"
             @change="onChangeEndSapCd"
+          />
+        </kw-search-item>
+      </kw-search-row>
+      <kw-search-row>
+        <!-- 자재구분 -->
+        <kw-search-item
+          :label="t('MSG_TXT_MAT_DV')"
+          :colspan="2"
+        >
+          <kw-option-group
+            v-model="searchParams.matUtlzDvCds"
+            type="checkbox"
+            :label="$t('MSG_TXT_MAT_DV')"
+            :options="codes.MAT_UTLZ_DV_CD"
           />
         </kw-search-item>
       </kw-search-row>
@@ -204,15 +227,20 @@ const searchParams = ref({
   baseDt: dayjs().format('YYYYMMDD'),
   matTypCd: '',
   itmKndCd: '',
+  itmGrpCd: '',
   itmPdCds: [],
   itmGdCd: '',
   useYn: '',
-  matUtlzDvCd: '',
+  svMatGrpCd: '',
   wareDvCd: '2',
   wareTpCd: '',
   itmPdCd: '',
   strtSapCd: '',
   endSapCd: '',
+  matUtlzDvCds: [''],
+  commGb: '',
+  baseGb: '',
+  turnoverGb: '',
 });
 
 let gridView;
@@ -226,7 +254,9 @@ const codes = await codeUtil.getMultiCodes(
   'ITM_KND_CD',
   'PD_GD_CD',
   'USE_YN',
-  'CMN_PART_DV_CD',
+  'SV_MAT_GRP_CD',
+  'MAT_UTLZ_DV_CD',
+  'PD_GRP_CD',
 );
 
 const filterCodes = ref({
@@ -248,22 +278,32 @@ const optionsAllItmPdCd = ref();
 // 품목조회
 const getProducts = async () => {
   const result = await dataService.get('/sms/wells/service/monthly-by-stock-state/products');
-  optionsItmPdCd.value = result.data;
+  const pdCds = result.data.map((v) => v.pdCd);
+  optionsItmPdCd.value = result.data.filter((v, i) => pdCds.indexOf(v.pdCd) === i);
   optionsAllItmPdCd.value = result.data;
 };
 
-// 품목종류 변경 시 품목 필터링
-function onChangeItmKndCd() {
+// 품목종류, 품목그룹 변경 시 품목 필터링
+function onChangeItmDvCd() {
   // 품목코드 클리어
   searchParams.value.itmPdCds = [];
-  const { itmKndCd } = searchParams.value;
+  const { itmKndCd, itmGrpCd } = searchParams.value;
 
-  if (isEmpty(itmKndCd)) {
-    optionsItmPdCd.value = optionsAllItmPdCd.value;
+  if (isEmpty(itmKndCd) && isEmpty(itmGrpCd)) {
+    const pdCds = optionsAllItmPdCd.value.map((v) => v.pdCd);
+    optionsItmPdCd.value = optionsAllItmPdCd.value.filter((v, i) => pdCds.indexOf(v.pdCd) === i);
     return;
   }
+  const filterPdInfos = optionsAllItmPdCd.value.filter(
+    (v) => (isEmpty(itmKndCd) || itmKndCd === v.itmKndCd) && (isEmpty(itmGrpCd) || itmGrpCd === v.itmGrpCd),
+  );
 
-  optionsItmPdCd.value = optionsAllItmPdCd.value.filter((v) => itmKndCd === v.itmKndCd);
+  if (isEmpty(itmGrpCd)) {
+    const pdCds = filterPdInfos.map((v) => v.pdCd);
+    optionsItmPdCd.value = filterPdInfos.filter((v, i) => pdCds.indexOf(v.pdCd) === i);
+  } else {
+    optionsItmPdCd.value = filterPdInfos;
+  }
 }
 
 // SAP 시작코드 변경 시
@@ -336,9 +376,36 @@ async function fetchData() {
   }
 }
 
+// 체크박스 조건 변환
+function convertCheckBox() {
+  const { matUtlzDvCds } = cachedParams;
+
+  // 중수리자재 여부
+  const commGb = isEmpty(matUtlzDvCds.find((v) => v === '01')) ? 'N' : 'Y';
+  // 기초자재 여부
+  const baseGb = isEmpty(matUtlzDvCds.find((v) => v === '02')) ? 'N' : 'Y';
+  // 회전율대상 여부
+  const turnoverGb = isEmpty(matUtlzDvCds.find((v) => v === '03')) ? 'N' : 'Y';
+
+  cachedParams.commGb = commGb;
+  cachedParams.baseGb = baseGb;
+  cachedParams.turnoverGb = turnoverGb;
+}
+
 // 조회버튼 클릭
 async function onClickSearch() {
   cachedParams = cloneDeep(searchParams.value);
+
+  const selPdLength = cachedParams.itmPdCds.length;
+  const allPdLength = optionsItmPdCd.value.length;
+
+  if (selPdLength === allPdLength) {
+    cachedParams.itmPdCds = [];
+  }
+
+  // 체크박스 조건 변환
+  convertCheckBox();
+
   tmpFields = [];
   // 창고조회
   await getWareHouseList();

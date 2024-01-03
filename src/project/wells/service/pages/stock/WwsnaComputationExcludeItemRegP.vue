@@ -45,6 +45,7 @@
             :options="filterCodes.itmKndCd"
             :label="$t('MSG_TXT_ITM_DV')"
             first-option="all"
+            class="w150"
             @change="onChangeItmKndCd"
           />
           <kw-select
@@ -309,6 +310,14 @@ async function onClickSearch() {
   // 조회버튼 클릭 시에만 총 건수 조회하도록
   pageInfo.value.needTotalCount = true;
   cachedParams = cloneDeep(searchParams.value);
+
+  const selPdLength = cachedParams.itmPdCds.length;
+  const allPdLength = optionsItmPdCd.value.length;
+
+  if (selPdLength === allPdLength) {
+    cachedParams.itmPdCds = [];
+  }
+
   isSearch.value = false;
   await fetchData();
 }

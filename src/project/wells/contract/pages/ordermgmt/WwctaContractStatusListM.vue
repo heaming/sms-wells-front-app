@@ -279,16 +279,18 @@
               padding="10px"
               @click="onClickModify(item)"
             />
-            <kw-separator
-              vertical
-              inset
-              spaced="0px"
-            />
-            <kw-btn
-              :label="$t('MSG_BTN_DEL')"
-              padding="10px"
-              @click="onClickContractDelete(item)"
-            />
+            <template v-if="!item.isSoDbt">
+              <kw-separator
+                vertical
+                inset
+                spaced="0px"
+              />
+              <kw-btn
+                :label="$t('MSG_BTN_DEL')"
+                padding="10px"
+                @click="onClickContractDelete(item)"
+              />
+            </template>
           </div>
           <!-- 작성완료 -->
           <div
@@ -300,48 +302,51 @@
               padding="10px"
               @click="onClickModify(item)"
             />
-            <kw-separator
-              vertical
-              inset
-              spaced="0px"
-            />
-            <template v-if="item.confirmPsbYn=='Y'">
-              <kw-btn
-                :label="$t('MSG_BTN_DTRM')"
-                padding="10px"
-                @click="onClickConfirm(item)"
+            <template v-if="!item.isSoDbt">
+              <kw-separator
+                vertical
+                inset
+                spaced="0px"
               />
+              <template v-if="item.confirmPsbYn=='Y'">
+                <kw-btn
+                  :label="$t('MSG_BTN_DTRM')"
+                  padding="10px"
+                  @click="onClickConfirm(item)"
+                />
+                <kw-btn
+                  v-if="CCS_BASE_RLE_CDS.includes(sessionUserInfo.baseRleCd)"
+                  :label="$t('MSG_BTN_F2F_PYMNT')"
+                  padding="10px"
+                  @click="onClickF2fPayment(item)"
+                />
+              </template>
+              <!--<template v-else>-->
+              <!--재약정 아닐때, 노출-->
+              <template v-else-if="item.resultDiv=='1'">
+                <kw-btn
+                  v-if="item.pymnSkipYn === 'N'"
+                  :label="$t('MSG_TXT_NON_FCF_PYMNT')"
+                  padding="10px"
+                  @click="onClickNonFcfPayment(item)"
+                />
+                <kw-btn
+                  :label="$t('MSG_BTN_F2F_PYMNT')"
+                  padding="10px"
+                  @click="onClickF2fPayment(item)"
+                />
+              </template>
               <kw-btn
-                v-if="CCS_BASE_RLE_CDS.includes(sessionUserInfo.baseRleCd)"
-                :label="$t('MSG_BTN_F2F_PYMNT')"
+                :label="$t('MSG_BTN_DEL')"
                 padding="10px"
-                @click="onClickF2fPayment(item)"
+                @click="onClickContractDelete(item)"
               />
             </template>
-            <!--<template v-else>-->
-            <!--재약정 아닐때, 노출-->
-            <template v-else-if="item.resultDiv=='1'">
-              <kw-btn
-                v-if="item.pymnSkipYn === 'N'"
-                :label="$t('MSG_TXT_NON_FCF_PYMNT')"
-                padding="10px"
-                @click="onClickNonFcfPayment(item)"
-              />
-              <kw-btn
-                :label="$t('MSG_BTN_F2F_PYMNT')"
-                padding="10px"
-                @click="onClickF2fPayment(item)"
-              />
-            </template>
-            <kw-btn
-              :label="$t('MSG_BTN_DEL')"
-              padding="10px"
-              @click="onClickContractDelete(item)"
-            />
           </div>
+
           <!-- 결제중 -->
           <div
-            v-else-if="item.viewCntrPrgsStatCd === '40'"
+            v-else-if="!item.isSoDbt && item.viewCntrPrgsStatCd === '40'"
             class="button-wrap"
           >
             <kw-btn
@@ -372,7 +377,7 @@
           </div>
           <!-- 결제완료 -->
           <div
-            v-else-if="item.viewCntrPrgsStatCd === '50'"
+            v-else-if="!item.isSoDbt && item.viewCntrPrgsStatCd === '50'"
             class="button-wrap"
           >
             <kw-btn
@@ -416,7 +421,7 @@
           </div>
           <!-- 확정 -->
           <div
-            v-else-if="item.viewCntrPrgsStatCd === '60'"
+            v-else-if="!item.isSoDbt && item.viewCntrPrgsStatCd === '60'"
             class="button-wrap"
           >
             <!--지점장이고, 삭제요청된 상태일 때, -->
@@ -608,6 +613,8 @@ item.deleteDv : 삭제관련 버튼 노출용
          END
       ELSE ''
 
+item.isSoDbt : 고객센터 계약이면서 현재 사용자가 총판직원일 경우, true
+ - item.isSoDbt true : 작성완료 이후 버튼 안보임.
 */
 
 async function fetchData() {
@@ -622,6 +629,9 @@ async function fetchData() {
 
   pageInfo.value = pagingResult;
   resultList.value = details;
+
+  // 고객센터 계약건이면서, 총판 직원인 경우 isSoDbt = true
+  resultList.value = resultList.value.map((item) => ({ ...item, isSoDbt: (item.isCcs === 'Y' && sessionUserInfo.ogTpCd === 'W05') }));
 }
 
 async function fetchDataSummary() {
