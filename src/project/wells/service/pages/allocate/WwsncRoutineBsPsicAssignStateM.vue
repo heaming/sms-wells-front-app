@@ -21,6 +21,7 @@
       @search="onClickSearch"
     >
       <kw-search-row>
+        <!-- 배정년월 -->
         <kw-search-item
           :label="$t('MSG_TXT_ASN_YM')"
           :colspan="1"
@@ -38,6 +39,7 @@
           :label="$t('MSG_TXT_PD_GRP')"
           :colspan="2"
         >
+          <!-- 상품그룹 -->
           <kw-select
             v-model="searchParams.pdGrpCd"
             :label="$t('MSG_TXT_PD_GRP')"
@@ -50,6 +52,7 @@
             first-option="all"
           />
         </kw-search-item>
+        <!-- 약속일자 -->
         <kw-search-item
           :colspan="2"
           :label="$t('MSG_TXT_PROM_DT')"
@@ -61,6 +64,7 @@
         </kw-search-item>
       </kw-search-row>
       <kw-search-row>
+        <!-- 관리구분 -->
         <kw-search-item
           :label="$t('MSG_TXT_MNGT_DV')"
           :colspan="2"
@@ -96,6 +100,7 @@
             </template>
           </kw-field>
         </kw-search-item>
+        <!-- 서비스유형 -->
         <kw-search-item
           :label="$t('MSG_TXT_SV_TP')"
           :colspan="1"
@@ -106,6 +111,7 @@
             first-option="all"
           />
         </kw-search-item>
+        <!-- 진행구분 -->
         <kw-search-item
           :label="$t('MSG_TXT_PRGS_DV')"
           :colspan="1"
@@ -116,6 +122,7 @@
             first-option="all"
           />
         </kw-search-item>
+        <!-- 작업구분 -->
         <kw-search-item
           :label="$t('MSG_TXT_WK_CLS')"
           :colspan="1"
@@ -128,7 +135,7 @@
         </kw-search-item>
       </kw-search-row>
       <kw-search-row>
-        <template v-if="isManagerSelected">
+        <!-- <template v-if="isManagerSelected">
           <wwsn-manager-og-search-item-group
             v-model:dgr1-levl-og-id="searchParams.dgr1LevlOgId"
             v-model:dgr2-levl-og-id="searchParams.dgr2LevlOgId"
@@ -144,7 +151,25 @@
             :dgr2-levl-og-readonly="managerAuthYn"
             auth-yn="N"
           />
+        </template> -->
+        <template v-if="isManagerSelected">
+          <wwsn-manager-og-search-item-group
+            v-model:dgr1-levl-og-id="searchParams.dgr1LevlOgId"
+            v-model:dgr2-levl-og-id="searchParams.dgr2LevlOgId"
+            v-model:dgr1-levl-og="searchParams.dgr1LevlOg"
+            v-model:dgr2-levl-og="searchParams.dgr2LevlOg"
+            use-og-level="2"
+            :use-partner="false"
+            dgr1-levl-og-first-option="all"
+            dgr1-levl-og-label="ogCdNm"
+            dgr2-levl-og-label="ogCdNm"
+            dgr2-levl-og-required
+            :dgr1-levl-og-readonly="managerAuthYn"
+            :dgr2-levl-og-readonly="managerAuthYn"
+            auth-yn="N"
+          />
         </template>
+        <!-- 매니저 -->
         <kw-search-item
           v-if="isManagerSelected"
           :label="$t('MSG_TXT_MANAGER')"
@@ -202,12 +227,14 @@
           inset
           spaced
         />
+        <!-- 예정부품현황 -->
         <kw-btn
           v-if="isEngineerSelected"
           dense
           :label="$t('MSG_BTN_EXP_PART_PS')"
           @click="onClickExpPartPs"
         />
+        <!-- 배정현황 출력 -->
         <kw-btn
           primary
           dense
@@ -323,6 +350,7 @@ async function getOrganizationInfo() {
   const resList = res.data;
 
   if (resList.ogTpCd === 'HR1') {
+    managerAuthYn.value = false;
     searchParams.value.dgr2LevlOgId = 'OG00053616'; // 디폴트 - 마포지역단
   } else {
     managerAuthYn.value = true;
@@ -352,9 +380,11 @@ const isEngineerSelected = computed(() => searchParams.value.mngrDvCd === '2');
 async function onChangeMngrDvCd() {
   searchParams.value.dgr1LevlOgId = '';
   if (searchParams.value.mngrDvCd === '1') {
+    // 1 == 매니저
     getOrganizationInfo();
     // searchParams.value.dgr2LevlOgId = 'OG00053616';
   } else {
+    // else == 엔지니어
     searchParams.value.dgr2LevlOgId = '';
   }
   searchParams.value.ogId = '';
