@@ -63,7 +63,7 @@
         />
       </kw-action-top>
       <kw-form
-        :cols="5"
+        :cols="4"
         dense
       >
         <kw-form-row>
@@ -91,14 +91,14 @@
           >
             <p>{{ info.rsb }}</p>
           </kw-form-item>
+        </kw-form-row>
+        <kw-form-row>
           <kw-form-item
             :label="t('MSG_TXT_EMPL_NM')"
             align-content="left"
           >
             <p>{{ info.emplNm }}</p>
           </kw-form-item>
-        </kw-form-row>
-        <kw-form-row>
           <kw-form-item
             :label="t('MSG_TXT_FEE_SUM')"
             align-content="right"
@@ -117,6 +117,8 @@
           >
             <p>{{ info.aclDsb ? stringUtil.getNumberWithComma(info.aclDsb) : '0' }}</p>
           </kw-form-item>
+        </kw-form-row>
+        <kw-form-row>
           <kw-form-item
             :label="t('MSG_TXT_DSB_BNK')"
             align-content="center"
