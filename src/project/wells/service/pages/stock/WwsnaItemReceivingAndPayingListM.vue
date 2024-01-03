@@ -42,14 +42,62 @@
           v-model:ware-no-d="searchParams.strWareNoD"
           sub-first-option="all"
           :colspan="2"
-          :label1="$t('MSG_TXT_OSTR_PTRM')"
-          :label2="$t('MSG_TXT_STR_WARE')"
+          :label1="$t('MSG_TXT_RVPY_DT')"
+          :label2="$t('MSG_TXT_WARE_DV')"
           :label3="$t('MSG_TXT_WARE')"
           :label4="$t('MSG_TXT_WARE')"
           @update:ware-dv-cd="onChangeWareDvCd"
           @update:ware-no-m="onChagneHgrWareNo"
           @update:ware-no-d="onChagneWareNo"
         />
+      </kw-search-row>
+      <kw-search-row>
+        <!-- 품목구분 -->
+        <kw-search-item
+          :label="$t('MSG_TXT_ITM_DV')"
+          :colspan="2"
+        >
+          <kw-select
+            v-model="searchParams.itmKnd"
+            :options="codes.ITM_KND_CD"
+            first-option="all"
+            class="w150"
+            @change="onChangeItmDvCd"
+          />
+          <kw-select
+            v-model="searchParams.itmGrp"
+            :options="codes.PD_GRP_CD"
+            first-option="all"
+            class="w150"
+            @change="onChangeItmDvCd"
+          />
+          <kw-select
+            v-model="searchParams.itmPdCds"
+            :options="optionsItmPdCd"
+            option-value="pdCd"
+            option-label="pdNm"
+            :multiple="true"
+          />
+        </kw-search-item>
+        <!-- 자재그룹 -->
+        <kw-search-item
+          :label="t('TXT_MSG_SAP_MAT_GRP_VAL')"
+        >
+          <kw-select
+            v-model="searchParams.svMatGrpCd"
+            :options="codes.SV_MAT_GRP_CD"
+            first-option="all"
+          />
+        </kw-search-item>
+        <!-- 창고상세구분 -->
+        <kw-search-item :label="$t('MSG_TXT_WARE_DTL_DV')">
+          <kw-select
+            v-model="searchParams.wareDtlDvCd"
+            :options="filterCodes.wareDtlDvCd"
+            first-option="all"
+            @change="onChangeWareDtlDvCd"
+          />
+        </kw-search-item>
       </kw-search-row>
       <kw-search-row>
         <!-- 등급 -->
@@ -73,33 +121,8 @@
             first-option="all"
           />
         </kw-search-item>
-        <!-- 창고상세구분 -->
-        <kw-search-item :label="$t('MSG_TXT_WARE_DTL_DV')">
-          <kw-select
-            v-model="searchParams.wareDtlDvCd"
-            :options="filterCodes.wareDtlDvCd"
-            first-option="all"
-            @change="onChangeWareDtlDvCd"
-          />
-        </kw-search-item>
-        <!-- 품목구분 -->
-        <kw-search-item
-          :label="$t('MSG_TXT_ITM_DV')"
-        >
-          <kw-select
-            v-model="searchParams.itmKnd"
-            class="w233"
-            :options="codes.ITM_KND_CD"
-            first-option="all"
-          />
-        </kw-search-item>
-      </kw-search-row>
-      <kw-search-row>
         <!-- 품목코드 -->
-        <kw-search-item
-          :colspan="2"
-          :label="$t('MSG_TXT_ITM_CD')"
-        >
+        <kw-search-item :label="$t('MSG_TXT_ITM_CD')">
           <kw-input
             v-model="searchParams.itmPdCdFrom"
             upper-case
@@ -107,6 +130,8 @@
             rules="alpha_num|max:10"
           />
         </kw-search-item>
+      </kw-search-row>
+      <kw-search-row>
         <!-- SAP코드 -->
         <kw-search-item
           :colspan="2"
@@ -126,8 +151,6 @@
             @change="onChangeEndSapCd"
           />
         </kw-search-item>
-      </kw-search-row>
-      <kw-search-row>
         <!-- SAP코드(복수검색) -->
         <kw-search-item
           :colspan="2"
@@ -192,6 +215,8 @@ const codes = await codeUtil.getMultiCodes(
   'USE_YN', // 사용여부
   'ITM_KND_CD', // 품목구분코드
   'WARE_DTL_DV_CD', // 창고상세구분
+  'SV_MAT_GRP_CD', // 자재그룹
+  'PD_GRP_CD', // 상품그룹
 );
 
 // 등급 필터링
@@ -203,6 +228,9 @@ const searchParams = ref({
   strWareNoD: '',
   wareDtlDvCd: '',
   itmKnd: '',
+  itmGrp: '',
+  itmPdCds: [],
+  svMatGrpCd: '',
   itmPdCdFrom: '',
   sapMatCdFrom: '',
   sapMatCdTo: '',
@@ -211,7 +239,6 @@ const searchParams = ref({
   sapMatDpcts: [],
   stFromYmd: dayjs().format('YYYYMMDD'),
   edToYmd: dayjs().format('YYYYMMDD'),
-
 });
 
 const filterCodes = ref({
@@ -255,6 +282,40 @@ function onChangeWareDtlDvCd() {
   // 창고상세구분이 조직창고인 경우 개인창고번호 클리어
   if (wareDtlDvCd === '20' || wareDtlDvCd === '30') {
     searchParams.value.strWareNoD = '';
+  }
+}
+
+const optionsItmPdCd = ref();
+const optionsAllItmPdCd = ref();
+
+// 품목조회
+const getProducts = async () => {
+  const result = await dataService.get('/sms/wells/service/monthly-by-stock-state/products');
+  const pdCds = result.data.map((v) => v.pdCd);
+  optionsItmPdCd.value = result.data.filter((v, i) => pdCds.indexOf(v.pdCd) === i);
+  optionsAllItmPdCd.value = result.data;
+};
+
+// 품목종류, 품목그룹 변경 시 품목 필터링
+function onChangeItmDvCd() {
+  // 품목코드 클리어
+  searchParams.value.itmPdCds = [];
+  const { itmKnd, itmGrp } = searchParams.value;
+
+  if (isEmpty(itmKnd) && isEmpty(itmGrp)) {
+    const pdCds = optionsAllItmPdCd.value.map((v) => v.pdCd);
+    optionsItmPdCd.value = optionsAllItmPdCd.value.filter((v, i) => pdCds.indexOf(v.pdCd) === i);
+    return;
+  }
+  const filterPdInfos = optionsAllItmPdCd.value.filter(
+    (v) => (isEmpty(itmKnd) || itmKnd === v.itmKndCd) && (isEmpty(itmGrp) || itmGrp === v.itmGrpCd),
+  );
+
+  if (isEmpty(itmGrp)) {
+    const pdCds = filterPdInfos.map((v) => v.pdCd);
+    optionsItmPdCd.value = filterPdInfos.filter((v, i) => pdCds.indexOf(v.pdCd) === i);
+  } else {
+    optionsItmPdCd.value = filterPdInfos;
   }
 }
 
@@ -307,10 +368,19 @@ async function onClickSearch() {
   const splitSapMatDpct = searchParams.value.sapMatDpct.split(',');
   searchParams.value.sapMatDpcts = splitSapMatDpct;
   cachedParams = cloneDeep(searchParams.value);
+
+  const selPdLength = cachedParams.itmPdCds.length;
+  const allPdLength = optionsItmPdCd.value.length;
+
+  if (selPdLength === allPdLength) {
+    cachedParams.itmPdCds = [];
+  }
+
   await fetchData();
 }
 
 onMounted(async () => {
+  getProducts();
   wareDtlDvCdFilter();
 });
 

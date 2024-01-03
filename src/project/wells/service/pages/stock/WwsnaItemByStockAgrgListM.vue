@@ -297,9 +297,13 @@ function onChangeItmDvCd() {
   const filterPdInfos = optionsAllItmPdCd.value.filter(
     (v) => (isEmpty(itmKndCd) || itmKndCd === v.itmKndCd) && (isEmpty(itmGrpCd) || itmGrpCd === v.itmGrpCd),
   );
-  const pdCds = filterPdInfos.map((v) => v.pdCd);
 
-  optionsItmPdCd.value = filterPdInfos.filter((v, i) => pdCds.indexOf(v.pdCd) === i);
+  if (isEmpty(itmGrpCd)) {
+    const pdCds = filterPdInfos.map((v) => v.pdCd);
+    optionsItmPdCd.value = filterPdInfos.filter((v, i) => pdCds.indexOf(v.pdCd) === i);
+  } else {
+    optionsItmPdCd.value = filterPdInfos;
+  }
 }
 
 // SAP 시작코드 변경 시
@@ -391,6 +395,13 @@ function convertCheckBox() {
 // 조회버튼 클릭
 async function onClickSearch() {
   cachedParams = cloneDeep(searchParams.value);
+
+  const selPdLength = cachedParams.itmPdCds.length;
+  const allPdLength = optionsItmPdCd.value.length;
+
+  if (selPdLength === allPdLength) {
+    cachedParams.itmPdCds = [];
+  }
 
   // 체크박스 조건 변환
   convertCheckBox();
