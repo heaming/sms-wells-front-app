@@ -238,8 +238,10 @@ const optionsAllItmPdCd = ref();
 // 품목조회
 const getProducts = async () => {
   const result = await dataService.get('/sms/wells/service/monthly-by-stock-state/products');
-  optionsItmPdCd.value = result.data;
-  optionsAllItmPdCd.value = result.data;
+  // 품목조회 시 품목그룹 컬럼이 추가되어 중복제거를 위해 필터링 처리함.
+  const pdCds = result.data.map((v) => v.pdCd);
+  optionsAllItmPdCd.value = result.data.filter((v, i) => pdCds.indexOf(v.pdCd) === i);
+  optionsItmPdCd.value = optionsAllItmPdCd.value;
 };
 
 // 품목종류 변경 시 품목 필터링
