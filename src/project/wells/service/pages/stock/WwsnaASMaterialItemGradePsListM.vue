@@ -16,7 +16,7 @@
   <kw-page>
     <kw-search
       one-row
-      :cols="3"
+      :cols="4"
       @search="onClickSearch"
     >
       <kw-search-row>
@@ -42,12 +42,15 @@
           />
         </kw-search-item>
         <!-- 자재구분 -->
-        <kw-search-item :label="$t('MSG_TXT_MAT_DV')">
-          <kw-select
-            v-model="searchParams.matUtlzDvCd"
-            :options="codes.CMN_PART_DV_CD"
+        <kw-search-item
+          :label="$t('MSG_TXT_MAT_DV')"
+          :colspan="2"
+        >
+          <kw-option-group
+            v-model="searchParams.matUtlzDvCds"
+            type="checkbox"
             :label="$t('MSG_TXT_MAT_DV')"
-            first-option="all"
+            :options="codes.MAT_UTLZ_DV_CD"
           />
         </kw-search-item>
       </kw-search-row>
@@ -102,7 +105,7 @@
 
 import { codeUtil, useMeta, useGlobal, useDataService, getComponentType, gridUtil, defineGrid } from 'kw-lib';
 import dayjs from 'dayjs';
-import { cloneDeep } from 'lodash-es';
+import { cloneDeep, isEmpty } from 'lodash-es';
 
 const { t } = useI18n();
 const { alert } = useGlobal();
@@ -120,7 +123,10 @@ let cachedParams;
 const searchParams = ref({
   baseYm: dayjs().format('YYYYMM'), // 기준년월
   useYn: 'Y',
-  matUtlzDvCd: '',
+  matUtlzDvCds: [''],
+  commGb: '',
+  baseGb: '',
+  turnoverGb: '',
 });
 
 const pageInfo = ref({
@@ -138,7 +144,7 @@ let tmpFields = [];
 const codes = await codeUtil.getMultiCodes(
   'COD_PAGE_SIZE_OPTIONS',
   'USE_YN',
-  'CMN_PART_DV_CD',
+  'MAT_UTLZ_DV_CD',
 );
 
 // 창고조회
@@ -182,6 +188,22 @@ async function fetchData() {
   }
 }
 
+// 체크박스 조건 변환
+function convertCheckBox() {
+  const { matUtlzDvCds } = cachedParams;
+
+  // 중수리자재 여부
+  const commGb = isEmpty(matUtlzDvCds.find((v) => v === '01')) ? 'N' : 'Y';
+  // 기초자재 여부
+  const baseGb = isEmpty(matUtlzDvCds.find((v) => v === '02')) ? 'N' : 'Y';
+  // 회전율대상 여부
+  const turnoverGb = isEmpty(matUtlzDvCds.find((v) => v === '03')) ? 'N' : 'Y';
+
+  cachedParams.commGb = commGb;
+  cachedParams.baseGb = baseGb;
+  cachedParams.turnoverGb = turnoverGb;
+}
+
 // 조회버튼 클릭
 async function onClickSearch() {
   const currentMonth = dayjs().format('YYYYMM');
@@ -197,6 +219,10 @@ async function onClickSearch() {
   // 조회버튼 클릭 시에만 총 건수 조회하도록
   pageInfo.value.needTotalCount = true;
   cachedParams = cloneDeep(searchParams.value);
+
+  // 체크박스 조건 변환
+  convertCheckBox();
+
   tmpFields = [];
   // 창고조회
   await getWareHouseList();
