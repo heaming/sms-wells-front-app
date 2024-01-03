@@ -185,7 +185,7 @@ const optionsAllItmPdCd = ref();
 
 const searchParams = ref({
   strtDt: dayjs().startOf('month').format('YYYYMMDD'),
-  endDt: dayjs().format('YYYYMMDD'),
+  endDt: dayjs().endOf('month').format('YYYYMMDD'),
   sapItemCdFrom: '',
   sapItemCdTo: '',
   strtSapCd: '',
@@ -338,7 +338,7 @@ function initGrid(data, view) {
     { fieldName: 'itmKnd', header: t('MSG_TXT_ITM_DV'), width: '120', styleName: 'text-center' }, // 품목구분
     { fieldName: 'sapMatCd', header: t('MSG_TXT_SAPCD'), width: '250', styleName: 'text-center' }, // SAP코드
     { fieldName: 'pdCd', header: t('MSG_TXT_ITM_CD'), width: '140', styleName: 'text-center' }, // 품목코드
-    { fieldName: 'pdNm', header: t('MSG_TXT_ITM_NM'), width: '100', styleName: 'text-center' }, // 품목명
+    { fieldName: 'pdAbbrNm', header: t('MSG_TXT_ITM_NM'), width: '100', styleName: 'text-center' }, // 품목명
     { fieldName: 'wareNmUp', header: t('MSG_TXT_BSNS_CNTR') + t('MSG_TXT_NM'), width: '100', styleName: 'text-center' }, // 영업센터명
     { fieldName: 'onQtyUp', header: t('자재실 재고'), width: '100', styleName: 'text-center' }, // 자재실 재고
     { fieldName: 'ogCd', header: t('MSG_TXT_BLG_CD'), width: '100', styleName: 'text-center' }, // 소속코드
@@ -389,6 +389,7 @@ function initGrid(data, view) {
     { fieldName: 'partUseQty12', header: t('MSG_TXT_TOTAL_ASGN'), width: '100', styleName: 'text-left', dataType: 'number' }, // 총 배정
     { fieldName: 'qtyBsComp12', header: t('MSG_TXT_BEFORE_SERVICE') + t('MSG_TXT_COMPLETE'), width: '100', styleName: 'text-left', dataType: 'number' }, // B/S 완료
     { fieldName: 'qtyBsNonComp12', header: t('MSG_TXT_BEFORE_SERVICE') + t('MSG_TXT_PENDING'), width: '100', styleName: 'text-left', dataType: 'number' }, // B/S 대기
+    { fieldName: 'pdNm', visible: false },
   ];
 
   data.setFields(columns.map(({ fieldName, dataType }) => (dataType ? { fieldName, dataType } : { fieldName })));
@@ -400,7 +401,7 @@ function initGrid(data, view) {
     'itmKnd',
     'sapMatCd',
     'pdCd',
-    'pdNm',
+    'pdAbbrNm',
     'wareNmUp',
     'onQtyUp',
     { // 창고정보
