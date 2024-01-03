@@ -46,6 +46,7 @@
             >
               <kw-date-picker
                 v-model="searchParams.slClYm"
+                :label="$t('MSG_TXT_MGT_YNM')"
                 type="month"
                 rules="required"
                 @change="onChangeSlClYm"
@@ -92,6 +93,7 @@
               <kw-date-range-picker
                 v-model:from="searchParams.dpStDt"
                 v-model:to="searchParams.dpEdDt"
+                :label="$t('MSG_TXT_DP_PTRM')"
                 rules="date_range_required|date_range_months:12"
                 type="month"
               />
@@ -398,8 +400,7 @@ async function fetchCharacterFwUld() {
 }
 
 async function onClickObjectPresentStateSearch() {
-  const { rentalStn } = searchParams.value;
-  const { rentalEtn } = searchParams.value;
+  const { rentalStn, rentalEtn } = searchParams.value;
 
   if (Number(rentalStn) > Number(rentalEtn)) {
     notify(t('MSG_ALT_STRT_YM_END_YM_BIG', [t('MSG_TXT_RNTL_SN') + t('MSG_TXT_RSV_STRT_DTM'), t('MSG_TXT_RSV_END_DTM')]));
