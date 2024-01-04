@@ -202,8 +202,7 @@ async function fetchData() {
   const view = grdMainRef.value.getView();
   view.getDataSource().setRows(mainList);
 
-  gridUtil.reCreateGrid(grdDepositRef.value.getView());
-  gridUtil.reCreateGrid(grdCancelRef.value.getView());
+  view.rowIndicator.indexOffset = gridUtil.getPageIndexOffset(pageInfo);
 }
 
 // 매출채권 현황 엑셀 다운로드 버튼 클릭
@@ -240,6 +239,13 @@ async function onClickExportViewDetail(type) {
 // 조회 버튼 클릭
 async function onClickSearch() {
   pageInfo.value.pageIndex = 1;
+
+  totalCountDeposit.value = 0;
+  totalCountCancel.value = 0;
+
+  gridUtil.reCreateGrid(grdDepositRef.value.getView());
+  gridUtil.reCreateGrid(grdCancelRef.value.getView());
+
   await fetchData();
 }
 // -------------------------------------------------------------------------------------------------
