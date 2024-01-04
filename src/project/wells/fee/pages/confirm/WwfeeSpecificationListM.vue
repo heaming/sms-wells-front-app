@@ -358,8 +358,8 @@ fieldsObj = {
     perfFields: [ // 실적부분
       { fieldName: 'perfVal1', header: t('MSG_TXT_ELHM_PERF'), width: '118.1', styleName: 'text-right', dataType: 'number' }, // 가전실적
       { fieldName: 'perfVal2', header: t('MSG_TXT_ELHM_EXCP_PERF'), width: '111.9', styleName: 'text-right', dataType: 'number' }, // 가전외 실적
-      { fieldName: 'perfVal3', header: t('MSG_TXT_ADP'), width: '111.9', styleName: 'text-right', dataType: 'number' }, // 합산
       { fieldName: 'perfVal4', header: t('MSG_TXT_MCHN_CH_PERF'), width: '111.9', styleName: 'text-right', dataType: 'number' }, // 기변실적
+      { fieldName: 'perfVal3', header: t('MSG_TXT_ADP'), width: '111.9', styleName: 'text-right', dataType: 'number' }, // 합산
     ],
     deductionFields: [ // 공제 부분
       { fieldName: 'ddtnVal1', header: t('MSG_TXT_ERNTX'), width: '142.8', styleName: 'text-right', dataType: 'number' }, // 소득세
@@ -396,8 +396,8 @@ fieldsObj = {
 
       { fieldName: 'perfVal4', header: t('MSG_TXT_ELHM_PERF'), width: '118.1', styleName: 'text-right', dataType: 'number' }, // 개인 - 가전실적
       { fieldName: 'perfVal5', header: t('MSG_TXT_ELHM_EXCP_PERF'), width: '111.9', styleName: 'text-right', dataType: 'number' }, // 개인 - 가전외 실적
-      { fieldName: 'perfVal6', header: t('MSG_TXT_ADP'), width: '111.9', styleName: 'text-right', dataType: 'number' }, // 개인 - 합산
       { fieldName: 'perfVal7', header: t('MSG_TXT_MCHN_CH_PERF'), width: '111.9', styleName: 'text-right', dataType: 'number' }, // 개인 - 기변실적
+      { fieldName: 'perfVal6', header: t('MSG_TXT_ADP'), width: '111.9', styleName: 'text-right', dataType: 'number' }, // 개인 - 합산
     ],
     deductionFields: [ // 공제 부분
       { fieldName: 'ddtnVal1', header: t('MSG_TXT_ERNTX'), width: '142.8', styleName: 'text-right', dataType: 'number' }, // 소득세
@@ -465,7 +465,7 @@ fieldsObj = {
         {
           header: t('MSG_TXT_INDV_PERF'),
           direction: 'horizontal', // merge type
-          items: ['perfVal4', 'perfVal5', 'perfVal6', 'perfVal7'],
+          items: ['perfVal4', 'perfVal5', 'perfVal7', 'perfVal6'],
         },
         {
           header: t('MSG_TXT_FEE'),
