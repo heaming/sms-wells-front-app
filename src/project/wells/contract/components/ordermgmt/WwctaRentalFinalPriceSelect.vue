@@ -1090,6 +1090,7 @@ async function fetchFinalPriceOptions() {
         cntrNo: props.bas.cntrNo,
         pdCd: dtl.value.pdCd,
         hgrPdCd: dtl.value.hgrPdCd === dtl.value.pdCd ? undefined : dtl.value.hgrPdCd,
+        isModify: props.modify == null || props.modify === undefined ? false : props.modify,
       },
       silent: true,
     });

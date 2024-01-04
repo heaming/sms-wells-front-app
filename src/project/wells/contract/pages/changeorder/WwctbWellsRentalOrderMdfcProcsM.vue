@@ -1315,6 +1315,18 @@ async function onClickSelectProduct() {
       return;
     }
 
+    if (!isEmpty(payload[0].sellDurtion)) {
+      let { sellDurtion } = payload[0]; // sellDurtion: "2023-09-01 ~ 9999-12-31"
+      sellDurtion = sellDurtion.replaceAll('-', '').substring(0, 8);
+      // console.log('필드데이터의 계약접수완료일자', fieldData.value.cntrRcpFshDt);
+      // console.log('새상품의 판매시작일자', sellDurtion);
+
+      if (fieldData.value.cntrRcpFshDt < sellDurtion) {
+        await alert('선택 가능한 상품이 아닙니다. 판매기간을 확인해주세요.');
+        return;
+      }
+    }
+
     searchParams.value.pdCd = payload[0].pdCd;
     searchParams.value.pdNm = payload[0].pdNm;
     searchParams.value.sellInflwChnlDtlCd = fieldData.value.sellInflwChnlDtlCd;
