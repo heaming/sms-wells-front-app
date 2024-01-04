@@ -126,7 +126,9 @@
         :label="$t('MSG_BTN_BIZTALK_SEND')"
         primary
         dense
-        :disable="(sendParams.baseYm !== now.format('YYYYMM') || cachedParams?.baseYm !== now.format('YYYYMM'))"
+        :disable="sendParams.baseYm !== now.format('YYYYMM')
+          || cachedParams?.baseYm !== now.format('YYYYMM')
+          || hasSendDate"
         @click="onClickSendMessage"
       />
     </kw-action-top>
@@ -176,7 +178,9 @@ const {
 const { t } = useI18n();
 const dataService = useDataService();
 const grdMainRef = ref(getComponentType('KwGrid'));
+const grdMainData = ref([]);
 const totalCount = ref(0);
+const hasSendDate = computed(() => grdMainData.value.some(({ msgFwDt }) => !isEmpty(msgFwDt)));
 // -------------------------------------------------------------------------------------------------
 // Function & Event
 // -------------------------------------------------------------------------------------------------
@@ -230,7 +234,7 @@ async function fetchData() {
 
   const view = grdMainRef.value.getView();
   view.getDataSource().setRows(data);
-  // view.resetCurrent()
+  grdMainData.value = data;
 }
 async function onClickSearch() {
   cachedParams = cloneDeep(searchParams.value);
@@ -310,14 +314,15 @@ const initGrid = defineGrid((data, view) => {
       styleName: 'text-center',
       editor: { type: 'list' },
       options: ynOpt.value,
-      styleCallback: () => {
-        if (sendParams.value.baseYm !== now.format('YYYYMM')) {
+      styleCallback: (grid, dataCell) => {
+        const rgstSchDt = grid.getValue(dataCell.item.dataRow, 'rgstSchDt');
+        if (sendParams.value.baseYm === now.format('YYYYMM') && isEmpty(rgstSchDt)) {
           return {
-            editable: false,
+            editable: true,
           };
         }
         return {
-          editable: true,
+          editable: false,
         };
       } }, // NICE 제외여부
     { fieldName: 'fntStplDt', header: t('MSG_TXT_PY_TMLM_DT'), width: '130', styleName: 'text-center', datetimeFormat: 'date' }, // 납입기한일자
@@ -351,6 +356,7 @@ const initGrid = defineGrid((data, view) => {
       });
     }
   };
+  grdMainData.value = [];
 });
 </script>
 
