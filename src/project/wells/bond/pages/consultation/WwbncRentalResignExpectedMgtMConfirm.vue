@@ -238,8 +238,6 @@ async function onClickExcelDownload() {
     exportData: gridUtil.getAllRowValues(view),
     fileName: `${currentRoute.value.meta.menuName}_${t('MSG_TIT_RENTAL_RSG_CNFM')}`,
     timePostfix: true,
-    indicator: 'hidden',
-    checkBar: 'hidden',
   });
 }
 // -------------------------------------------------------------------------------------------------
