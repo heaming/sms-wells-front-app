@@ -269,6 +269,7 @@ function getGridColumns() {
 
     if (rsbDvCd === 'W0205') { // 플래너
       columns.push(
+        { fieldName: 'metgBaseSufc', header: t('MSG_TXT_METG_BASE_SUFC'), width: '91.4', styleName: 'text-right' }, // 미팅기준충족
         { fieldName: 'metgPrscDc', header: t('MSG_TXT_METG') + t('MSG_TXT_DC'), width: '91.4', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' }, // 미팅일수
         { fieldName: 'qlfDvNm', header: t('MSG_TXT_FEE') + t('MSG_TXT_MON'), width: '91.4', styleName: 'text-center' }, // 자격-수수료월
         { fieldName: 'nmnQlfDvNm', header: 'M+1', width: '140', styleName: 'text-center' }, // 자격-M+1
@@ -466,6 +467,7 @@ function getGridColumns() {
       columns.push(
         { fieldName: 'prfmtMm', header: t('MSG_TXT_PRFMT_MON'), width: '91.4', styleName: 'text-center', datetimeFormat: 'yyyy-MM' }, // 승진월
         { fieldName: 'prfmtNmn', header: t('MSG_TXT_PRFMT_NMN'), width: '91.4', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' }, // 승진차월
+        { fieldName: 'metgBaseSufc', header: t('MSG_TXT_METG_BASE_SUFC'), width: '91.4', styleName: 'text-right' }, // 미팅기준충족
         { fieldName: 'metgPrscDc', header: t('MSG_TXT_METG') + t('MSG_TXT_DC'), width: '91.4', styleName: 'text-right' }, // 미팅일수
         { fieldName: 'qlfDvNm', header: t('MSG_TXT_FEE') + t('MSG_TXT_MON'), width: '91.4', styleName: 'text-center' }, // 자격-수수료월
         { fieldName: 'nmnQlfDvNm', header: 'M+1', width: '140', styleName: 'text-center' }, // 자격-M+1
@@ -780,6 +782,7 @@ function getGridColumns() {
       columns.push(
         { fieldName: 'prfmtMm', header: t('MSG_TXT_PRFMT_MON'), width: '91.4', styleName: 'text-center', datetimeFormat: 'yyyy-MM' }, // 승진월
         { fieldName: 'prfmtNmn', header: t('MSG_TXT_PRFMT_NMN'), width: '91.4', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' }, // 승진차월
+        { fieldName: 'metgBaseSufc', header: t('MSG_TXT_METG_BASE_SUFC'), width: '91.4', styleName: 'text-right' }, // 미팅기준충족
         { fieldName: 'metgPrscDc', header: t('MSG_TXT_METG') + t('MSG_TXT_DC'), width: '91.4', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' }, // 미팅일수
         { fieldName: 'qlfDvNm', header: t('MSG_TXT_FEE') + t('MSG_TXT_MON'), width: '91.4', styleName: 'text-center' }, // 자격-수수료월
         { fieldName: 'nmnQlfDvNm', header: 'M+1', width: '140', styleName: 'text-center' }, // 자격-M+1
@@ -1504,6 +1507,7 @@ function getGridColumns() {
   } else if (perfYm < '202304') {
     // 2023년04월 이전
     columns.push(
+      { fieldName: 'metgBaseSufc', header: t('MSG_TXT_METG_BASE_SUFC'), width: '91.4', styleName: 'text-right' }, // 미팅기준충족
       { fieldName: 'metgPrscDc', header: t('MSG_TXT_METG') + t('MSG_TXT_DC'), width: '91.4', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' }, // 미팅일수
       { fieldName: 'qlfDvNm', header: t('MSG_TXT_FEE') + t('MSG_TXT_MON'), width: '91.4', styleName: 'text-center', options: codes.QLF_DV_CD }, // 자격-수수료월
       { fieldName: 'nmnQlfDvNm', header: 'M+1', width: '140', styleName: 'text-center' }, // 자격-M+1
@@ -2321,6 +2325,7 @@ function setGridColumnLayout(view) {
           direction: 'horizontal',
           items: ['fstBizRgst', 'bizRgst', 'bizFnlCltn', 'bizCltn'],
         },
+        'metgBaseSufc',
         'metgPrscDc',
         {
           header: t('MSG_TXT_QLF'), // 자격
@@ -2382,7 +2387,7 @@ function setGridColumnLayout(view) {
           direction: 'horizontal',
           items: ['fstBizRgst', 'bizRgst', 'bizFnlCltn', 'bizCltn'],
         },
-        'prfmtMm', 'prfmtNmn', 'metgPrscDc',
+        'prfmtMm', 'prfmtNmn', 'metgBaseSufc', 'metgPrscDc',
         {
           header: t('MSG_TXT_QLF'), // 자격
           direction: 'horizontal',
@@ -2458,7 +2463,7 @@ function setGridColumnLayout(view) {
           direction: 'horizontal',
           items: ['fstBizRgst', 'bizRgst', 'bizFnlCltn', 'bizCltn'],
         },
-        'prfmtMm', 'prfmtNmn', 'metgPrscDc',
+        'prfmtMm', 'prfmtNmn', 'metgBaseSufc', 'metgPrscDc',
         {
           header: t('MSG_TXT_QLF'), // 자격
           direction: 'horizontal',
@@ -2534,7 +2539,7 @@ function setGridColumnLayout(view) {
   } else if (perfYm < '202304') { // 2023년04월 이전
     if (rsbDvCd === 'W0205') { // 플래너
       view.setColumnLayout([
-        'ogNm', 'prtnrNo', 'prtnrKnm', 'rsbDvCd', 'metgPrscDc',
+        'ogNm', 'prtnrNo', 'prtnrKnm', 'rsbDvCd', 'metgBaseSufc', 'metgPrscDc',
         {
           header: t('MSG_TXT_QLF'),
           direction: 'horizontal',
@@ -2594,7 +2599,7 @@ function setGridColumnLayout(view) {
       ]);
     } else if (rsbDvCd === 'W0204') { // 지점장
       view.setColumnLayout([
-        'ogNm', 'prtnrNo', 'prtnrKnm', 'rsbDvCd', 'metgPrscDc',
+        'ogNm', 'prtnrNo', 'prtnrKnm', 'rsbDvCd', 'metgBaseSufc', 'metgPrscDc',
         {
           header: t('MSG_TXT_QLF'),
           direction: 'horizontal',
@@ -2652,7 +2657,7 @@ function setGridColumnLayout(view) {
       ]);
     } else {
       view.setColumnLayout([
-        'ogNm', 'prtnrNo', 'prtnrKnm', 'rsbDvCd', 'metgPrscDc',
+        'ogNm', 'prtnrNo', 'prtnrKnm', 'rsbDvCd', 'metgBaseSufc', 'metgPrscDc',
         {
           header: t('MSG_TXT_QLF'),
           direction: 'horizontal',
