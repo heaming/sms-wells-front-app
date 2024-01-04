@@ -105,10 +105,10 @@
         align-content="right"
       >
         <kw-form-row>
-          <kw-form-item :label="t('MSG_TXT_ELHM_INDV_PRPN')">
+          <kw-form-item :label="t('MSG_TXT_ELHM_INDV_PERF')">
             <p>{{ basePerf.indvElhm ? stringUtil.getNumberWithComma(basePerf.indvElhm) : '0' }}</p>
           </kw-form-item>
-          <kw-form-item :label="t('MSG_TXT_ELHM_EXCP_INDV_PRPN')">
+          <kw-form-item :label="t('MSG_TXT_ELHM_EXCP_INDV_PERF')">
             <p>{{ basePerf.indvElhmExcp ? stringUtil.getNumberWithComma(basePerf.indvElhmExcp) : '0' }}</p>
           </kw-form-item>
           <kw-form-item :label="t('MSG_TXT_INDV_ADP')">
@@ -116,10 +116,10 @@
           </kw-form-item>
         </kw-form-row>
         <kw-form-row>
-          <kw-form-item :label="t('MSG_TXT_ELHM_OG_PRPN')">
+          <kw-form-item :label="t('MSG_TXT_ELHM_OG_PERF')">
             <p>{{ basePerf.ogElhm ? stringUtil.getNumberWithComma(basePerf.ogElhm) : '0' }}</p>
           </kw-form-item>
-          <kw-form-item :label="t('MSG_TXT_ELHM_OG_EXCP_PRPN')">
+          <kw-form-item :label="t('MSG_TXT_ELHM_OG_EXCP_PERF')">
             <p>{{ basePerf.ogElhmExcp ? stringUtil.getNumberWithComma(basePerf.ogElhmExcp) : '0' }}</p>
           </kw-form-item>
           <kw-form-item :label="t('MSG_TXT_OG_ADP')">
