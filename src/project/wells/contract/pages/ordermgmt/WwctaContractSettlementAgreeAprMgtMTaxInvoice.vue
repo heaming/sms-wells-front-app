@@ -61,15 +61,20 @@
 import WwctaContractSettlementAgreeItem
   from '~sms-wells/contract/components/ordermgmt/WwctaContractSettlementAgreeItem.vue';
 import { useCtCode } from '~sms-common/contract/composable';
+import { getComponentType } from 'kw-lib';
 
 const props = defineProps({
   modelValue: { type: Object, required: true },
 });
 
+const exposed = {};
+defineExpose(exposed);
+
 const emit = defineEmits(['update:model-value']);
 
 const { codes } = await useCtCode('DLPNR_PBL_D_SE_CD');
 
+const frmRef = ref(getComponentType('KwForm'));
 const txinvRcpBaseIz = ref(props.modelValue);
 
 watchEffect(() => {
@@ -82,6 +87,5 @@ watchEffect(() => {
   emit('update:model-value', txinvRcpBaseIz.value);
 });
 
-console.log(props);
-
+exposed.frmRef = frmRef;
 </script>

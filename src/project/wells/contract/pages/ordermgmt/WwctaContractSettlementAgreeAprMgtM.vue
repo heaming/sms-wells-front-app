@@ -32,7 +32,8 @@
           :contract="contract"
         />
         <TaxInvoice
-          v-if="contractor?.copnDvCd === COPN_DV_CD.COOPERATION"
+          v-if="taxInvoiceRequired"
+          ref="taxInvoiceRef"
           v-model="txinvRcpBaseIz"
         />
         <partner-info
@@ -84,7 +85,7 @@
 import WwctaContractSettlementSignItem
   from '~sms-wells/contract/components/ordermgmt/WwctaContractSettlementSignItem.vue';
 import { alert, useDataService } from 'kw-lib';
-import { decryptEncryptedParam, postMessage } from '~sms-common/contract/util';
+import { decryptEncryptedParam, postMessage, scrollIntoView } from '~sms-common/contract/util';
 import { COPN_DV_CD, DP_TP_CD } from '~sms-wells/contract/constants/ctConst';
 import { warn } from 'vue';
 import { openOzReport } from '~sms-common/contract/util/CtPopupUtil';
@@ -145,15 +146,22 @@ const isSigned = computed(() => {
 });
 const reportPreChecked = ref(false);
 const reportChecked = ref(false);
+const taxInvoiceRequired = computed(() => {
+  const isCooperation = contractor.value?.copnDvCd === COPN_DV_CD.COOPERATION;
+  const existCntrDtlReqTaxInvoice = contract.value?.dtls?.some((cntrDtl) => cntrDtl.txinvPblOjYn === 'Y');
+  return isCooperation && existCntrDtlReqTaxInvoice;
+});
+const taxInvoiceRef = ref();
 
 async function fetchContract() {
   const { data } = await dataService.post('/sms/wells/contract/contracts/settlements/contract', {
     cntrNo: params.cntrNo,
-  }).catch(async () => {
-    await alert('계약 조회에 실패했습니다.');
-    postMessage('forceClosed', false);
-    window.close();
-  });
+  })
+    .catch(async () => {
+      await alert('계약 조회에 실패했습니다.');
+      postMessage('forceClosed', false);
+      window.close();
+    });
   contract.value = data;
   includeAccountAutoTransfer.value = contract.value.stlms.some((s) => s.dpTpCd === DP_TP_CD.AC_AFTN);
   txinvRcpBaseIz.value = data.txinvRcpBaseIz;
@@ -207,12 +215,24 @@ async function onSettlementConfirmed() {
   }
 
   const reqData = await productCarouselRef.value.getRequestData();
-  if (!reqData) { return; }
+  if (!reqData) {
+    return;
+  }
   stlmsUpdateRequestBody.stlmBases = reqData.stlmBases;
   stlmsUpdateRequestBody.adrpcs = reqData.adrpcs;
   stlmsUpdateRequestBody.cssrIss = reqData.cssrIss;
   stlmsUpdateRequestBody.signs = signs;
-  stlmsUpdateRequestBody.txinvRcpBaseIz = txinvRcpBaseIz.value;
+  stlmsUpdateRequestBody.txinvRcpBaseIz = {};
+  if (taxInvoiceRequired.value) {
+    if (!taxInvoiceRef.value?.frmRef) {
+      warn('세금계산서 컴포넌트가 정상 동작하는지 확인하세요.');
+    }
+    if (!await taxInvoiceRef.value.frmRef.validate()) {
+      scrollIntoView(taxInvoiceRef.value.frmRef);
+      return;
+    }
+    stlmsUpdateRequestBody.txinvRcpBaseIz = txinvRcpBaseIz.value;
+  }
 
   const res = await dataService.post('/sms/wells/contract/contracts/settlements/confirm', stlmsUpdateRequestBody);
 

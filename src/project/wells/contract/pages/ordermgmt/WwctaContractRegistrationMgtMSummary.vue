@@ -126,7 +126,9 @@
                 월납부금
               </p>
               <span class="text-bold kw-font-pt20">
-                {{ getNumberWithComma(totalAftnAmt) }}
+                {{ restipulationBasInfo?.newFnlValue
+                  ? getNumberWithComma(restipulationBasInfo?.newFnlValue)
+                  : getNumberWithComma(totalAftnAmt) }}
               </span>
             </li>
           </ul>
@@ -155,6 +157,7 @@ const props = defineProps({
   step: { type: String, default: undefined },
   bas: { type: Object, default: undefined },
   summary: { type: Object, default: undefined },
+  restipulationBasInfo: { type: Object, default: undefined },
 });
 
 const { getCodeName } = await useCtCode(

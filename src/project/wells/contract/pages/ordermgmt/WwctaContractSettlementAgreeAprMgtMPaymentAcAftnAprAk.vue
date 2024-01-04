@@ -170,8 +170,7 @@ watchEffect(() => {
   approvalRequest.value.mpyBsdt = stlmBas.value.mpyBsdt || approvalRequest.value.mpyBsdt;
   approvalRequest.value.owrKnm = stlmBas.value.owrKnm || approvalRequest.value.owrKnm;
   approvalRequest.value.copnDvCdDrmVal = stlmBas.value.copnDvCdDrmVal || approvalRequest.value.copnDvCdDrmVal;
-  console.log('!', approvalRequest.value.bnkCd);
-}, { onTrigger: (event) => { console.log('onTrigger', event); } });
+});
 
 function getStlmUpdateInfo() {
   const { cntrStlmId, dpTpCd, cntrNo } = stlmBas.value;
