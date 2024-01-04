@@ -767,6 +767,7 @@ const initGrd1Main = defineGrid((data, view) => {
     { fieldName: 'aksd30', dataType: 'number' },
     { fieldName: 'aksd26', dataType: 'number' },
     { fieldName: 'aksd99', dataType: 'number' },
+    { fieldName: 'meetingYn' },
 
   ];
 
@@ -783,6 +784,7 @@ const initGrd1Main = defineGrid((data, view) => {
     { fieldName: 'prtnrKnm', header: t('MSG_TXT_EMPL_NM'), width: '88.7', styleName: 'text-center' },
     { fieldName: 'rsbDvCd', header: t('MSG_TXT_RSB'), width: '88.7', styleName: 'text-center', options: codes.RSB_DV_CD },
     { fieldName: 'akcuil', header: t('MSG_TXT_METG') + t('MSG_TXT_DC'), width: '88.7', styleName: 'text-right' },
+    { fieldName: 'meetingYn', header: t('MSG_TXT_METG_BASE_SUFC'), width: '88.7', styleName: 'text-center' },
     { fieldName: 'jagyuk', header: t('MSG_TXT_FEE') + t('MSG_TXT_MON'), width: '110.6', styleName: 'text-center', options: codes.QLF_DV_CD },
     { fieldName: 'nJagyuk1', header: `M+1${t('MSG_TXT_TOPMR_PLAR')}`, width: '128.4', styleName: 'text-center', options: codes.QLF_DV_CD },
     { fieldName: 'is11edu', header: t('MSG_TXT_PLAR_SRTUP'), width: '124.6', styleName: 'text-center', datetimeFormat: 'yyyy-MM' },
@@ -1023,7 +1025,7 @@ const initGrd1Main = defineGrid((data, view) => {
     {
       column: 'ogNm',
       summaryUserSpans: [{ colspan: 16 }],
-    }, 'prtnrNo', 'prtnrKnm', 'rsbDvCd', 'akcuil',
+    }, 'prtnrNo', 'prtnrKnm', 'rsbDvCd', 'akcuil', 'meetingYn',
     {
       header: t('MSG_TXT_QLF'),
       direction: 'horizontal',
@@ -1110,6 +1112,7 @@ const initGrd2Main = defineGrid((data, view) => {
     { fieldName: 'aksd30', dataType: 'number' },
     { fieldName: 'aksd26', dataType: 'number' },
     { fieldName: 'aksd99', dataType: 'number' },
+    { fieldName: 'meetingYn' },
 
   ];
 
@@ -1125,6 +1128,7 @@ const initGrd2Main = defineGrid((data, view) => {
     { fieldName: 'prtnrNo', header: t('MSG_TXT_SEQUENCE_NUMBER'), width: '88.7', styleName: 'text-center' },
     { fieldName: 'prtnrKnm', header: t('MSG_TXT_EMPL_NM'), width: '88.7', styleName: 'text-center' },
     { fieldName: 'rsbDvCd', header: t('MSG_TXT_RSB'), width: '88.7', styleName: 'text-center', options: codes.RSB_DV_CD },
+    { fieldName: 'meetingYn', header: t('MSG_TXT_METG_BASE_SUFC'), width: '88.7', styleName: 'text-center' },
     { fieldName: 'jagyuk', header: t('MSG_TXT_FEE') + t('MSG_TXT_MON'), width: '88.7', styleName: 'text-right', options: codes.QLF_DV_CD },
     { fieldName: 'nJagyuk1', header: 'M+1', width: '110.6', styleName: 'text-center', options: codes.QLF_DV_CD },
     { fieldName: 'fstCntrDt', header: t('MSG_TXT_RGS') + t('MSG_TXT_BASE_MM'), width: '128.4', styleName: 'text-center', datetimeFormat: 'yyyy-MM' },
@@ -1457,7 +1461,7 @@ const initGrd2Main = defineGrid((data, view) => {
       column: 'ogNm',
       summaryUserSpans: [{ colspan: 16 }],
     },
-    'prtnrNo', 'prtnrKnm', 'rsbDvCd',
+    'prtnrNo', 'prtnrKnm', 'rsbDvCd', 'meetingYn',
     {
       header: t('MSG_TXT_QLF'),
       direction: 'horizontal',
@@ -1506,6 +1510,7 @@ const initGrd3Main = defineGrid((data, view) => {
     { fieldName: 'prtnrKnm' },
     { fieldName: 'rsbDvCd' },
     { fieldName: 'akcuil' },
+    { fieldName: 'meetingYn' },
     { fieldName: 'jagyuk' },
     { fieldName: 'nJagyuk1' },
     { fieldName: 'is11edu' },
@@ -1573,6 +1578,7 @@ const initGrd3Main = defineGrid((data, view) => {
     { fieldName: 'prtnrKnm', header: t('MSG_TXT_EMPL_NM'), width: '88.7', styleName: 'text-center' },
     { fieldName: 'rsbDvCd', header: t('MSG_TXT_RSB'), width: '88.7', styleName: 'text-center', options: codes.RSB_DV_CD },
     { fieldName: 'akcuil', header: t('MSG_TXT_METG') + t('MSG_TXT_DC'), width: '88.7', styleName: 'text-right' },
+    { fieldName: 'meetingYn', header: t('MSG_TXT_METG_BASE_SUFC'), width: '88.7', styleName: 'text-center' },
     { fieldName: 'jagyuk', header: t('MSG_TXT_FEE') + t('MSG_TXT_MON'), width: '110.6', styleName: 'text-center', options: codes.QLF_DV_CD },
     { fieldName: 'nJagyuk1', header: 'M+1', width: '128.4', styleName: 'text-center', options: codes.QLF_DV_CD },
     { fieldName: 'is11edu', header: t('MSG_TXT_PLAR_SRTUP'), width: '124.6', styleName: 'text-center', datetimeFormat: 'yyyy-MM' },
@@ -1933,7 +1939,7 @@ const initGrd3Main = defineGrid((data, view) => {
     {
       column: 'ogNm',
       summaryUserSpans: [{ colspan: 16 }],
-    }, 'prtnrNo', 'prtnrKnm', 'rsbDvCd', 'akcuil',
+    }, 'prtnrNo', 'prtnrKnm', 'rsbDvCd', 'akcuil', 'meetingYn',
     {
       header: t('MSG_TXT_QLF'),
       direction: 'horizontal',
