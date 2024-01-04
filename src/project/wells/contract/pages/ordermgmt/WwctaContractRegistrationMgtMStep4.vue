@@ -663,7 +663,7 @@ const step4 = toRef(props.contract, 'step4', {
 });
 const ogStep4 = ref({});
 const isRestipulation = ref(false);
-const restipulationBasInfo = ref({});
+const restipulationBasInfo = toRef(props.contract, 'restipulationBasInfo', {});
 const isCorpDscAdrChg = ref(false);
 const stplTpCdOptions = ref([]);
 
@@ -800,6 +800,8 @@ async function getCntrInfoWithRstl() {
     await alert('잘못된 접근입니다.');
     return;
   }
+
+  restipulationBasInfo.value = {};
 
   await getCntrInfo();
 

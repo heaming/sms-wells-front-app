@@ -252,7 +252,7 @@ watchEffect(() => {
   approvalRequest.value.cardExpdtYm = stlmBas.value.cardExpdtYm || approvalRequest.value.cardExpdtYm;
   approvalRequest.value.owrKnm = stlmBas.value.owrKnm || approvalRequest.value.owrKnm;
   approvalRequest.value.copnDvCdDrmVal = stlmBas.value.copnDvCdDrmVal || approvalRequest.value.copnDvCdDrmVal;
-}, { onTrigger: (event) => { console.log('onTrigger', event); } });
+});
 
 /* 결제 금액 계산 */
 const crdcdStlmAmt = computed(() => {

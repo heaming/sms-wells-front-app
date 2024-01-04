@@ -61,6 +61,7 @@
             class="not-flexible w350"
             :cntr-no="contract?.cntrNo ?? contract?.rstlCntrNo"
             :summary="summary"
+            :restipulation-bas-info="contract?.restipulationBasInfo"
             :steps="steps"
             :step="currentStepName"
           />

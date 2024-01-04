@@ -280,6 +280,25 @@ const bulkApplyChecked = reactive({
   [DP_TP_CD.AC_AFTN]: false,
 });
 
+function checkBulkApplyNeeds() {
+  const stlms = props.contract?.stlms;
+  if (!stlms?.length) { return; }
+  const crdcdStlms = stlms.filter((stlm) => {
+    const { dpTpCd } = stlm;
+    return [DP_TP_CD.IDV_RVE_CRDCD, DP_TP_CD.CRDCD_AFTN].includes(dpTpCd);
+  });
+
+  const acnoStlms = stlms.filter((stlm) => {
+    const { dpTpCd } = stlm;
+    return DP_TP_CD.AC_AFTN === dpTpCd;
+  });
+  bulkApplyChecked[DP_TP_CD.IDV_RVE_CRDCD] = crdcdStlms.length < 2;
+  bulkApplyChecked[DP_TP_CD.CRDCD_AFTN] = crdcdStlms.length < 2;
+  bulkApplyChecked[DP_TP_CD.AC_AFTN] = acnoStlms.length < 2;
+}
+
+checkBulkApplyNeeds();
+
 async function onUpdateStlmBas(payload) {
   if (!payload) { return; }
   const {
