@@ -429,14 +429,14 @@ async function onUpdateHighClasses(selectedValues) {
 async function onClickSearch() {
   if (isEmpty(searchParams.value.dateSeltDv)) { // 일자선택 항목 미선택시
     if (!isEmpty(searchParams.value.choStrtDt) || !isEmpty(searchParams.value.choEndDt)) { // 기간이 존재하면
-      alert('일자선택 항목 미선택 시, 기간은 비어있어야합니다.');
+      alert(t('MSG_ALT_DT_NOT_SELT_PTRM_MNDT_IS_NULL')); // 일자선택 항목 미선택 시, 기간은 비어있어야합니다.
       return;
     }
   }
 
   if (!isEmpty(searchParams.value.dateSeltDv)) { // 일자선택에 항목 선택시
     if (isEmpty(searchParams.value.choStrtDt) || isEmpty(searchParams.value.choEndDt)) { // 기간이 비어있으면
-      alert('일자선택 항목 선택 시, 기간은 필수 사항입니다');
+      alert(t('MSG_ALT_DT_SELT_PTRM_MNDT_IN_ATC')); // 일자선택 항목 선택 시, 기간은 필수 사항입니다.
       return;
     }
   }
