@@ -49,6 +49,7 @@
             placeholder=""
             readonly
           />
+          <kw-tooltip>{{ searchParams.pdNm }}</kw-tooltip>
         </kw-search-item>
         <!-- 판매유형 -->
         <kw-search-item
