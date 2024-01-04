@@ -332,6 +332,9 @@ async function onCheckedStckNoStdGb() {
 }
 
 async function onClickSearch() {
+  searchParams.value.baseYm = searchParams.value.stockDt.substring(0, 6);
+  console.log('searchParams.value >>>>>', searchParams.value);
+
   await getWareHouseList();
   searchParams.value.matUtlzDvCd = '';
   cachedParams = cloneDeep(searchParams.value);
