@@ -682,9 +682,6 @@ async function onClickArfndYn() {
     saveParams.value.dsbDt = now.format('YYYYMMDD');
     arfndYnChk.value = true;
   } else {
-    const date = now.add(2, 'd').format('YYYYMMDD');
-    saveParams.value.dsbDt = date;
-    minDate.value = now.add(2, 'd').format('YYYY-MM-DD');
     arfndYnChk.value = false;
   }
 }
