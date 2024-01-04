@@ -279,69 +279,63 @@
               padding="10px"
               @click="onClickModify(item)"
             />
-            <template v-if="!item.isSoDbt">
-              <kw-separator
-                vertical
-                inset
-                spaced="0px"
-              />
-              <kw-btn
-                :label="$t('MSG_BTN_DEL')"
-                padding="10px"
-                @click="onClickContractDelete(item)"
-              />
-            </template>
+            <kw-separator
+              v-if="item.isPsc10Del"
+              vertical
+              inset
+              spaced="0px"
+            />
+            <kw-btn
+              v-if="item.isPsc10Del"
+              :label="$t('MSG_BTN_DEL')"
+              padding="10px"
+              @click="onClickContractDelete(item)"
+            />
           </div>
+
           <!-- 작성완료 -->
           <div
             v-else-if="item.viewCntrPrgsStatCd === '20'"
             class="button-wrap"
           >
+            <!--조회/수정-->
             <kw-btn
-              :label="$t('MSG_BTN_MOD')"
+              :label="item.isSoDbt? t('MSG_BTN_INQR'):t('MSG_BTN_MOD')"
               padding="10px"
               @click="onClickModify(item)"
             />
-            <template v-if="!item.isSoDbt">
-              <kw-separator
-                vertical
-                inset
-                spaced="0px"
-              />
-              <template v-if="item.confirmPsbYn=='Y'">
-                <kw-btn
-                  :label="$t('MSG_BTN_DTRM')"
-                  padding="10px"
-                  @click="onClickConfirm(item)"
-                />
-                <kw-btn
-                  v-if="CCS_BASE_RLE_CDS.includes(sessionUserInfo.baseRleCd)"
-                  :label="$t('MSG_BTN_F2F_PYMNT')"
-                  padding="10px"
-                  @click="onClickF2fPayment(item)"
-                />
-              </template>
-              <!--<template v-else>-->
-              <!--재약정 아닐때, 노출-->
-              <template v-else-if="item.resultDiv=='1'">
-                <kw-btn
-                  v-if="item.pymnSkipYn === 'N'"
-                  :label="$t('MSG_TXT_NON_FCF_PYMNT')"
-                  padding="10px"
-                  @click="onClickNonFcfPayment(item)"
-                />
-                <kw-btn
-                  :label="$t('MSG_BTN_F2F_PYMNT')"
-                  padding="10px"
-                  @click="onClickF2fPayment(item)"
-                />
-              </template>
-              <kw-btn
-                :label="$t('MSG_BTN_DEL')"
-                padding="10px"
-                @click="onClickContractDelete(item)"
-              />
-            </template>
+            <kw-separator
+              vertical
+              inset
+              spaced="0px"
+            />
+            <!--확정-->
+            <kw-btn
+              v-if="item.isPsc20Confirm"
+              :label="$t('MSG_BTN_DTRM')"
+              padding="10px"
+              @click="onClickConfirm(item)"
+            />
+            <!--대면결제-->
+            <kw-btn
+              v-if="item.isPsc20F2Pay"
+              :label="$t('MSG_BTN_F2F_PYMNT')"
+              padding="10px"
+              @click="onClickF2fPayment(item)"
+            />
+            <!--비대면결제-->
+            <kw-btn
+              v-if="item.isPsc20NonF2Pay"
+              :label="$t('MSG_TXT_NON_FCF_PYMNT')"
+              padding="10px"
+              @click="onClickNonFcfPayment(item)"
+            />
+
+            <kw-btn
+              :label="$t('MSG_BTN_DEL')"
+              padding="10px"
+              @click="onClickContractDelete(item)"
+            />
           </div>
 
           <!-- 결제중 -->
@@ -375,6 +369,7 @@
               @click="onClickContractDelete(item)"
             />
           </div>
+
           <!-- 결제완료 -->
           <div
             v-else-if="!item.isSoDbt && item.viewCntrPrgsStatCd === '50'"
@@ -395,37 +390,35 @@
               padding="10px"
               @click="onClickF2fPayment(item)"
             />
-            <template v-if="searchParams.isBrmgr === 'Y'">
-              <kw-btn
-                :label="$t('MSG_TXT_NON_FCF_PYMNT')"
-                padding="10px"
-                @click="onClickNonFcfPayment(item)"
-              />
-              <!--확정-->
-              <kw-btn
-                v-if="item.dfntaprcnt > 0"
-                :label="$t('MSG_BTN_DTRM')"
-                padding="10px"
-                @click="onClickConfirm(item)"
-              />
-            </template>
-            <template v-else>
-              <!--확정요청-->
-              <kw-btn
-                v-if="item.dfntaprcnt > 0 && item.pymnSkipYn === 'Y'"
-                :label="$t('MSG_BTN_DTRM')+$t('MSG_BTN_RQST')"
-                padding="10px"
-                @click="onClickRequestConfirm(item)"
-              />
-            </template>
+            <kw-btn
+              v-if="item.isPsc50NonF2Pay"
+              :label="$t('MSG_TXT_NON_FCF_PYMNT')"
+              padding="10px"
+              @click="onClickNonFcfPayment(item)"
+            />
+            <!--확정-->
+            <kw-btn
+              v-if="item.isPsc50Confirm"
+              :label="$t('MSG_BTN_DTRM')"
+              padding="10px"
+              @click="onClickConfirm(item)"
+            />
+            <!--확정요청-->
+            <kw-btn
+              v-if="item.isPsc50RequestConfirm"
+              :label="$t('MSG_BTN_DTRM')+$t('MSG_BTN_RQST')"
+              padding="10px"
+              @click="onClickRequestConfirm(item)"
+            />
           </div>
+
           <!-- 확정 -->
           <div
             v-else-if="!item.isSoDbt && item.viewCntrPrgsStatCd === '60'"
             class="button-wrap"
           >
             <!--지점장이고, 삭제요청된 상태일 때, -->
-            <template v-if="searchParams.isBrmgr === 'Y' && item.deleteDv=='REQ'">
+            <template v-if="item.is60DivReq">
               <kw-btn
                 :label="$t('MSG_BTN_DLT')"
                 padding="10px"
@@ -449,50 +442,30 @@
                 spaced="0px"
               />
 
-              <!-- 고객센터 계약이고, 고객센터직원 로그인일 경우, [설치배정][계약변경]-->
-              <template v-if="item.isCcs === 'Y'">
-                <template v-if="CCS_BASE_RLE_CDS.includes(sessionUserInfo.baseRleCd)">
-                  <!--설치배정 -->
-                  <kw-btn
-                    v-if="item.installYn ==='Y'"
-                    :label="$t('MSG_BTN_CNTCT_ASSGNMNT')"
-                    padding="10px"
-                    @click="onClickAssignContact(item)"
-                  />
-                  <!--계약변경 -->
-                  <kw-btn
-                    :label="$t('MSG_TXT_CNTRCT')+$t('MSG_BTN_CH')"
-                    padding="10px"
-                    @click="onClickChange(item)"
-                  />
-                </template>
-              </template>
-              <template v-else>
-                <!--설치배정 -->
-                <kw-btn
-                  v-if="item.installYn ==='Y'"
-                  :label="$t('MSG_BTN_CNTCT_ASSGNMNT')"
-                  padding="10px"
-                  @click="onClickAssignContact(item)"
-                />
-                <!--계약변경 -->
-                <kw-btn
-                  :label="$t('MSG_TXT_CNTRCT')+$t('MSG_BTN_CH')"
-                  padding="10px"
-                  @click="onClickChange(item)"
-                />
-              </template>
-
+              <!--설치배정 -->
+              <kw-btn
+                v-if="item.isPsc60AssignContact"
+                :label="$t('MSG_BTN_CNTCT_ASSGNMNT')"
+                padding="10px"
+                @click="onClickAssignContact(item)"
+              />
+              <!--계약변경 -->
+              <kw-btn
+                v-if="item.isPsc60CntrChange"
+                :label="$t('MSG_TXT_CNTRCT')+$t('MSG_BTN_CH')"
+                padding="10px"
+                @click="onClickChange(item)"
+              />
               <!--삭제-->
               <kw-btn
-                v-if="item.deleteDv=='DEL' || (searchParams.isBrmgr === 'Y' && item.deleteDv=='PSB')"
+                v-if="item.isPsc60Del"
                 :label="$t('MSG_BTN_DEL')"
                 padding="10px"
                 @click="onClickContractDelete(item)"
               />
               <!--삭제요청-->
               <kw-btn
-                v-if="searchParams.isBrmgr !== 'Y' && item.deleteDv=='PSB'"
+                v-if="item.isPsc60RequestDel"
                 :label="$t('MSG_TXT_DEL_REQ')"
                 padding="10px"
                 @click="onClickRequestDelete(item)"
@@ -631,7 +604,75 @@ async function fetchData() {
   resultList.value = details;
 
   // 고객센터 계약건이면서, 총판 직원인 경우 isSoDbt = true
-  resultList.value = resultList.value.map((item) => ({ ...item, isSoDbt: (item.isCcs === 'Y' && sessionUserInfo.ogTpCd === 'W05') }));
+  resultList.value = resultList.value.map((item) => {
+    const isSoDbt = (item.isCcs === 'Y' && sessionUserInfo.ogTpCd === 'W05');
+
+    const isPsc10Del = (!isSoDbt);
+    let isPsc20Confirm = false;
+    let isPsc20F2Pay = false;
+    let isPsc20NonF2Pay = false;
+
+    let isPsc50NonF2Pay = false;
+    let isPsc50Confirm = false;
+    let isPsc50RequestConfirm = false;
+
+    let is60DivReq = false;
+    let isPsc60AssignContact = false;
+    let isPsc60CntrChange = false;
+    let isPsc60Del = false;
+    let isPsc60RequestDel = false;
+
+    if (!isSoDbt) {
+      // 20
+      if (item.confirmPsbYn === 'Y') {
+        isPsc20Confirm = true;
+        isPsc20F2Pay = CCS_BASE_RLE_CDS.includes(sessionUserInfo.baseRleCd);
+      } else if (item.resultDiv === '1') {
+        isPsc20NonF2Pay = (item.pymnSkipYn === 'N');
+        isPsc20F2Pay = true;
+      }
+
+      // 50
+      if (searchParams.value.isBrmgr === 'Y') {
+        isPsc50NonF2Pay = true;
+        isPsc50Confirm = (item.dfntaprcnt > 0);
+      } else {
+        isPsc50RequestConfirm = (item.dfntaprcnt > 0 && item.pymnSkipYn === 'Y');
+      }
+
+      // 60
+      is60DivReq = (searchParams.value.isBrmgr === 'Y' && item.deleteDv === 'REQ');
+      if (!is60DivReq) {
+        if (item.isCcs === 'Y') {
+          if (CCS_BASE_RLE_CDS.includes(sessionUserInfo.baseRleCd)) {
+            isPsc60AssignContact = (item.installYn === 'Y');
+            isPsc60CntrChange = true;
+          }
+        } else {
+          isPsc60AssignContact = item.installYn === 'Y';
+          isPsc60CntrChange = true;
+        }
+
+        isPsc60Del = (item.deleteDv === 'DEL' || (searchParams.value.isBrmgr === 'Y' && item.deleteDv === 'PSB'));
+        isPsc60RequestDel = (searchParams.isBrmgr !== 'Y' && item.deleteDv === 'PSB');
+      }
+    }
+
+    return { ...item,
+      isSoDbt,
+      isPsc10Del,
+      isPsc20Confirm,
+      isPsc20F2Pay,
+      isPsc20NonF2Pay,
+      isPsc50NonF2Pay,
+      isPsc50Confirm,
+      isPsc50RequestConfirm,
+      is60DivReq,
+      isPsc60AssignContact,
+      isPsc60CntrChange,
+      isPsc60Del,
+      isPsc60RequestDel };
+  });
 }
 
 async function fetchDataSummary() {
