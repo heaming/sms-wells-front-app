@@ -3,7 +3,7 @@
  * 프로그램 개요
  ****************************************************************************************************
  1. 모듈 : SNB (방문관리)
- 2. 프로그램 ID : WwsnbBsManagerScheduleDateWeek - BS관리일정조회
+ 2. 프로그램 ID : WwsnbBsManagerScheduleDateWeek - BS관리일정조회(주차별)
  3. 작성자 : 홍세기
  4. 작성일 : 2023.06.01
  ****************************************************************************************************
@@ -49,6 +49,7 @@
           icon="search"
           class="w120"
           clearable
+          :disable="wmAuth"
           @click-icon="onFxnPrtnrNoSearchPopup"
         />
         <kw-input
@@ -163,6 +164,11 @@ const { getConfig } = useMeta();
 const { modal, notify } = useGlobal();
 const dataService = useDataService();
 
+// DEF_4653 관련 웰스매니저인 경우 본인만 조회 가능하도록...
+const store = useStore();
+const userInfo = store.getters['meta/getUserInfo'];
+const wmAuth = ref((userInfo.rsbNm === '매니저' || userInfo.rsbNm === '플래너') && userInfo.tenantCd === 'W' && userInfo.ogTpCd !== 'HR1');
+
 // -------------------------------------------------------------------------------------------------
 // Function & Event
 // -------------------------------------------------------------------------------------------------
@@ -272,6 +278,9 @@ async function initInfo() {
  *  Event - 방문담당자 검색 버튼 클릭
  */
 async function onFxnPrtnrNoSearchPopup() {
+  if (wmAuth.value) {
+    return;
+  }
   const mngrDvCd = searchParams.value.fxnPrtnrDvCd ?? '';
   const searchText = searchParams.value.fxnPrtnrKnm;
 
@@ -291,8 +300,14 @@ async function onFxnPrtnrNoSearchPopup() {
 
 await Promise.all([
   initInfo(),
-
 ]);
+
+onMounted(async () => {
+  if (wmAuth.value) {
+    searchParams.value.fxnPrtnrKnm = userInfo.userName;
+    searchParams.value.fxnPrtnrNo = userInfo.employeeIDNumber;
+  }
+});
 
 // -------------------------------------------------------------------------------------------------
 // Initialize front Grid

@@ -37,6 +37,7 @@
           class="w120"
           icon="search"
           clearable
+          :disable="wmAuth"
           @click-icon="onFxnPrtnrNoSearchPopup"
         />
         <kw-input
@@ -108,6 +109,11 @@ const { currentRoute } = useRouter();
 
 const { modal, notify } = useGlobal();
 const dataService = useDataService();
+
+// DEF_4653 관련 웰스매니저인 경우 본인만 조회 가능하도록...
+const store = useStore();
+const userInfo = store.getters['meta/getUserInfo'];
+const wmAuth = ref((userInfo.rsbNm === '매니저' || userInfo.rsbNm === '플래너') && userInfo.tenantCd === 'W' && userInfo.ogTpCd !== 'HR1');
 
 // -------------------------------------------------------------------------------------------------
 // Function & Event
@@ -189,6 +195,9 @@ async function onClickExcelDownload() {
  *  Event - 방문담당자 검색 버튼 클릭
  */
 async function onFxnPrtnrNoSearchPopup() {
+  if (wmAuth.value) {
+    return;
+  }
   const mngrDvCd = searchParams.value.fxnPrtnrDvCd ?? '';
   const searchText = searchParams.value.fxnPrtnrKnm;
 
@@ -207,6 +216,11 @@ async function onFxnPrtnrNoSearchPopup() {
 }
 
 onMounted(async () => {
+  if (wmAuth.value) {
+    searchParams.value.fxnPrtnrKnm = userInfo.userName;
+    searchParams.value.fxnPrtnrNo = userInfo.employeeIDNumber;
+  }
+
   // 다른 화면에서 넘어온 값을 기준으로 바로 조회하도록 처리
   const { baseDateFrom, baseDateTo, fxnPrtnrNo, fxnPrtnrKnm } = searchParams.value;
   if (!isEmpty(baseDateFrom) && !isEmpty(baseDateTo) && !isEmpty(fxnPrtnrNo) && !isEmpty(fxnPrtnrKnm)) {

@@ -46,6 +46,7 @@
           :dgr1-levl-og-readonly="mgtDeptDisabled"
           :dgr2-levl-og-readonly="rgnlGrpDisabled"
           :dgr3-levl-og-readonly="branchDisabled"
+          :partner-readonly="partnerDisabled"
           dgr1-levl-og-first-option="all"
           dgr2-levl-og-first-option="all"
           dgr3-levl-og-first-option="all"
@@ -158,6 +159,10 @@ const { currentRoute } = useRouter();
 const router = useRouter();
 const dataService = useDataService();
 
+const store = useStore();
+const userInfo = store.getters['meta/getUserInfo'];
+const wmAuth = ref((userInfo.rsbNm === '매니저' || userInfo.rsbNm === '플래너') && userInfo.tenantCd === 'W' && userInfo.ogTpCd !== 'HR1');
+
 // const { getters } = useStore();
 // const userInfo = getters['meta/getUserInfo'];
 
@@ -181,7 +186,7 @@ const searchParams = ref({
   dgr3LevlOg: {},
   partner: {},
   pstnDvCd: '', // 직급
-  prtnrNo: '', // 사번
+  prtnrNo: wmAuth ? userInfo.employeeIDNumber : '', // 사번
   prtnrNm: '', // 성명
   baseDateFrom: '',
   baseDateTo: '',
@@ -258,6 +263,7 @@ async function onClickExcelDownload() {
 const mgtDeptDisabled = ref(true);
 const rgnlGrpDisabled = ref(true);
 const branchDisabled = ref(true);
+const partnerDisabled = ref(false);
 onMounted(async () => {
   if (isEmpty(searchParams.value.mgtDept)) {
     mgtDeptDisabled.value = false;
@@ -268,19 +274,21 @@ onMounted(async () => {
   if (isEmpty(searchParams.value.branch)) {
     branchDisabled.value = false;
   }
+  // TODO...웰스 매니저인지 권한 확인 필요
+  // DEF_4653 웰스매니저인 경우 본인만 조회 가능하도록...
+  console.log('wmAuth.value >>>', wmAuth.value);
+  if (wmAuth.value) {
+    mgtDeptDisabled.value = true;
+    rgnlGrpDisabled.value = true;
+    branchDisabled.value = true;
+    partnerDisabled.value = true;
+  }
 });
 
 // -------------------------------------------------------------------------------------------------
 // Initialize Grid
 // -------------------------------------------------------------------------------------------------
 const initInfoGrid = defineGrid((data, view) => {
-  // const fields = [
-  //   { fieldName: 'ogCd' },
-  //   { fieldName: 'ogNm' },
-  //   { fieldName: 'prtnrNo' },
-  //   { fieldName: 'sapDlpnrCd' },
-  // ];
-
   const columns = [
     { fieldName: 'mngtAcc', header: t('MSG_TXT_MNGT_ACC'), width: '385', styleName: 'text-right' }, // 관리계정
     { fieldName: 'vstAcc', header: t('MSG_TXT_VST_ACC'), width: '385', styleName: 'text-right' }, // 방문계정
@@ -296,20 +304,6 @@ const initInfoGrid = defineGrid((data, view) => {
 });
 
 const initListGrid = defineGrid((data, view) => {
-  // const fields = [
-  //   { fieldName: 'asnOjYm' },
-  //   { fieldName: 'dgr3LevlOgCd' },
-  //   { fieldName: 'dgr3LevlOgNm' },
-  //   { fieldName: 'prtnrNo' },
-  //   { fieldName: 'prtnrKnm' },
-  //   { fieldName: 'qlfDvCd' },
-  //   { fieldName: 'pdctPdCd' },
-  //   { fieldName: 'vstDuedt' },
-  //   { fieldName: 'cntcDt' },
-  //   { fieldName: 'compRate' },
-  //   { fieldName: 'npPtrm' },
-  // ];
-
   const columns = [
     { fieldName: 'asnOjYm', header: t('MSG_TXT_MGT_YNM'), width: '100', styleName: 'text-center' }, // 관리년월
     { fieldName: 'ogNm', header: t('MSG_TXT_BLG'), width: '100', styleName: 'text-center' }, // 소속
