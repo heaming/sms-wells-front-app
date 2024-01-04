@@ -1,7 +1,8 @@
 <template>
   <kw-page>
     <div
-      class="normal-area normal-area--button-set-bottom"
+      class="normal-area normal-area--button-set-bottom scoped-layout"
+      :class="{'scoped-layout--hide-button-set': isCnfmCntr }"
     >
       <div class="normal-area__content">
         <div class="stepper-layout-tweak-wrapper">
@@ -152,7 +153,7 @@
 // -------------------------------------------------------------------------------------------------
 import { confirm, useGlobal } from 'kw-lib';
 import { warn } from 'vue';
-import { CNTR_TP_CD } from '~sms-wells/contract/constants/ctConst';
+import { CCS_BASE_RLE_CDS, CNTR_TP_CD } from '~sms-wells/contract/constants/ctConst';
 import WwctaContractRegistrationMgtMStep1 from './WwctaContractRegistrationMgtMStep1.vue';
 import WwctaContractRegistrationMgtMStep2 from './WwctaContractRegistrationMgtMStep2.vue';
 import WwctaContractRegistrationMgtMStep3 from './WwctaContractRegistrationMgtMStep3.vue';
@@ -172,6 +173,8 @@ const props = defineProps({
 const { t } = useI18n();
 const { alert } = useGlobal();
 const router = useRouter();
+const { getters } = useStore();
+const { baseRleCd } = getters['meta/getUserInfo'];
 
 async function validateProps() {
   const { cntrNo, cntrPrgsStatCd, pspcCstId, resultDiv, cntrSn, cntrTpCd } = props;
@@ -271,14 +274,18 @@ function setupContract() {
 
 setupContract();
 
-const isCnfmCntr = ref(false);
 const isRstlCntr = ref(props.resultDiv === '2');
 const isCnfmPds = ref(false); // step2 상품확정여부
+const isSodbtNftfCntr = computed(() => summary.value.cntrBas?.cstStlmInMthCd === '30'
+  && summary.value.cntrBas?.sellOgTpCd === 'W05');
+const isCcs = computed(() => CCS_BASE_RLE_CDS.includes(baseRleCd)); /* 고객센터여부 */
+const isCnfmCntr = computed(() => {
+  const cntrPrgsStatCd = summary.value.cntrBas?.cntrPrgsStatCd ?? props.cntrPrgsStatCd;
+  return (isSodbtNftfCntr.value && !isCcs.value) ? cntrPrgsStatCd >= 20 : cntrPrgsStatCd > 20;
+});
 // -------------------------------------------------------------------------------------------------
 // Function & Event
 // -------------------------------------------------------------------------------------------------
-// const isRestipulation = computed(() => !!contract.value.rstlCntrNo);
-
 function showStep(step) {
   [0, 1, 2].forEach((n) => {
     if (n < step - 1) {
@@ -295,7 +302,6 @@ async function getExistedCntr() {
     // updateSummary();
     return;
   }
-  isCnfmCntr.value = props.cntrPrgsStatCd > 20;
   let step = {
     10: 1,
     12: 2,
@@ -437,3 +443,15 @@ onMounted(() => {
   }
 });
 </script>
+
+<style lang="scss" scoped>
+.normal-area.scoped-layout {
+  &--hide-button-set {
+    padding-bottom: 30px;
+
+    .normal-area__content {
+      bottom: 30px;
+    }
+  }
+}
+</style>
