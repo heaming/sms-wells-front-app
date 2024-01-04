@@ -292,22 +292,24 @@
               />
             </template>
           </div>
+
           <!-- 작성완료 -->
           <div
             v-else-if="item.viewCntrPrgsStatCd === '20'"
             class="button-wrap"
           >
             <kw-btn
-              :label="$t('MSG_BTN_MOD')"
+              :label="item.isSoDbt? t('MSG_BTN_INQR'): t('MSG_BTN_MOD')"
               padding="10px"
               @click="onClickModify(item)"
             />
+            <kw-separator
+              vertical
+              inset
+              spaced="0px"
+            />
+
             <template v-if="!item.isSoDbt">
-              <kw-separator
-                vertical
-                inset
-                spaced="0px"
-              />
               <template v-if="item.confirmPsbYn=='Y'">
                 <kw-btn
                   :label="$t('MSG_BTN_DTRM')"
@@ -336,12 +338,13 @@
                   @click="onClickF2fPayment(item)"
                 />
               </template>
-              <kw-btn
-                :label="$t('MSG_BTN_DEL')"
-                padding="10px"
-                @click="onClickContractDelete(item)"
-              />
             </template>
+
+            <kw-btn
+              :label="$t('MSG_BTN_DEL')"
+              padding="10px"
+              @click="onClickContractDelete(item)"
+            />
           </div>
 
           <!-- 결제중 -->
