@@ -57,6 +57,7 @@
           <kw-select
             v-model="searchParams.redfAdsbTpCd"
             :options="filterRedfAdsbTpCd"
+            :disable="searchParams.ogTpCd === 'W01'"
           />
         </kw-search-item>
 
@@ -796,7 +797,8 @@ const wpAndDstrcColumnLayout = [
     items: ['wpEnvrPrRedf', 'wpEnvrExcpPrRedf', 'wpPrSellEncrgRedf', 'wpMetgRedf', 'wpSettleRedfDstrc', 'wpFxamRedfDstrc', 'sumWpRedfDstrc'],
   },
   'wpLifRedfAmt',
-  'dlqRedfAmt',
+  'wpLif0203RedfAmt',
+  // 'dlqRedfAmt',
 ];
 
 // WELLS-P + 지점장 이상
@@ -833,7 +835,8 @@ const wpAndBrchColumnLayout = [
     items: ['wpEnvrPrRedf', 'wpEnvrExcpPrRedf', 'sellEncrgRedf', 'wpEnvrOgRedf', 'wpEnvrExcpOgRedf', 'wpOgSellEncrgRedf', 'wpSettleRedfBrch', 'wpFxamRedfBrch', 'sumWpRedfBrch'],
   },
   'wpLifRedfAmt',
-  'dlqRedfAmt',
+  'wpLif0203RedfAmt',
+  // 'dlqRedfAmt',
 ];
 
 // 처리유형 - 연체(지구장 이하) 선택 시
@@ -865,6 +868,17 @@ const dlqJoColumnLayout = [
     items: ['dlqRedfPerfExcp', 'dlqRedfPerfTot', 'dlqRedfPerfRental'],
   },
 ];
+
+/**
+ * 조직유형 변경시, WELLS_P 일 경우 처리유형 값 제거
+ */
+watch(() => searchParams.value.ogTpCd, () => {
+  if (searchParams.value.ogTpCd === 'W01') {
+    searchParams.value.redfAdsbTpCd = 'ALL';
+  } else {
+    searchParams.value.redfAdsbTpCd = filterRedfAdsbTpCd.value[0].codeId; // 처리유형
+  }
+}, { immediate: true });
 
 /* MSG_TXT_PERF_YM(from, to), 직책구분, 처리유형 변경 시 layout 변경 */
 watch(() => [searchParams.value.perfYmFrom,
@@ -919,7 +933,7 @@ watch(() => [searchParams.value.perfYmFrom,
     }
   }
 
-  if (searchParams.value.redfAdsbTpCd === '0202' && searchParams.value.ogTpCd === 'W01') {
+  if (searchParams.value.ogTpCd === 'W01') { // searchParams.value.redfAdsbTpCd === '0202' && 조건 제거 2024_01_04
     if (searchParams.value.rsbDvCd === '01') {
       /* 조직유형이 WELLS-P, 직책구분이 지구장 이하일 때 */
       view.setColumnLayout(wpAndDstrcColumnLayout);
@@ -1126,8 +1140,9 @@ function initGrid(data, view) {
     { fieldName: 'wpEnvrOgRedf', dataType: 'number' },
     { fieldName: 'wpEnvrExcpOgRedf', dataType: 'number' },
     { fieldName: 'wpFxamRedfDstrc', dataType: 'number' },
-    { fieldName: 'wpLifRedfAmt', dataType: 'number' },
-    { fieldName: 'dlqRedfAmt', dataType: 'number' },
+    { fieldName: 'wpLifRedfAmt', dataType: 'number' }, // 상조되물림 취소
+    { fieldName: 'wpLif0203RedfAmt', dataType: 'number' }, // 상조되물림 연체
+    { fieldName: 'dlqRedfAmt', dataType: 'number' }, //
     // { fieldName: 'wpEnvrPrRedf' },
     // { fieldName: 'wpEnvrExcpPrRedf' },
     { fieldName: 'wpMetgRedf', dataType: 'number' },
@@ -1351,7 +1366,8 @@ function initGrid(data, view) {
     { fieldName: 'wpEnvrOgRedf', header: t('MSG_TXT_ELHM_OG_PRPN'), width: '120', styleName: 'text-right', numberFormat: '#,##0' },
     { fieldName: 'wpEnvrExcpOgRedf', header: t('MSG_TXT_ELHM_EXCP_OG_PRPN'), width: '120', styleName: 'text-right', numberFormat: '#,##0' },
     { fieldName: 'wpFxamRedfDstrc', header: t('MSG_TXT_FXAM'), width: '120', styleName: 'text-right', numberFormat: '#,##0' }, // 지구장 이하
-    { fieldName: 'wpLifRedfAmt', header: t('MSG_TXT_COEXT'), width: '120', styleName: 'text-right', numberFormat: '#,##0' }, // 지구장 이하
+    { fieldName: 'wpLifRedfAmt', header: t('상조취소되물림'), width: '120', styleName: 'text-right', numberFormat: '#,##0' }, // 지구장 이하
+    { fieldName: 'wpLif0203RedfAmt', header: t('상조연체되물림'), width: '120', styleName: 'text-right', numberFormat: '#,##0' },
     { fieldName: 'dlqRedfAmt', header: t('MSG_TXT_DLQ_REDF'), width: '120', styleName: 'text-right', numberFormat: '#,##0' },
     { fieldName: 'wpEnvrPrRedf', header: t('MSG_TXT_ELHM'), width: '120', styleName: 'text-right', numberFormat: '#,##0' }, // 지구장 이하 (가전 개인비례)
     { fieldName: 'wpEnvrExcpPrRedf', header: t('MSG_TXT_ELHM_EXCP_PRPN'), width: '120', styleName: 'text-right', numberFormat: '#,##0' }, // 지구장 이하 (가전 외 개인비례)
