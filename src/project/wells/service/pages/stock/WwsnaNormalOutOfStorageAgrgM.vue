@@ -68,7 +68,6 @@
             v-model:from="searchParams.startStrHopDt"
             v-model:to="searchParams.endStrHopDt"
             rules="date_range_months:1"
-            @change="onChangeStrHopDt"
           />
           <!-- //입고희망일자 -->
           <!-- 출고확정-->
@@ -279,15 +278,15 @@ async function onClickSearch() {
 //   }
 // }
 // 입고희망일자 변경시 조회
-async function onChangeStrHopDt() {
-  const { startStrHopDt } = searchParams.value;
-  // 시작일자 변경시 종료일이 해당 달에 마지막일로 지정
-  if (startStrHopDt.length > 6) {
-    const startStrHopDtYm = startStrHopDt.substring(0, 6);
-    const lastDay = new Date(startStrHopDt.substring(0, 4), startStrHopDt.substring(4, 6), 0).getDate();
-    searchParams.value.endStrHopDt = dayjs(startStrHopDtYm.concat(lastDay)).format('YYYYMMDD');
-  }
-}
+// async function onChangeStrHopDt() {
+//   const { startStrHopDt } = searchParams.value;
+//   // 시작일자 변경시 종료일이 해당 달에 마지막일로 지정
+//   if (startStrHopDt.length > 6) {
+//     const startStrHopDtYm = startStrHopDt.substring(0, 6);
+//     const lastDay = new Date(startStrHopDt.substring(0, 4), startStrHopDt.substring(4, 6), 0).getDate();
+//     searchParams.value.endStrHopDt = dayjs(startStrHopDtYm.concat(lastDay)).format('YYYYMMDD');
+//   }
+// }
 
 // -------------------------------------------------------------------------------------------------
 // Initialize Grid
