@@ -185,7 +185,7 @@ const optionsAllItmPdCd = ref();
 
 const searchParams = ref({
   strtDt: dayjs().startOf('month').format('YYYYMMDD'),
-  endDt: dayjs().format('YYYYMMDD'),
+  endDt: dayjs().endOf('month').format('YYYYMMDD'),
   sapItemCdFrom: '',
   sapItemCdTo: '',
   strtSapCd: '',
