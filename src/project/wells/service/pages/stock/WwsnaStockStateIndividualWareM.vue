@@ -92,6 +92,19 @@
           />
         </kw-search-item>
       </kw-search-row>
+      <kw-search-row>
+        <kw-search-item :label="$t('MSG_TXT_SAPCD')">
+          <kw-input
+            v-model="searchParams.fromSapCd"
+            :max-length="50"
+          />
+          <span>~</span>
+          <kw-input
+            v-model="searchParams.toSapCd"
+            :max-length="50"
+          />
+        </kw-search-item>
+      </kw-search-row>
     </kw-search>
     <div class="result-area">
       <kw-action-top>
@@ -200,6 +213,8 @@ const searchParams = ref({
   wareUseYn: '', // 창고사용여부
   stndUnuseYn: '', // 표준미사용여부
   itmKndCd: '', // 품목구분 - 디폴트 4 상품
+  fromSapCd: '', // sap 코드
+  toSapCd: '', // sap 코드
 });
 
 let gridView;
