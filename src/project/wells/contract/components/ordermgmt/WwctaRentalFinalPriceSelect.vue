@@ -518,7 +518,7 @@ import { warn } from 'vue';
 const props = defineProps({
   modelValue: { type: Object, default: undefined },
   bas: { type: Object, default: undefined },
-  modify: Boolean,
+  modify: { type: Boolean, default: false },
   readonly: Boolean, // 변경시 요청에 의해 모든 수정을 막고 조회만 해야하는 경우가 있다고 합니다. - 한상일 부장님 요청 사항.
 });
 const emit = defineEmits([
@@ -1090,7 +1090,7 @@ async function fetchFinalPriceOptions() {
         cntrNo: props.bas.cntrNo,
         pdCd: dtl.value.pdCd,
         hgrPdCd: dtl.value.hgrPdCd === dtl.value.pdCd ? undefined : dtl.value.hgrPdCd,
-        isModify: props.modify == null || props.modify === undefined ? false : props.modify,
+        isModify: props.modify ? 'Y' : 'N',
       },
       silent: true,
     });
