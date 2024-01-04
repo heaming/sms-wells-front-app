@@ -146,18 +146,20 @@ async function onClickAdd() {
 
 // 엑셀 다운로드
 async function onClickExcelDownload() {
-  const { svPdNm, pdctPdNm, partPdNm } = props;
+  const { svPdNm, pdctPdNm, partPdNm, svPdCd, pdctPdCd, partPdCd } = props;
   const view = grdMainRef.value.getView();
+  const res = await dataService.get('/sms/wells/product/bs-works/life-filters', { params: { svPdCd, pdctPdCd, partPdCd } });
   // 엑셀 파일명 재설정
   await gridUtil.exportView(view, {
     fileName: `${svPdNm}_${pdctPdNm}_${partPdNm}_`,
     timePostfix: true,
+    exportData: res.data,
   });
 }
 
 // 데이터 불러오기
 async function fetchData() {
-  const { svPdCd, pdctPdCd, partPdCd } = props;
+  const { svPdCd, pdctPdCd, partPdCd, svPdNm, pdctPdNm, partPdNm } = props;
   if (isEmpty(svPdCd) || isEmpty(pdctPdCd) || isEmpty(partPdCd)) {
     return;
   }
@@ -165,6 +167,10 @@ async function fetchData() {
   const view = grdMainRef.value.getView();
   view.getDataSource().setRows(res.data);
   gridUtil.init(view);
+  // 엑셀다운로드용 검색조건 설정
+  view.__searchConditionText__ = `[${t('MSG_TXT_SEARCH_COND')}]\n${t('MSG_TXT_SVC_NAME')} : ${svPdNm}`;
+  view.__searchConditionText__ += `\n${t('MSG_TXT_GOODS_NM')} : ${pdctPdNm}`;
+  view.__searchConditionText__ += `\n${t('MSG_TXT_FLTR_NM')} : ${partPdNm}`;
   grdRowCount.value = getGridRowCount(view);
 }
 
