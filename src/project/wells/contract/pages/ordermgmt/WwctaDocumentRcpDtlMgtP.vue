@@ -1525,7 +1525,7 @@ const frmMainData = ref({
   cntrDtlNoLst: '', // 계약상세번호 리스트
   sellTpNmLst: '', // 판매유형코드명(계약구분 리스트)
   cntrChDocDvNm: '', // 첨부파일종류 문서분류명
-  cntrChDocSeq: '', // 첨부파일종류 문서순번
+  dcmtRcpSn: '', // 첨부파일종류 문서순번
 
   // nmchgIdfCyFileNm: '166730259072721428.jpg', // (개명신청)신분증사본 파일명
   nmchgIdfCyFileNm: '', // (개명신청)신분증사본 파일명
@@ -1756,7 +1756,7 @@ async function fetchData() {
     const response = res.data.searchDocumentRcpDtlFileInfoResList;
     response.forEach((element) => {
       if (element.cntrChTpCd === '104') { // 개명신청
-        switch (element.cntrChDocSeq) {
+        switch (element.dcmtRcpSn) {
           case '1': // 신분증사본
             frmMainData.value.nmchgIdfCyFileNm = element.fileNm; // 파일명
             frmMainData.value.nmchgIdfCyRealFpath = element.realFpath; // 파일실제경로
@@ -1827,7 +1827,7 @@ async function fetchData() {
             break;
         }
       } else if (element.cntrChTpCd === '301') { // 자동이체 변경
-        switch (element.cntrChDocSeq) {
+        switch (element.dcmtRcpSn) {
           case '1': // CMS변경신청서
             frmMainData.value.cmsApfFileNm = element.fileNm; // 파일명
             frmMainData.value.cmsApfRealFpath = element.realFpath; // 파일실제경로
@@ -1892,7 +1892,7 @@ async function fetchData() {
             break;
         }
       } else if (element.cntrChTpCd === '103') { // 명의 변경
-        switch (element.cntrChDocSeq) {
+        switch (element.dcmtRcpSn) {
           case '1': // 명의변경신청서
             frmMainData.value.tftlApfFileNm = element.fileNm; // 파일명
             frmMainData.value.tftlApfRealFpath = element.realFpath; // 파일실제경로
@@ -1957,7 +1957,7 @@ async function fetchData() {
             break;
         }
       } else if (element.cntrChTpCd === '401') { // 해지/철회신청
-        switch (element.cntrChDocSeq) {
+        switch (element.dcmtRcpSn) {
           case '1': // 증빙서류
             frmMainData.value.cnclEvdcDcmtFileNm = element.fileNm; // 파일명
             frmMainData.value.cnclEvdcDcmtRealFpath = element.realFpath; // 파일실제경로

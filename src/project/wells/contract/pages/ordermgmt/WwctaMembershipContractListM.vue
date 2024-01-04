@@ -60,7 +60,7 @@
                      { codeId: '4', codeName: t('MSG_TXT_MAND_EXP_DT_FRISU') },
                      { codeId: '5', codeName: t('MSG_TXT_MAND_EXP_DT_RECAP') },
                      { codeId: '6', codeName: t('MSG_TXT_DTRM_DATE') },
-                     { codeId: '7', codeName: t('MSG_TXT_DT_OF_SALE') },
+                     { codeId: '7', codeName: t('MSG_TXT_SL_D') },
                      { codeId: '8', codeName: t('MSG_TXT_CAN_D') }]"
           class="w150"
           first-option="select"
