@@ -40,6 +40,7 @@
             placeholder=""
             readonly
           />
+          <kw-tooltip>{{ searchParams.basePdNm }}</kw-tooltip>
         </kw-search-item>
         <!-- 방문개월 -->
         <kw-search-item
