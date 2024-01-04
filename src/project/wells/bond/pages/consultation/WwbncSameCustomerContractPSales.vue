@@ -382,7 +382,7 @@ const paramData = ref({});
 const sales = ref({});
 
 function setBndBizDvCd(bndBizDvCd) {
-  if (bndBizDvCd === 'L20' || bndBizDvCd === 'L21') {
+  if (bndBizDvCd === 'L20' || bndBizDvCd === 'L21' || bndBizDvCd === 'L60') {
     rental.value = true;
     msh.value = false;
     spay.value = false;

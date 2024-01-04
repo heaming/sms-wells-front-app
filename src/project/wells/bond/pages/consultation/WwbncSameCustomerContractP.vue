@@ -257,7 +257,7 @@ watch(() => selectedTab.value, () => {
 
 let grdView;
 function setBndBizDvCd(bndBizDvCd) {
-  if (['L30', 'L31', 'L32'].includes(bndBizDvCd)) {
+  if (['L30', 'L31', 'L32', 'L60'].includes(bndBizDvCd)) {
     lental.value = false;
     membership.value = true;
     grdView = grdMembershipRef.value.getView();
