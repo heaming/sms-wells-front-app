@@ -359,11 +359,11 @@ const onClickSave = async () => {
   selectedRowValue.value = null;
 };
 
-async function onClickMenuAdd() {
+const onClickMenuAdd = async () => {
   insertChildRow({
     menuName: '새 메뉴',
   });
-}
+};
 
 async function onClickDelete() {
   const data = grdTreeRef.value.getData();
@@ -426,6 +426,11 @@ const initTreeGrid = async (data, view) => {
     if (newRow > -1) {
       selectedRowValue.value = { ...gridUtil.getRowValue(g, newRow) };
     }
+  };
+
+  data.onRowAdded = async (g, rowId) => {
+    view.setCurrent({ dataRow: rowId });
+    view.setFocus();
   };
 };
 
