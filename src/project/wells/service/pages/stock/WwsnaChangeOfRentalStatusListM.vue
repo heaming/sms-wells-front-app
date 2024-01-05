@@ -255,8 +255,8 @@ const initGrdMain = defineGrid((data, view) => {
   ];
 
   const columns = [
-    { fieldName: 'svpdSapCd', header: t('MSG_TXT_SAPCD'), width: '180', styleName: 'text-center' },
-    { fieldName: 'svpdPdCd', header: t('MSG_TXT_ITM_CD'), width: '150', styleName: 'text-center' },
+    { fieldName: 'svpdSapCd', header: t('MSG_TXT_SAPCD'), width: '100', styleName: 'text-center' },
+    { fieldName: 'svpdPdCd', header: t('MSG_TXT_ITM_CD'), width: '120', styleName: 'text-center' },
     { fieldName: 'svpdNmAbbr1', header: t('MSG_TXT_ITM_NM'), width: '350', styleName: 'text-left' },
     { fieldName: 'istDt', header: t('MSG_TXT_IST_DT'), width: '150', styleName: 'text-center', datetimeFormat: 'date' },
     { fieldName: 'reqdDt', header: t('MSG_TXT_REQD_RQDT'), width: '150', styleName: 'text-center', datetimeFormat: 'date' },
@@ -264,7 +264,7 @@ const initGrdMain = defineGrid((data, view) => {
     { fieldName: 'fnlItmGdCd', header: t('MSG_TXT_GD'), width: '100', styleName: 'text-center' },
     { fieldName: 'deptNm', header: t('MSG_TXT_ICHR_CNR'), width: '150', styleName: 'text-left' },
     { fieldName: 'useQty', header: t('MSG_TXT_QTY'), width: '100', styleName: 'text-right' },
-    { fieldName: 'cntrDtlNo', header: t('MSG_TXT_CNTR_DTL_NO'), width: '130', styleName: 'rg-button-link text-center', renderer: { type: 'button' }, preventCellItemFocus: false },
+    { fieldName: 'cntrDtlNo', header: t('MSG_TXT_CNTR_DTL_NO'), width: '150', styleName: 'rg-button-link text-center', renderer: { type: 'button' }, preventCellItemFocus: false },
     { fieldName: 'rcgvpKnm', header: t('MSG_TXT_CST_NM'), width: '100', styleName: 'text-center' },
     { fieldName: 'ostrConfDt', header: t('MSG_TXT_CONF_DT'), width: '100', styleName: 'text-center', datetimeFormat: 'date' },
     { fieldName: 'ostrDt', header: t('MSG_TXT_EDP_RTNGD'), width: '100', styleName: 'text-center', datetimeFormat: 'date' },
