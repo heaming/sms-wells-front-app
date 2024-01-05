@@ -139,6 +139,20 @@ async function onClickListSave() {
 
   if (await gridUtil.alertIfIsNotModified(view)) { return; }
   if (!await gridUtil.validate(view)) { return; }
+  // 2024.01.05 중복월 체크로직추가
+  const unique = [];
+  const duplicates = gridUtil.some(view, (item) => {
+    if (unique.find((i) => i.mngtYm === item.mngtYm)) {
+      return true;
+    }
+    unique.push(item);
+    return false;
+  });
+  if (duplicates) {
+    notify(t('MSG_ALT_DUPLICATE_DATES')); // 중복된 값이 존재합니다.
+    return;
+  }
+
   await dataService.post('/sms/wells/fee/home-master-grades/points', changedRows);
   notify(t('MSG_ALT_SAVE_DATA'));
   await fetchData();
