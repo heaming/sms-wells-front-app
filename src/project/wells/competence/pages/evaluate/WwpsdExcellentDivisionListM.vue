@@ -248,6 +248,8 @@ const configGrid = async (config) => {
         direction: 'horizontal', // merge type
         items: [`${k.LEvlAtcDvCd}Trg`, `${k.LEvlAtcDvCd}Score`, `${k.LEvlAtcDvCd}Rate`],
       });
+      view.columnByName(`${k.LEvlAtcDvCd}Score`).numberFormat = '#,##0.##;.;f';
+      view.columnByName(`${k.LEvlAtcDvCd}Rate`).numberFormat = '#,##0.##;.;f';
     } else if (k.dvCd === '1') {
       header.push(k.fieldName);
     }

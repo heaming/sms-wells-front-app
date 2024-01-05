@@ -103,12 +103,6 @@
     </kw-search>
 
     <div class="result-area">
-      <ul class="kw-notification">
-        <li>
-          온라인 수료 현황은 매일 오전 08시에 전산에 반영됩니다. ( 최종 온라인 수료 현황 업데이트 시간: YYYY-MM-DD HH:MM:SS )
-        </li>
-        <li>수료현황 업데이트 요청은 교육파트로 연락바랍니다.</li>
-      </ul>
       <kw-action-top>
         <template #left>
           <kw-paging-info
@@ -127,17 +121,6 @@
           dense
           :disable="pageInfo.totalCount === 0"
           @click="onClickExcelDownload"
-        />
-        <kw-separator
-          vertical
-          inset
-          spaced
-        />
-        <kw-btn
-          v-permission:create
-          label="온라인 수료 현황 업데이트"
-          primary
-          dense
         />
       </kw-action-top>
       <kw-grid
