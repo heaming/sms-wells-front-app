@@ -416,8 +416,10 @@ function onClickExpansionToggleBtn() {
 
 onMounted(() => {
   // step2 로 바로 접근하는 경우...
-  if (!products.value?.length) {
-    fetchProducts();
+  if (cntrNo.value) {
+    if (!products.value?.length) {
+      fetchProducts();
+    }
     fetchMachines();
   }
 });
@@ -426,6 +428,7 @@ onActivated(() => {
   if (!products.value?.length) {
     fetchProducts();
   }
+  fetchMachines();
 });
 </script>
 
