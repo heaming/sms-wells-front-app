@@ -286,7 +286,7 @@ const changeEducDvCd = async () => {
     view.columnByName('fnlCpcYn').visible = true;
   } else if (searchParams.value.educCrseNo === '128') {
     view.setColumnLayout([
-      'dgr2LevlOgNm', 'dgr3LevlOgNm', 'ogCd', 'prtnrNo', 'prtnrKnm', 'qlfDvNm', 'fshBsAcc',
+      'dgr2LevlOgNm', 'dgr3LevlOgNm', 'ogCd', 'prtnrNo', 'prtnrKnm', 'qlfDvNm',
       {
         header: t('MSG_TXT_WELS_MNGER_CMPF_EDUC'),
         direction: 'horizontal',
