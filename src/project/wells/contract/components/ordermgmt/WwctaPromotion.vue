@@ -80,25 +80,25 @@
               {{ `${promotion.dscApyAmt}원` }}
             </kw-item-label>
           </div>-->
-          <!--          <div
+          <div
             v-if="promotion.freeMcnt"
             class="row"
           >
             <kw-item-label
               font="dense"
               font-weight="normal"
-              class="kw-fc&#45;&#45;black3"
+              class="kw-fc--black3"
             >
               무료개월
             </kw-item-label>
             <kw-item-label
               font="dense"
               font-weight="normal"
-              class="kw-fc&#45;&#45;black1 ml8"
+              class="kw-fc--black1 ml8"
             >
               {{ `${promotion.freeMcnt}개월` }}
             </kw-item-label>
-          </div>-->
+          </div>
           <div
             v-if="promotion.rentalFxam"
             class="row"
