@@ -26,6 +26,7 @@
         <kw-search-item
           :label="$t('MSG_TXT_RCPDT')"
           :colspan="2"
+          required
         >
           <kw-select
             v-model="searchParams.searchDt"

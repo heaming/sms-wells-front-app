@@ -28,8 +28,10 @@
             first-option="all"
           />
         </kw-search-item>
+        <!-- 작업일자 -->
         <kw-search-item
           :label="t('MSG_TXT_WK_DT')"
+          required
         >
           <kw-date-range-picker
             v-model:from="searchParams.wkStartDtm"

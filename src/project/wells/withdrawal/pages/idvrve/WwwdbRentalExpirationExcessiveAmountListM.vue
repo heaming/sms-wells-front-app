@@ -27,6 +27,7 @@
         >
           <kw-date-picker
             v-model="searchParams.dpDt"
+            :label="t('MSG_TXT_PRPD_YM')"
             type="month"
             rules="required"
           />
