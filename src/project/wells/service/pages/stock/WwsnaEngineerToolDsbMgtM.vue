@@ -159,16 +159,16 @@
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
 
-import { useMeta, getComponentType, defineGrid, codeUtil, useGlobal, useDataService, gridUtil } from 'kw-lib';
+import { codeUtil, defineGrid, getComponentType, gridUtil, useDataService, useGlobal, useMeta } from 'kw-lib';
 // import useSnCode from '~sms-wells/service/composables/useSnCode';
-import { cloneDeep } from 'lodash-es';
+import { cloneDeep, isEmpty } from 'lodash-es';
 import dayjs from 'dayjs';
 import WwsnEngineerOgSearchItemGroup from '~sms-wells/service/components/WwsnEngineerOgSearchItemGroup.vue';
 
 // const { getAllEngineers } = useSnCode();
 const { currentRoute } = useRouter();
 const { getConfig } = useMeta();
-const { modal, notify, confirm } = useGlobal();
+const { modal, notify, confirm, alert } = useGlobal();
 const { t } = useI18n();
 const dataService = useDataService();
 
@@ -212,18 +212,20 @@ async function setPymdtColumns(toolHist) {
   let fldName;
   let headerName;
 
-  for (let i = 1; i <= toolHist[0].maxToolQty; i += 1) {
-    fldName = `pymdt${i}`;
-    headerName = t('MSG_TXT_DSB_D') + (i);
+  if (toolHist.length > 0) {
+    for (let i = 1; i <= toolHist[0].maxToolQty; i += 1) {
+      fldName = `pymdt${i}`;
+      headerName = t('MSG_TXT_DSB_D') + (i);
 
-    data.addField({ fieldName: fldName });
+      data.addField({ fieldName: fldName });
 
-    view.addColumn({
-      fieldName: fldName,
-      header: headerName,
-      width: '100',
-      styleName: 'text-center',
-    });
+      view.addColumn({
+        fieldName: fldName,
+        header: headerName,
+        width: '100',
+        styleName: 'text-center',
+      });
+    }
   }
 
   for (let i = 0; i < toolHist.length; i += 1) {
@@ -306,6 +308,21 @@ async function fetchData() {
 }
 
 async function onClickSearch() {
+  if (!isEmpty(searchParams.value.sapMatCdStrt)
+      && !isEmpty(searchParams.value.sapMatCdEnd)
+      && (searchParams.value.sapMatCdStrt.length > searchParams.value.sapMatCdEnd.length
+          || searchParams.value.sapMatCdStrt > searchParams.value.sapMatCdEnd)) {
+    await alert('시작SAP코드가 종료SAP코드보다 작아야 합니다.');
+    return;
+  }
+  if (!isEmpty(searchParams.value.toolPdCdStrt)
+      && !isEmpty(searchParams.value.toolPdCdEnd)
+      && (searchParams.value.toolPdCdStrt.length > searchParams.value.toolPdCdEnd.length
+          || searchParams.value.toolPdCdStrt > searchParams.value.toolPdCdEnd)) {
+    await alert('시작품목코드가 종료품목코드보다 작아야 합니다.');
+    return;
+  }
+
   pageInfo.value.pageIndex = 1;
   cachedParams = cloneDeep(searchParams.value);
 
