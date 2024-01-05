@@ -196,10 +196,12 @@
         >
           <kw-date-picker
             v-model="safetyAccident.acdnDt"
+            :label="$t('MSG_TXT_ACDN_DTM')"
             rules="required"
           />
           <kw-time-picker
             v-model="safetyAccident.acdnTm"
+            :label="$t('MSG_TXT_ACDN_DTM')"
             rules="required"
           />
         </kw-form-item>
