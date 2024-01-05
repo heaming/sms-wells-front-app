@@ -483,15 +483,15 @@ const initObjectGrid = defineGrid((data, view) => {
     { fieldName: 'istDate', header: t('MSG_TXT_IST_DT'), width: '120', styleName: 'text-center', datetimeFormat: 'date' }, // 설치일자
     { fieldName: 'rentalAmt1', header: t('MSG_TXT_RTLFE1'), width: '110', styleName: 'text-right', dataType: 'number' }, // 렌탈료1
     { fieldName: 'rentalAmt2', header: t('MSG_TXT_RTLFE2'), width: '110', styleName: 'text-right', dataType: 'number' }, // 렌탈료2
-    { fieldName: 'npdAmt', header: t('MSG_TXT_NPD_CHRAM'), width: '110', styleName: 'text-right', dataType: 'number' }, // 미납금
     { fieldName: 'dlqAmt', header: t('MSG_TXT_DLQAM'), width: '110', styleName: 'text-right', dataType: 'number' }, // 연체금
+    { fieldName: 'npdAmt', header: t('MSG_TXT_OJ_AMT'), width: '110', styleName: 'text-right', dataType: 'number' }, // 대상금액
     { fieldName: 'thmChramAmt', header: t('MSG_TXT_THM_CHRAM'), width: '110', styleName: 'text-right', dataType: 'number' }, // 당월요금
     { fieldName: 'dlqAddAmt', header: t('MSG_TXT_DLQ_ADAMT'), width: '110', styleName: 'text-right', dataType: 'number' }, // 연체가산금
     { fieldName: 'spmtSlAmt', header: t('MSG_TXT_SPMT_SL_AMOUNT'), width: '110', styleName: 'text-right', dataType: 'number' }, // 추가매출액
     // rev:230410 essential 추가
     { fieldName: 'dlqMcn', header: { text: t('MSG_TXT_DLQ_MCNT'), styleName: 'essential' }, width: '120', styleName: 'text-center' }, // 연체개월
     // // rev:230410 essential 추가
-    { fieldName: 'totNpdAmt', header: t('MSG_TXT_TOT_DLQ_AMT'), width: '110', styleName: 'text-right', dataType: 'number' }, // 총연체금액
+    { fieldName: 'totNpdAmt', header: t('MSG_TXT_OJ_BLAM'), width: '110', styleName: 'text-right', dataType: 'number' }, // 대상잔액
     { fieldName: 'pdgrpNm', header: t('MSG_TXT_PRD_GRP'), width: '110', styleName: 'text-center' }, // 제품군
     { fieldName: 'pdNm', header: t('MSG_TXT_GOODS_NM'), width: '130', styleName: 'text-center' }, // 제품명
     { fieldName: 'fnlPyDate', header: t('MSG_TXT_RECT_PY_D'), width: '120', styleName: 'text-center', datetimeFormat: 'date' }, // 최근납입일
