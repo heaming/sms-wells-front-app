@@ -578,6 +578,15 @@ async function onClickVirtualAccountView() {
 
 // 5. 취소사항 > 취소사항 조회 클릭
 async function onSearchDetail(subParam) {
+  // 5-0 취소일자에 대한 마감여부 체크
+  const { data: closeYn } = await dataService.get('/sms/wells/contract/changeorder/cancel/is-cloase', {
+    params: { baseYm: subParam.cancelDt },
+  });
+  if (closeYn === 'N') {
+    alert(t('MSG_ALT_SL_PERF_CRT_DATA'));
+    return;
+  }
+
   const { bulkApplyYN } = cancelDetailList.value[idx.value];
   let params = [];
 
@@ -656,7 +665,7 @@ async function onSave() {
       return;
     }
 
-    inValidIdx = cancelDetailList.value.findIndex((v) => v.clYn === 'Y');
+    inValidIdx = cancelDetailList.value.findIndex((v) => v.clYn === 'N');
     if (inValidIdx >= 0) {
       await notify(`[${inValidIdx + 1}]번째 - 이미 매출마감 되었습니다.`);
       return;
@@ -673,7 +682,7 @@ async function onSave() {
       return;
     }
 
-    if (param.clYn === 'Y') {
+    if (param.clYn === 'N') {
       await notify('이미 매출마감 되었습니다.');
       return;
     }
@@ -693,7 +702,17 @@ async function onSave() {
 
 // 삭제 클릭
 async function onDelete() {
-  const { cntrNo, cntrSn } = cancelDetailList.value[idx.value];
+  const { cntrNo, cntrSn, rsgFshDt } = cancelDetailList.value[idx.value];
+
+  // 취소일자에 대한 마감여부 체크
+  const { data: closeYn } = await dataService.get('/sms/wells/contract/changeorder/cancel/is-cloase', {
+    params: { baseYm: rsgFshDt },
+  });
+  if (closeYn === 'N') {
+    alert(t('MSG_ALT_SL_PERF_CRT_DATA'));
+    return;
+  }
+
   if (!await confirm(t('MSG_ALT_WANT_DEL'))) return;
 
   await dataService.delete(`/sms/wells/contract/changeorder/delete-cancel/${cntrNo}/${cntrSn}`);

@@ -290,7 +290,7 @@
     <kw-btn
       v-permission:read
       :label="$t('MSG_TXT_CAN_ARTC')+' '+$t('MSG_TXT_SRCH')"
-      :disable="searchDetail.clYn ==='Y'"
+      :disable="searchDetail.clYn ==='N'"
       negative
       dense
       @click="onClickSearchCancel"
@@ -481,7 +481,7 @@
       <kw-btn
         v-permission:delete
         :label="$t('MSG_BTN_DEL')"
-        :disable="searchDetail.clYn ==='Y'"
+        :disable="searchDetail.clYn ==='N'"
         class="ml8"
         @click="onClickDelete"
       />

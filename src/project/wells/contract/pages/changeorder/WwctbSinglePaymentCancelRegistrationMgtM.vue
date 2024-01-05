@@ -250,7 +250,7 @@
       <kw-btn
         v-permission:delete
         :label="$t('MSG_BTN_DEL')"
-        :disable="searchDetail.clYn ==='Y'"
+        :disable="searchDetail.clYn ==='N'"
         class="ml8"
         @click="onClickDelete"
       />
@@ -258,7 +258,7 @@
       <kw-btn
         v-permission:update
         :label="$t('MSG_BTN_MOD')"
-        :disable="searchDetail.clYn ==='Y'"
+        :disable="searchDetail.clYn ==='N'"
         class="ml8"
         primary
         @click="onClickSave"
