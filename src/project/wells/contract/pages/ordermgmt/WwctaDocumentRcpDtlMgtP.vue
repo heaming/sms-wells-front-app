@@ -1739,8 +1739,8 @@ async function fetchData() {
     }
     frmMainData.value.cntrChAkCn = res.data.searchDocumentRcpDtlInqrsResList[0].cntrChAkCn; // 재접수 사유
     if (!isEmpty(frmMainData.value.cntrChAkCn)) {
-      if (frmMainData.value.cntrChPrgsStatCd !== '19'
-       && frmMainData.value.cntrChPrgsStatCd !== '29') { // 제접수/재접수완료가 아닐 경우
+      if (frmMainData.value.cntrChPrgsStatCd !== '80'
+       && frmMainData.value.cntrChPrgsStatCd !== '90') { // 제접수/재접수완료가 아닐 경우
         isSearchCntrChAkCnVisible.value = true;
       }
     }
@@ -2049,7 +2049,7 @@ async function fetchData() {
     isSearchTaskProcsFshVisible.value = true; // 업무처리완료
     isSearchEtcEndVisible.value = true; // 기타종료
     isSearchReReRsonVisible.value = false; // 재접수 사유
-  } else if (frmMainData.value.cntrChPrgsStatCd === '19') { // 재접수 대기
+  } else if (frmMainData.value.cntrChPrgsStatCd === '80') { // 재접수 대기
     isSearchReRegVisible.value = false; // 재접수
     isSearchTaskRegVisible.value = false; // 업무접수
     isSearchTaskProcsFshVisible.value = false; // 업무처리완료

@@ -35,8 +35,8 @@
             :options="[{ codeId: '10', codeName: t('MSG_TXT_RCP_STNB') },
                        { codeId: '20', codeName: t('MSG_TXT_RCP_CPLT') },
                        { codeId: '40', codeName: t('MSG_TXT_BIZ_IN_PRGS') },
-                       { codeId: '19', codeName: t('MSG_TXT_RE_REG') },
-                       { codeId: '29', codeName: t('MSG_TXT_RE_REG_CPLT') },
+                       { codeId: '80', codeName: t('MSG_TXT_RE_REG') },
+                       { codeId: '90', codeName: t('MSG_TXT_RE_REG_CPLT') },
                        { codeId: '50', codeName: t('MSG_TXT_PROCS_FSH') },
                        { codeId: '99', codeName: t('MSG_TXT_ETC_END') }]"
             first-option="all"
