@@ -507,9 +507,6 @@ async function onClickSave() {
   const changedRows2 = gridUtil.getAllRowValues(view2);
   const changedRows = gridUtil.getChangedRowValues(view);
 
-  console.log(changedRows2);
-  // console.log(changedRows);
-
   if (await gridUtil.alertIfIsNotModified(view)) { return; }
 
   if (!await gridUtil.validate(view)) { return; }
@@ -525,9 +522,6 @@ async function onClickSave() {
     data.sellBzsBzrno = changedRows2[0].sellBzsBzrno;
     data.pblBzsBzrno = changedRows2[0].pblBzsBzrno;
   });
-
-  // console.log(dpAmt);
-  // console.log(dpSubAmt);
 
   if (dpAmt !== dpSubAmt) {
     await alert(t('MSG_ALT_DTL_INF_DP_AMT_GAP')); // 상세정보 입금액과 상세현황 입금액이 다릅니다.
@@ -547,16 +541,10 @@ async function onClickSave() {
     data.itgDpNo = itgDpNo.value;
   });
 
-  console.log(changedRows2);
-  console.log(changedRows[0]);
-  console.log(changedRows);
-
   const cachedParam = {
     saveMainReq: changedRows[0],
     SaveMainDtlReq: changedRows,
   };
-
-  console.log(cachedParam);
 
   await dataService.post('/sms/wells/withdrawal/idvrve/bill-deposits/electronic', cachedParam);
 
