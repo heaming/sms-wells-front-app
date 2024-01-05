@@ -99,7 +99,7 @@
           <kw-date-range-picker
             v-model:from="searchParams.stFnlVstFshDtFrom"
             v-model:to="searchParams.edFnlVstFshDtTo"
-            rules="date_range_months:1|required"
+            rules="date_range_months:6|required"
             :label="$t('MSG_TXT_PRCSDT')"
             @update:from="onChangeDate"
             @update:to="onChangeDate"
@@ -244,7 +244,7 @@
             v-model="searchParams.pdGrpCd"
             dense
             first-option="all"
-            :options="codes.PD_GRP_CD"
+            :options="pdGrpCodes"
             @update:model-value="onUpdateProductGroupCode"
           />
         </li>
@@ -394,8 +394,7 @@ const getWareHouses = async () => {
   loginWare.value = [];
 
   const { prtnrNo, stFnlVstFshDtFrom, edFnlVstFshDtTo } = searchParams.value;
-  if (isEmpty(prtnrNo) || isEmpty(stFnlVstFshDtFrom) || isEmpty(edFnlVstFshDtTo)
-    || stFnlVstFshDtFrom.substring(0, 6) !== edFnlVstFshDtTo.substring(0, 6)) return;
+  if (isEmpty(prtnrNo) || isEmpty(stFnlVstFshDtFrom) || isEmpty(edFnlVstFshDtTo)) return;
 
   const res = await dataService.get('/sms/wells/service/returning-goods-store/login-warehouse', { params: { prtnrNo, stFnlVstFshDtFrom, edFnlVstFshDtTo } });
 
@@ -428,12 +427,27 @@ watch(() => searchParams.value.itmKndCd, (val) => {
 });
 
 let cachedParams;
+const filterPdGrp = ['1', '2', '3', '4', '9', '10', '11', '91', '92', '93', '95', '96'];
+
+// 상품군 코드 필터링
+const pdGrpCodes = ref([]);
+let filters = [];
+function pdGrpFilter() {
+  const grpCodes = codes.PD_GRP_CD.filter((v) => filterPdGrp.includes(v.codeId));
+  grpCodes.push({ codeId: '998', codeName: t('MSG_TXT_TT_SPC_MAT_OJ') });
+  grpCodes.push({ codeId: '999', codeName: t('MSG_TXT_ETC') });
+
+  filters = grpCodes.map((v) => ({ name: v.codeId, criteria: `value = '${v.codeId}'` }));
+
+  pdGrpCodes.value = grpCodes;
+}
 
 // 상품그룹코드 필터링
-const filters = codes.PD_GRP_CD.map((v) => ({ name: v.codeId, criteria: `value = '${v.codeId}'` }));
 function onUpdateProductGroupCode(val) {
   const view = grdMainRef.value.getView();
+  // 필터 초기화
   view.activateAllColumnFilters('itemGr', false);
+  // 필터 처리
   view.activateColumnFilters('itemGr', [val], true);
 }
 
@@ -441,11 +455,12 @@ await Promise.all([
   onChangeItmKndCd(),
   // 창고조회
   getWareHouses(),
+  pdGrpFilter(),
 ]);
 
 // 조회 이벤트
 async function fetchData() {
-  const res = await dataService.get('/sms/wells/service/returning-goods-store', { params: { ...cachedParams } });
+  const res = await dataService.get('/sms/wells/service/returning-goods-store', { params: { ...cachedParams }, timeout: 300000 });
   const goods = res.data;
 
   totalCount.value = goods.length;
@@ -453,18 +468,13 @@ async function fetchData() {
   view.getDataSource().setRows(goods);
 
   searchParams.value.pdGrpCd = '';
-
   view.autoFiltersRefresh('itemGr', false);
+  // 필터 등록
   view.setColumnFilters('itemGr', filters, true);
 
   let count = 0;
   if (searchParams.value.chkErrorCheck === 'N') {
-    for (let i = 0; i < goods.length; i += 1) {
-      const rowErrorCheck = goods[i].errorCheck;
-      if (rowErrorCheck > 0) {
-        count += 1;
-      }
-    }
+    count = goods.filter((v) => v.errorCheck === '1').length;
     if (count > 0) {
       // 등급오류건이 {0}건 존재합니다.
       await alert(t('MSG_ALT_GD_ERR_CT_EXST', [count]));
@@ -475,12 +485,12 @@ async function fetchData() {
 // 엑셀다운로드 버튼 클릭 이벤트
 async function onClickExcelDownload() {
   const view = grdMainRef.value.getView();
-  const res = await dataService.get('/sms/wells/service/returning-goods-store/excel-download', { params: cachedParams });
+
   await gridUtil.exportView(view, {
     fileName: currentRoute.value.meta.menuName,
     timePostfix: true,
     checkBar: 'hidden',
-    exportData: res.data,
+    exportData: gridUtil.getAllRowValues(view),
   });
 }
 
@@ -535,7 +545,7 @@ async function onClickSave() {
       }
     }
   }
-  await dataService.post('/sms/wells/service/returning-goods-store', checkedRows);
+  await dataService.post('/sms/wells/service/returning-goods-store', checkedRows, { timeout: 300000 });
 
   notify(t('MSG_ALT_SAVE_DATA'));
 
@@ -573,7 +583,7 @@ async function onClickRtnGd() {
       return;
     }
   }
-  await dataService.post('/sms/wells/service/returning-goods-store/confirmation-type', checkedRows);
+  await dataService.post('/sms/wells/service/returning-goods-store/confirmation-type', checkedRows, { timeout: 300000 });
   notify(t('MSG_ALT_SAVE_DATA'));
   await fetchData();
 }
@@ -652,7 +662,6 @@ const initGrdMain = defineGrid((data, view) => {
     { fieldName: 'itmPdCd' }, // 품목상품코드,
     { fieldName: 'cstSvAsnNo' }, // 고객서비스배정내역,
     { fieldName: 'itmPdNm' }, // 품목상품명
-    { fieldName: 'itemGrNm' }, // 품목그룹명
     { fieldName: 'itemGr' }, // 품목그룹
     { fieldName: 'istDt' }, // 설치일자
     { fieldName: 'reqdDt' }, // 철거요청일자
@@ -709,11 +718,10 @@ const initGrdMain = defineGrid((data, view) => {
     { fieldName: 'sapCd', header: t('MSG_TXT_SAP_CD'), width: '150', styleName: 'text-center' },
     { fieldName: 'itmPdCd', header: t('MSG_TXT_ITM_CD'), width: '150', styleName: 'text-center' },
     { fieldName: 'itmPdNm', header: t('TXT_MSG_MAT_PD_NM'), width: '170', styleName: 'text-left' },
-    { fieldName: 'itemGrNm', header: t('MSG_TXT_PD_GRP'), width: '170', styleName: 'text-left', visible: false },
     { fieldName: 'itemGr', header: t('MSG_TXT_PD_GRP_CD'), width: '170', styleName: 'text-left', visible: false, autoFilter: false },
     { fieldName: 'istDt', header: t('MSG_TXT_IST_DT'), width: '120', styleName: 'text-center', datetimeFormat: 'date' },
     { fieldName: 'reqdDt', header: t('MSG_TXT_REQD_RQDT'), width: '120', styleName: 'text-center', datetimeFormat: 'date' },
-    { fieldName: 'vstFshDt', header: t('MSG_TXT_WK_DT'), width: '170', styleName: 'text-center', datetimeFormat: 'date' },
+    { fieldName: 'vstFshDt', header: t('MSG_TXT_WK_DT'), width: '170', styleName: 'text-center' },
     { fieldName: 'rtngdConfYn',
       header: t('MSG_TXT_RTNGD_CONF_YN'),
       width: '100',
@@ -779,7 +787,6 @@ const initGrdMain = defineGrid((data, view) => {
     'sapCd',
     'itmPdCd',
     'itmPdNm',
-    'itemGrNm',
     'itemGr',
     'istDt',
     'reqdDt',
