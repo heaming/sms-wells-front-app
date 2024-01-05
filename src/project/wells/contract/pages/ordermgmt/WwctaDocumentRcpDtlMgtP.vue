@@ -2109,7 +2109,7 @@ async function onClickReRegRson() {
 
   if (isOk) {
     console.log(isOk);
-    saveParams.value.cntrChPrgsStatCd = '10'; // 접수대기
+    saveParams.value.cntrChPrgsStatCd = '80'; // 계약변경진행상태코드(재접수)
     await saveData();
   }
 }
