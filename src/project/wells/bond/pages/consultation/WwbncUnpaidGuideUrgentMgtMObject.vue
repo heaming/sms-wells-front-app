@@ -100,7 +100,7 @@
         />
       </kw-search-item>
       <kw-search-item
-        :label="t('MSG_TXT_TOT_NPD_AMT')"
+        :label="t('MSG_TXT_OJ_BLAM')"
         required
       >
         <kw-input
@@ -108,7 +108,7 @@
           :regex="/^[0-9]*$/i"
           rules="required"
           maxlength="10"
-          :label="t('MSG_TXT_TOT_NPD_AMT')"
+          :label="t('MSG_TXT_OJ_BLAM')"
         />
         <span>~</span>
         <kw-input
@@ -116,7 +116,7 @@
           :regex="/^[0-9]*$/i"
           rules="required"
           maxlength="10"
-          :label="t('MSG_TXT_TOT_NPD_AMT')"
+          :label="t('MSG_TXT_OJ_BLAM')"
         />
       </kw-search-item>
       <kw-search-item
