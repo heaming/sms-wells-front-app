@@ -48,6 +48,7 @@
         >
           <kw-date-picker
             v-model="searchParams.searchDt"
+            :label="$t('MSG_TXT_BASE_YM')"
             rules="required"
             type="month"
           />
