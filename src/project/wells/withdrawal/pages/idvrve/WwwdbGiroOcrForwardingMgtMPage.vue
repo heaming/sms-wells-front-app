@@ -62,7 +62,10 @@
           @change="fetchData"
         />
       </template>
+
+      <!-- label="임시 지로 수신처 관리 팝업" -->
       <kw-btn
+        v-if="false"
         v-permission:create
         :label="t('MSG_BTN_TEMP_GIRO_PLRCV_MNGT_POP')"
         negative
@@ -70,13 +73,14 @@
         @click="onClickPopup()"
       />
       <kw-btn
+        v-if="false"
         v-permission:create
         :label="t('통합입금번호조회 임시')"
         negative
         dense
         @click="onClickPopup2()"
       />
-      <!-- label="임시 지로 수신처 관리 팝업" -->
+
       <kw-btn
         v-permission:delete
         dense
