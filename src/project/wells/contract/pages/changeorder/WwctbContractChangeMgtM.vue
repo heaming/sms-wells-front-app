@@ -162,9 +162,14 @@
               <span>{{ getGubunNm(item) }}</span>
             </li>
             <li>
-              <!-- 설치일, 방문일 -->
+              <!-- 설치일/방문일 -->
               <p>{{ getIstDtMsg(item.hclsfRefPdClsfVal) }}</p>
               <span> {{ isEmpty(item.istDt) ? '-' : stringUtil.getDateFormat(item.istDt) }} </span>
+            </li>
+            <li>
+              <!-- 설치예정일/방문예정일 -->
+              <p>{{ getVstSchDtMsg(item.hclsfRefPdClsfVal) }}</p>
+              <span> {{ isEmpty(item.vstSchDt) ? '-' : stringUtil.getDateFormat(item.vstSchDt) }} </span>
             </li>
           </ul>
           <!-- <kw-separator
@@ -431,11 +436,25 @@ function getGubunNm(item) {
 function getIstDtMsg(hclsfRefPdClsfVal) {
   let msg = '';
   switch (hclsfRefPdClsfVal) {
-    case '06': // 설치일
+    case '06': // 방문일
+      msg = t('MSG_TXT_VISIT_DATE');
+      break;
+    default: // 설치일
       msg = t('MSG_TXT_INST_DT');
       break;
-    default: // 방문일
-      msg = t('MSG_TXT_VISIT_DATE');
+  }
+  return msg;
+}
+
+// getIstDtMsg: 설치예정일, 방문예정일 라벨값
+function getVstSchDtMsg(hclsfRefPdClsfVal) {
+  let msg = '';
+  switch (hclsfRefPdClsfVal) {
+    case '06': // 방문예정일
+      msg = t('MSG_TXT_VST_EXP_DT');
+      break;
+    default: // 설치예정일
+      msg = t('MSG_TXT_IST_DUEDT');
       break;
   }
   return msg;
