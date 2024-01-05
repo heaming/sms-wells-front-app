@@ -14,7 +14,10 @@
 --->
 <template>
   <kw-page>
-    <kw-search @search="onClickSearch">
+    <kw-search
+      @search="onClickSearch"
+      @reset="onClickResetSearch"
+    >
       <kw-search-row>
         <kw-search-item
           :label="$t('MSG_TXT_INQR_DV')"
@@ -120,6 +123,7 @@
         <!-- 번호 -->
       </kw-search-row>
     </kw-search>
+
     <div class="result-area">
       <kw-action-top>
         <template #left>
@@ -127,6 +131,16 @@
             :total-count="totalCount"
           />
           <span class="ml8">{{ $t('MSG_TXT_UNIT_CASES') }}</span>
+          <kw-btn
+            dense
+            secondry
+            icon="redo"
+            class="mx8"
+            @click="onChangePerfDvCd()"
+          />
+          <span class="ml8">{{ !isEmpty(txtFnlMdfcDtm)?
+            $t('MSG_TXT_ACC_NINC') + $t('MSG_TXT_AGRG') + $t('MSG_TXT_DTM') + ' : ' +
+            stringUtil.getDatetimeFormat(txtFnlMdfcDtm, 'YYYY-MM-DD HH:mm:ss'):'' }}</span>
         </template>
         <kw-btn
           v-permission:download
@@ -179,7 +193,7 @@
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
-import { defineGrid, getComponentType, gridUtil, useDataService, codeUtil, useGlobal } from 'kw-lib';
+import { defineGrid, getComponentType, gridUtil, useDataService, codeUtil, useGlobal, stringUtil } from 'kw-lib';
 import dayjs from 'dayjs';
 import { cloneDeep, isEmpty } from 'lodash-es';
 import ZwogLevelSelect from '~sms-common/organization/components/ZwogLevelSelect.vue';
@@ -200,6 +214,7 @@ const grdCheckRef = ref(getComponentType('KwGrid'));
 const isCancelVisible = ref(true);
 const isSellVisible = ref(false);
 const isCheckVisible = ref(false);
+const txtFnlMdfcDtm = ref('');
 
 const searchParams = ref({
   perfYm: date.add(-1, 'month').format('YYYYMM'),
@@ -225,6 +240,15 @@ const codes = await codeUtil.getMultiCodes(
 );
 
 let cachedParams;
+
+async function fetchBatchTime() {
+  txtFnlMdfcDtm.value = '';
+
+  const res = await dataService.get('/sms/wells/fee/account-net-increase/batch-time', { params: { ...cachedParams } });
+
+  txtFnlMdfcDtm.value = res.data.fnlMdfcDtm;
+  console.log(res.data.fnlMdfcDtm);
+}
 
 async function fetchData(gridId) {
   let url;
@@ -267,6 +291,12 @@ async function onClickSearch() {
   cachedParams = cloneDeep(searchParams.value);
 
   await fetchData(gridId);
+  await fetchBatchTime();
+}
+
+async function onChangePerfDvCd() {
+  cachedParams = cloneDeep(searchParams.value);
+  await fetchBatchTime();
 }
 
 async function onClickSearchNo() {
@@ -326,6 +356,14 @@ async function onclickAgrg() {
     onClickSearch();
   }
 }
+
+async function onClickResetSearch() {
+  onChangePerfDvCd();
+}
+
+onMounted(async () => {
+  onChangePerfDvCd();
+});
 
 // -------------------------------------------------------------------------------------------------
 // Initialize Grid
