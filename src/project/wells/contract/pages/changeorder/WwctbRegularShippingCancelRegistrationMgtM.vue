@@ -227,7 +227,7 @@
           <kw-form-row>
             <!-- row3 매출금액 -->
             <kw-form-item :label="$t('MSG_TXT_SL_AMT')">
-              <p>{{ stringUtil.getNumberWithComma(searchDetail.thmSlSumAmt??'') }}</p>
+              <p>{{ stringUtil.getNumberWithComma(searchDetail.slSumAmt??'') }}</p>
             </kw-form-item>
             <!-- row3 매출VAT -->
             <kw-form-item :label="$t('MSG_TXT_SL_VAT')">
@@ -579,6 +579,7 @@ async function onClickSearchCancel() {
     cancelDt: searchDetail.rsgFshDt,
     adCtrAmt: searchDetail.adCtrAmt ?? 0,
     slCtrAmt: searchDetail.slCtrAmt ?? 0,
+    canCtrAmt: searchDetail.canCtrAmt ?? 0,
     dscDdctam: searchDetail.dscDdctam ?? 0,
     filtDdctam: searchDetail.filtDdctam ?? 0,
   });
