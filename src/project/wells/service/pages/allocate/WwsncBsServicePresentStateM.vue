@@ -162,6 +162,7 @@ const dataService = useDataService();
 const store = useStore();
 const userInfo = store.getters['meta/getUserInfo'];
 const wmAuth = ref((userInfo.rsbNm === '매니저' || userInfo.rsbNm === '플래너') && userInfo.tenantCd === 'W' && userInfo.ogTpCd !== 'HR1');
+console.log('wmAuth.value >>>', wmAuth.value);
 
 // const { getters } = useStore();
 // const userInfo = getters['meta/getUserInfo'];
@@ -335,12 +336,13 @@ const initListGrid = defineGrid((data, view) => {
   // 그리드 필드 클릭시
   view.onCellItemClicked = async (grid, clickData) => {
     // 계약번호 클릭시
-    if (clickData.column === 'pdctPdCd') {
-      // eslint-disable-next-line max-len
-      // const param = { cntrNo: grid.getDataSource().getValue(clickData.dataRow, 'cntrNo'), cntrSn: grid.getDataSource().getValue(clickData.dataRow, 'cntrSn') };
-      // router.push({ path: '/service/wwsnb-bs-manager-schedule-date', state: { stateParam: param } });
-      router.push({ path: '/service/wwsnb-bs-manager-schedule-date' });
-    } else if (clickData.column === 'mngtSchd') {
+    // if (clickData.column === 'pdctPdCd') {
+    // eslint-disable-next-line max-len
+    // const param = { cntrNo: grid.getDataSource().getValue(clickData.dataRow, 'cntrNo'), cntrSn: grid.getDataSource().getValue(clickData.dataRow, 'cntrSn') };
+    // router.push({ path: '/service/wwsnb-bs-manager-schedule-date', state: { stateParam: param } });
+    // router.push({ path: '/service/wwsnb-bs-manager-schedule-date' });
+    // } else if (clickData.column === 'mngtSchd') {
+    if (clickData.column === 'mngtSchd') {
       const prtnrNo = grid.getValue(clickData.itemIndex, 'prtnrNo');
       const prtnrKnm = grid.getValue(clickData.itemIndex, 'prtnrKnm');
       const ogId = grid.getValue(clickData.itemIndex, 'ogId');
