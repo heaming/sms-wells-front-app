@@ -798,6 +798,7 @@ function initGrid(data, view) {
     { fieldName: 'nomDscAmt', visible: false }, // [정상할인]
     { fieldName: 'spmtDscAmt', visible: false }, // [추가할인]
     { fieldName: 'slCtrAmt', visible: false }, // [매출조정금액]
+    { fieldName: 'canCtrAmt', visible: false }, // [취소조정금액]
     { fieldName: 'thmSlSumAmt', visible: false }, // [매출금액]
     { fieldName: 'slSumVat', visible: false }, // [매출VAT]
     { fieldName: 'slAggAmt', visible: false }, // [매출누계]
