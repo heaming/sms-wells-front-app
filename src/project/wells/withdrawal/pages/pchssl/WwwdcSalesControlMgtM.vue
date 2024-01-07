@@ -529,7 +529,11 @@ async function onClickSave() {
   const unique = [];
   const duplicates = rowValues.filter((item) => {
     if (unique.find((i) => (i.cntrDtlNo === item.cntrDtlNo)
-    && (i.slCtrStrtYm === item.slCtrStrtYm) && (i.slCtrEndYm === item.slCtrEndYm))) {
+    && (i.slCtrStrtYm === item.slCtrStrtYm)
+    && (i.slCtrEndYm === item.slCtrEndYm)
+    && (i.slCtrSellTpCd === item.slCtrSellTpCd)
+    && (i.slCtrMtrDvCd === item.slCtrMtrDvCd)
+    && (i.slCtrMtrTpCd === item.slCtrMtrTpCd))) {
       return true;
     }
     unique.push(item);
