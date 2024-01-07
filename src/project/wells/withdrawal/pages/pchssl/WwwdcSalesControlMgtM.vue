@@ -422,7 +422,7 @@ async function onClickRemove() {
 
   if (deletedRows.length > 0) {
     await dataService.delete(`${apiUri}/delete`, { data: deletedRows });
-    grdMainRef.value.getData().clearRows();
+
     await alert(t('MSG_ALT_DELETED')); // 삭제 되었습니다.
     await fetchData();
   }
