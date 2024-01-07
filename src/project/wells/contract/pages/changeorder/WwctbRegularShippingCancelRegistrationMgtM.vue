@@ -337,7 +337,7 @@
       </kw-form-item>
       <!-- row2 당월입금 (mapping : ??)-->
       <kw-form-item :label="$t('MSG_TXT_THM_DP')">
-        <p>{{ stringUtil.getNumberWithComma(searchDetail.null??'') }}</p>
+        <p>{{ stringUtil.getNumberWithComma(searchDetail.thmPaiam??'') }}</p>
       </kw-form-item>
       <!-- row2 선수총액 -->
       <kw-form-item :label="$t('MSG_TXT_PRPD_TAM')">
