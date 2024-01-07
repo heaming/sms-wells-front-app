@@ -364,10 +364,10 @@ async function onClickChkboxDetail() {
   }
 }
 
-watch(() => searchParams.value.searchGubun, async (val) => {
-  if (val === '3') {
+watch(() => searchParams.value.searchGubun, async (val, oldVal) => {
+  if (val === '3' && oldVal !== '3') {
     searchParams.value.baseYm = now.format('YYYY');
-  } else {
+  } else if (val !== '3' && oldVal === '3') {
     searchParams.value.baseYm = now.subtract(1, 'month').format('YYYYMM');
   }
 }, { immediate: true });
