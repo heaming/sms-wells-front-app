@@ -192,11 +192,26 @@ async function initMaterialGrid(data, view) {
       dataType: 'number',
     },
     // 판매금액
-    { fieldName: 'fnlVal', header: t('MSG_TXT_SALE_PRICE'), width: '107', styleName: 'text-right', dataType: 'number' },
+    { fieldName: 'fnlVal',
+      header: t('MSG_TXT_SALE_PRICE'),
+      width: '107',
+      styleName: 'text-right',
+      numberFormat: '#,##0.##',
+      dataType: 'number' },
     // 공급가액
-    { fieldName: 'splAmt', header: t('MSG_TXT_SUPPLY_AMOUNT'), width: '107', styleName: 'text-right', dataType: 'number' },
+    { fieldName: 'splAmt',
+      header: t('MSG_TXT_SUPPLY_AMOUNT'),
+      width: '107',
+      styleName: 'text-right',
+      numberFormat: '#,##0.##',
+      dataType: 'number' },
     // 부가세액
-    { fieldName: 'vat', header: t('MSG_TXT_VAT_AMOUNT'), width: '107', styleName: 'text-right', dataType: 'number' },
+    { fieldName: 'vat',
+      header: t('MSG_TXT_VAT_AMOUNT'),
+      width: '107',
+      styleName: 'text-right',
+      numberFormat: '#,##0.##',
+      dataType: 'number' },
     // 안분비율(%)
     { fieldName: 'diviRat',
       header: t('MSG_TXT_PROPORTIONAL_DV_RT'),
@@ -209,6 +224,7 @@ async function initMaterialGrid(data, view) {
       header: t('MSG_TXT_NOR_PRC_AMO'),
       width: '107',
       styleName: 'text-right',
+      numberFormat: '#,##0.##',
       dataType: 'number',
     },
     // 잔액산입

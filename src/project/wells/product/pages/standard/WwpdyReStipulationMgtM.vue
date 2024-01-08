@@ -187,7 +187,7 @@ async function fetchData() {
   const res = await dataService.get(baseUrl, { params: { ...cachedParams, ...pageInfo.value } });
   const { list: restipulations, pageInfo: pagingResult } = res.data;
   pageInfo.value = pagingResult;
-
+  console.log('restipulations : ', restipulations);
   const view = grdMainRef.value.getView();
   view.getDataSource().setRows(restipulations);
   view.rowIndicator.indexOffset = gridUtil.getPageIndexOffset(pageInfo);
@@ -397,7 +397,6 @@ C4    OOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO
 // -------------------------------------------------------------------------------------------------
 const initGrdMain = defineGrid((data, view) => {
   const numberEditor3 = { type: 'number', positiveOnly: true, editFormat: '#,##0', maxLength: 3 };
-  const numberEditor5 = { type: 'number', positiveOnly: true, editFormat: '#,##0', maxLength: 5 };
   const numberEditor20 = { type: 'number', positiveOnly: true, editFormat: '#,##0', maxLength: 10 };
   const numberForamt = '#,##0';
 
@@ -436,7 +435,13 @@ const initGrdMain = defineGrid((data, view) => {
     { fieldName: 'rcpEndMcn', header: t('MSG_TIT_RCPT_END_MONTHS', null, '접수종료차월'), width: '100', styleName: 'text-right', editor: numberEditor3 },
     { fieldName: 'rstlDutyMcn', header: t('MSG_TXT_DUTY_PTRM', null, '의무기간'), width: '80', styleName: 'text-right', editor: numberEditor3 },
 
-    { fieldName: 'ackmtCt', header: t('MSG_TXT_PD_ACC_CNT', null, '인정건수'), width: '100', styleName: 'text-right', editor: numberEditor5, dataType: 'number', numberFormat: numberForamt },
+    { fieldName: 'ackmtCt',
+      header: t('MSG_TXT_PD_ACC_CNT', null, '인정건수'),
+      width: '100',
+      styleName: 'text-right',
+      numberFormat: '#,##0.##',
+      editor: { type: 'number', editFormat: '#,##0.##', maxLength: 11, positiveOnly: true, maxLengthExceptComma: true },
+      dataType: 'number' },
     { fieldName: 'ackmtAmt', header: t('MSG_TXT_PD_ACC_RSLT', null, '인정실적'), width: '100', styleName: 'text-right', editor: numberEditor20, dataType: 'number', numberFormat: numberForamt },
     { fieldName: 'feeAckmtBaseAmt', header: t('MSG_TXT_PD_STD_FEE', null, '기준수수료'), width: '100', styleName: 'text-right', editor: numberEditor20, dataType: 'number', numberFormat: numberForamt },
     { fieldName: 'feeFxamYn', header: t('MSG_TXT_FXAM_YN', null, '정액여부'), width: '90', options: codes.COD_YN, editor: { type: 'dropdown' }, styleName: 'text-center' },
