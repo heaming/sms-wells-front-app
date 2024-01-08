@@ -447,7 +447,7 @@ const initGrdDetail = defineGrid((data, view) => {
 });
 
 const selectDpKndCd = { // 조회구분
-  options: [{ codeId: '1', codeName: t('MSG_TXT_SNGL_PMNT') }, { codeId: '2', codeName: t('MSG_TXT_SPAY_EXCP') }, { codeId: '5', codeName: t('MSG_TXT_DLQ_ADAMT') }],
+  options: [{ codeId: '1', codeName: t('MSG_TXT_SNGL_PMNT') }, { codeId: '2', codeName: t('MSG_TXT_SPAY_EXCP') }],
 };
 
 const selectAgrgDv = { // 집계구분
