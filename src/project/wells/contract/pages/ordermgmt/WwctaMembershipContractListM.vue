@@ -606,6 +606,9 @@ const initGridMembershipContractList = defineGrid((data, view) => {
     { fieldName: 'rveCd' }, // 수납코드
     { fieldName: 'ichrUsrId' }, // 업무담당사번
     { fieldName: 'aftnInf' }, // 이체계좌/카드
+    { fieldName: 'dpTpCd' }, // 계좌정보-납부방식유형코드
+    { fieldName: 'acnoEncr' }, // 계좌정보-계좌번호
+    { fieldName: 'crcdnoEncr' }, // 계좌정보-카드번호
     { fieldName: 'mpyBsdt' }, // 이체일
     { fieldName: 'cntrCstNo' }, // 고객번호
     { fieldName: 'cntrCralTno' }, // 계약자 휴대폰번호
@@ -645,7 +648,7 @@ const initGridMembershipContractList = defineGrid((data, view) => {
     { fieldName: 'ordrInfoView', header: t('MSG_TXT_ODER_INF_VIEW'), width: '130', styleName: 'text-center', renderer: { type: 'button', hideWhenEmpty: false }, displayCallback: () => t('MSG_TXT_ODER_INF_VIEW') }, // 주문정보 보기
     { fieldName: 'cntrSn', header: t('MSG_TXT_SN'), width: '130', styleName: 'text-center' }, // 순번
     { fieldName: 'cstKnm', header: t('MSG_TXT_CNTOR_NM'), width: '138', styleName: 'text-left' }, // 계약자명
-    { fieldName: 'rcgvpKnmEncr', header: t('MSG_TXT_IST_NM'), width: '138', styleName: 'text-left' }, // 설치자명
+    { fieldName: 'rcgvpKnm', header: t('MSG_TXT_IST_NM'), width: '138', styleName: 'text-left' }, // 설치자명
     { fieldName: 'sellTpDtlNm', header: t('MSG_TXT_CNTR_DV'), width: '138' }, // 계약구분
     { fieldName: 'mshDvNm', header: t('MSG_TXT_MSH_DV'), width: '138' }, // 멤버십구분
     { fieldName: 'pdClsfNm', header: t('MSG_TXT_PRDT_CATE'), width: '138' }, // 상품분류
@@ -692,11 +695,26 @@ const initGridMembershipContractList = defineGrid((data, view) => {
     { fieldName: 'cttRsNmUsrId', header: t('MSG_TXT_CTT_EPNO'), width: '136', styleName: 'text-center' }, // 컨택사번
     { fieldName: 'sellInflwChnlDtlNm', header: t('MSG_TXT_SEL_TYPE'), width: '136' }, // 판매유형
     { fieldName: 'sellPrtnrNo', header: t('MSG_TXT_PRTNR_CD'), width: '136', styleName: 'text-center' }, // 파트너코드
-    { fieldName: 'prtnrKnmEncr', header: t('MSG_TXT_PTNR_NAME'), width: '136', styleName: 'text-center' }, // 파트너명
+    { fieldName: 'prtnrKnm', header: t('MSG_TXT_PTNR_NAME'), width: '136', styleName: 'text-center' }, // 파트너명
     { fieldName: 'ogCd', header: t('MSG_TXT_OG_CD'), width: '136', styleName: 'text-center' }, // 조직코드
     { fieldName: 'rveCd', header: t('MSG_TXT_RVE_CD'), width: '136', styleName: 'text-center' }, // 수납코드
     { fieldName: 'ichrUsrId', header: `${t('MSG_TXT_BIZ_ICHR')}${t('MSG_TXT_EPNO')}`, width: '136', styleName: 'text-center' }, // 업무담당사번
-    { fieldName: 'aftnInf', header: t('MSG_TXT_FNT_AC_CARD'), width: '136', styleName: 'text-center' }, // 이체계좌/카드
+    { fieldName: 'aftnInf',
+      header: t('MSG_TXT_FNT_AC_CARD'),
+      width: '138',
+      styleName: 'text-left',
+      displayCallback(grid, index) {
+        const { dpTpCd } = grid.getValues(index.itemIndex);
+        const { acnoEncr } = grid.getValues(index.itemIndex);
+        const { crcdnoEncr } = grid.getValues(index.itemIndex);
+        if (dpTpCd === '0102') {
+          return acnoEncr;
+        }
+        if (dpTpCd === '0203') {
+          return crcdnoEncr;
+        }
+      },
+    }, // 이체계좌/카드
     { fieldName: 'mpyBsdt', header: t('MSG_TXT_FTD'), width: '136', styleName: 'text-center' }, // 이체일
     { fieldName: 'cntrCstNo', header: t('MSG_TXT_CST_NO'), width: '136', styleName: 'text-center' }, // 고객번호
     {
@@ -716,7 +734,7 @@ const initGridMembershipContractList = defineGrid((data, view) => {
     }, // 설치자 휴대전화번호
     { fieldName: 'istAdrZip', header: `${t('MSG_TXT_INSTR')}${t('MSG_TXT_ZIP')}`, width: '136', styleName: 'text-center' }, // 설치자우편번호
     { fieldName: 'istRnadr', header: t('MSG_TXT_STD_ADDR'), width: '270', styleName: 'text-left' }, // 설치자기준주소
-    { fieldName: 'istRdadrEncr', header: t('MSG_TXT_DETAIL_ADDR'), width: '230', styleName: 'text-left' }, // 설치자상세주소
+    { fieldName: 'istRdadr', header: t('MSG_TXT_DETAIL_ADDR'), width: '230', styleName: 'text-left' }, // 설치자상세주소
     { fieldName: 'lcck05', header: t('MSG_TXT_SPAY_IMMDT_RECAP_YN'), width: '170', styleName: 'text-center' }, // 일시불즉시유상M여부
     { fieldName: 'combiDv', header: t('MSG_TXT_RNTL_SPAY_COMBI_DV'), width: '191', styleName: 'text-center' }, // 렌탈,일시불결합구분
     { fieldName: 'sdingCntrNo', header: t('MSG_TXT_WELLS_FARM_CNTR_NO'), width: '136', styleName: 'text-center' }, // 웰스팜 계약번호
