@@ -267,6 +267,13 @@ const onClickPrdRemove = async () => {
 
 watch(() => [prdSearchParams.value.evlOgTpCd], async () => {
   evlPdDvCdList.value = codes.EVL_PD_DV_CD.filter((v) => [prdSearchParams.value.evlOgTpCd].includes(v.prtsCodeId));
+  const view = prdGrdMainRef.value.getView();
+  view.setColumn({
+    name: 'evlPdDvCd',
+    styleName: 'text-left',
+    editor: { type: 'list' },
+    options: evlPdDvCdList.value,
+  });
 });
 
 // -------------------------------------------------------------------------------------------------
@@ -304,7 +311,7 @@ const initPrdGrdMain = defineGrid((data, view) => {
       width: '100',
       styleName: 'text-center',
       rules: 'required',
-      options: codes.EVL_PD_DV_CD,
+      options: evlPdDvCdList,
       editor: { type: 'list' },
     },
     { fieldName: 'pdCd', header: t('MSG_TXT_PRDT_CODE'), width: '100', styleName: 'text-center', rules: 'required' },
