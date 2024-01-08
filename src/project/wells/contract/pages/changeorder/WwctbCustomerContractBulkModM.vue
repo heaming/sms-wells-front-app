@@ -149,13 +149,13 @@
         </template>
       </kw-action-top>
       <kw-grid
-        v-if="searchParams.prcDvCd !== '4'"
+        v-show="searchParams.prcDvCd !== '4'"
         ref="grdCustomerRef"
         :visible-rows="10"
         @init="initCustomerGrid"
       />
       <kw-grid
-        v-if="searchParams.prcDvCd === '4'"
+        v-show="searchParams.prcDvCd === '4'"
         ref="grdPartnerRef"
         :visible-rows="10"
         @init="initPartnerGrid"
@@ -642,8 +642,6 @@ const frmCrcdRef = ref();
 const frmTxinvRef = ref();
 const frmPlnnrRef = ref();
 
-let orgPrcDvCd;
-
 const codes = await codeUtil.getMultiCodes(
   'SELL_TP_CD', // 판매유형코드
   'BNK_DV_3_ACD', // 은행구분3앱코드
@@ -736,17 +734,6 @@ function initFieldParams(gubun) {
   if (!isEmpty(frmPlnnrRef.value)) {
     frmPlnnrRef.value.init();
   }
-
-  if (isEmpty(orgPrcDvCd)) {
-    if (searchParams.value.prcDvCd === '4') {
-      totalCount.value = 0;
-    }
-  } else if (
-    ((orgPrcDvCd === '1' || orgPrcDvCd === '3') && searchParams.value.prcDvCd === '4')
-      || (orgPrcDvCd === '4')) {
-    totalCount.value = 0;
-  }
-  orgPrcDvCd = searchParams.value.prcDvCd;
 }
 
 // 이체구분 콤보값 변경 이벤트
@@ -761,8 +748,6 @@ function initFieldParams(gubun) {
 
 // 고객번호 검색 버튼 클릭
 async function onClickCstSearch() {
-  console.log(searchParams.value.cntrCstNo);
-
   const { result, payload } = await modal({
     component: 'ZwcsaCustomerListP',
     componentProps: { cstNo: searchParams.value.cntrCstNo },
@@ -825,6 +810,7 @@ async function fetchData() {
     const res = await dataService.get('/sms/wells/contract/changeorder/change-automatic-fnts', { params: cachedParams });
     totalCount.value = res.data.length;
     const viewCustomer = grdCustomerRef.value.getView();
+
     viewCustomer.getDataSource().setRows(res.data);
     viewCustomer.resetCurrent();
   }
@@ -860,6 +846,20 @@ async function onClickSearch() {
 async function onChangePrcCd() {
   initFieldParams();
 }
+
+watch(() => searchParams.value.prcDvCd, async (val) => {
+  let currentGrid = '';
+  switch (val) {
+    case '4':
+      currentGrid = grdPartnerRef.value.getView();
+      break;
+    default:
+      currentGrid = grdCustomerRef.value.getView();
+      break;
+  }
+  currentGrid.getDataSource().clearRows();
+  totalCount.value = 0;
+}, { /* immediate: true */ });
 
 // 설치자명 변경 클릭 이벤트
 async function onClickEditIstNm() {
