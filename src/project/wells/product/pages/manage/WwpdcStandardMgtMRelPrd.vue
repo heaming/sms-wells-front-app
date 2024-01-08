@@ -607,20 +607,21 @@ async function initMaterialGrid(data, view) {
       width: '107',
       styleName: 'text-right',
       editor: { type: 'number', editFormat: '#,##0.##', maxLength: 12, positiveOnly: true, maxLengthExceptComma: true },
+      numberFormat: '#,##0.##',
       dataType: 'number' },
     // 공급가액
     { fieldName: 'splAmt',
       header: t('MSG_TXT_SUPPLY_AMOUNT'),
       width: '107',
       styleName: 'text-right',
-      editor: { type: 'number', editFormat: '#,##0.##', maxLength: 12, positiveOnly: true, maxLengthExceptComma: true },
+      editor: { type: 'number', editFormat: '#,##0', maxLength: 12, positiveOnly: true, maxLengthExceptComma: true },
       dataType: 'number' },
     // 부가세액
     { fieldName: 'vat',
       header: t('MSG_TXT_VAT_AMOUNT'),
       width: '107',
       styleName: 'text-right',
-      editor: { type: 'number', editFormat: '#,##0.##', maxLength: 12, positiveOnly: true, maxLengthExceptComma: true },
+      editor: { type: 'number', editFormat: '#,##0', maxLength: 12, positiveOnly: true, maxLengthExceptComma: true },
       dataType: 'number' },
     // 안분비율(%)
     { fieldName: 'diviRat',
@@ -636,6 +637,7 @@ async function initMaterialGrid(data, view) {
       width: '107',
       styleName: 'text-right',
       editor: { type: 'number', editFormat: '#,##0.##', maxLength: 12, positiveOnly: true, maxLengthExceptComma: true },
+      numberFormat: '#,##0.##',
       dataType: 'number' },
     // 잔액산입
     { fieldName: 'blamInptYn',
