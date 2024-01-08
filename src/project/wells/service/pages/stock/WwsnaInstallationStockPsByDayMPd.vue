@@ -295,12 +295,13 @@ async function onClickExcelDownload() {
   const view = grdPdRef.value.getView();
 
   // eslint-disable-next-line max-len
-  const res = await dataService.get('/sms/wells/service/installation-stock-by-day/product/excel-download', { params: searchParams.value });
+  const res = await dataService.get('/sms/wells/service/installation-stock-by-day/product/paging', { params: { ...cachedParams, ...pageInfo.value } });
+  const { list: state } = res.data;
 
   await gridUtil.exportView(view, {
     fileName: currentRoute.value.meta.menuName,
     timePostfix: true,
-    exportData: res.data,
+    exportData: state,
   });
 }
 
