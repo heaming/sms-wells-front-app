@@ -161,6 +161,12 @@ const dataService = useDataService();
 
 const store = useStore();
 const userInfo = store.getters['meta/getUserInfo'];
+console.log('userInfo >>>>>>', userInfo);
+/** ====================================================
+ * 권한 관련
+ * 1. 웰스 매니저 + 관리자(플래너는 테스트를 위해서 넣음)
+ * 2. 지역단장인 경우
+** ==================================================== */
 const wmAuth = ref((userInfo.rsbNm === '매니저' || userInfo.rsbNm === '플래너') && userInfo.tenantCd === 'W' && userInfo.ogTpCd !== 'HR1');
 console.log('wmAuth.value >>>', wmAuth.value);
 
@@ -193,6 +199,7 @@ const searchParams = ref({
   baseDateTo: '',
   currentYM: dayjs().format('YYYYMM'),
 });
+console.log('!!!onMounted searchParams.value.prtnrNo >>>>>', searchParams.value.prtnrNo);
 
 const pageInfo = ref({
   totalCount: 0,
@@ -276,6 +283,9 @@ onMounted(async () => {
     branchDisabled.value = false;
   }
   // TODO...웰스 매니저인지 권한 확인 필요
+  /** =============================
+   * B/S 서비스현황 권한체크 START
+  ** ============================= */
   // DEF_4653 웰스매니저인 경우 본인만 조회 가능하도록...
   console.log('wmAuth.value >>>', wmAuth.value);
   if (wmAuth.value) {
@@ -284,6 +294,21 @@ onMounted(async () => {
     branchDisabled.value = true;
     partnerDisabled.value = true;
   }
+
+  // 1. 지역단장인 경우 총괄단, 지역단만 disable
+  console.log('onMounted searchParams.value.prtnrNo >>>>>', searchParams.value.prtnrNo);
+  if (userInfo.rsbCd === 'W0203') {
+    searchParams.value.prtnrNo = '';
+  }
+
+  console.log('onMounted searchParams.value.prtnrNo 222 >>>>>', searchParams.value.prtnrNo);
+  console.log('onMounted mgtDeptDisabled.value 222 >>>>>', mgtDeptDisabled.value);
+  console.log('onMounted rgnlGrpDisabled.value 222 >>>>>', rgnlGrpDisabled.value);
+  console.log('onMounted branchDisabled.value 222 >>>>>', branchDisabled.value);
+  console.log('onMounted partnerDisabled.value 222 >>>>>', partnerDisabled.value);
+  /** =============================
+   * B/S 서비스현황 권한체크 END
+  ** ============================= */
 });
 
 // -------------------------------------------------------------------------------------------------
