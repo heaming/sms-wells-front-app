@@ -240,6 +240,16 @@ async function resetData() {
   if (grdMaterialRef.value?.getView()) gridUtil.reset(grdMaterialRef.value.getView());
   if (grdServiceRef.value?.getView()) gridUtil.reset(grdServiceRef.value.getView());
   if (grdStandardRef.value?.getView()) gridUtil.reset(grdStandardRef.value.getView());
+  // 교재자재 검색 조건 초기화
+  materialSearchType.value = pdConst.PD_SEARCH_NAME;
+  materialSearchValue.value = '';
+  materialRelType.value = codes.PD_PDCT_REL_DV_CD?.[0].codeId;
+  // 서비스 검색 조건 초기화
+  serviceSearchType.value = pdConst.PD_SEARCH_NAME;
+  serviceSearchValue.value = '';
+  // 기준상품 검색 조건 초기화
+  standardRelType.value = '';
+  standardSearchType.value = pdConst.PD_SEARCH_NAME;
 }
 
 // 컴포넌트 초기화

@@ -107,6 +107,10 @@ async function resetData() {
   currentPdCd.value = '';
   currentInitData.value = {};
   if (grdChangePrdRef.value?.getView()) gridUtil.reset(grdChangePrdRef.value.getView());
+
+  // 기준상품 검색 조건 초기화
+  productSearchValue.value = '';
+  productSearchType.value = pdConst.PD_SEARCH_NAME;
 }
 
 // 컴포넌트 초기화
