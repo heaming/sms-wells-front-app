@@ -329,8 +329,12 @@ const rentalColumns = [
 ];
 
 const searchParams = ref({
-  baseDtmnFrom: now.subtract(1, 'month').add(1, 'day').format('YYYYMMDD'),
-  baseDtmnTo: now.format('YYYYMMDD'),
+  // baseDtmnFrom: now.subtract(1, 'month').add(1, 'day').format('YYYYMMDD'),
+  // baseDtmnTo: now.format('YYYYMMDD'),
+  // DEF_4686: 상품별매출현황 상세에서 매출일자 디폴트 값 변경 요청
+  baseDtmnFrom: now.startOf('month').format('YYYYMMDD'),
+  baseDtmnTo: now.endOf('month').format('YYYYMMDD'),
+
   sellTpCd: '1', // 판매유형
   sellTpDtlCd: 'ALL', // 판매유형상세
   sellChnlDtl: 'ALL', // 판매채널
