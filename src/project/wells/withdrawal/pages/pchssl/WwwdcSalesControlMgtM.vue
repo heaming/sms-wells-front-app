@@ -317,6 +317,12 @@ async function fetchData() {
   const view = grdMainRef.value.getView();
   const data = view.getDataSource();
 
+  pages.forEach((p1) => {
+    if (p1.slCtrMtrDvCd === '1' && p1.slCtrTpCd === '2') {
+      p1.slCtrAmt = null;
+    }
+  });
+
   // 방학면제에 따라 컬럼변경
   data.checkRowStates(false);
   data.setRows(pages);
@@ -421,6 +427,12 @@ async function onClickRemove() {
   const deletedRows = await gridUtil.confirmDeleteCheckedRows(view);
 
   if (deletedRows.length > 0) {
+    deletedRows.forEach((p1) => {
+      if (isEmpty(p1.slCtrAmt)) {
+        p1.slCtrAmt = p1.slCtrAmtDummy;
+      }
+    });
+    console.log(deletedRows);
     await dataService.delete(`${apiUri}/delete`, { data: deletedRows });
 
     await alert(t('MSG_ALT_DELETED')); // 삭제 되었습니다.
@@ -525,15 +537,14 @@ async function onClickSave() {
 
   const rowValues = gridUtil.getAllRowValues(view, false);
 
-  // 중복신청 체크 ( 계약상세번호, 시작년월, 종료년월)
+  // 중복신청 체크 ( 계약상세번호, 시작년월, 종료년월, 판매유형, 자료구분)
   const unique = [];
   const duplicates = rowValues.filter((item) => {
     if (unique.find((i) => (i.cntrDtlNo === item.cntrDtlNo)
     && (i.slCtrStrtYm === item.slCtrStrtYm)
     && (i.slCtrEndYm === item.slCtrEndYm)
     && (i.slCtrSellTpCd === item.slCtrSellTpCd)
-    && (i.slCtrMtrDvCd === item.slCtrMtrDvCd)
-    && (i.slCtrMtrTpCd === item.slCtrMtrTpCd))) {
+    && (i.slCtrMtrDvCd === item.slCtrMtrDvCd))) {
       return true;
     }
     unique.push(item);
@@ -553,12 +564,13 @@ async function onClickSave() {
       return;
     }
 
+    // 자료 구분 (1=매출, 2=연체가산금, 3=위약금)
     const slCtrMtrDvCdChk = checkedRows[i].slCtrMtrDvCd;
+
+    // 조정금액
     const slCtrChkAmt = checkedRows[i].slCtrAmt;
 
-    if (slCtrMtrDvCdChk === '1' && (slCtrChkAmt > checkedRows[i].dummySlCtrAmt)) {
-      saveAmtCheck = 1;
-    } if (slCtrMtrDvCdChk === '2' && (slCtrChkAmt > checkedRows[i].dummyDlqAddAmt)) {
+    if (slCtrMtrDvCdChk === '2' && (slCtrChkAmt > checkedRows[i].dummyDlqAddAmt)) {
       saveAmtCheck = 1;
     } if (slCtrMtrDvCdChk === '3' && (slCtrChkAmt > checkedRows[i].dummyRsgBorAmt)) {
       saveAmtCheck = 1;
@@ -570,6 +582,7 @@ async function onClickSave() {
     }
   }
 
+  // 매출은 체크 불필요
   if (saveAmtCheck > 0) {
     alert(t('조정가능금액을 초과 하였습니다.'));
     return;
@@ -616,6 +629,7 @@ const initGrid1 = defineGrid((data, view) => {
     { fieldName: 'slCtrTpCd' }, /* 할인 */
 
     { fieldName: 'canAfOjYn' }, /* 취소후적용 */
+    { fieldName: 'slCtrAmtDummy', dataType: 'number' }, /* 조회시 삭제를 위한 원래 조정금액 */
     { fieldName: 'slCtrAmt', dataType: 'number' }, /* 조정금액 */
     { fieldName: 'dummySlCtrAmt', dataType: 'number' }, /* 조정금액 */
     { fieldName: 'dlqAddAmt', dataType: 'number' }, /* 연체가산금액 */
@@ -671,6 +685,14 @@ const initGrid1 = defineGrid((data, view) => {
         } },
       datetimeFormat: 'yyyy-MM',
       editable: true,
+      styleCallback(grid, dataCell) {
+        const slCtrMtrDvCd = grid.getValue(dataCell.index.itemIndex, 'slCtrMtrDvCd');
+        const ret = {};
+        if (slCtrMtrDvCd === '2' || slCtrMtrDvCd === '3') {
+          ret.editable = false;
+        }
+        return ret;
+      },
     },
     { fieldName: 'slCtrEndYm',
       header: {
@@ -688,7 +710,11 @@ const initGrid1 = defineGrid((data, view) => {
       editable: true,
       styleCallback(grid, dataCell) {
         const slCtrEndYmDummy = grid.getValue(dataCell.index.itemIndex, 'slCtrEndYmDummy');
+        const slCtrMtrDvCd = grid.getValue(dataCell.index.itemIndex, 'slCtrMtrDvCd');
         const ret = {};
+        if (slCtrMtrDvCd === '2' || slCtrMtrDvCd === '3') {
+          ret.editable = false;
+        }
         if (slCtrEndYmDummy < dayjs().format('YYYYMM')) {
           ret.editable = false;
         }
@@ -865,9 +891,10 @@ const initGrid1 = defineGrid((data, view) => {
       //   }
       //   return ret;
       // },
-      options: [{ codeId: 'Y', codeName: 'Y' },
-        { codeId: 'N', codeName: 'N' }],
-
+      options: [
+        { codeId: 'Y', codeName: 'Y' },
+        { codeId: 'N', codeName: 'N' },
+      ],
     },
     { fieldName: 'slCtrAmt',
       header: {
@@ -880,9 +907,9 @@ const initGrid1 = defineGrid((data, view) => {
       editable: true,
       styleCallback: (grid, dataCell) => {
         const ret = {};
-        const { slCtrTpCd, slCtrMtrDvCd } = grid.getValues(dataCell.index.itemIndex);
+        const { slCtrTpCd } = grid.getValues(dataCell.index.itemIndex);
         if (dataCell.item.rowState === 'created') {
-          if (slCtrMtrDvCd === '1' && slCtrTpCd === '2') {
+          if (slCtrTpCd === '2') {
             ret.editable = false;
           }
           return ret;
@@ -952,13 +979,6 @@ const initGrid1 = defineGrid((data, view) => {
   view.rowIndicator.visible = true;
   view.editOptions.editable = true;
 
-  // view.onCellEditable = (grid, index) => {
-  // eslint-disable-next-line max-len
-  //   if (!gridUtil.isCreatedRow(grid, index.dataRow) && ['cntrDtlNo', 'slCtrStrtYm', 'slCtrEndYm', 'pdCd', 'pdNm', 'slCtrAmt', 'slCtrWoExmpAmt', 'slCtrPtrmExmpAmt'].includes(index.column)) {
-  //     return false;
-  //   }
-  // };
-
   view.onCellEditable = (grid, index) => {
     // if (gridUtil.isCreatedRow(grid, index.dataRow) && ['slCtrEndYm'].includes(index.column)) {
     //   return true;
@@ -972,18 +992,6 @@ const initGrid1 = defineGrid((data, view) => {
       return false;
     }
   };
-
-  // view.onCellEditable = (grid, index) => {
-  //   const { slCtrMtrDvCd } = grid.getValues(index.itemIndex);
-  //   console.log(slCtrMtrDvCd);
-  //   if (!gridUtil.isCreatedRow(grid, index.dataRow)) {
-  //     if (slCtrMtrDvCd === '1') {
-  //       view.columnByName('slCtrEndYm').editable = true;
-  //     } else {
-  //       return false;
-  //     }
-  //   }
-  // };
 
   // eslint-disable-next-line no-unused-vars
   view.onCellEdited = async (grid, itemIndex, row, field) => {
@@ -1002,11 +1010,6 @@ const initGrid1 = defineGrid((data, view) => {
     if (slCtrMtrDvCd !== '1' && field === slCtrMtrDvCdIndex) {
       view.setValue(itemIndex, 'slCtrStrtYm', dayjs().format('YYYYMM'));
       view.setValue(itemIndex, 'slCtrEndYm', dayjs().format('YYYYMM'));
-      view.columnByName('slCtrStrtYm').editable = false;
-      view.columnByName('slCtrEndYm').editable = false;
-    } else {
-      view.columnByName('slCtrStrtYm').editable = true;
-      view.columnByName('slCtrEndYm').editable = true;
     }
 
     // 수정한 필드가 자료구분이거나, 조정유형일 때
@@ -1079,9 +1082,13 @@ const initGrid1 = defineGrid((data, view) => {
 
   // eslint-disable-next-line no-unused-vars
   view.onValidate = (grid, index, value) => {
-    const { slCtrMtrDvCd, slCtrTpCd, slCtrAmt } = grid.getValues(index.itemIndex);
+    const { slCtrMtrDvCd, slCtrTpCd, slCtrAmt, cntrDtlNo } = grid.getValues(index.itemIndex);
+    if (isEmpty(cntrDtlNo)) {
+      return t('MSG_ALT_SEARCH_CNTR_NO'); // 계약 번호를 검색해 주세요
+    }
+
     if (!(slCtrMtrDvCd === '1' && slCtrTpCd === '2')) {
-      if (slCtrAmt < 1) {
+      if (isEmpty(slCtrAmt)) {
         return t('MSG_ALT_NCSR_CD', [t('MSG_TXT_CTR_AMT')]);
         // 조정금액 은(는) 필수 입력 항목입니다.
       }
