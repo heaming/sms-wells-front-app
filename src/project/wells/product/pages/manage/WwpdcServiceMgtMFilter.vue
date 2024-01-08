@@ -166,9 +166,10 @@ async function init() {
 async function resetData() {
   currentPdCd.value = '';
   currentInitData.value = {};
-  searchParams.value.searchType = pdConst.PD_SEARCH_NAME;
   grdRowCount.value = 0;
   if (grdMainRef.value?.getView()) gridUtil.reset(grdMainRef.value.getView());
+  searchParams.value.searchType = pdConst.PD_SEARCH_NAME;
+  searchParams.value.searchValue = '';
 }
 
 // 저장 데이터

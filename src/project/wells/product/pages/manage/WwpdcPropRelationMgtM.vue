@@ -100,6 +100,9 @@ async function resetData() {
   if (grdMainRef.value?.getView()) {
     gridUtil.reset(grdMainRef.value.getView());
   }
+
+  searchParams.value.pdRelTpCd = '';
+  searchParams.value.searchValue = '';
 }
 
 // 컴포넌트 초기화
