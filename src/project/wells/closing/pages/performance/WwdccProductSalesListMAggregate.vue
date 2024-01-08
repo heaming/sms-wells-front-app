@@ -158,8 +158,12 @@ const gridControl = ref({
 });
 
 const searchParams = ref({
-  baseDtFrom: now.subtract(1, 'month').add(1, 'day').format('YYYYMMDD'),
-  baseDtTo: now.format('YYYYMMDD'),
+  // baseDtFrom: now.subtract(1, 'month').add(1, 'day').format('YYYYMMDD'),
+  // baseDtTo: now.format('YYYYMMDD'),
+  // DEF_4687: 상품별 매출현황 조회조건 디폴트 값 변경 요청
+  baseDtFrom: now.startOf('month').format('YYYYMMDD'),
+  baseDtTo: now.endOf('month').format('YYYYMMDD'),
+
   sellTpCd: '1', // 판매유형
   sellTpDtlCd: 'ALL', // 판매유형상세
   inqrDv: '1', // 판매구분
