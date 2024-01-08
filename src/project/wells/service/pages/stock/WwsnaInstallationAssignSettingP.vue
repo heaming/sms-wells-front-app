@@ -129,9 +129,9 @@
       @init="initGrdMain"
     />
     <kw-pagination
-      :page-index="pageInfo.pageIndex"
-      :page-size="pageInfo.pageSize"
-      :total-count="pageInfo.totalCount"
+      v-model:page-index="pageInfo.pageIndex"
+      v-model:page-size="pageInfo.pageSize"
+      v-model:total-count="pageInfo.totalCount"
       @change="fetchData"
     />
   </kw-popup>
@@ -272,7 +272,6 @@ async function fetchData() {
 
 async function onClickSearch() {
   cachedParams = cloneDeep(searchParams.value);
-  pageInfo.value.pageIndex = 1;
   // 조회버튼 클릭 시에만 총 건수 조회하도록
   pageInfo.value.needTotalCount = true;
   await fetchData();
