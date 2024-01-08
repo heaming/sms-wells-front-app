@@ -848,7 +848,6 @@ async function onChangePrcCd() {
 }
 
 watch(() => searchParams.value.prcDvCd, async (val) => {
-  const resetRows = [];
   let currentGrid = '';
   switch (val) {
     case '4':
@@ -858,7 +857,7 @@ watch(() => searchParams.value.prcDvCd, async (val) => {
       currentGrid = grdCustomerRef.value.getView();
       break;
   }
-  currentGrid.getDataSource().setRows(resetRows);
+  currentGrid.getDataSource().clearRows();
   totalCount.value = 0;
 }, { /* immediate: true */ });
 
