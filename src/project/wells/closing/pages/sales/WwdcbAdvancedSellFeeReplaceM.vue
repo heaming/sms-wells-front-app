@@ -286,7 +286,7 @@ async function fetchSummaryData(apiParam) {
   const res = await dataService.get(`/sms/wells/closing/advanced-fee-replace/${apiParam}/summary`, { params: { ...cachedParams } });
 
   if (apiParam === 'aggregates') {
-    setSummaryData('slAmt', res);
+    // setSummaryData('slAmt', res);
     setSummaryData('feeOcAmt', res);
     setSummaryData('piaFeeOcAmt', res);
     setSummaryData('piaSellFeeCrdovrResAmt', res);
@@ -300,6 +300,7 @@ async function fetchSummaryData(apiParam) {
     setSummaryData('feeOcAmt', res);
     setSummaryData('piaFeeOcAmt', res);
     setSummaryData('piaCsYn', res);
+    setSummaryData('csRplcAmt', res);
     setSummaryData('csRplcAggAmt', res);
     setSummaryData('ttrmCsAmt', res);
     setSummaryData('piaFeeEotBlam', res);
@@ -453,7 +454,7 @@ const initGridDtl = defineGrid((data, view) => {
     { fieldName: 'pasgTn', header: t('MSG_TXT_PASG_TN'), width: '120', styleName: 'text-center' },
     { fieldName: 'stplTn', header: t('MSG_TXT_STPL_CNTS'), width: '120', styleName: 'text-center' },
     { fieldName: 'slAmt', header: t('MSG_TXT_SL_AMT'), width: '140', styleName: 'text-right', numberFormat: '#,##0', dataType: 'number' },
-    { fieldName: 'cntrPdEnddt', header: t('MSG_TXT_CNTR_PD_ENDDT'), width: '120', styleName: 'text-center', datetimeFormat: 'date' },
+    { fieldName: 'cntrPdEnddt', header: t('MSG_TXT_CNTR_PD_END_DT'), width: '120', styleName: 'text-center', datetimeFormat: 'date' },
     { fieldName: 'csRplcYm', header: t('MSG_TXT_CS_RPLC_YM'), width: '120', styleName: 'text-center' },
     { fieldName: 'csRplcAmt', header: t('MSG_TXT_CS_RPLC_AMT'), width: '120', styleName: 'text-right', numberFormat: '#,##0', dataType: 'number' },
     { fieldName: 'feeNm', header: t('MSG_TXT_FEE_DV'), width: '180', styleName: 'text-center', visible: false },
@@ -493,12 +494,6 @@ const initGridDtl = defineGrid((data, view) => {
     { text: t('MSG_TXT_PIA_TARGET_SUM'), styleName: 'text-center' },
     { text: t('MSG_TXT_PIA_NON_TARGET_SUM'), styleName: 'text-center' },
   ]);
-
-  view.layoutByColumn('feeOcYm').summaryUserSpans = [
-    { colspan: 4 },
-    { colspan: 4 },
-    { colspan: 4 },
-  ];
 
   view.layoutByColumn('cntrPdEnddt').summaryUserSpans = [
     { colspan: 2 },
