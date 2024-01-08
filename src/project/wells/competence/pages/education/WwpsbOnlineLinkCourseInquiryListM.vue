@@ -284,7 +284,7 @@ const changeEducDvCd = async () => {
     view.columnByName('offlTCnt3').visible = true;
     view.columnByName('onlineTCnt').visible = true;
     view.columnByName('fnlCpcYn').visible = true;
-  } else if (searchParams.value.educCrseNo === '128') {
+  } else if (searchParams.value.educCrseNo === '126') {
     view.setColumnLayout([
       'dgr2LevlOgNm', 'dgr3LevlOgNm', 'ogCd', 'prtnrNo', 'prtnrKnm', 'qlfDvNm',
       {
