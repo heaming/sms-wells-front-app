@@ -36,11 +36,12 @@
           />
           <!-- 서비스센터 -->
           <kw-select
-            v-model="searchParams.ogCd"
+            v-model="searchParams.ogId"
             :options="serviceCenters"
             first-option="all"
             option-label="ogNm"
-            option-value="ogCd"
+            option-value="ogId"
+            @update:model-value="onUpdateServiceCenter"
           />
           <!-- 담당자 -->
           <kw-select
@@ -153,7 +154,8 @@ let cachedParams;
 
 const searchParams = ref({
   svTpCd: '', // 서비스유형 : all.전체, 1.설치, 3.A/S, 4.홈케어
-  ogCd: '', // 서비스센터
+  ogId: '', // 서비스센터
+  ogCd: '', // 조직센터
   prtnrNo: '', // 담당자
   searchDateType: '01', // 조회기준 : 01.접수일자, 02.예정일자, 03.처리일자, 04.방문확정일
   fromDate: dayjs().subtract(0, 'month').startOf('month').format('YYYYMMDD'),
@@ -167,9 +169,25 @@ const pageInfo = ref({
 });
 
 // 서비스센터 조회
-const { data: serviceCenters } = await dataService.get('/sms/wells/service/organizations/service-center', { params: { authYn: 'N' } });
+const serviceCenters = ref((await dataService.get('/sms/wells/service/organizations/service-center', { params: { authYn: 'N' } })).data);
+console.log('serviceCenters.value >>', serviceCenters.value);
 // 엔지니어 조회
-const { data: engineers } = await dataService.get('/sms/wells/service/organizations/engineer', { params: { authYn: 'N' } });
+const engineers = ref([]);
+
+async function setEngineers() {
+  if (searchParams.value.ogId === '') {
+    engineers.value = [];
+  } else {
+    searchParams.value.ogCd = serviceCenters.value.filter((v) => v.ogId === searchParams.value.ogId)[0].ogCd;
+    engineers.value = (await dataService.get('/sms/wells/service/organizations/engineer', { params: { dgr1LevlOgId: searchParams.value.ogId, authYn: 'N' } })).data;
+  }
+  console.log('engineers.value >>>', engineers.value);
+}
+
+async function onUpdateServiceCenter() {
+  searchParams.value.prtnrNo = '';
+  setEngineers();
+}
 
 /** ==============================
  * 서비스 급지 현황 엑셀 다운로드
