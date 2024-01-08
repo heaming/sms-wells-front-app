@@ -1082,13 +1082,13 @@ const initGrid1 = defineGrid((data, view) => {
 
   // eslint-disable-next-line no-unused-vars
   view.onValidate = (grid, index, value) => {
-    const { slCtrMtrDvCd, slCtrTpCd, slCtrAmt, cntrDtlNo } = grid.getValues(index.itemIndex);
+    const { slCtrTpCd, slCtrAmt, cntrDtlNo } = grid.getValues(index.itemIndex);
     if (isEmpty(cntrDtlNo)) {
       return t('MSG_ALT_SEARCH_CNTR_NO'); // 계약 번호를 검색해 주세요
     }
 
-    if (!(slCtrMtrDvCd === '1' && slCtrTpCd === '2')) {
-      if (isEmpty(slCtrAmt)) {
+    if (!(slCtrTpCd === '2')) {
+      if (slCtrAmt < 1) {
         return t('MSG_ALT_NCSR_CD', [t('MSG_TXT_CTR_AMT')]);
         // 조정금액 은(는) 필수 입력 항목입니다.
       }
