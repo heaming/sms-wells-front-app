@@ -156,21 +156,26 @@
           <wwsn-manager-og-search-item-group
             v-model:dgr1-levl-og-id="searchParams.dgr1LevlOgId"
             v-model:dgr2-levl-og-id="searchParams.dgr2LevlOgId"
+            v-model:dgr3-levl-og-id="searchParams.dgr3LevlOgId"
+            v-model:prtnr-no="searchParams.prtnrNo"
             v-model:dgr1-levl-og="searchParams.dgr1LevlOg"
             v-model:dgr2-levl-og="searchParams.dgr2LevlOg"
-            use-og-level="2"
-            :use-partner="false"
+            v-model:dgr3-levl-og="searchParams.dgr3LevlOg"
+            v-model:partner="searchParams.partner"
+            use-og-level="3"
+            use-partner
             dgr1-levl-og-first-option="all"
             dgr1-levl-og-label="ogCdNm"
             dgr2-levl-og-label="ogCdNm"
             dgr2-levl-og-required
             :dgr1-levl-og-readonly="managerAuthYn"
             :dgr2-levl-og-readonly="managerAuthYn"
+            :dgr3-levl-og-readonly="managerAuthYn"
             auth-yn="N"
           />
         </template>
         <!-- 매니저 -->
-        <kw-search-item
+        <!-- <kw-search-item
           v-if="isManagerSelected"
           :label="$t('MSG_TXT_MANAGER')"
           :colspan="1"
@@ -180,7 +185,7 @@
             :options="managerCd"
             first-option="all"
           />
-        </kw-search-item>
+        </kw-search-item> -->
         <template v-if="isEngineerSelected">
           <wwsn-engineer-og-search-item-group
             v-model:dgr1-levl-og-id="searchParams.ogId"
@@ -335,6 +340,10 @@ const searchParams = ref({
   dgr2LevlOgId: '', // 디폴트 마포지역단
   dgr3LevlOgId: '',
   prtnrNo: '',
+  dgr1LevlOg: {},
+  dgr2LevlOg: {},
+  dgr3LevlOg: {},
+  partner: {},
   svTpCd: '',
   prgsStatCd: '',
   rgsnExcdYn: 'N',
@@ -527,70 +536,6 @@ onMounted(async () => {
 // -------------------------------------------------------------------------------------------------
 
 const initGrdMain = defineGrid((data, view) => {
-  const fields = [
-    { fieldName: 'snRpblYn' },
-    { fieldName: 'cstGdCd' },
-    { fieldName: 'cstGdNm' },
-    { fieldName: 'spcAsTpCd' },
-    { fieldName: 'cstCnttYn' },
-    { fieldName: 'vstPrgsStatCd' },
-    { fieldName: 'vstPrgsStatNm' },
-    { fieldName: 'statDtl' },
-    { fieldName: 'cntrNo' },
-    { fieldName: 'cntrSn' },
-    { fieldName: 'cntrDtlNo' },
-    { fieldName: 'rcgvpKnm' },
-    { fieldName: 'cralLocaraTno' },
-    { fieldName: 'mexnoEncr' },
-    { fieldName: 'cralIdvTno' },
-    { fieldName: 'locaraTno' },
-    { fieldName: 'exnoEncr' },
-    { fieldName: 'idvTno' },
-    { fieldName: 'pdCd' },
-    { fieldName: 'pdNm' },
-    { fieldName: 'sellTpCd' },
-    { fieldName: 'sellTpNm' },
-    { fieldName: 'mngerRglvlDvCd' },
-    { fieldName: 'mngerRglvlDvNm' },
-    { fieldName: 'expPart' },
-    { fieldName: 'newAdrZip' },
-    { fieldName: 'rndadr' },
-    { fieldName: 'dgr2LevlOgId' },
-    { fieldName: 'dgr2LevlOgNm' },
-    { fieldName: 'svBizMclsfCd' },
-    { fieldName: 'svBizDclsfCd' },
-    { fieldName: 'svBizDclsfNm' },
-    { fieldName: 'bfVstDuedt' },
-    { fieldName: 'vstDuedt' },
-    { fieldName: 'vstCnfmdt' },
-    { fieldName: 'vstCnfmHh' },
-    { fieldName: 'vstFshDt' },
-    { fieldName: 'vstFshHh' },
-    { fieldName: 'cstUnuitmCn' },
-    { fieldName: 'fstRgstDtm' },
-    { fieldName: 'fstRgstTm' },
-    { fieldName: 'ogId' },
-    { fieldName: 'ogCd' },
-    { fieldName: 'ogNm' },
-    { fieldName: 'prtnrKnm' },
-    { fieldName: 'prtnrNo' },
-    { fieldName: 'pstnDvCd' },
-    { fieldName: 'siteAwAtcCd' },
-    { fieldName: 'siteAwAtcNm' },
-    { fieldName: 'awAmt' },
-    { fieldName: 'svProcsCn' },
-    { fieldName: 'cstSignCn' },
-    { fieldName: 'cstSign' },
-    { fieldName: 'bgColo' },
-    { fieldName: 'cntrDtlStatCd' },
-    { fieldName: 'cntrDtlStatNm' },
-    { fieldName: 'asMatItmGrpCd' },
-    { fieldName: 'asMatItmGrpNm' },
-    { fieldName: 'hirFomCd' },
-    { fieldName: 'hirFomNm' },
-    { fieldName: 'cstSvAsnNo' },
-  ];
-
   const columns = [
     {
       fieldName: 'snRpblYn',
@@ -635,7 +580,7 @@ const initGrdMain = defineGrid((data, view) => {
         }
       },
     }, // 휴대전화번호
-    { fieldName: 'pdNm', header: t('MSG_TXT_PRDT_NM'), width: '180', styleName: 'text-left' }, // 상품명
+    { fieldName: 'pdAbbrNm', header: t('MSG_TXT_PRDT_NM'), width: '180', styleName: 'text-left' }, // 상품약어명
     { fieldName: 'sellTpNm', header: t('MSG_TXT_SEL_TYPE'), width: '100', styleName: 'text-center', options: codes.SELL_TP_CD }, // 판매유형
     { fieldName: 'mngerRglvlDvNm', header: t('MSG_TXT_RGLVL'), width: '60', styleName: 'text-center', options: codes.MNGER_RGLVL_DV_CD }, // 급지
     {
@@ -685,9 +630,10 @@ const initGrdMain = defineGrid((data, view) => {
     { fieldName: 'cntrDtlStatNm', header: t('MSG_TXT_CNTR_DTL'), width: '100', styleName: 'text-center', options: codes.CNTR_DTL_STAT_CD }, // 계약상세
     { fieldName: 'asMatItmGrpNm', header: t('MSG_TXT_ITM_GRP'), width: '180', styleName: 'text-center', options: codes.AS_MAT_ITM_GRP_CD }, // 품목그룹
     { fieldName: 'hirFomNm', header: t('MSG_TXT_HIR_FOM'), width: '150', styleName: 'text-center', options: codes.HIR_FOM_CD }, // 고용형태
+    { fieldName: 'pdNm', visible: false }, // 상품명
   ];
 
-  data.setFields(fields);
+  data.setFields(columns.map(({ fieldName, dataType }) => (dataType ? { fieldName, dataType } : { fieldName })));
   view.setColumns(columns);
   view.setFixedOptions({ colCount: 8, resizable: true });
   view.checkBar.visible = true;
