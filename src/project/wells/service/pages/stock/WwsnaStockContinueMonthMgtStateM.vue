@@ -483,7 +483,13 @@ const initGrdMain = defineGrid((data, view) => {
       numberFormat: '#,##0.##',
       footer: {
         numberFormat: '#,##0.##',
-        expression: 'sum',
+        // expression: 'sum',
+        // 재고회전율 계산식 : ROUND( ( SUM('작업출고수량') + SUM('기타출고수량') ) / ((SUM('기초재고') + SUM('기말재고'))/2)*100,2)
+        valueCallback(grid) {
+          const sum1 = grid.getSummary('wkOstrGdQty', 'sum') + grid.getSummary('etcOstrGdQty', 'sum'); // 작업출고수량 + 기타출고수량
+          const sum2 = (grid.getSummary('btdStocGdQty', 'sum') + grid.getSummary('onQty', 'sum')) / 2; // 기초재고 + 기말재고
+          return Math.round((sum1 / sum2) * 100, 2);
+        },
       } },
     { fieldName: 'keppMm', // 재고지속월
       header: t('MSG_TXT_STOC_CTN_MM'),
@@ -493,7 +499,13 @@ const initGrdMain = defineGrid((data, view) => {
       numberFormat: '#,##0.##',
       footer: {
         numberFormat: '#,##0.##',
-        expression: 'sum',
+        // expression: 'sum',
+        // 재고지속월  계산식 : ROUND((SUM('기초재고')+SUM('기말재고'))/2/SUM('작업출고수량'),2)
+        valueCallback(grid) {
+          const sum1 = (grid.getSummary('btdStocGdQty', 'sum') + grid.getSummary('onQty', 'sum')) / 2; // 기초재고 + 기말재고
+          const sum2 = grid.getSummary('wkOstrGdQty', 'sum'); // 작업출고수량
+          return Math.round(sum1 / sum2, 2);
+        },
       } },
     { fieldName: 'cmnPartDvCd', header: t(''), width: '150', styleName: 'text-center', visible: false, autoFilter: false },
     { fieldName: 'ordnyHvMatYn', header: t(''), width: '150', styleName: 'text-center', visible: false, autoFilter: false },
