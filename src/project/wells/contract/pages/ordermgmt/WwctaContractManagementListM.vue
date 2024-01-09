@@ -1061,7 +1061,7 @@ async function onClickSearchCntrCst() {
   }
 }
 
-async function onClickOzReport(cntrNo) { // oz리포트 신규/변경 계약
+async function onClickOzReport(cntrNo, maskYN) { // oz리포트 신규/변경 계약
   // ********* 231120 공통 사용으로 인한 주석처리(미사용이나 비슷한 로직에 참고할 것) *************
   // ****************** local test 주의사항 ************************
   // 리포트서비스(공통)을 이용해, ozrPath, odiPath는 받아서 파라미터로 사용해야하므로 서비스를 한번은 부른다.
@@ -1142,7 +1142,7 @@ async function onClickOzReport(cntrNo) { // oz리포트 신규/변경 계약
   //   );
   // }
 
-  const { data: reports } = await dataService.get('/sms/wells/contract/contracts/managements/search-api-url', { params: { cntrNo } });
+  const { data: reports } = await dataService.get('/sms/wells/contract/contracts/managements/search-api-url', { params: { cntrNo, maskYN } });
   console.log(reports);
   const options = {
     treeViewTitle: '청약서목록',
@@ -1536,7 +1536,9 @@ const initGrdMstList = defineGrid((data, view) => {
     } else if (['fileUid'].includes(column)) { /* 파일UID인 경우 */
       fileUtil.download({ fileUid: fileRow.fileUid, originalFileName: fileRow.fileNm }, 'storage'); /* kw-lib에서 fileUtil을 불러옴  */
     } else if (['cntrwBrws'].includes(column)) { // 계약서보기 버튼 클릭
-      onClickOzReport(paramCntrNo);
+      onClickOzReport(paramCntrNo, 'Y');
+    } else if (['ocyCntrwBrws'].includes(column)) { // 원본 계약서보기 버튼 클릭 rev:240108 특정 계정 확인 시, 마스킹해제된 원본 계약서 보기
+      onClickOzReport(paramCntrNo, 'N');
     } else if (['notakFwIz'].includes(column)) { // 알림톡 발송 내역 버튼 클릭
       await modal({ component: 'WwKakaotalkSendListP', componentProps: { cntrNo: paramCntrNo, cntrSn: paramCntrSn, concDiv: searchParams.cntrDv } }); // 카카오톡 발송 내역 조회
     }
