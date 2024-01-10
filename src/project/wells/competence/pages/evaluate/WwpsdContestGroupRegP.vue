@@ -233,6 +233,7 @@ watch(() => [searchParams.value.evlDvCd], async () => {
 onMounted(async () => {
   await evaluateResponsibilityCdChang();
   await getEvaluationResponsibility();
+  await getContestGroupFetchData();
 });
 // -------------------------------------------------------------------------------------------------
 // Initialize Grid
@@ -262,7 +263,7 @@ const initGrdMain = defineGrid((data, view) => {
       rules: 'required',
       styleCallback(grid, dataCell) {
         const evlDvCd = grid.getValue(dataCell.item.dataRow, 'evlDvCd');
-        return (evlDvCd === 'M01' || evlDvCd === 'M02') ? { editable: false } : { editable: true };
+        return (evlDvCd === 'M01' || evlDvCd === 'M02' || evlDvCd === 'M03') ? { editable: false } : { editable: true };
       },
     },
   ];
