@@ -16,6 +16,7 @@
   <kw-search
     :cols="3"
     @search="onClickSearch"
+    @reset="onClickReset"
   >
     <kw-search-row>
       <kw-search-item
@@ -28,12 +29,11 @@
         />
       </kw-search-item>
       <kw-search-item
-        :label="$t('MSG_TXT_CLSS_PEO_SUBJ_CHNG',null, '변경대상자구분')"
+        :label="$t('MSG_TXT_CLSS_CHG',null, '변경구분')"
       >
         <kw-select
           v-model="searchParams.cstRelTpCd"
           :options="codes.CNTR_CH_TP_CD.filter((v) => ['103' ].includes(v.codeId))"
-          first-option="all"
         />
       </kw-search-item>
       <kw-search-item
@@ -213,6 +213,19 @@ async function onClickSearch() {
   cachedParams = cloneDeep(searchParams.value);
 
   await fetchData();
+}
+
+// 초기화버튼 클릭 이벤트
+async function onClickReset() {
+  searchParams.value.conStrtDt = `${now.format('YYYYMM')}01`; /* 변경일자(시작일자) */
+  searchParams.value.conEndDt = now.format('YYYYMMDD'); /* 변경일자(종료일자) */
+  searchParams.value.cstRelTpCd = '103'; /* 변경대상자구분 */
+  searchParams.value.cntrChRsonCd = ''; /* 계약상세 */
+  searchParams.value.cstNo = ''; /* 고객번호 */
+  searchParams.value.cntrNo = ''; /* 계약번호 */
+  searchParams.value.cntrSn = ''; /* 계약일련번호 */
+
+  cachedParams = cloneDeep(searchParams.value);
 }
 
 /**

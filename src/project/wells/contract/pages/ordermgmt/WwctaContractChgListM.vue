@@ -16,6 +16,7 @@
   <kw-search
     :cols="3"
     @search="onClickSearch"
+    @reset="onClickReset"
   >
     <kw-search-row>
       <kw-search-item
@@ -199,7 +200,7 @@ const codes = await codeUtil.getMultiCodes(
 const searchParams = ref({
   conStrtDt: `${now.format('YYYYMM')}01`, /* 변경일자(시작일자) */
   conEndDt: now.format('YYYYMMDD'), /* 변경일자(종료일자) */
-  cstRelTpCd: '', /* 변경대상자구분 */
+  cstRelTpCd: '103', /* 변경대상자구분 */
   cntrChRsonCd: '', /* 계약변경사유코드 */
   cstNo: '', /* 변경고객번호 */
   cntrNo: '', /* 계약번호 */
@@ -315,6 +316,18 @@ async function onClickSearch() {
   await fetchData();
 }
 
+// 초기화버튼 클릭 이벤트
+async function onClickReset() {
+  searchParams.value.conStrtDt = `${now.format('YYYYMM')}01`; /* 변경일자(시작일자) */
+  searchParams.value.conEndDt = now.format('YYYYMMDD'); /* 변경일자(종료일자) */
+  searchParams.value.cstRelTpCd = '103'; /* 변경대상자구분 */
+  searchParams.value.cstNo = ''; /* 고객번호 */
+  searchParams.value.cntrNo = ''; /* 계약번호 */
+  searchParams.value.cntrSn = ''; /* 계약일련번호 */
+
+  cachedParams = cloneDeep(searchParams.value);
+}
+
 /**
  * 저장버튼 클릭하는 경우
  */
@@ -337,6 +350,7 @@ async function onClickSave() {
     cntrNo: row.cntrNo.substring(0, 12),
     cntrSn: row.cntrNo.substring(13),
     exemYn: searchParams.value.exemYn,
+    cntrCstRelId: row.cntrCstRelId,
   }));
 
   if (!await frmMainRef.value.validate()) { return; }
@@ -367,6 +381,7 @@ function initGrid(data, view) {
     { fieldName: 'pdNm' },
     { fieldName: 'cntrRelDtlNm' },
     { fieldName: 'cntrRelDtlCd' },
+    { fieldName: 'cntrCstRelId' },
   ];
 
   const columns = [
@@ -377,6 +392,7 @@ function initGrid(data, view) {
     { fieldName: 'pdNm', header: t('MSG_TXT_PRDT_NM', null, '상품명'), width: '100', styleName: 'text-left' },
     { fieldName: 'cntrRelDtlNm', header: t('MSG_TXT_CNTR_REL_DTL_NM', null, '계약관계상세명'), width: '100', styleName: 'text-center' },
     { fieldName: 'cntrRelDtlCd', header: t('MSG_TXT_CNTR_REL_DTL_NM', null, '계약관계상세코드'), width: '100', styleName: 'text-center', visible: false },
+    { fieldName: 'cntrCstRelId', header: t('MSG_TXT_UNIQUE_NUM', null, '고유번호'), width: '120', styleName: 'text-center', visible: true },
   ];
 
   data.setFields(fields);
