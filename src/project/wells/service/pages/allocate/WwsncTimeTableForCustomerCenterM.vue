@@ -1032,13 +1032,13 @@ async function onClickSave() {
   window.location.href = url; */
   // window.opener?.postMessage(data.value);
   data.value.action = 'save';
-  window.opener?.postMessage(JSON.stringify(data.value), searchParams.value.returnUrl);
+  window.opener?.postMessage(JSON.stringify(data.value), '*');
   ok();
 }
 
 async function clickCell(action) {
   data.value.action = action;
-  window.opener?.postMessage(JSON.stringify(data.value.psic), searchParams.value.returnUrl);
+  window.opener?.postMessage(JSON.stringify(data.value.psic), '*');
 }
 
 onMounted(async () => {
