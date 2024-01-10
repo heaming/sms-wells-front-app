@@ -328,6 +328,7 @@ const onChangeMatUtlzDvCd = (val) => {
   } else {
     view.activateColumnFilters('trnovrRtOjYn', ['trnoverFilter'], false);
   }
+  view.setFixedOptions({ colCount: 3 });
 };
 
 // -------------------------------------------------------------------------------------------------
@@ -517,5 +518,6 @@ const initGrdMain = defineGrid((data, view) => {
   view.columnByName('pdCd').setFooters({ text: t('MSG_TXT_SUM'), styleName: 'text-center' });
   view.checkBar.visible = false;
   view.rowIndicator.visible = true;
+  view.setFixedOptions({ colCount: 3 });
 });
 </script>

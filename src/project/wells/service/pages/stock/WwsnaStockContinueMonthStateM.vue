@@ -88,6 +88,21 @@
           />
         </kw-search-item>
       </kw-search-row>
+      <kw-search-row>
+        <kw-search_item>
+          <kw-input
+            v-model="searchParams.pdCdFrom"
+            type="text"
+            placeholder=""
+          />
+          <span>~</span>
+          <kw-input
+            v-model="searchParams.pdCdTo"
+            type="text"
+            placeholder=""
+          />
+        </kw-search_item>
+      </kw-search-row>
     </kw-search>
     <div class="result-area">
       <kw-action-top>
@@ -220,6 +235,8 @@ const searchParams = ref({
   useYn: '', // 사용여부
   itmDvCd: '', // 품목구분
   stokContMmCd: '',
+  pdCdFrom: '',
+  pdCdTo: '',
 });
 
 searchParams.value.startDt = dayjs().set('date', 1).format('YYYYMMDD');
@@ -783,7 +800,7 @@ const initGrdMain = defineGrid((data, view) => {
       },
       visible: false,
     },
-    { fieldName: 'lgstKeppMm1', // 재고지속월I(구매입고 미포함) - 물류센터
+    { fieldName: '재고지속월I\n(구매입고 미포함)', // 재고지속월I(구매입고 미포함) - 물류센터
       header: t('MSG_TXT_STOC_CTN_MM_I'),
       width: '200',
       numberFormat: '#,##0.##',
@@ -793,7 +810,7 @@ const initGrdMain = defineGrid((data, view) => {
       },
       visible: false,
     },
-    { fieldName: 'lgstKeppMm2', // 재고지속월II(구매입고 미포함) - 물류센터
+    { fieldName: '재고지속월II\n(구매입고 미포함)', // 재고지속월II(구매입고 미포함) - 물류센터
       header: t('MSG_TXT_STOC_CTN_MM_II'),
       width: '200',
       numberFormat: '#,##0.##',
@@ -803,7 +820,7 @@ const initGrdMain = defineGrid((data, view) => {
       },
       visible: false,
     },
-    { fieldName: 'svCnrKeppMm1', // 재고지속월I(정상입고 미포함) - 서비스센터
+    { fieldName: '재고지속월I\n(정상입고 미포함)', // 재고지속월I(정상입고 미포함) - 서비스센터
       header: t('MSG_TXT_STOC_CTN_MM_I_NOM'),
       width: '200',
       numberFormat: '#,##0.##',
@@ -811,7 +828,7 @@ const initGrdMain = defineGrid((data, view) => {
       footer: {
         styleName: 'text-right',
       } },
-    { fieldName: 'svCnrKeppMm2', // 재고지속월II(정상입고 미포함) - 서비스센터
+    { fieldName: '재고지속월II\n(정상입고 미포함)', // 재고지속월II(정상입고 미포함) - 서비스센터
       header: t('MSG_TXT_STOC_CTN_MM_II_NOM'),
       width: '200',
       numberFormat: '#,##0.##',
@@ -819,7 +836,7 @@ const initGrdMain = defineGrid((data, view) => {
       footer: {
         styleName: 'text-right',
       } },
-    { fieldName: 'svEgerKeppMm1', // 재고지속월I(정상입고 미포함) - 엔지니어
+    { fieldName: '재고지속월I\n(정상입고 미포함)', // 재고지속월I(정상입고 미포함) - 엔지니어
       header: t('MSG_TXT_STOC_CTN_MM_I_NOM'),
       width: '200',
       numberFormat: '#,##0.##',
@@ -829,7 +846,7 @@ const initGrdMain = defineGrid((data, view) => {
       },
       visible: false,
     },
-    { fieldName: 'svEgerKeppMm2', // 재고지속월II(정상입고 미포함) - 엔지니어
+    { fieldName: '재고지속월II\n(정상입고 미포함)', // 재고지속월II(정상입고 미포함) - 엔지니어
       header: t('MSG_TXT_STOC_CTN_MM_II_NOM'),
       width: '200',
       numberFormat: '#,##0.##',
@@ -910,5 +927,6 @@ const initGrdMain = defineGrid((data, view) => {
     'svEgerKeppMm2Blow1Yn',
     'svEgerKeppMm2Blow2Yn',
   ]);
+  view.setFixedOptions({ colCount: 3 });
 });
 </script>
