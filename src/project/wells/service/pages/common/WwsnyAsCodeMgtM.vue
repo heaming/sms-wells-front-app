@@ -21,6 +21,7 @@
   <kw-page>
     <kw-search
       :cols="3"
+      :modified-targets="['grdMain']"
       @search="onClickSearch"
     >
       <kw-search-row>
@@ -60,14 +61,6 @@
         </kw-search-item>
       </kw-search-row>
       <kw-search-row>
-        <!--AS위치-->
-        <!--        <kw-search-item :label="$t('MSG_TXT_AS_LCT')">
-          <kw-select
-            v-model="searchParams.asLctCd"
-            :options="codes.AS_LCT_CD"
-            first-option="all"
-          />
-        </kw-search-item>-->
         <!--적용일자-->
         <kw-search-item
           :label="$t('MSG_TXT_APPLY_DT')"
@@ -138,17 +131,24 @@
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
 import { codeUtil, defineGrid, getComponentType, gridUtil, useDataService, useGlobal, useMeta } from 'kw-lib';
-import { cloneDeep } from 'lodash-es';
+import { cloneDeep, isEmpty } from 'lodash-es';
 import smsCommon from '~sms-wells/service/composables/useSnCode';
 import dayjs from 'dayjs';
 
 const { getPartMaster } = smsCommon();
+const { modal, notify } = useGlobal();
 
 const { t } = useI18n();
-const dataService = useDataService();
 const { getConfig } = useMeta();
+const { currentRoute } = useRouter();
+const dataService = useDataService();
+
+// -------------------------------------------------------------------------------------------------
+// Function & Event
+// -------------------------------------------------------------------------------------------------
+
 const grdMainRef = ref(getComponentType('KwGrid'));
-const { modal, notify } = useGlobal();
+
 let cachedParams;
 const searchParams = ref({
   pdGrpCd: '',
@@ -158,11 +158,13 @@ const searchParams = ref({
   svTpCd: '',
   asLctCd: '',
 });
+
 const pageInfo = ref({
   totalCount: 0,
   pageIndex: 1,
   pageSize: Number(getConfig('CFG_CMZ_DEFAULT_PAGE_SIZE')),
 });
+
 const codes = await codeUtil.getMultiCodes(
   'COD_PAGE_SIZE_OPTIONS',
   'PD_GRP_CD',
@@ -174,61 +176,60 @@ const codes = await codeUtil.getMultiCodes(
   'SV_BIZ_DCLSF_CD',
 );
 
-// -------------------------------------------------------------------------------------------------
-// Function & Event
-// -------------------------------------------------------------------------------------------------
 const codesYn = [{ code: '1', name: t('MSG_TXT_APPLY_DT') }];
 
 async function fetchData() {
   const res = await dataService.get('/sms/wells/service/as-codes/paging', { params: { ...cachedParams, ...pageInfo.value } });
   const { list: products, pageInfo: pagingResult } = res.data;
   pageInfo.value = pagingResult;
+
   const view = grdMainRef.value.getView();
   view.getDataSource().setRows(products);
-  view.resetCurrent();
-
   view.rowIndicator.indexOffset = gridUtil.getPageIndexOffset(pageInfo);
 }
 
 async function onClickSearch() {
   pageInfo.value.pageIndex = 1;
   cachedParams = cloneDeep(searchParams.value);
-  console.log(cachedParams);
+  cachedParams.apyChk = searchParams.value.apyChk[0];
+
   await fetchData();
 }
 
 const pds = ref([]);
 async function changePdGrpCd() {
-  if (searchParams.value.pdGrpCd) {
-    pds.value = await getPartMaster(
-      '4',
-      searchParams.value.pdGrpCd,
-      'M',
-      null,
-      null,
-      null,
-      null,
-      null,
-      null,
-      null,
-      null,
-      'X', /* 단종여부Y/N, 만약 X로 데이터가 유입되면 단종여부를 조회하지 않음 */
-    );
-  } else pds.value = [];
+  const { pdGrpCd } = searchParams.value;
+  pds.value = [];
   searchParams.value.pdCd = '';
+
+  if (isEmpty(pdGrpCd)) return;
+
+  pds.value = await getPartMaster(
+    '4',
+    pdGrpCd,
+    'M',
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    'X', /* 단종여부Y/N, 만약 X로 데이터가 유입되면 단종여부를 조회하지 않음 */
+  );
 }
+
 changePdGrpCd();
 
 async function onClickExcelDownload() {
-  const res = await dataService.get(
-    '/sms/wells/service/as-codes/excel-download',
-    { params: { ...cachedParams } },
-  );
   const view = grdMainRef.value.getView();
-  await gridUtil.exportView(view, {
-    fileName: 'asCodeMngt',
-    timePostfix: true,
-    exportData: res.data,
+  gridUtil.exportBulkView(view, {
+    url: '/sms/wells/service/as-codes/bulk-excel-download', // url 지정
+    parameter: { // 검색 조건을 그대로 넣어준다. 없을 경우 추가하지 않아도 됨
+      ...cachedParams, timeout: 300000,
+    },
+    fileName: `${currentRoute.value.meta.menuName}_${dayjs().format('YYYYMMDDHHmmss')}`,
   });
 }
 const onClickExcelUpload = async () => {
@@ -246,25 +247,16 @@ const onClickExcelUpload = async () => {
   }
 };
 
-// async function onClickExcelDownload() {
-//   const res = await dataService.get('/sms/common/promotion/components/excel-download'
-//   , { params: { ...cachedParams } });
-//   const view = grdMainRef.value.getView();
-//   await gridUtil.exportView(view, {
-//   fileName: currentRoute.value.meta.menuName,
-//   timePostfix: true,
-//   exportData: res.data,
-//   });
-// }
 // -------------------------------------------------------------------------------------------------
 // Initialize Grid
 // -------------------------------------------------------------------------------------------------
+
 const initGrdMain = defineGrid((data, view) => {
   const columns = [
     { fieldName: 'svTpNm', header: t('MSG_TXT_SV_TP'), width: '100', styleName: 'text-center' },
     { fieldName: 'pdGrpNm', header: t('MSG_TXT_PD_GRP'), width: '100', styleName: 'text-center' },
     { fieldName: 'pdCd', header: t('TXT_MSG_MAT_PD_CD'), width: '115', styleName: 'text-center' },
-    { fieldName: 'pdNm', header: t('MSG_TXT_GOODS_NM'), width: '220', styleName: 'text-center' },
+    { fieldName: 'pdNm', header: t('MSG_TXT_GOODS_NM'), width: '220', styleName: 'text-left' },
     { fieldName: 'asLctCd', header: t('MSG_TXT_CODE'), width: '60', styleName: 'text-center' },
     { fieldName: 'asLctNm', header: t('MSG_TXT_ALTN'), width: '150', styleName: 'text-center', options: codes.AS_LCT_CD },
     { fieldName: 'asPhnCd', header: t('MSG_TXT_CODE'), width: '60', styleName: 'text-center' },
@@ -276,8 +268,8 @@ const initGrdMain = defineGrid((data, view) => {
     { fieldName: 'fuleyAwAmt', header: t('MSG_TXT_AMT_WON'), width: '100' },
     { fieldName: 'svAnaHclsfCd', header: t('MSG_TXT_CODE'), width: '60', styleName: 'text-center' },
     { fieldName: 'svAnaHclsfNm', header: t('MSG_TXT_ALTN'), width: '100', styleName: 'text-center', options: codes.SV_BIZ_DCLSF_CD },
-    { fieldName: 'apyStrtdt', header: t('MSG_TXT_APY_STRTDT'), width: '100' },
-    { fieldName: 'apyEnddt', header: t('MSG_TXT_APY_ENDDT'), width: '100' },
+    { fieldName: 'apyStrtdt', header: t('MSG_TXT_APY_STRTDT'), width: '100', datetimeFormat: 'date' },
+    { fieldName: 'apyEnddt', header: t('MSG_TXT_APY_ENDDT'), width: '100', datetimeFormat: 'date' },
   ];
   const fields = columns.map((item) => ({ fieldName: item.fieldName }));
   fields.find((item) => item.fieldName === 'fuleyAwAmt').dataType = 'number';
@@ -302,10 +294,8 @@ const initGrdMain = defineGrid((data, view) => {
   ];
   view.setColumnLayout(columnLayout);
 
-  view.displayOptions.emptyMessage = t('MSG_ALT_NO_INFO_SRCH');
   view.checkBar.visible = false;
   view.rowIndicator.visible = true;
-  view.editOptions.editable = false; // Grid Editable On
-  // view.displayOptions.selectionStyle = 'singleRow';
+  view.editOptions.editable = false;
 });
 </script>
