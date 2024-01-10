@@ -972,8 +972,10 @@ onMounted(async () => {
 
   if (props.srchDv) {
     searchParams.value.srchDv = props.srchDv;
-    await onClickSearch();
+    // await onClickSearch();
   }
+
+  await onClickSearch();
 });
 
 // -------------------------------------------------------------------------------------------------
