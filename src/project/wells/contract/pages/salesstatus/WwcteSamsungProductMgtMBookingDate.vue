@@ -52,6 +52,14 @@
         />
       </template>
       <kw-btn
+        v-permission:update
+        icon="upload_on"
+        dense
+        secondary
+        :label="$t('MSG_TXT_EXCEL_UPLOAD')"
+        @click="onClickExcelUpload"
+      />
+      <kw-btn
         v-permission:download
         icon="download_on"
         dense
@@ -81,9 +89,10 @@
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
-import { codeUtil, defineGrid, getComponentType, gridUtil, useDataService, useMeta } from 'kw-lib';
+import { codeUtil, defineGrid, getComponentType, gridUtil, useDataService, useMeta, modal } from 'kw-lib';
 import useGridDataModel from '~sms-common/contract/composable/useGridDataModel';
 import dayjs from 'dayjs';
+import { validateYYYYMMDD } from '~sms-common/contract/util';
 
 const { t } = useI18n();
 const codes = await codeUtil.getMultiCodes(
@@ -151,6 +160,41 @@ async function onClickExcelDownload() {
     exportData: response.data,
   });
 }
+
+async function onClickExcelUpload() {
+  const { result, payload } = await modal({
+    component: 'ZctzExcelUploadP',
+    componentProps: {
+      templateDocId: 'FOM_CTE_0003',
+      columns: {
+        // veeValidate 에서 요구하는 형식과 해당 lint 룰과 상충된다.
+        // eslint-disable-next-line no-useless-escape
+        cntrNo: { label: t('MSG_TXT_CNTR_NO'), width: 200, rules: 'regex:W\\d{11}', required: true },
+        cntrSn: { label: t('MSG_TXT_CNTR_SN'), type: Number, width: 100, rules: 'max:5', required: true },
+        wallCntrNo: { label: `벽걸이${t('MSG_TXT_CNTR_NO')}`, width: 200, rules: 'regex:W\\d{11}' },
+        wallCntrSn: { label: `벽걸이${t('MSG_TXT_CNTR_SN')}`, type: Number, width: 200, rules: 'max:5' },
+        sppBzsOrdId: { label: t('MSG_TXT_ORD_NO') /* 주문번호 */, width: 200, required: true },
+        notUse3: { label: t('MSG_TXT_UNUITM') /* 특이사항 */, width: 200 },
+        sppFshDt: { label: t('MSG_TXT_INST_DT'), width: 120, datetimeFormat: 'date', required: true, rules: validateYYYYMMDD },
+        pdctIdno: { label: t('MSG_TXT_SERIAL_NO'), width: 100, required: true },
+        sppDuedt: { label: t('MSG_TXT_RSV_DATE') /* 예약일 */, width: 120, datetimeFormat: 'date', required: true, rules: validateYYYYMMDD },
+        notUse5: { label: t('MSG_TXT_STOCK_DT') /* 재고입고일 */, width: 120, datetimeFormat: 'date' },
+        notUse6: { label: t('MSG_TXT_INST_CLS') /* 설치구분 */, width: 100 },
+        sppBzsModelId: { label: t('MSG_TXT_SPP_BIZ_MODEL'), width: 200, required: true },
+      },
+    },
+  });
+
+  const { list } = payload;
+
+  if (result) {
+    const response = await dataService.post('/sms/wells/contract/sales-status/sec-product-management/booking-days/excel-upload', list);
+    if (response.data?.processCount > 0) {
+      onClickSearch();
+    }
+  }
+}
+
 // -------------------------------------------------------------------------------------------------
 // Initialize Grid
 // -------------------------------------------------------------------------------------------------
