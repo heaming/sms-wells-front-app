@@ -21,6 +21,7 @@
       @search="onClickSearch"
     >
       <kw-search-row>
+        <!-- 배송창고 -->
         <kw-search-item :label="$t('MSG_TXT_DELV_WARE')">
           <kw-select
             v-model="searchParams.wareNo"
@@ -389,6 +390,7 @@ const initGrdMain = defineGrid((data, view) => {
     { fieldName: 'prtnrNo', visible: false },
     { fieldName: 'pscocd', visible: false },
     { fieldName: 'clnSppIvcNo', visible: false },
+    { fieldName: 'fnlItmGdCd', visible: false },
   ];
   // 상품 동적 필드
   const pdColums = [
