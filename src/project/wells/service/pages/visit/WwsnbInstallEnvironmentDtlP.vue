@@ -24,9 +24,17 @@
           <kw-image
             :file-uid="props.files.istEnvrFileId"
           />
-          <!-- <kw-image
-            :src="props.files.istEnvrFileId"
-          /> -->
+          <ul class="preview-attach__infos">
+            <!-- 166730259072721428.jpg -->
+            <li class="text-underline cursor-pointer">
+              <kw-btn
+                dense
+                underline
+                :label="$t('이미지상세')"
+                @click="onClickImgDetail(props.files.istEnvrFileId)"
+              />
+            </li>
+          </ul>
         </div>
       </div>
       <div class="preview-attach col">
@@ -37,6 +45,17 @@
           <kw-image
             :file-uid="props.files.istKitFileId"
           />
+          <ul class="preview-attach__infos">
+            <!-- 166730259072721428.jpg -->
+            <li class="text-underline cursor-pointer">
+              <kw-btn
+                dense
+                underline
+                :label="$t('이미지상세')"
+                @click="onClickImgDetail(props.files.istKitFileId)"
+              />
+            </li>
+          </ul>
           <!-- <kw-image
             :src="props.files.istKitFileId"
           /> -->
@@ -50,6 +69,17 @@
           <kw-image
             :file-uid="props.files.celngFileId"
           />
+          <ul class="preview-attach__infos">
+            <!-- 166730259072721428.jpg -->
+            <li class="text-underline cursor-pointer">
+              <kw-btn
+                dense
+                underline
+                :label="$t('이미지상세')"
+                @click="onClickImgDetail(props.files.celngFileId)"
+              />
+            </li>
+          </ul>
           <!-- <kw-image
             :src="props.files.celngFileId"
           /> -->
@@ -63,11 +93,19 @@
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
+import { useGlobal } from 'kw-lib';
 
+const { modal } = useGlobal();
 const props = defineProps({
   files: { type: Object, default: undefined },
 });
 
+async function onClickImgDetail(fileid) {
+  await modal({
+    component: 'ZwcmzImagePreviewP',
+    componentProps: { files: fileid.value },
+  });
+}
 /*
 Props 설정
 Props: {
