@@ -1095,7 +1095,7 @@ async function onClickSave() {
   await dataService.post('/sms/wells/service/installation-works', sendDatas);
   notify(t('MSG_ALT_SAVE_DATA'));
   ok(sendDataBase); */
-  window.opener?.postMessage(JSON.stringify(data.value), searchParams.value.returnUrl);
+  window.opener?.postMessage(JSON.stringify(data.value), '*');
   ok();
 }
 
