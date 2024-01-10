@@ -20,7 +20,7 @@
   >
     <kw-search-row>
       <kw-search-item
-        :label="$t('MSG_TXT_CH_DT',null, '변경일자')"
+        :label="$t('MSG_TXT_CH_DT', null, '변경일자')"
       >
         <kw-date-range-picker
           v-model:from="searchParams.conStrtDt"
@@ -29,7 +29,7 @@
         />
       </kw-search-item>
       <kw-search-item
-        :label="$t('MSG_TXT_CLSS_CHG',null, '변경구분')"
+        :label="$t('MSG_TXT_CLSS_CHG', null, '변경구분')"
       >
         <kw-select
           v-model="searchParams.cstRelTpCd"
@@ -37,7 +37,7 @@
         />
       </kw-search-item>
       <kw-search-item
-        :label="$t('MSG_TXT_CH_RSON',null, '변경사유')"
+        :label="$t('MSG_TXT_CH_RSON', null, '변경사유')"
       >
         <kw-select
           v-model="searchParams.cntrChRsonCd"

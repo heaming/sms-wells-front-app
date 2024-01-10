@@ -20,7 +20,7 @@
   >
     <kw-search-row>
       <kw-search-item
-        :label="$t('MSG_TXT_CNTR_DATE',null, '계약일자')"
+        :label="$t('MSG_TXT_CNTR_DATE', null, '계약일자')"
         :rules="searchParams.cntrNo !== '' ? '' : 'required'"
       >
         <!--  rules="date_range_required|date_range_months:1" -->
@@ -31,7 +31,7 @@
         />
       </kw-search-item>
       <kw-search-item
-        :label="$t('MSG_TXT_CST_NO',null, '고객번호')"
+        :label="$t('MSG_TXT_CST_NO', null, '고객번호')"
       >
         <kw-input
           v-model="searchParams.cstNo"
