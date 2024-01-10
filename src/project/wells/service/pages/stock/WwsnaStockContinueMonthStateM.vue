@@ -89,7 +89,7 @@
         </kw-search-item>
       </kw-search-row>
       <kw-search-row>
-        <kw-search_item>
+        <kw-search-item>
           <kw-input
             v-model="searchParams.pdCdFrom"
             type="text"
@@ -101,7 +101,7 @@
             type="text"
             placeholder=""
           />
-        </kw-search_item>
+        </kw-search-item>
       </kw-search-row>
     </kw-search>
     <div class="result-area">
