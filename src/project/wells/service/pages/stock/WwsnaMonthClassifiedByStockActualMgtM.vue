@@ -304,7 +304,7 @@ async function onClickExcelDownload() {
   gridUtil.exportBulkView(view, {
     url: '/sms/wells/service/stock-acinp-rgst/bulk-excel-download', // url 지정
     parameter: { // 검색 조건을 그대로 넣어준다. 없을 경우 추가하지 않아도 됨
-      ...cachedParams, timeout: 600000,
+      ...cachedParams, timeout: 300000,
     },
     fileName: `${currentRoute.value.meta.menuName}_${now.format('YYYYMMDD_HHmmss')}_Bulk`,
     hideColumns: ['col2'],
