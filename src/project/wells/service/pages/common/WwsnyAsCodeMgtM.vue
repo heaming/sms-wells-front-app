@@ -229,7 +229,7 @@ async function onClickExcelDownload() {
     parameter: { // 검색 조건을 그대로 넣어준다. 없을 경우 추가하지 않아도 됨
       ...cachedParams, timeout: 300000,
     },
-    fileName: `${currentRoute.value.meta.menuName}_${dayjs().format('YYYYMMDD_HHmmss')}_Bulk`,
+    fileName: `${currentRoute.value.meta.menuName}_${dayjs().format('YYYYMMDDHHmmss')}`,
   });
 }
 const onClickExcelUpload = async () => {
