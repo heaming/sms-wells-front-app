@@ -1031,14 +1031,14 @@ async function onClickSave() {
   url += `&cntrNo=${searchParams.value.cntrNo}`;
   window.location.href = url; */
   // window.opener?.postMessage(data.value);
-  data.value.action = 'save';
+  data.value.psic.action = 'save';
   window.opener?.postMessage(JSON.stringify(data.value), '*');
   ok();
 }
 
 async function clickCell(action) {
-  data.value.action = action;
-  window.opener?.postMessage(JSON.stringify(data.value.action), '*');
+  data.value.psic.action = action;
+  window.opener?.postMessage(JSON.stringify(data.value.psic), '*');
 }
 
 onMounted(async () => {
