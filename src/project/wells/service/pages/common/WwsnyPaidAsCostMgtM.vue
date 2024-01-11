@@ -104,6 +104,7 @@
         <!-- 적용일자 일괄변경 -->
         <kw-date-picker
           v-model="chgApyDt.apyStrtdt"
+          :max-date="maxDate"
           dense
           class="w150"
         />
@@ -191,8 +192,11 @@ const pageInfo = ref({
 });
 
 const now = dayjs();
+const curDt = now.format('YYYYMMDD');
+const maxDate = now.format('YYYY-MM-DD');
+
 const chgApyDt = ref({
-  apyStrtdt: now.format('YYYYMMDD'),
+  apyStrtdt: curDt,
   apyEnddt: '99991231',
 });
 
@@ -291,9 +295,10 @@ async function onClickApplyDateBulkChange() {
 
   let cnt = 0;
   for (let i = 0; i < chkRows.length; i += 1) {
-    const orgStrtDt = data.getValue(chkRows[i].dataRow, 'orgApyStrtdt');
-    // 변경 전 시작일자보다 커야 함.
-    if (!orgStrtDt || isEmpty(orgStrtDt) || orgStrtDt < apyStrtdt) {
+    const rn = data.getValue(chkRows[i].dataRow, 'rn');
+
+    // 마지막 데이터만 적용일자를 수정할 수 있음.
+    if (rn === '1') {
       data.setValue(chkRows[i].dataRow, 'apyStrtdt', apyStrtdt);
       data.setValue(chkRows[i].dataRow, 'apyEnddt', apyEnddt);
       cnt += 1;
@@ -355,13 +360,14 @@ const initGrdMain = defineGrid((data, view) => {
     { fieldName: 'sumAmt', dataType: 'number' }, // 합계(소비자가+기술료)
     { fieldName: 'izSn' }, // 내역일련번호
     { fieldName: 'orgApyStrtdt' }, // 변경전 적용시작일
+    { fieldName: 'orgApyEnddt' }, // 변경전 적용종료일
     { fieldName: 'pdctPdCd' }, // 기준상품코드
     { fieldName: 'rn' }, // 순번
   ];
 
   const columns = [
-    { fieldName: 'sapMatCd', header: t('MSG_TXT_SAP_CD'), width: '200', styleName: 'text-center', editable: false }, // SAP코드
-    { fieldName: 'useMatPdCd', header: t('MSG_TXT_ITM_CD'), width: '150', styleName: 'text-center', editable: false }, // 품목코드
+    { fieldName: 'sapMatCd', header: t('MSG_TXT_SAP_CD'), width: '100', styleName: 'text-center', editable: false }, // SAP코드
+    { fieldName: 'useMatPdCd', header: t('MSG_TXT_ITM_CD'), width: '130', styleName: 'text-center', editable: false }, // 품목코드
     { fieldName: 'pdNm',
       header: t('MSG_TXT_PRDT_NM'),
       width: '350',
@@ -372,45 +378,45 @@ const initGrdMain = defineGrid((data, view) => {
     { fieldName: 'csmrUprcAmt',
       header: t('MSG_TXT_CSPRC'),
       width: '100',
-      rules: 'min_value:0',
+      rules: 'min_value:0|max_value:99999999',
       editor: {
         type: 'number',
-        maxLength: 8,
-        inputCharacters: ['0-9'],
+        editFormat: '#,##0',
       },
+      dataType: 'number',
       styleName: 'text-right',
     }, // 소비자가
     { fieldName: 'whlsUprcAmt',
       header: t('MSG_TXT_WHLS_UPRC'),
       width: '100',
-      rules: 'min_value:0',
+      rules: 'min_value:0|max_value:99999999',
       editor: {
         type: 'number',
-        maxLength: 8,
-        inputCharacters: ['0-9'],
+        editFormat: '#,##0',
       },
+      dataType: 'number',
       styleName: 'text-right',
     }, // 도매단가
     { fieldName: 'insiUprcAmt',
       header: t('MSG_TXT_INSI_UPRC'),
       width: '100',
-      rules: 'min_value:0',
+      rules: 'min_value:0|max_value:99999999',
       editor: {
         type: 'number',
-        maxLength: 8,
-        inputCharacters: ['0-9'],
+        editFormat: '#,##0',
       },
+      dataType: 'number',
       styleName: 'text-right',
     }, // 내부단가
     { fieldName: 'tcfeeAmt',
       header: t('MSG_TXT_TCFEE'),
       width: '100',
-      rules: 'min_value:0',
+      rules: 'min_value:0|max_value:99999999',
       editor: {
         type: 'number',
-        maxLength: 8,
-        inputCharacters: ['0-9'],
+        editFormat: '#,##0',
       },
+      dataType: 'number',
       styleName: 'text-right',
     }, // 기술료
     { fieldName: 'sumAmt',
@@ -428,10 +434,13 @@ const initGrdMain = defineGrid((data, view) => {
   view.rowIndicator.visible = true;
   view.filteringOptions.enabled = false;
 
-  // 소비자가, 도매단가, 내부단가, 기술료, 적용시작일/종료일 수정로직
+  // 소비자가, 도매단가, 내부단가, 기술료 수정로직
   view.onCellEditable = (grid, itemIndex) => {
     const { rn } = gridUtil.getRowValue(grid, itemIndex.dataRow);
-    return rn === 1;
+    if (['csmrUprcAmt', 'whlsUprcAmt', 'insiUprcAmt', 'tcfeeAmt'].includes(itemIndex.column) && rn === '1') {
+      return true;
+    }
+    return false;
   };
 
   // 합계(소비자가 + 기술료) 컬럼 계산 및 값 자동 반영 로직
