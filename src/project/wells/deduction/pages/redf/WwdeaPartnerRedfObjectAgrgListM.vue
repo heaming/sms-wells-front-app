@@ -237,6 +237,7 @@ async function fetchData() {
 async function onClickSearch() {
   grdMainRef.value.getData().clearRows();
   pageInfo.value.pageIndex = 1;
+  pageInfo.value.totalCount = 0; // 총건수 초기화
   cachedParams = cloneDeep(searchParams.value);
   await fetchData();
 }
@@ -873,6 +874,8 @@ const dlqJoColumnLayout = [
  * 조직유형 변경시, WELLS_P 일 경우 처리유형 값 제거
  */
 watch(() => searchParams.value.ogTpCd, () => {
+  pageInfo.value.totalCount = 0; // 총건수 초기화
+
   if (searchParams.value.ogTpCd === 'W01') {
     searchParams.value.redfAdsbTpCd = 'ALL';
   } else {
@@ -886,6 +889,7 @@ watch(() => [searchParams.value.perfYmFrom,
   searchParams.value.rsbDvCd,
   searchParams.value.redfAdsbTpCd,
   searchParams.value.ogTpCd], async () => {
+  pageInfo.value.totalCount = 0; // 총건수 초기화
   /* 변경 값 감지 시, 그리드 초기화 */
   grdMainRef.value.getData().clearRows();
   const view = grdMainRef.value.getView();
