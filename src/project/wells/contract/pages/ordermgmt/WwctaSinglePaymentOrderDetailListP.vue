@@ -110,7 +110,7 @@
           />
           <!-- 파트너 이름 -->
           <kw-input
-            v-model="frmMainData.prtnrKnm"
+            v-model="frmMainData.sellPrtnrNm"
             placeholder=""
             readonly
           />
@@ -934,7 +934,7 @@ const frmMainData = ref({
   ogCd: '', // 조직코드
   sellInflwChnlDtlCd: '', // 파트너 유형
   sellPrtnrNo: '', // 파트너-번호
-  prtnrKnm: '', // 파트너-이름
+  sellPrtnrNm: '', // 파트너-이름
   cntrRcpFshDtm: '', // 접수일
   fstRgstDt: '', // 등록일
   cstKnm: '', // 계약자 명
@@ -1049,10 +1049,10 @@ async function fetchData() {
     frmMainData.value.cntrCstNo = pages[0].cntrCstNo; // 고객번호
     frmMainData.value.dgr3LevlDgPrtnrNo = pages[0].dgr3LevlDgPrtnrNo; // 지점
     frmMainData.value.ogTpNm = pages[0].ogTpNm; // 조직구분
-    frmMainData.value.ogCd = pages[0].ogCd; // 조직코드
+    frmMainData.value.ogCd = pages[0].fstRgstDeptId; // 조직코드
     frmMainData.value.sellInflwChnlDtlCd = pages[0].sellInflwChnlDtlCd; // 파트너 유형
     frmMainData.value.sellPrtnrNo = pages[0].sellPrtnrNo; // 파트너-번호
-    frmMainData.value.prtnrKnm = pages[0].prtnrKnm; // 파트너-이름
+    frmMainData.value.sellPrtnrNm = pages[0].sellPrtnrNm; // 파트너-이름
     frmMainData.value.cntrRcpFshDtm = pages[0].cntrRcpFshDtm; // 접수일
     frmMainData.value.fstRgstDt = pages[0].fstRgstDt; // 등록일
     // -------------------------------------------------------------------------------------------------
