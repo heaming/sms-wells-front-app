@@ -39,7 +39,6 @@
         <kw-search-item
           :label="$t('MSG_TXT_PRDT_NM')"
         >
-          <!--            rules="required"-->
           <kw-select
             v-model="searchParams.pdCd"
             :disable="searchParams.pdGrpCd === '' "
@@ -216,7 +215,7 @@ async function changePdGrpCd() {
     null,
     null,
     null,
-    'X', /* 단종여부Y/N, 만약 X로 데이터가 유입되면 단종여부를 조회하지 않음 */
+    'Y',
   );
 }
 

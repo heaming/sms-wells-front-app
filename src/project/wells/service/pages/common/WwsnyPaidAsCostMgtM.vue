@@ -18,29 +18,32 @@
       :cols="3"
       :modified-targets="['grdMain']"
       @search="onClickSearch"
+      @reset="onClickReset"
     >
       <kw-search-row>
         <kw-search-item
           :label="$t('MSG_TXT_PD_GRP')"
+          required
         >
           <kw-select
             v-model="searchParams.pdGrpCd"
             :options="codes.PD_GRP_CD"
-            first-option="all"
+            :label="$t('MSG_TXT_PD_GRP')"
+            rules="required"
             @change="changePdGrpCd"
           />
         </kw-search-item>
         <kw-search-item
           :label="$t('MSG_TXT_PRDT_NM')"
+          required
         >
-          <!--            rules="required"-->
           <kw-select
             v-model="searchParams.pdCd"
             :options="pds"
-            first-option="all"
+            first-option="select"
             option-label="cdNm"
             option-value="cd"
-            :disable="searchParams.pdGrpCd === '' "
+            rules="required"
             :label="$t('MSG_TXT_PRDT_NM')"
           />
         </kw-search-item>
@@ -49,13 +52,13 @@
           :label="$t('MSG_TXT_MAT_DV')"
         >
           <kw-field
-            v-model="searchParams.cmnPartChk"
+            :model-value="['Y', 'N']"
           >
             <template #default="{ field }">
               <kw-checkbox
                 v-bind="field"
+                v-model="searchParams.cmnPartChk"
                 :label="$t('MSG_TXT_CMN_PART')"
-                :disable="isHgrPdCd"
               />
             </template>
           </kw-field>
@@ -67,11 +70,7 @@
       <kw-action-top>
         <template #left>
           <kw-paging-info
-            v-model:page-index="pageInfo.pageIndex"
-            v-model:page-size="pageInfo.pageSize"
-            :page-size-options="codes.COD_PAGE_SIZE_OPTIONS"
             :total-count="pageInfo.totalCount"
-            @change="fetchData"
           />
           <span class="ml8">{{ $t('MSG_TXT_UNIT_WON') }}</span>
         </template>
@@ -88,12 +87,6 @@
           vertical
           inset
         />
-        <!-- <kw-btn
-          icon="print"
-          dense
-          secondary
-          :label="$t('MSG_BTN_PRTG')"
-        /> -->
         <kw-btn
           v-permission:download
           icon="download_on"
@@ -111,6 +104,7 @@
         <!-- 적용일자 일괄변경 -->
         <kw-date-picker
           v-model="chgApyDt.apyStrtdt"
+          :max-date="maxDate"
           dense
           class="w150"
         />
@@ -133,14 +127,18 @@
           <p class="filter-box__item-label">
             {{ $t('MSG_TXT_MAT_DV') }}
           </p>
-          <kw-checkbox
-            v-model="searchParams.apyMtrChk"
-            :options="[]"
-            :true-value="Y"
-            :false-value="N"
-            :label="$t('MSG_TXT_CRTL_APY_MTR')"
-            @update:model-value="onChangeFilterApyDt"
-          />
+          <kw-field
+            :model-value="['Y', 'N']"
+          >
+            <template #default="{ field }">
+              <kw-checkbox
+                v-bind="field"
+                v-model="searchParams.apyMtrChk"
+                :label="$t('MSG_TXT_CRTL_APY_MTR')"
+                @update:model-value="onChangeFilterApyDt"
+              />
+            </template>
+          </kw-field>
         </li>
       </ul>
 
@@ -150,13 +148,6 @@
         :page-size="pageInfo.pageSize"
         :total-count="pageInfo.totalCount"
         @init="initGrdMain"
-      />
-
-      <kw-pagination
-        v-model:page-index="pageInfo.pageIndex"
-        v-model:page-size="pageInfo.pageSize"
-        :total-count="pageInfo.totalCount"
-        @change="fetchData"
       />
     </div>
   </kw-page>
@@ -174,7 +165,7 @@ import {
   useDataService,
   useMeta,
   gridUtil,
-  notify,
+  notify, alert,
 } from 'kw-lib';
 import smsCommon from '~sms-wells/service/composables/useSnCode';
 import { cloneDeep, isEmpty } from 'lodash-es';
@@ -183,6 +174,7 @@ import dayjs from 'dayjs';
 const { t } = useI18n();
 const dataService = useDataService();
 const { getConfig } = useMeta();
+const { currentRoute } = useRouter();
 const { getPartMaster } = smsCommon();
 
 // -------------------------------------------------------------------------------------------------
@@ -190,134 +182,138 @@ const { getPartMaster } = smsCommon();
 // -------------------------------------------------------------------------------------------------
 const grdMainRef = ref(getComponentType('KwGrid'));
 
-/* 공통코드 */
 const codes = await codeUtil.getMultiCodes(
-  'COD_PAGE_SIZE_OPTIONS',
   'PD_GRP_CD',
 );
 
 const pageInfo = ref({
   totalCount: 0,
-  pageIndex: 1,
   pageSize: Number(getConfig('CFG_CMZ_DEFAULT_PAGE_SIZE')),
 });
 
 const now = dayjs();
+const curDt = now.format('YYYYMMDD');
+const maxDate = now.format('YYYY-MM-DD');
+
 const chgApyDt = ref({
-  apyStrtdt: now.format('YYYYMMDD'),
+  apyStrtdt: curDt,
   apyEnddt: '99991231',
 });
 
 /* 조회조건 */
 const searchParams = ref({
-  hgrPdCd: '',
+  pdGrpCd: '1',
   pdCd: '',
-  pdNm: '',
   cmnPartChk: 'N',
   apyMtrChk: 'N',
-  applyDate: now.format('YYYYMMDD'),
 });
 
 let cachedParams;
 
 const pds = ref([]);
+// 상품그룹 변경 시
 async function changePdGrpCd() {
-  if (searchParams.value.pdGrpCd) {
-    pds.value = await getPartMaster(
-      '4',
-      searchParams.value.pdGrpCd,
-      'M',
-      null,
-      null,
-      null,
-      null,
-      null,
-      null,
-      null,
-      null,
-      'X', /* 단종여부Y/N, 만약 X로 데이터가 유입되면 단종여부를 조회하지 않음 */
-    );
-  } else pds.value = [];
+  pds.value = [];
   searchParams.value.pdCd = '';
+
+  const { pdGrpCd } = searchParams.value;
+  const products = await getPartMaster(
+    '4',
+    pdGrpCd,
+    'M',
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    'Y',
+  );
+
+  pds.value = products;
+
+  if (!isEmpty(products)) {
+    searchParams.value.pdCd = products[0].cd;
+  }
 }
-changePdGrpCd();
 
-const isHgrPdCd = ref(false);
-
-// 상품그룹에 따른 상품명 셀렉트박스 변경
-watch(() => searchParams.value.pdGrpCd, (val) => {
-  if (!isEmpty(val) && Number(val) > 9) {
-    isHgrPdCd.value = true;
-    searchParams.value.cmnPartChk = 'N';
-  } else {
-    isHgrPdCd.value = false;
-  }
-
-  if (searchParams.value.pdGrpCd !== val) {
-    searchParams.value.pdGrpCd = val;
-  }
-  changePdGrpCd();
-});
-
+// 조회
 async function fetchData() {
-  const res = await dataService.get('/sms/wells/service/paid-as-costs/paging', { params: { ...cachedParams, ...pageInfo.value } });
-  const { list: recapitalizationAsSvCs, pageInfo: pagingResult } = res.data;
-
-  pageInfo.value = pagingResult;
+  const res = await dataService.get('/sms/wells/service/paid-as-costs', { params: { ...cachedParams } });
+  pageInfo.value.totalCount = res.data.length;
 
   const view = grdMainRef.value.getView();
-  view.getDataSource().setRows(recapitalizationAsSvCs);
-  view.rowIndicator.indexOffset = gridUtil.getPageIndexOffset(pageInfo);
+  view.getDataSource().setRows(res.data);
 }
 
-/* 현재적용자재필터링 : 재조회 */
+// 현재적용자재 체크 시
 async function onChangeFilterApyDt() {
-  pageInfo.value.pageIndex = 1;
   cachedParams = cloneDeep(searchParams.value);
 
   await fetchData();
 }
 
-/* 조회 버튼 */
+// 조회버튼 클릭 시
 async function onClickSearch() {
-  pageInfo.value.pageIndex = 1;
   cachedParams = cloneDeep(searchParams.value);
 
   await fetchData();
 }
 
-/* 엑셀다운로드 버튼 */
-const { currentRoute } = useRouter();
+// 엑셀 다운로드
 async function onClickExcelDownload() {
   const view = grdMainRef.value.getView();
-  const res = await dataService.get('/sms/wells/service/paid-as-costs/excel-download', { params: cachedParams });
+
   await gridUtil.exportView(view, {
     fileName: currentRoute.value.meta.menuName,
     timePostfix: true,
-    exportData: res.data,
+    exportData: gridUtil.getAllRowValues(view),
   });
 }
 
-/* 적용일자 일괄적용 버튼 */
+// 적용일자 일괄변경
 async function onClickApplyDateBulkChange() {
+  const { apyStrtdt, apyEnddt } = chgApyDt.value;
   const view = grdMainRef.value.getView();
   const chkRows = gridUtil.getCheckedRowValues(view);
+
+  if (isEmpty(chkRows)) {
+    // 일괄변경할 데이터를 선택하세요.
+    notify(t('MSG_ALT_CHG_HLDY_DATA'));
+    return;
+  }
+
+  // 적용시작일자가 없는 경우
+  if (isEmpty(apyStrtdt)) {
+    notify(t('MSG_ALT_CHK_NCSR', [t('MSG_TXT_APY_STRTDT')]));
+    return;
+  }
+
   const data = grdMainRef.value.getData();
 
-  if (chkRows.length === 0) {
-    notify(t('MSG_ALT_CHG_HLDY_DATA'));
-  } else if (!chgApyDt.value.apyStrtdt) {
-    notify(t('MSG_ALT_CHK_NCSR', [t('MSG_TXT_APY_STRTDT')]));
-  } else {
-    for (let i = 0; i < chkRows.length; i += 1) {
-      notify(t('MSG_ALT_BULK_APPLY_SUCCESS', [t('MSG_TXT_APY_STRTDT')]));
-      data.setValue(chkRows[i].dataRow, 'apyStrtdt', chgApyDt.value.apyStrtdt);
-      data.setValue(chkRows[i].dataRow, 'apyEnddt', chgApyDt.value.apyEnddt);
+  let cnt = 0;
+  for (let i = 0; i < chkRows.length; i += 1) {
+    const rn = data.getValue(chkRows[i].dataRow, 'rn');
+    const orgApyStrtdt = data.getValue(chkRows[i].dataRow, 'orgApyStrtdt');
+
+    // 마지막 데이터만 적용일자를 수정할 수 있음.
+    if (rn === '1' && orgApyStrtdt < apyStrtdt) {
+      data.setValue(chkRows[i].dataRow, 'apyStrtdt', apyStrtdt);
+      data.setValue(chkRows[i].dataRow, 'apyEnddt', apyEnddt);
+      cnt += 1;
     }
+  }
+  if (cnt > 0) {
+    notify(t('MSG_ALT_BULK_APPLY_SUCCESS', [t('MSG_TXT_APY_STRTDT')]));
+  } else {
+    // 적용시작일이 변경되지 않았습니다. 적용시작일을 확인하시기 바랍니다.
+    notify(t('MSG_ALT_APY_STRT_D_CH_NCST'));
   }
 }
 
-/* 저장 버튼 */
+// 저장
 async function onClickSave() {
   const view = grdMainRef.value.getView();
   const chkRows = gridUtil.getCheckedRowValues(view);
@@ -327,24 +323,41 @@ async function onClickSave() {
     return;
   }
 
-  // check항목이 없을 경우 return
-  if (!(await gridUtil.validate(view, { isCheckedOnly: true }))) { return; }
-  // 변경사항이 없을 경우 알림 및 return
-  if (await gridUtil.alertIfIsNotModified(view)) { return; }
-  // 입력데이터 값 검증
-  if (!await gridUtil.validate(view)) { return; }
+  let valid = false;
+  // 유효성체크
+  if (!await gridUtil.validate(view, { isCheckedOnly: true })) return;
+  chkRows.forEach((e) => {
+    const { apyStrtdt, apyEnddt } = e;
+    if (isEmpty(apyStrtdt) || isEmpty(apyEnddt)) {
+      valid = true;
+      return false;
+    }
+  });
 
-  await dataService.post('sms/wells/service/paid-as-costs', chkRows);
-  notify(t('MSG_ALT_SAVE_DATA'));
+  if (valid) {
+    // {0}은(는) 필수 항목입니다.
+    await alert(`${t('MSG_TXT_APY_STRTDT')} ${t('MSG_ALT_NCELL_REQUIRED_ITEM')}`);
+    return;
+  }
 
-  await fetchData();
+  const res = await dataService.post('sms/wells/service/paid-as-costs', chkRows);
+  const { processCount } = res.data;
+  if (processCount > 0) {
+    notify(t('MSG_ALT_SAVE_DATA'));
+    await fetchData();
+  }
+}
+
+// 초기화 버튼 클릭
+async function onClickReset() {
+  await changePdGrpCd();
 }
 
 onMounted(async () => {
-  if (!isEmpty(searchParams.value.pdGrpCd)) {
-    await changePdGrpCd();
-  }
+  // 상품그룹에 해당하는 품목 리스트 조회
+  await changePdGrpCd();
 });
+
 // -------------------------------------------------------------------------------------------------
 // Initialize Grid
 // -------------------------------------------------------------------------------------------------
@@ -361,61 +374,64 @@ const initGrdMain = defineGrid((data, view) => {
     { fieldName: 'tcfeeAmt', dataType: 'number' }, // 기술료
     { fieldName: 'sumAmt', dataType: 'number' }, // 합계(소비자가+기술료)
     { fieldName: 'izSn' }, // 내역일련번호
-    { fieldName: 'pdctPdCd' }, // 사용자재상품코드
+    { fieldName: 'orgApyStrtdt' }, // 변경전 적용시작일
+    { fieldName: 'orgApyEnddt' }, // 변경전 적용종료일
+    { fieldName: 'pdctPdCd' }, // 기준상품코드
+    { fieldName: 'rn' }, // 순번
   ];
 
   const columns = [
-    { fieldName: 'sapMatCd', header: t('MSG_TXT_SAP_CD'), width: '200', styleName: 'text-center', editable: false }, // SAP코드
-    { fieldName: 'useMatPdCd', header: t('MSG_TXT_ITM_CD'), width: '150', styleName: 'text-center', editable: false }, // 품목코드
+    { fieldName: 'sapMatCd', header: t('MSG_TXT_SAP_CD'), width: '100', styleName: 'text-center', editable: false }, // SAP코드
+    { fieldName: 'useMatPdCd', header: t('MSG_TXT_ITM_CD'), width: '130', styleName: 'text-center', editable: false }, // 품목코드
     { fieldName: 'pdNm',
       header: t('MSG_TXT_PRDT_NM'),
       width: '350',
       styleName: 'text-left',
       editable: false }, // 상품명
-    { fieldName: 'apyStrtdt', header: t('MSG_TXT_APY_STRT_DAY'), width: '150', styleName: 'text-center', datetimeFormat: 'date', editable: false, autoFilter: false }, // 적용시작일
-    { fieldName: 'apyEnddt', header: t('MSG_TXT_APY_END_DAY'), width: '150', styleName: 'text-center', datetimeFormat: 'date', editable: false, autoFilter: false }, // 적용종료일
+    { fieldName: 'apyStrtdt', header: t('MSG_TXT_APY_STRT_DAY'), width: '150', styleName: 'text-center', datetimeFormat: 'date', editable: false, rules: 'required' }, // 적용시작일
+    { fieldName: 'apyEnddt', header: t('MSG_TXT_APY_END_DAY'), width: '150', styleName: 'text-center', datetimeFormat: 'date', editable: false, rules: 'required' }, // 적용종료일
     { fieldName: 'csmrUprcAmt',
       header: t('MSG_TXT_CSPRC'),
       width: '100',
-      rules: 'min_value:0',
+      rules: 'min_value:0|max_value:99999999',
       editor: {
         type: 'number',
-        maxLength: 8,
-        inputCharacters: ['0-9'],
+        editFormat: '#,##0',
       },
+      dataType: 'number',
       styleName: 'text-right',
     }, // 소비자가
     { fieldName: 'whlsUprcAmt',
       header: t('MSG_TXT_WHLS_UPRC'),
       width: '100',
-      rules: 'min_value:0',
+      rules: 'min_value:0|max_value:99999999',
       editor: {
         type: 'number',
-        maxLength: 8,
-        inputCharacters: ['0-9'],
+        editFormat: '#,##0',
       },
+      dataType: 'number',
       styleName: 'text-right',
     }, // 도매단가
     { fieldName: 'insiUprcAmt',
       header: t('MSG_TXT_INSI_UPRC'),
       width: '100',
-      rules: 'min_value:0',
+      rules: 'min_value:0|max_value:99999999',
       editor: {
         type: 'number',
-        maxLength: 8,
-        inputCharacters: ['0-9'],
+        editFormat: '#,##0',
       },
+      dataType: 'number',
       styleName: 'text-right',
     }, // 내부단가
     { fieldName: 'tcfeeAmt',
       header: t('MSG_TXT_TCFEE'),
       width: '100',
-      rules: 'min_value:0',
+      rules: 'min_value:0|max_value:99999999',
       editor: {
         type: 'number',
-        maxLength: 8,
-        inputCharacters: ['0-9'],
+        editFormat: '#,##0',
       },
+      dataType: 'number',
       styleName: 'text-right',
     }, // 기술료
     { fieldName: 'sumAmt',
@@ -433,11 +449,13 @@ const initGrdMain = defineGrid((data, view) => {
   view.rowIndicator.visible = true;
   view.filteringOptions.enabled = false;
 
-  const currentDate = now.format('YYYYMMDD');
-  // 소비자가, 도매단가, 내부단가, 기술료, 적용시작일/종료일 수정로직
+  // 소비자가, 도매단가, 내부단가, 기술료 수정로직
   view.onCellEditable = (grid, itemIndex) => {
-    const { apyStrtdt, apyEnddt } = gridUtil.getRowValue(grid, itemIndex.dataRow);
-    return (apyStrtdt <= currentDate && apyEnddt >= currentDate);
+    const { rn } = gridUtil.getRowValue(grid, itemIndex.dataRow);
+    if (['csmrUprcAmt', 'whlsUprcAmt', 'insiUprcAmt', 'tcfeeAmt'].includes(itemIndex.column) && rn === '1') {
+      return true;
+    }
+    return false;
   };
 
   // 합계(소비자가 + 기술료) 컬럼 계산 및 값 자동 반영 로직
@@ -456,10 +474,14 @@ const initGrdMain = defineGrid((data, view) => {
     }
   };
 
-  // 일련번호, 품목코드, 상품자재코드가 없는 데이터 check_box false
   view.setCheckableCallback((dataSource, item) => {
-    const { apyStrtdt, apyEnddt } = gridUtil.getRowValue(view, item.dataRow);
-    return (apyStrtdt <= currentDate && apyEnddt >= currentDate);
-  });
+    const { rn } = gridUtil.getRowValue(view, item.dataRow);
+
+    // 마지막 데이터인 경우
+    if (rn === '1') {
+      return true;
+    }
+    return false;
+  }, true);
 });
 </script>
