@@ -800,8 +800,8 @@ const initGrdMain = defineGrid((data, view) => {
       },
       visible: false,
     },
-    { fieldName: '재고지속월I\n(구매입고 미포함)', // 재고지속월I(구매입고 미포함) - 물류센터
-      header: t('MSG_TXT_STOC_CTN_MM_I'),
+    { fieldName: 'lgstKeppMm1', // 재고지속월I(구매입고 미포함) - 물류센터
+      header: '재고지속월I\n(구매입고 미포함)',
       width: '200',
       numberFormat: '#,##0.##',
       styleName: 'text-right',
@@ -810,8 +810,8 @@ const initGrdMain = defineGrid((data, view) => {
       },
       visible: false,
     },
-    { fieldName: '재고지속월II\n(구매입고 미포함)', // 재고지속월II(구매입고 미포함) - 물류센터
-      header: t('MSG_TXT_STOC_CTN_MM_II'),
+    { fieldName: 'lgstKeppMm2', // 재고지속월II(구매입고 미포함) - 물류센터
+      header: '재고지속월II\n(구매입고 미포함)',
       width: '200',
       numberFormat: '#,##0.##',
       styleName: 'text-right',
@@ -820,24 +820,24 @@ const initGrdMain = defineGrid((data, view) => {
       },
       visible: false,
     },
-    { fieldName: '재고지속월I\n(정상입고 미포함)', // 재고지속월I(정상입고 미포함) - 서비스센터
-      header: t('MSG_TXT_STOC_CTN_MM_I_NOM'),
+    { fieldName: 'svCnrKeppMm1', // 재고지속월I(정상입고 미포함) - 서비스센터
+      header: '재고지속월I\n(정상입고 미포함)',
       width: '200',
       numberFormat: '#,##0.##',
       styleName: 'text-right',
       footer: {
         styleName: 'text-right',
       } },
-    { fieldName: '재고지속월II\n(정상입고 미포함)', // 재고지속월II(정상입고 미포함) - 서비스센터
-      header: t('MSG_TXT_STOC_CTN_MM_II_NOM'),
+    { fieldName: 'svCnrKeppMm2', // 재고지속월II(정상입고 미포함) - 서비스센터
+      header: '재고지속월II\n(정상입고 미포함)',
       width: '200',
       numberFormat: '#,##0.##',
       styleName: 'text-right',
       footer: {
         styleName: 'text-right',
       } },
-    { fieldName: '재고지속월I\n(정상입고 미포함)', // 재고지속월I(정상입고 미포함) - 엔지니어
-      header: t('MSG_TXT_STOC_CTN_MM_I_NOM'),
+    { fieldName: 'svEgerKeppMm1', // 재고지속월I(정상입고 미포함) - 엔지니어
+      header: '재고지속월I\n(정상입고 미포함)',
       width: '200',
       numberFormat: '#,##0.##',
       styleName: 'text-right',
@@ -846,8 +846,8 @@ const initGrdMain = defineGrid((data, view) => {
       },
       visible: false,
     },
-    { fieldName: '재고지속월II\n(정상입고 미포함)', // 재고지속월II(정상입고 미포함) - 엔지니어
-      header: t('MSG_TXT_STOC_CTN_MM_II_NOM'),
+    { fieldName: 'svEgerKeppMm2', // 재고지속월II(정상입고 미포함) - 엔지니어
+      header: '재고지속월II\n(정상입고 미포함)',
       width: '200',
       numberFormat: '#,##0.##',
       styleName: 'text-right',

@@ -104,6 +104,17 @@
             :max-length="50"
           />
         </kw-search-item>
+        <kw-search-item :label="$t('MSG_TXT_ITM_CD')">
+          <kw-input
+            v-model="searchParams.pdCdFrom"
+            :max-length="50"
+          />
+          <span>~</span>
+          <kw-input
+            v-model="searchParams.pdCdTo"
+            :max-length="50"
+          />
+        </kw-search-item>
       </kw-search-row>
     </kw-search>
     <div class="result-area">
@@ -215,6 +226,8 @@ const searchParams = ref({
   itmKndCd: '', // 품목구분 - 디폴트 4 상품
   fromSapCd: '', // sap 코드
   toSapCd: '', // sap 코드
+  pdCdFrom: '',
+  pdCdTo: '',
 });
 
 let gridView;
