@@ -165,7 +165,7 @@ import {
   useDataService,
   useMeta,
   gridUtil,
-  notify,
+  notify, alert,
 } from 'kw-lib';
 import smsCommon from '~sms-wells/service/composables/useSnCode';
 import { cloneDeep, isEmpty } from 'lodash-es';
@@ -322,8 +322,22 @@ async function onClickSave() {
     return;
   }
 
+  let valid = false;
   // 유효성체크
-  if (!(await gridUtil.validate(view, { isCheckedOnly: true }))) { return; }
+  if (!await gridUtil.validate(view, { isCheckedOnly: true })) return;
+  chkRows.forEach((e) => {
+    const { apyStrtdt, apyEnddt } = e;
+    if (isEmpty(apyStrtdt) || isEmpty(apyEnddt)) {
+      valid = true;
+      return false;
+    }
+  });
+
+  if (valid) {
+    // {0}은(는) 필수 항목입니다.
+    await alert(`${t('MSG_TXT_APY_STRTDT')} ${t('MSG_ALT_NCELL_REQUIRED_ITEM')}`);
+    return;
+  }
 
   const res = await dataService.post('sms/wells/service/paid-as-costs', chkRows);
   const { processCount } = res.data;
@@ -458,5 +472,15 @@ const initGrdMain = defineGrid((data, view) => {
       grd.setValue(idx.dataRow, 'sumAmt', csmrUprcAmt + tcfeeAmt);
     }
   };
+
+  view.setCheckableCallback((dataSource, item) => {
+    const { rn } = gridUtil.getRowValue(view, item.dataRow);
+
+    // 마지막 데이터인 경우
+    if (rn === '1') {
+      return true;
+    }
+    return false;
+  }, true);
 });
 </script>
