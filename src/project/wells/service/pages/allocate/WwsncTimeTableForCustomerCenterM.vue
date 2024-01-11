@@ -1038,7 +1038,7 @@ async function onClickSave() {
 
 async function clickCell(action) {
   data.value.action = action;
-  window.opener?.postMessage(JSON.stringify(data.value.psic), '*');
+  window.opener?.postMessage(JSON.stringify(data.value.action), '*');
 }
 
 onMounted(async () => {
