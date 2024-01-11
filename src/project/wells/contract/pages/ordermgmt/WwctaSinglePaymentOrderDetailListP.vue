@@ -92,16 +92,16 @@
         </kw-form-item>
       </kw-form-row>
       <kw-form-row>
-        <!-- 파트너 유형 -->
-        <kw-form-item :label="$t('MSG_TXT_PRTNR_TP')">
+        <!-- 판매유형 -->
+        <kw-form-item :label="$t('MSG_TXT_SEL_TYPE')">
           <kw-input
-            v-model="frmMainData.sellInflwChnlDtlCd"
+            v-model="frmMainData.sellInflwChnlDtlNm"
             placeholder=""
             readonly
           />
         </kw-form-item>
-        <!-- 파트너 사번 -->
-        <kw-form-item :label="$t('MSG_TXT_PRTNR_EMP_NO')">
+        <!-- 판매자 -->
+        <kw-form-item :label="$t('MSG_TXT_SELLER_PERSON')">
           <!-- 파트너 번호 -->
           <kw-input
             v-model="frmMainData.sellPrtnrNo"
@@ -368,7 +368,7 @@
         <kw-form-item :label="$t('MSG_TXT_USWY_DV')">
           <kw-input
             v-model="frmMainData.svTpNm"
-            placeholder=""
+            :placeholder="$t('MSG_TXT_USWY_DV')"
             readonly
           />
         </kw-form-item>
@@ -574,7 +574,7 @@
           <kw-input
             v-model="frmMainData.feeFxamYn"
             align="left"
-            placeholder=""
+            :placeholder="$t('MSG_TXT_FXAM_YN')"
             readonly
           />
         </kw-form-item>
@@ -932,9 +932,10 @@ const frmMainData = ref({
   dgr3LevlDgPrtnrNo: '', // 지점
   ogTpNm: '', // 조직구분
   ogCd: '', // 조직코드
-  sellInflwChnlDtlCd: '', // 파트너 유형
-  sellPrtnrNo: '', // 파트너-번호
-  sellPrtnrNm: '', // 파트너-이름
+  sellInflwChnlDtlCd: '', // 판매유형
+  sellInflwChnlDtlNm: '', // 판매유형명
+  sellPrtnrNo: '', // 판매자사번
+  sellPrtnrNm: '', // 판매자성명
   cntrRcpFshDtm: '', // 접수일
   fstRgstDt: '', // 등록일
   cstKnm: '', // 계약자 명
@@ -1050,9 +1051,9 @@ async function fetchData() {
     frmMainData.value.dgr3LevlDgPrtnrNo = pages[0].dgr3LevlDgPrtnrNo; // 지점
     frmMainData.value.ogTpNm = pages[0].ogTpNm; // 조직구분
     frmMainData.value.ogCd = pages[0].fstRgstDeptId; // 조직코드
-    frmMainData.value.sellInflwChnlDtlCd = pages[0].sellInflwChnlDtlCd; // 파트너 유형
-    frmMainData.value.sellPrtnrNo = pages[0].sellPrtnrNo; // 파트너-번호
-    frmMainData.value.sellPrtnrNm = pages[0].sellPrtnrNm; // 파트너-이름
+    frmMainData.value.sellInflwChnlDtlNm = pages[0].sellInflwChnlDtlNm; // 판매유형명
+    frmMainData.value.sellPrtnrNo = pages[0].sellPrtnrNo; // 판매자사번
+    frmMainData.value.sellPrtnrNm = pages[0].sellPrtnrNm; // 판매자성명
     frmMainData.value.cntrRcpFshDtm = pages[0].cntrRcpFshDtm; // 접수일
     frmMainData.value.fstRgstDt = pages[0].fstRgstDt; // 등록일
     // -------------------------------------------------------------------------------------------------

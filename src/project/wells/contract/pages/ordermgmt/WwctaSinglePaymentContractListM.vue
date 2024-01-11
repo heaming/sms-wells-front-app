@@ -617,14 +617,14 @@ const initGridSnglPmntContractList = defineGrid((data, view) => {
     { fieldName: 'iostDtlCd' }, // 출고구분
     { fieldName: 'sppIvcCrtDtm' }, // 사은품택배송장출력일
     { fieldName: 'booSellYn' }, // 예약판매여부
-    { fieldName: 'cntrTpCd' }, // 계약유형코드
-    { fieldName: 'cntrTpNm' }, // 판매유형(계약유형코드명)
-    { fieldName: 'sellPrtnrNm' }, // 판매파트너명
-    { fieldName: 'sellPrtnrNmEncr' }, // 판매파트너명(암호화)
+    { fieldName: 'sellInflwChnlDtlCd' }, // 판매유형코드
+    { fieldName: 'sellInflwChnlDtlNm' }, // 판매유형명
+    { fieldName: 'sellPrtnrNm' }, // 판매자명
+    { fieldName: 'sellPrtnrNmEncr' }, // 판매파트자명(암호화)
     { fieldName: 'fstRgstUsrId' }, // 업무담당자
     { fieldName: 'fstRgstDeptId' }, // 조직코드
     { fieldName: 'rveCd' }, // 수납코드
-    { fieldName: 'uswyDv' }, // 용도구분
+    { fieldName: 'svTpNm' }, // 용도구분
     { fieldName: 'svPrd' }, // 관리주기
     { fieldName: 'frisuAsPtrmN' }, // 무상AS기간
     { fieldName: 'frisuBfsvcPtrmN' }, // 무상멤버십개월
@@ -721,8 +721,8 @@ const initGridSnglPmntContractList = defineGrid((data, view) => {
     { fieldName: 'cpsDt', header: t('MSG_TXT_COMP_D'), width: '136', styleName: 'text-center', datetimeFormat: 'date' }, // 보상일
     { fieldName: 'slPasgDt', header: t('MSG_TXT_SL_PASG_DT'), width: '136', styleName: 'text-center', datetimeFormat: 'date' }, // 매출경과일
     { fieldName: 'slCnfmYn', header: t('MSG_TXT_SL_CNFM_YN'), width: '136', styleName: 'text-center' }, // 매출확정여부
-    { fieldName: 'cntrTpCd', header: `${t('MSG_TXT_CANCEL')}${t('MSG_TXT_TYPE')}`, width: '136', styleName: 'text-center' }, // 취소유형
-    { fieldName: 'cntrTpNm', header: `${t('MSG_TXT_CANCEL')}${t('MSG_TXT_TYPE')}${t('MSG_TXT_NM')}`, width: '270', styleName: 'text-center' }, // 취소유형명
+    { fieldName: 'cntrCanRsonCd', header: `${t('MSG_TXT_CANCEL')}${t('MSG_TXT_TYPE')}`, width: '136', styleName: 'text-center' }, // 취소유형
+    { fieldName: 'canRsonNm', header: `${t('MSG_TXT_CANCEL')}${t('MSG_TXT_TYPE')}${t('MSG_TXT_NM')}`, width: '270', styleName: 'text-center' }, // 취소유형명
     { fieldName: 'cntrChDtlRsonCd', header: `${t('MSG_TXT_CNTRCT')}${t('MSG_TXT_CH')} ${t('MSG_TXT_TYPE')}`, width: '136', styleName: 'text-center' }, // 계약변경유형
     { fieldName: 'cntrChDtlRsonNm', header: `${t('MSG_TXT_CNTRCT')}${t('MSG_TXT_CH')}${t('MSG_TXT_NM')}`, width: '136', styleName: 'text-center' }, // 계약변경명
     { fieldName: 'frisuYn', header: t('MSG_TXT_FRE_EXPN_YN'), width: '136', styleName: 'text-center' }, // 무료체험여부
@@ -732,12 +732,12 @@ const initGridSnglPmntContractList = defineGrid((data, view) => {
     { fieldName: 'iostDtlCd', header: t('MSG_TXT_OSTR_DV'), width: '136', styleName: 'text-center' }, // 출고구분
     { fieldName: 'sppIvcCrtDtm', header: `${t('MSG_TXT_FGPT')}${t('MSG_TXT_PCSV_IVC_PRNT_DT')}`, width: '183', styleName: 'text-center' }, // 사은품택배송장출력일
     { fieldName: 'booSellYn', header: t('TXT_MSG_BOO_SELL_YN'), width: '136', styleName: 'text-center' }, // 예약판매여부
-    { fieldName: 'cntrTpNm', header: t('MSG_TXT_SEL_TYPE'), width: '136', styleName: 'text-center' }, // 판매유형
-    { fieldName: 'sellPrtnrNm', header: t('MSG_TXT_PTNR_NAME'), width: '136', styleName: 'text-center' }, // 파트너명
+    { fieldName: 'sellInflwChnlDtlNm', header: t('MSG_TXT_SEL_TYPE'), width: '136', styleName: 'text-center' }, // 판매유형명
+    { fieldName: 'sellPrtnrNm', header: t('MSG_TXT_PTNR_NAME'), width: '136', styleName: 'text-center' }, // 판매자명
     { fieldName: 'fstRgstUsrId', header: `${t('MSG_TXT_TASK')}${t('MSG_TXT_PIC')}`, width: '136', styleName: 'text-center' }, // 업무담당자
     { fieldName: 'fstRgstDeptId', header: t('MSG_TXT_OG_CD'), width: '136', styleName: 'text-center' }, // 조직코드
     { fieldName: 'rveCd', header: t('MSG_TXT_RVE_CD'), width: '136', styleName: 'text-center' }, // 수납코드
-    { fieldName: 'uswyDv', header: t('MSG_TXT_USWY_DV'), width: '136', styleName: 'text-center' }, // 용도구분
+    { fieldName: 'svTpNm', header: t('MSG_TXT_USWY_DV'), width: '136', styleName: 'text-center' }, // 용도구분
     { fieldName: 'svPrd', header: t('MSG_TXT_MNGT_PRD'), width: '136', styleName: 'text-right' }, // 관리주기
     { fieldName: 'frisuAsPtrmN', header: `${t('MSG_TXT_FRISU_AS')}${t('MSG_TXT_PRD')}`, width: '136', styleName: 'text-right' }, // 무상A/S기간
     { fieldName: 'frisuBfsvcPtrmN', header: `${t('MSG_TXT_FRISU_MSH')}${t('MSG_TXT_MCNT')}`, width: '136', styleName: 'text-right' }, // 무상멤버십개월
