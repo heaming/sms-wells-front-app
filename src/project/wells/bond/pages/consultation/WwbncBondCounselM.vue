@@ -80,6 +80,7 @@
             :options="[(tnoInfo.tno1) ? tnoInfo.tno1 : '', (tnoInfo.tno2) ? tnoInfo.tno2 : ''
                        , (tnoInfo.tno3) ? tnoInfo.tno3 : '']"
             class="call-center-radio"
+            @update:model-value="updateTno"
           />
         </div>
         <!-- rev:230802 추가 -->
@@ -1248,6 +1249,17 @@ onMounted(async () => {
 
   fetchData();
 });
+
+function updateTno() {
+  if (searchParams.value.tno) {
+    const arr = searchParams.value.tno.split('-');
+    if (arr.length === 3) {
+      baseParams.value.sysCALL_tel_no1 = arr[0];
+      baseParams.value.sysCALL_tel_no2 = arr[1];
+      baseParams.value.sysCALL_tel_no3 = arr[2];
+    }
+  }
+}
 
 </script>
 
