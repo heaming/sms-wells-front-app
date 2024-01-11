@@ -330,7 +330,7 @@ const validateComponent = computed(() => async () => {
     }
   }
 
-  if (searchParams.value.stClctamPrtnrNo > searchParams.value.enClctamPrtnrNo) {
+  if (Number(searchParams.value.stClctamPrtnrNo) > Number(searchParams.value.enClctamPrtnrNo)) {
     errors.push(t('MSG_ALT_STRT_CLCTAM_END_CLCTAM_CMPR'));
     // 시작 집금담당자사번이 종료 집금담당자사번보다 클 수 없습니다.
   }
@@ -354,7 +354,7 @@ const validateUsrComponent = computed(() => async () => {
     }
   }
 
-  if (searchParams.value.stFstRgstUsrId > searchParams.value.enFstRgstUsrId) {
+  if (Number(searchParams.value.stFstRgstUsrId) > Number(searchParams.value.enFstRgstUsrId)) {
     errors.push(t('MSG_ALT_STRT_ICHR_END_ICHR_CMPR'));
     // 시작 입력담당자사번이 종료 입력담당자사번보다 클 수 없습니다.
   }
@@ -376,7 +376,7 @@ const validateRveCdComponent = computed(() => async () => {
     }
   }
 
-  if (searchParams.value.stRveCd > searchParams.value.enRveCd) {
+  if (Number(searchParams.value.stRveCd) > Number(searchParams.value.enRveCd)) {
     errors.push(t('시작 수납코드는 종료수납코드보다 클 수 없습니다.'));
   }
 
