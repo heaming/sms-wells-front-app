@@ -161,8 +161,8 @@ const codes = await codeUtil.getMultiCodes(
 );
 
 const ogTp = ref([
-  { codeId: 'W01', codeName: 'P추진' },
-  { codeId: 'W02', codeName: 'M추진' },
+  { codeId: 'W01', codeName: 'P조직' },
+  { codeId: 'W02', codeName: 'M조직' },
 ]);
 
 const perfDv = ref([
