@@ -296,9 +296,10 @@ async function onClickApplyDateBulkChange() {
   let cnt = 0;
   for (let i = 0; i < chkRows.length; i += 1) {
     const rn = data.getValue(chkRows[i].dataRow, 'rn');
+    const orgApyStrtdt = data.getValue(chkRows[i].dataRow, 'orgApyStrtdt');
 
     // 마지막 데이터만 적용일자를 수정할 수 있음.
-    if (rn === '1') {
+    if (rn === '1' && orgApyStrtdt < apyStrtdt) {
       data.setValue(chkRows[i].dataRow, 'apyStrtdt', apyStrtdt);
       data.setValue(chkRows[i].dataRow, 'apyEnddt', apyEnddt);
       cnt += 1;
