@@ -583,7 +583,8 @@ const initGrdMain = defineGrid((data, view) => {
 
   view.onCellDblClicked = async (g, { dataRow, column }) => {
     if (column === 'prtnrNo') {
-      movePage(g.getValue(dataRow, 'prtnrNo'));
+      const prtnrNo = gridUtil.getCellValue(g, dataRow, 'prtnrNo');
+      movePage(prtnrNo);
     }
   };
 });
