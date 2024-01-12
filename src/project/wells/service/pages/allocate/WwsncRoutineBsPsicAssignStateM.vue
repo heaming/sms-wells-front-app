@@ -284,7 +284,7 @@ const grdMainRef = ref(getComponentType('KwGrid'));
 const dataService = useDataService();
 const { getConfig } = useMeta();
 
-const { modal } = useGlobal();
+const { modal, alert } = useGlobal();
 const { t } = useI18n();
 const { currentRoute } = useRouter();
 const router = useRouter();
@@ -454,6 +454,15 @@ async function onClickExpPartPs() {
 }
 
 async function onClickOZ() {
+  if (searchParams.value.mngrDvCd === '1' && searchParams.value.dgr3LevlOgId === '') {
+    alert(t('매니저 지점을 지정해주세요!'));
+    return false;
+  }
+
+  if (searchParams.value.mngrDvCd === '2' && searchParams.value.ogId === '') {
+    alert(t('엔지니어 서비스센터를 지정해주세요!'));
+    return false;
+  }
   const ozWkDvCdList = searchParams.value.wkDvCds;
   // const prtnrNos = searchParams.value.prtnrNo;
   // if (prtnrNos === '') {
