@@ -348,9 +348,11 @@ async function onClickAdd() {
   const view = grdMainRef.value.getView();
 
   const row = gridUtil.find(view, (e) => e.isLast === 'Y');
-  const data = grdMainRef.value.getData();
-  data.setValue(row.dataRow, 'isLast', 'N');
-  view.checkItem(row.dataRow, false);
+  if (!isEmpty(row)) {
+    const data = grdMainRef.value.getData();
+    data.setValue(row.dataRow, 'isLast', 'N');
+    view.checkItem(row.dataRow, false);
+  }
 
   const pdInfo = pds.value.find((v) => v.cd === pdCd);
   const lastData = findLastData(pdCd);
