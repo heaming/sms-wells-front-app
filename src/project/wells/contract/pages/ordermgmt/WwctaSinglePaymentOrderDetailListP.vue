@@ -554,7 +554,7 @@
         <!-- 인정건수 -->
         <kw-form-item :label="$t('MSG_TXT_PD_ACC_CNT')">
           <kw-input
-            v-model="frmMainData.ackmtPerfCt"
+            v-model="frmMainData.feeAckmtCt"
             align="right"
             placeholder=""
             readonly
@@ -983,7 +983,7 @@ const frmMainData = ref({
   istmMcn: '', // 할부
   mmIstmAmt: '', // 할부금액
   ackmtPerfAmt: '', // 인정실적액
-  ackmtPerfCt: '', // 인정건수
+  feeAckmtCt: '', // 인정건수
   feeAckmtBaseAmt: '', // 수수료 기준금액
   feeFxamYn: '', // 정액여부
   dpTpNm: '', // 이체구분
@@ -1123,7 +1123,7 @@ async function fetchData() {
     frmMainData.value.istmMcn = stringUtil.getNumberWithComma(Number(pages[0].istmMcn), 0); // 할부
     frmMainData.value.mmIstmAmt = stringUtil.getNumberWithComma(Number(pages[0].mmIstmAmt), 0); // 할부금액
     frmMainData.value.ackmtPerfAmt = stringUtil.getNumberWithComma(Number(pages[0].ackmtPerfAmt), 0); // 인정실적액
-    frmMainData.value.ackmtPerfCt = pages[0].ackmtPerfCt; // 인정건수
+    frmMainData.value.feeAckmtCt = pages[0].feeAckmtCt; // 인정건수
     frmMainData.value.feeAckmtBaseAmt = stringUtil.getNumberWithComma(Number(pages[0].feeAckmtBaseAmt), 0); // 수수료 기준금액
     frmMainData.value.feeFxamYn = pages[0].feeFxamYn; // 정액여부
     // -------------------------------------------------------------------------------------------------
