@@ -439,7 +439,7 @@ async function onChangeOgTp() {
 
   view.onCellDblClicked = async (g, { dataRow, column }) => {
     if (column === 'prtnrNo') {
-      movePage(g.getValue(dataRow, 'prtnrNo'));
+      movePage(gridUtil.getCellValue(g, dataRow, 'prtnrNo'));
     }
   };
 
