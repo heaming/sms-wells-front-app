@@ -256,7 +256,11 @@ async function onClickDetailFileSave() {
   const response = await dataService.post('/sms/wells/closing/product-account/make-file', searchParams.value, { timeout: 500000 });
   batchParams.value.jobId = response.data;
   // console.log('batchParams.value.jobId:', batchParams.value.jobId);
-  if (!isEmpty(response.data)) notify(t('MSG_ALT_DTL_IZ_FILE_CRT_STRT')); // 상세내역 파일 생성작업을 시작하였습니다.
+  if (response.data === 'P') {
+    notify(t('MSG_ALT_FILE_GENERATING_STARTED'));
+  } else if (!isEmpty(response.data)) {
+    notify(t('MSG_ALT_DTL_IZ_FILE_CRT_STRT')); // 상세내역 파일 생성작업을 시작하였습니다.
+  }
   // else if (response.data === 'Ended Not OK') notify(t('MSG_ALT_CRT_FAIL')); // 생성에 실패 하였습니다.
 }
 
