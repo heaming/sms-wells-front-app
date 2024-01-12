@@ -267,7 +267,7 @@ async function onClickDetailFileSave() {
 // 상세내역 다운로드
 async function onClickDetailExportView() {
   const { baseYm } = searchParams.value;
-  const response = await dataService.get('/sms/wells/closing/product-account/check-downloadable', { params: searchParams.value });
+  const response = await dataService.get('/sms/wells/closing/product-account/check-downloadable', { params: { baseYm } });
   if (response.data === 'P') {
     notify(t('MSG_ALT_FILE_GENERATING_STARTED'));
   } else {
