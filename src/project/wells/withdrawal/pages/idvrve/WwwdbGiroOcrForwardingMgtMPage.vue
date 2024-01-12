@@ -246,8 +246,6 @@ const searchParams = ref({
   giroOcrPblDtm: now.format('YYYYMMDD'),
 });
 
-// console.log(searchParams.value.giroOcrPblDtm);
-
 let cachedParams;
 
 async function fetchData() {
@@ -356,7 +354,7 @@ async function onClickSave() {
 
   await dataService.post('/sms/wells/withdrawal/idvrve/giro-ocr-forwardings', changedRows);
 
-  notify(t('MSG_ALT_SAVE_DATA'));
+  notify(t('MSG_ALT_SAVE_DATA')); // 저장되었습니다.
 
   onClickSearch();
 }
@@ -367,11 +365,13 @@ async function onClickPrintCreate() {
 
   if (gridUtil.isModified(view)) {
     await notify(t('MSG_ALT_CHG_CNTN_AFTER_SAVE'));
+    // 변경된 내용이 있습니다. 저장 후 진행 해 주세요.
     return;
   }
 
   if (!searchParams.value.wkDt) {
     await notify(t('MSG_ALT_NCELL_REQUIRED_ITEM', [t('MSG_TXT_WK_DAY')]));
+    // 작업일은(는) 필수 항목입니다.
     return;
   }
   // 그리드 리스트
@@ -382,7 +382,7 @@ async function onClickPrintCreate() {
     return;
   }
 
-  if (!await confirm(t('MSG_ALT_PRNT_CRT'))) { return; }
+  if (!await confirm(t('MSG_ALT_PRNT_CRT'))) { return; } // 출력생성 하시겠습니까?
 
   const paramData = {
     state: 'created',
@@ -397,7 +397,7 @@ async function onClickPrintCreate() {
 
   fileUtil.downloadBlob(res.data, `GR65${searchParams.value.wkDt.substring(4, 8)}.txt`);
 
-  notify(t('MSG_ALT_CRT_FSH'));
+  notify(t('MSG_ALT_CRT_FSH')); // 생성 되었습니다.
 
   fetchData();
 }
@@ -439,16 +439,14 @@ const initGrid = defineGrid((data, view) => {
   const columns = [
     { fieldName: 'wkDt',
       header: {
-        text: t('MSG_TXT_WK_DT'),
-        // text: '작업일자',
+        text: t('MSG_TXT_WK_DT'), // 작업일자
         styleName: 'essential',
       },
       datetimeFormat: 'date',
-      editor: {
-        type: 'btdate',
-      },
+      editor: { type: 'btdate' },
       // styleCallback(grid, dataCell) {
-      //   return dataCell.item.rowState === 'created' ? { editable: true,
+      //   return dataCell.item.rowState === 'created' ? {
+      // editable: true,
       //     editor: {
       //       type: 'btdate',
       //       datetimeFormat: 'yyyyMMdd',
@@ -461,7 +459,6 @@ const initGrid = defineGrid((data, view) => {
       //     textFormat: '([0-9]{4})([0-9]{2})([0-9]{2})$;$1-$2-$3',
       //   } : { styleName: 'text-center' };
       // },
-
       width: '139',
       styleName: 'text-center',
       rules: 'required',
@@ -469,8 +466,7 @@ const initGrid = defineGrid((data, view) => {
     {
       fieldName: 'cntr',
       header: {
-        text: t('MSG_TXT_CNTR_DTL_NO'),
-        // text: '계약상세번호',
+        text: t('MSG_TXT_CNTR_DTL_NO'), // 계약상세번호
         styleName: 'essential',
       },
       width: '140',
@@ -482,66 +478,70 @@ const initGrid = defineGrid((data, view) => {
       },
       editable: false,
       rules: 'required|min:12|max:17',
+      displayCallback(g, index) {
+        const { cntrNo, cntrSn } = g.getValues(index.itemIndex);
+        if (isEmpty(cntrNo) || isEmpty(cntrSn)) {
+          return '';
+        }
+        return `${cntrNo}-${cntrSn}`;
+      },
       buttonVisibleCallback(grid, index) {
         return grid.getDataSource().getRowState(index.dataRow) === 'created';
       },
     },
     { fieldName: 'cstFnm',
-      header: t('MSG_TXT_CST_NM'),
+      header: t('MSG_TXT_CST_NM'), // 고객명
       editable: false,
-
-      // , header: '고객명'
-      width: '100' },
+      width: '100',
+    },
     { fieldName: 'slDt',
-      header: t('MSG_TXT_SL_DT'),
-      // , header: '매출일자'
+      header: t('MSG_TXT_SL_DT'), // 매출일자
       width: '100',
       datetimeFormat: 'date',
-      editor: {
-        type: 'date',
-      },
+      editor: { type: 'date' },
       editable: false,
-      styleName: 'text-center' },
+      styleName: 'text-center',
+    },
     { fieldName: 'rentalTn',
-      header: t('MSG_TXT_CRTL_NMN'),
+      header: t('MSG_TXT_CRTL_NMN'), // 현재차월
       numberFormat: '#,##0',
-      // , header: '현재차월'
       width: '70',
       editable: false,
-      styleName: 'text-center' },
+      styleName: 'text-center',
+    },
     { fieldName: 'recapDutyPtrmN',
-      header: t('MSG_TXT_STPL_MCNT'),
+      header: t('MSG_TXT_STPL_MCNT'), // 약정개월
       numberFormat: '#,##0',
-      // , header: '약정개월'
       width: '70',
       editable: false,
-      styleName: 'text-center' },
+      styleName: 'text-center',
+    },
     { fieldName: 'strtGiroTn',
-      header: t('MSG_TXT_STRT'),
+      header: t('MSG_TXT_STRT'), // 시작
       editor: {
         type: 'number',
         editFormat: '#,##0',
       },
       rules: 'required|max:5',
       numberFormat: '#,##0',
-      // , header: '시작'
       width: '70',
       styleName: 'text-right',
-      editable: true },
+      editable: true,
+    },
     { fieldName: 'endGiroTn',
-      header: t('MSG_TXT_SHUTDOWN'),
+      header: t('MSG_TXT_SHUTDOWN'), // 종료
       editor: {
         type: 'number',
         editFormat: '#,##0',
       },
       numberFormat: '#,##0',
       rules: 'required|max:5',
-      // , header: '종료'
       width: '70',
       styleName: 'text-right',
-      editable: true },
+      editable: true,
+    },
     { fieldName: 'thm0Amt',
-      header: 0 + t('MSG_TXT_NMN'),
+      header: 0 + t('MSG_TXT_NMN'), // 차월
       width: '100',
       rules: 'required|max:20',
       styleName: 'text-right',
@@ -552,20 +552,16 @@ const initGrid = defineGrid((data, view) => {
       },
     },
     { fieldName: 'istmMcn',
-      header: t('MSG_TXT_RENT_PRD_MN'),
-      // , header: '렌탈기간'
+      header: t('MSG_TXT_RENT_PRD_MN'), // 렌탈기간
       width: '70',
       styleName: 'text-right',
       numberFormat: '#,##0',
       rules: 'required|max:12',
       editable: false,
-      editor: {
-        type: 'number',
-      },
+      editor: { type: 'number' },
     },
     { fieldName: 'istmAmt',
-      header: t('MSG_TXT_RTLFE'),
-      // , header: '렌탈료'
+      header: t('MSG_TXT_RTLFE'), // 렌탈료
       numberFormat: '#,##0',
       // rules: 'required|max:20',
       width: '100',
@@ -574,10 +570,10 @@ const initGrid = defineGrid((data, view) => {
       editor: {
         type: 'number',
         editFormat: '#,##0',
-      } },
+      },
+    },
     { fieldName: 'istmDscAmt',
-      header: t('MSG_TXT_RENTAL_DSC'),
-      // , header: '렌탈할인'
+      header: t('MSG_TXT_RENTAL_DSC'), // 렌탈할인
       width: '100',
       // rules: 'required|max:20',
       numberFormat: '#,##0',
@@ -586,10 +582,10 @@ const initGrid = defineGrid((data, view) => {
       editor: {
         type: 'number',
         editFormat: '#,##0',
-      } },
+      },
+    },
     { fieldName: 'pyAmt',
-      header: t('MSG_TXT_BIL_RTLFE'),
-      // , header: '청구 렌탈료'
+      header: t('MSG_TXT_BIL_RTLFE'), // 청구 렌탈료
       width: '100',
       styleName: 'text-right',
       rules: 'required|max:20',
@@ -598,9 +594,10 @@ const initGrid = defineGrid((data, view) => {
         type: 'number',
         editFormat: '#,##0',
       },
-      editable: true },
+      editable: true,
+    },
     { fieldName: 'stplNmnAmt',
-      header: t('MSG_TXT_STPL_NMN'),
+      header: t('MSG_TXT_STPL_NMN'), // 약정차월
       numberFormat: '#,##0',
       editor: {
         type: 'number',
@@ -609,10 +606,10 @@ const initGrid = defineGrid((data, view) => {
       rules: 'required|max:20',
       width: '100',
       styleName: 'text-right',
-      editable: true },
+      editable: true,
+    },
     { fieldName: 'exnNmnAmt',
-    // , header: '만료차월'
-      header: t('MSG_TXT_EXN_NMN'),
+      header: t('MSG_TXT_EXN_NMN'), // 만료차월
       rules: 'required|max:20',
       width: '100',
       numberFormat: '#,##0',
@@ -621,34 +618,26 @@ const initGrid = defineGrid((data, view) => {
         editFormat: '#,##0',
       },
       styleName: 'text-right',
-      editable: true },
+      editable: true,
+    },
     { fieldName: 'ltpayYn',
-      header: t('MSG_TXT_LTPAY_YN'),
-      // header: '후납여부',
+      header: t('MSG_TXT_LTPAY_YN'), // 후납여부
       width: '100',
       styleName: 'text-center',
       editable: true,
       rules: 'required',
-      editor: {
-        type: 'dropdown',
-      },
-      values: [
-        'Y',
-        'N',
-      ],
-      labels: [
-        'Y',
-        'N',
-      ] },
+      editor: { type: 'list' },
+      values: ['Y', 'N'],
+      labels: ['Y', 'N'],
+    },
     { fieldName: 'giroRglrDvCd',
-      header: t('MSG_TXT_RGLR_DV'),
-      // header: '정기구분',
+      header: t('MSG_TXT_RGLR_DV'), // 정기구분
       width: '100',
       styleName: 'text-center',
       rules: 'required',
       editable: false,
-      options: codes.GIRO_RGLR_DV_CD },
-
+      options: codes.GIRO_RGLR_DV_CD,
+    },
   ];
 
   data.setFields(fields);
@@ -662,9 +651,11 @@ const initGrid = defineGrid((data, view) => {
     const { cntr, strtGiroTn, endGiroTn } = await grid.getValues(index.dataRow);
     if (!cntr) {
       return t('MSG_ALT_NCELL_REQUIRED_VAL', [t('MSG_TXT_CNTR_DTL_NO')]);
+      // 계약상세번호 은(는) 필수값 입니다.
     }
     if (strtGiroTn > endGiroTn) {
       return t('MSG_ALT_STRT_YM_END_YM_BIG', [t('MSG_TXT_STRT'), t('MSG_TXT_SHUTDOWN')]);
+      // 시작 은(는) 종료 보다 작아야 합니다.
     }
   };
 
@@ -675,25 +666,16 @@ const initGrid = defineGrid((data, view) => {
   //   }
   // };
 
-  view.onCellButtonClicked = async (g, { column, itemIndex }) => {
-    if (column === 'cntr') {
-      // console.log(column);
-      console.log(itemIndex);
-    }
-  };
-
   view.setColumnLayout([
     'wkDt', // single
     'cntr', 'cstFnm', 'slDt', 'rentalTn', 'recapDutyPtrmN',
     {
-      header: t('MSG_TXT_GIRO_TN'),
-      // header: '지로회차',
+      header: t('MSG_TXT_GIRO_TN'), // 지로회차
       direction: 'horizontal',
       items: ['strtGiroTn', 'endGiroTn'],
     },
     {
-      header: t('MSG_TXT_RENTAL_AMT'),
-      // header: ' 렌탈금액',
+      header: t('MSG_TXT_RENTAL_AMT'), // 렌탈금액
       direction: 'horizontal',
       items: ['istmMcn', 'thm0Amt', 'istmAmt', 'istmDscAmt', 'pyAmt'],
     },
@@ -712,6 +694,7 @@ const initGrid = defineGrid((data, view) => {
     if (column === 'cntr') {
       if (isEmpty(wkDt)) {
         alert(t('MSG_ALT_NCELL_REQUIRED_VAL', [t('MSG_TXT_CNTR_DTL_NO')]));
+        // 계약상세번호 은(는) 필수값 입니다.
         return;
       }
 
@@ -721,10 +704,7 @@ const initGrid = defineGrid((data, view) => {
 
       if (result) {
         const cntr = payload.cntrNo + payload.cntrSn;
-        // const cntrSn = payload.cntrSn;
         const res = await dataService.get(`/sms/wells/withdrawal/idvrve/giro-ocr-forwardings/objects/${cntr}/${wkDt.substring(0, 6)}`);
-
-        // console.log(res.data);
 
         if (!res.data.length > 0) {
           await alert('선택한 계약 관련하여 매출정보가 등록되지 않아 추가가 불가능합니다.');
@@ -732,9 +712,6 @@ const initGrid = defineGrid((data, view) => {
         }
 
         view.setValues(itemIndex, res.data[0]);
-        // data.setValue(itemIndex, 'cntrNo', payload.cntrNo);
-        // data.setValue(itemIndex, 'cntrSn', payload.cntrSn);
-        // data.setValue(itemIndex, 'cntr', cntr);
       }
     }
   };
