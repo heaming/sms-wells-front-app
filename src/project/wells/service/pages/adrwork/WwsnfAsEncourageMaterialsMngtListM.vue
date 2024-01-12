@@ -35,7 +35,7 @@
           <kw-select
             v-model="searchParams.pdCd"
             :options="pds"
-            first-option="select"
+            first-option="all"
             option-label="cdNm"
             option-value="cd"
             :disable="searchParams.pdGrpCd === '' "
@@ -59,12 +59,14 @@
             v-model="searchParams.classB"
             :disable="searchParams.classA === '' "
             :options="classBRef"
+            first-option="all"
             @change="searchCustomerCenterClassB"
           />
           <kw-select
             v-model="searchParams.classC"
             :disable="searchParams.classB === '' "
             :options="classCRef"
+            first-option="all"
           />
         </kw-search-item>
       </kw-search-row>
@@ -220,6 +222,7 @@ const initGrdMain = defineGrid((data, view) => {
     { fieldName: 'sapMatCd' },
     { fieldName: 'pdCd' },
     { fieldName: 'pdNm' },
+    { fieldName: 'recomSapCd' },
     { fieldName: 'itmPdCd' },
     { fieldName: 'itmPdNm' },
     { fieldName: 'cnslTpLcsfCdNm' },
@@ -229,24 +232,39 @@ const initGrdMain = defineGrid((data, view) => {
   ];
 
   const columns = [
-    { fieldName: 'sapMatCd', header: t('MSG_TXT_SAPCD'), width: '170', styleName: 'text-center' },
-    { fieldName: 'pdCd', header: t('MSG_TXT_ITM_CD'), width: '150', styleName: 'text-center' },
-    { fieldName: 'pdNm', header: t('MSG_TXT_PRDT_NM'), width: '200', styleName: 'text-left' },
-    { fieldName: 'itmPdCd', header: t('MSG_TXT_RCMD_MAT_CD'), width: '150', styleName: 'text-center' },
-    { fieldName: 'itmPdNm', header: t('MSG_TXT_RCMD_MAT'), width: '300', styleName: 'text-left' },
+    { fieldName: 'sapMatCd', header: t('MSG_TXT_SAPCD'), width: '100', styleName: 'text-center' },
+    { fieldName: 'pdCd', header: t('MSG_TXT_PROD_CD'), width: '120', styleName: 'text-center' },
+    { fieldName: 'pdNm', header: t('MSG_TXT_GOODS_NM'), width: '200', styleName: 'text-left' },
+    { fieldName: 'recomSapCd', header: t('MSG_TXT_SAPCD'), width: '100', styleName: 'text-center' },
+    { fieldName: 'itmPdCd', header: t('MSG_TXT_MATI_CD'), width: '120', styleName: 'text-center' },
+    { fieldName: 'itmPdNm', header: t('MSG_TXT_MATI_NM'), width: '200', styleName: 'text-left' },
     { fieldName: 'cnslTpLcsfCdNm', header: t('MSG_TXT_RCP_SYMPT'), width: '120', styleName: 'text-left' },
     { fieldName: 'cnslCn', header: t('MSG_TXT_RCP_SYMPT_DTL'), width: '400', styleName: 'text-left' },
-    { fieldName: 'itmRcmdRnk', header: t('MSG_TXT_RCMD_RNK'), width: '100', styleName: 'text-center', dataType: 'number' },
-    { fieldName: 'itmRcmdQty', header: t('MSG_TXT_QTY'), width: '100', styleName: 'text-right' },
+    { fieldName: 'itmRcmdRnk', header: t('MSG_TXT_RCMD_RNK'), width: '80', styleName: 'text-center', numberFormat: '#,##0' },
+    { fieldName: 'itmRcmdQty', header: t('MSG_TXT_QTY'), width: '80', styleName: 'text-right', numberFormat: '#,##0' },
   ];
+
+  // 헤더 부분 merge
+  const layoutColumns = [
+    { direction: 'horizontal',
+      header: { text: t('MSG_TXT_PDCT') },
+      items: ['sapMatCd', 'pdCd', 'pdNm'],
+    },
+    { direction: 'horizontal',
+      header: { text: t('MSG_TXT_RCMD_MAT') },
+      items: ['recomSapCd', 'itmPdCd', 'itmPdNm', 'itmRcmdRnk', 'itmRcmdQty'],
+    },
+    'cnslTpLcsfCdNm', 'cnslCn',
+  ];
+
   data.setFields(fields);
   view.setColumns(columns);
+  view.setColumnLayout(layoutColumns);
 
   view.displayOptions.emptyMessage = t('MSG_ALT_NO_INFO_SRCH');
   view.checkBar.visible = false;
   view.editOptions.editable = false; // Grid Editable On
   view.rowIndicator.visible = true;
-  // view.displayOptions.selectionStyle = 'singleRow';
 });
 
 onMounted(async () => {
