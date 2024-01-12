@@ -332,8 +332,7 @@ const initGrid = defineGrid((data, view) => {
     {
       fieldName: 'cntr',
       header: {
-        text: t('MSG_TXT_CNTR_DTL_NO'),
-        // text: '계약상세번호',
+        text: t('MSG_TXT_CNTR_DTL_NO'), // 계약상세번호
         styleName: 'essential',
       },
       width: '180',
@@ -358,37 +357,34 @@ const initGrid = defineGrid((data, view) => {
       styleName: 'text-center',
       editable: false },
     { fieldName: 'sellTpCd',
-      header: t('MSG_TXT_SEL_TYPE'),
-      // header: '판매유형',
+      header: t('MSG_TXT_SEL_TYPE'), // 판매유형
       width: '90',
       styleName: 'text-left',
       options: codes.SELL_TP_CD,
-      editable: false },
+      editable: false,
+    },
     { fieldName: 'pdCd',
-      header: t('MSG_TXT_PRDT_CODE'),
-      //  header: '상품코드'
+      header: t('MSG_TXT_PRDT_CODE'), // 상품코드
       width: '109',
       styleName: 'text-left',
-      editable: false },
+      editable: false,
+    },
     { fieldName: 'pdNm',
-      header: t('MSG_TXT_PRDT_NM'),
-      // , header: '상품명'
+      header: t('MSG_TXT_PRDT_NM'), // 상품명
       width: '200',
       styleName: 'text-center',
-      editable: false },
+      editable: false,
+    },
     {
       fieldName: 'prmDscExcdStrtYm',
       header: {
-        text: t('MSG_TXT_PRM_EXCD_STRT_MM'),
-        // text: '선납제외시작월',
+        text: t('MSG_TXT_PRM_EXCD_STRT_MM'), // 선납제외시작월
         styleName: 'essential',
       },
       datetimeFormat: 'yyyy-MM',
       editor: {
         type: 'btdate',
-        btOptions: {
-          minViewMode: 1,
-        },
+        btOptions: { minViewMode: 1 },
       },
       width: '125',
       styleName: 'text-center',
@@ -397,41 +393,68 @@ const initGrid = defineGrid((data, view) => {
     {
       fieldName: 'prmDscExcdEndYm',
       header: {
-        text: t('MSG_TXT_PRM_EXCD_END_MM'),
-        // text: '선납제외종료월',
+        text: t('MSG_TXT_PRM_EXCD_END_MM'), // 선납제외종료월
         styleName: 'essential',
       },
       rules: 'required',
       datetimeFormat: 'yyyy-MM',
       editor: {
         type: 'btdate',
-        btOptions: {
-          minViewMode: 1,
-        },
+        btOptions: { minViewMode: 1 },
       },
       width: '125',
       styleName: 'text-center',
     },
     { fieldName: 'prmStrtDate',
-      header: t('MSG_TXT_PRM_STRT_MM'),
-      // , header: '선납시작월'
+      header: t('MSG_TXT_PRM_STRT_MM'), // 선납시작월
       width: '100',
       styleName: 'text-center',
       datetimeFormat: 'YYYY-MM',
-      editable: false },
+      editable: false,
+    },
     { fieldName: 'slCtrAmt',
-      header: t('MSG_TXT_CTR_AMT'),
+      header: t('MSG_TXT_CTR_AMT'), // 조정금액
       numberFormat: '#,##0',
-      // , header: '조정금액'
       width: '100',
       styleName: 'text-right',
-      editable: false },
-    { fieldName: 'fstRgstDtm', header: t('MSG_TXT_RGST_DTM'), width: '200', styleName: 'text-center', editable: false },
-    { fieldName: 'fstRgstUsrId', header: t('MSG_TXT_RGR_EP_NO'), width: '88', styleName: 'text-center', editable: false }, // 통테DEF_512요청건. 번호 -> 사번
-    { fieldName: 'fstRgstUsrNm', header: t('MSG_TXT_RGR_NM'), width: '70', styleName: 'text-left', editable: false }, // 통테DEF_512요청건. 등록자-> 이름
-    { fieldName: 'fnlMdfcDtm', header: t('MSG_TXT_MDFC_DTM'), width: '200', styleName: 'text-center', editable: false },
-    { fieldName: 'fnlMdfcUsrId', header: t('MSG_TXT_UPT_EMP_NO'), width: '88', styleName: 'text-center', editable: false },
-    { fieldName: 'fnlMdfcUsrNm', header: t('MSG_TXT_UDR_NM'), width: '70', styleName: 'text-left', editable: false },
+      editable: false,
+    },
+    { fieldName: 'fstRgstDtm',
+      header: t('MSG_TXT_RGST_DTM'),
+      width: '200',
+      styleName: 'text-center',
+      editable: false,
+    },
+    { fieldName: 'fstRgstUsrId',
+      header: t('MSG_TXT_RGR_EP_NO'), // 통테DEF_512요청건. 번호 -> 등록자 사번
+      width: '88',
+      styleName: 'text-center',
+      editable: false,
+    },
+    { fieldName: 'fstRgstUsrNm',
+      header: t('MSG_TXT_RGR_NM'), // 통테DEF_512요청건. 등록자-> 이름
+      width: '70',
+      styleName: 'text-left',
+      editable: false,
+    },
+    { fieldName: 'fnlMdfcDtm',
+      header: t('MSG_TXT_MDFC_DTM'),
+      width: '200',
+      styleName: 'text-center',
+      editable: false,
+    },
+    { fieldName: 'fnlMdfcUsrId',
+      header: t('MSG_TXT_UPT_EMP_NO'),
+      width: '88',
+      styleName: 'text-center',
+      editable: false,
+    },
+    { fieldName: 'fnlMdfcUsrNm',
+      header: t('MSG_TXT_UDR_NM'),
+      width: '70',
+      styleName: 'text-left',
+      editable: false,
+    },
   ];
 
   data.setFields(fields);
