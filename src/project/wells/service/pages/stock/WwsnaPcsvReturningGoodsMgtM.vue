@@ -391,6 +391,7 @@ const initGrdMain = defineGrid((data, view) => {
     { fieldName: 'pscocd', visible: false },
     { fieldName: 'clnSppIvcNo', visible: false },
     { fieldName: 'fnlItmGdCd', visible: false },
+    { fieldName: 'asnDt', visible: false },
   ];
   // 상품 동적 필드
   const pdColums = [
