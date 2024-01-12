@@ -123,6 +123,7 @@
       </ul>
       <kw-grid
         ref="grdMainRef"
+        name="grdMain"
         :page-size="pageInfo.pageSize"
         :total-count="pageInfo.totalCount"
         @init="initGrdMain"
@@ -142,7 +143,7 @@
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
-import { alert, notify, gridUtil, defineGrid, useMeta, codeUtil, getComponentType, useDataService } from 'kw-lib';
+import { alert, notify, gridUtil, defineGrid, useMeta, codeUtil, getComponentType, useDataService, confirm } from 'kw-lib';
 import { isEmpty, cloneDeep } from 'lodash-es';
 import { RowState } from 'realgrid';
 import smsCommon from '~sms-wells/service/composables/useSnCode';
@@ -273,7 +274,7 @@ async function onClickExcelDownload() {
 // 마지막 데이터 찾기
 function findLastData(pdCd) {
   const view = grdMainRef.value.getView();
-  const rows = gridUtil.filter(view, (e) => e.pdCd === pdCd);
+  const rows = gridUtil.filter(view, (e) => e.pdCd === pdCd && e.rowState !== RowState.CREATED);
   const sortRows = rows.sort((a, b) => {
     if (Number(a.izSn) < Number(b.izSn)) return 1;
     if (Number(a.izSn) > Number(b.izSn)) return -1;
@@ -308,10 +309,12 @@ async function onClickDelete() {
 
   const deletedRows = await gridUtil.confirmDeleteCheckedRows(view);
   if (isEmpty(deletedRows)) {
-    const data = grdMainRef.value.getData();
-    const newPdCd = checkedRows.find((e) => e.rowState === RowState.CREATED).pdCd;
-    const lastData = findLastData(newPdCd);
-    data.setValue(lastData.dataRow, 'isLast', 'Y');
+    const { pdCd } = cachedParams;
+    const lastData = findLastData(pdCd);
+    if (lastData.apyEnddt === '99991231') {
+      const data = grdMainRef.value.getData();
+      data.setValue(lastData.dataRow, 'isLast', 'Y');
+    }
     isValidAddBtn();
     return;
   }
@@ -332,8 +335,12 @@ function findLastApyStrtDt(pdCd) {
     return curDt;
   }
 
-  const apyStrtDt = lastData.apyStrtdt;
-  return curDt < apyStrtDt ? dayjs(apyStrtDt).add('1', 'day').format('YYYYMMDD') : curDt;
+  const { apyStrtdt, apyEnddt } = lastData;
+  if (apyEnddt === '99991231') {
+    return curDt < apyStrtdt ? dayjs(apyStrtdt).add('1', 'day').format('YYYYMMDD') : curDt;
+  }
+
+  return dayjs(apyEnddt).add('1', 'day').format('YYYYMMDD');
 }
 
 // 행 추가
@@ -347,16 +354,16 @@ async function onClickAdd() {
 
   const view = grdMainRef.value.getView();
 
+  const pdInfo = pds.value.find((v) => v.cd === pdCd);
+  const lastData = findLastData(pdCd);
+  const apyStrtDt = findLastApyStrtDt(pdCd);
+
   const row = gridUtil.find(view, (e) => e.isLast === 'Y');
   if (!isEmpty(row)) {
     const data = grdMainRef.value.getData();
     data.setValue(row.dataRow, 'isLast', 'N');
     view.checkItem(row.dataRow, false);
   }
-
-  const pdInfo = pds.value.find((v) => v.cd === pdCd);
-  const lastData = findLastData(pdCd);
-  const apyStrtDt = findLastApyStrtDt(pdCd);
 
   await gridUtil.insertRowAndFocus(view, 0, {
     sapMatCd: Number(pdInfo.sapMatCd),
@@ -374,7 +381,16 @@ async function onClickAdd() {
 }
 
 // 현재적용자재 체크
-async function onUpdateMtrChk() {
+async function onUpdateMtrChk(val) {
+  const view = grdMainRef.value.getView();
+  const changedRows = gridUtil.getChangedRowValues(view);
+  // 그리드 변경상태가 있을 경우
+  if (!isEmpty(changedRows)) {
+    if (!await confirm(t('MSG_ALT_CHG_CNTN'))) {
+      searchParams.value.apyMtrChk = val === 'Y' ? 'N' : 'Y';
+      return;
+    }
+  }
   await onClickSearch();
 }
 
