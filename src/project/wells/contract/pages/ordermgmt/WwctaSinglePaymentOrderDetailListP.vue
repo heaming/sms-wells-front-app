@@ -51,7 +51,7 @@
         <!-- 등급정보 -->
         <kw-form-item :label="$t('MSG_TXT_GRD_INF')">
           <kw-input
-            v-model="frmMainData.cstGdNm"
+            v-model="frmMainData.levels"
             placeholder=""
             readonly
           />
@@ -649,7 +649,7 @@
           <kw-input
             v-model="frmMainData.recapDutyYn"
             align="left"
-            placeholder=""
+            :placeholder="$t('MSG_TXT_RECAP_MSH_YN')"
             readonly
           />
         </kw-form-item>
@@ -657,7 +657,7 @@
         <kw-form-item :label="$t('MSG_TXT_MEMBRSHP_TRSFR')">
           <kw-input
             v-model="frmMainData.mshFntDv"
-            placeholder=""
+            :placeholder="$t('MSG_TXT_MEMBRSHP_TRSFR')"
             readonly
           />
         </kw-form-item>
@@ -749,7 +749,7 @@
           <kw-input
             v-model="frmMainData.frisuMshCrtYn"
             align="left"
-            placeholder=""
+            :placeholder="$t('MSG_TXT_FRISU_MSH')+' '+$t('MSG_TXT_CST_YN')"
             readonly
           />
         </kw-form-item>
@@ -758,7 +758,7 @@
           <kw-input
             v-model="frmMainData.frisuYn"
             align="left"
-            placeholder=""
+            :placeholder="$t('MSG_TXT_FRE_EXPN_YN')"
             readonly
           />
         </kw-form-item>
@@ -767,7 +767,7 @@
           <kw-input
             v-model="frmMainData.freExpnCnfmDt"
             mask="####-##-##"
-            placeholder=""
+            :placeholder="$t('MSG_TXT_FRE_EXPN_DT')"
             readonly
           />
         </kw-form-item>
@@ -777,7 +777,7 @@
         <kw-form-item :label="$t('MSG_TXT_MCHN_CH')">
           <kw-input
             v-model="frmMainData.chkChdvcRernt"
-            placeholder=""
+            :placeholder="$t('MSG_TXT_MCHN_CH')"
             readonly
           />
         </kw-form-item>
@@ -785,15 +785,15 @@
         <kw-form-item :label="$t('MSG_TXT_REQ_DV')">
           <kw-input
             v-model="frmMainData.sppMthdTpNm"
-            placeholder=""
+            :placeholder="$t('MSG_TXT_REQ_DV')"
             readonly
           />
         </kw-form-item>
         <!-- 컨택코드 -->
         <kw-form-item :label="$t('MSG_TXT_CTT_CD')">
           <kw-input
-            v-model="frmMainData.cttTpCd"
-            placeholder=""
+            v-model="frmMainData.cttRsNm"
+            :placeholder="$t('MSG_TXT_CTT_CD')"
             readonly
           />
         </kw-form-item>
@@ -801,7 +801,7 @@
         <kw-form-item :label="$t('MSG_TXT_STAT_CH_TP')">
           <kw-input
             v-model="frmMainData.pdChTp"
-            placeholder=""
+            :placeholder="$t('MSG_TXT_STAT_CH_TP')"
             readonly
           />
         </kw-form-item>
@@ -811,7 +811,7 @@
         <kw-form-item :label="$t('MSG_TXT_SPEC_CNTR_INF')">
           <kw-input
             v-model="frmMainData.sconCn"
-            placeholder=""
+            :placeholder="$t('MSG_TXT_SPEC_CNTR_INF')"
             readonly
           />
         </kw-form-item>
@@ -820,7 +820,7 @@
           <kw-input
             v-model="frmMainData.txinvPblOjYn"
             align="left"
-            placeholder=""
+            :placeholder="$t('MSG_TXT_TXINV_PBL_YN')"
             readonly
           />
         </kw-form-item>
@@ -828,7 +828,7 @@
         <kw-form-item :label="$t('MSG_TXT_CASH_RCP')">
           <kw-input
             v-model="frmMainData.cssrIsNo"
-            placeholder=""
+            :placeholder="$t('MSG_TXT_CASH_RCP')"
             readonly
           />
         </kw-form-item>
@@ -836,7 +836,7 @@
         <kw-form-item :label="$t('MSG_TXT_SL_CH_TP')">
           <kw-input
             v-model="frmMainData.slChTp"
-            placeholder=""
+            :placeholder="$t('MSG_TXT_SL_CH_TP')"
             readonly
           />
         </kw-form-item>
@@ -855,7 +855,7 @@
           <kw-input
             v-model="frmMainData.sppIvcCrtYn"
             align="left"
-            placeholder=""
+            :placeholder="$t('MSG_TXT_FGPT_IVC_PRNT_YN')"
             readonly
           />
         </kw-form-item>
@@ -864,7 +864,7 @@
           <kw-input
             v-model="frmMainData.urgtOjYn"
             align="left"
-            placeholder=""
+            :placeholder="$t('MSG_TXT_PROT_TF')"
             readonly
           />
         </kw-form-item>
@@ -872,7 +872,7 @@
         <kw-form-item :label="$t('MSG_TXT_WAYBILL_NO')">
           <kw-input
             v-model="frmMainData.sppIvcNo"
-            placeholder=""
+            :placeholder="$t('MSG_TXT_WAYBILL_NO')"
             readonly
           />
         </kw-form-item>
@@ -927,7 +927,7 @@ const frmMainData = ref({
   cntrDtlNo: '', // 계약상세번호
   ordDv: '', // 주문구분
   copnDvNm: '', // 고객구분
-  cstGdNm: '', // 등급정보
+  levels: '', // 등급정보
   cntrCstNo: '', // 고객번호
   dgr3LevlDgPrtnrNo: '', // 지점
   ogTpNm: '', // 조직구분
@@ -1005,7 +1005,8 @@ const frmMainData = ref({
   freExpnCnfmDt: '', // 무료체험일
   chkChdvcRernt: '', // 기기변경
   sppMthdTpNm: '', // 의뢰구분
-  cttTpCd: '', // 컨택코드
+  cttRsCd: '', // 컨택코드
+  cttRsNm: '', // 컨택코드명
   pdChTp: '', // 상변유형
   sconCn: '', // 특약정보
   txinvPblOjYn: '', // 세금계산서발행 여부
@@ -1046,7 +1047,7 @@ async function fetchData() {
     frmMainData.value.cntrDtlNo = pages[0].cntrDtlNo; // 계약상세번호
     frmMainData.value.ordDv = pages[0].ordDv; // 주문구분
     frmMainData.value.copnDvNm = pages[0].copnDvNm; // 고객구분
-    frmMainData.value.cstGdNm = pages[0].cstGdNm; // 등급정보
+    frmMainData.value.levels = pages[0].levels; // 등급정보
     frmMainData.value.cntrCstNo = pages[0].cntrCstNo; // 고객번호
     frmMainData.value.dgr3LevlDgPrtnrNo = pages[0].dgr3LevlDgPrtnrNo; // 지점
     frmMainData.value.ogTpNm = pages[0].ogTpNm; // 조직구분
@@ -1157,7 +1158,7 @@ async function fetchData() {
     frmMainData.value.freExpnCnfmDt = pages[0].freExpnCnfmDt; // 무료체험일
     frmMainData.value.chkChdvcRernt = pages[0].chkChdvcRernt; // 기기변경
     frmMainData.value.sppMthdTpNm = pages[0].sppMthdTpNm; // 의뢰구분
-    frmMainData.value.cttTpCd = pages[0].cttTpCd; // 컨택코드
+    frmMainData.value.cttRsNm = pages[0].cttRsNm; // 컨택코드명
     frmMainData.value.pdChTp = pages[0].pdChTp; // 상변유형
     frmMainData.value.sconCn = pages[0].sconCn; // 특약정보
     frmMainData.value.txinvPblOjYn = pages[0].txinvPblOjYn; // 세금계산서발행 여부
