@@ -583,7 +583,7 @@
         <!-- 할인제도(제렌탈/1+1) -->
         <kw-form-item :label="$t('MSG_TXT_DSC_SYST')+'('+$t('MSG_TXT_RE_RENTAL')+'/1+1)'">
           <kw-input
-            v-model="frmMainData.pmotNm"
+            v-model="frmMainData.sellDscTpNm"
             placeholder=""
             readonly
           />
@@ -1273,7 +1273,7 @@
           :colspan="2"
         >
           <kw-input
-            v-model="frmMainData.istAkArtcMoCn"
+            v-model="frmMainData.cntrChDtlAkCn"
             placeholder=""
             readonly
           />
@@ -1859,7 +1859,7 @@ const frmMainData = ref({
   booSellYn: '', // 예약여부
   feeFxamYn: '', // 수수료정액여부
   feeAckmtBaseAmt: '', // 수수료기준금액
-  istAkArtcMoCn: '', // 참고사항
+  cntrChDtlAkCn: '', // 참고사항
   sconCn: '', // 특약내용
   cttRsCd: '', // 컨택코드
   cttRsNm: '', // 컨택내용
@@ -2111,7 +2111,7 @@ async function fetchData() {
     // -------------------------------------------------------------------------------------------------
     // 참고사항
     // -------------------------------------------------------------------------------------------------
-    frmMainData.value.istAkArtcMoCn = pages[0].istAkArtcMoCn; // 참고사항
+    frmMainData.value.cntrChDtlAkCn = pages[0].cntrChDtlAkCn; // 참고사항
     frmMainData.value.sconCn = pages[0].sconCn; // 특약내용
     frmMainData.value.cttRsCd = pages[0].cttRsCd; // 컨택코드
     frmMainData.value.cttRsNm = pages[0].cttRsNm; // 컨택내용
