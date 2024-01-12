@@ -53,7 +53,7 @@
               :true-value="'Y'"
               :false-value="'N'"
               class="h40 ml30"
-              @update:model-value="onChangeCheckbox"
+              disable
             />
           </template>
         </kw-search-item>
@@ -191,18 +191,18 @@ async function onChangeMngrDvCd() {
 const filters = [{ name: 'rsbDvCdFilter', criteria: "value = 'W0105'" }]; // W0105 :웰스매니저 직책
 
 /*  웰스매니저 미관리 제외  체크박스  */
-async function onChangeCheckbox() {
-  const view = grdMainRef.value.getView();
-  view.activateAllColumnFilters('rsbDvCd', false);
-
-  // 체크박스 체크시에만 (RSB_DV_CD = 'W0105') 필터링
-  if (searchParams.value.exceptWellsManagerYn === 'Y') {
-    view.activateColumnFilters('rsbDvCd', 'rsbDvCdFilter', true);
-    totalCount.value = view.getItemCount(); // 필터된 데이터 건수 표시
-  } else {
-    totalCount.value = initTotalCount.value; // 필터 해제시 초기 데이터 건수 노출
-  }
-}
+// async function onChangeCheckbox() {
+//   const view = grdMainRef.value.getView();
+//   view.activateAllColumnFilters('rsbDvCd', false);
+//
+//   // 체크박스 체크시에만 (RSB_DV_CD = 'W0105') 필터링
+//   if (searchParams.value.exceptWellsManagerYn === 'Y') {
+//     view.activateColumnFilters('rsbDvCd', 'rsbDvCdFilter', true);
+//     totalCount.value = view.getItemCount(); // 필터된 데이터 건수 표시
+//   } else {
+//     totalCount.value = initTotalCount.value; // 필터 해제시 초기 데이터 건수 노출
+//   }
+// }
 
 async function fetchData() {
   const res = await dataService.get(`${baseUrl}`, { params: cachedParams });
@@ -254,7 +254,6 @@ const initGrdMain = defineGrid((data, view) => {
     { fieldName: 'bldNm' },
     { fieldName: 'rsbDvCd' }, /* 필터시 사용 */
     { fieldName: 'mngtCstCnt', dataType: 'number' },
-    { fieldName: 'notMngtExcdCstCnt', dataType: 'number' },
     { fieldName: 'asnOjSumCnt', dataType: 'number' },
     { fieldName: 'vstStpCstCnt', dataType: 'number' },
     { fieldName: 'vstCanCstCnt', dataType: 'number' },
@@ -284,13 +283,6 @@ const initGrdMain = defineGrid((data, view) => {
     { fieldName: 'mngtCstCnt',
       header: t('MSG_TXT_MNGT_CST_CNT'),
       width: '100',
-      styleName: 'text-right',
-      numberFormat: '#,##0',
-      footer: { expression: 'sum', numberFormat: '#,##0', styleName: 'text-right' },
-    },
-    { fieldName: 'notMngtExcdCstCnt',
-      header: t('MSG_TXT_NO_MNGT_EXCD_CST_CNT'),
-      width: '80',
       styleName: 'text-right',
       numberFormat: '#,##0',
       footer: { expression: 'sum', numberFormat: '#,##0', styleName: 'text-right' },
@@ -456,7 +448,6 @@ const initGrdMain = defineGrid((data, view) => {
     },
     'bldNm',
     'mngtCstCnt',
-    'notMngtExcdCstCnt',
     {
       header: t('MSG_TXT_BS_ASN_OJ_INF'), // BS배정대상 정보
       direction: 'horizontal',
