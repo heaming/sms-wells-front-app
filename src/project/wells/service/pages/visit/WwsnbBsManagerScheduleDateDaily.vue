@@ -113,6 +113,7 @@ const dataService = useDataService();
 // DEF_4653 관련 웰스매니저인 경우 본인만 조회 가능하도록...
 const store = useStore();
 const userInfo = store.getters['meta/getUserInfo'];
+// TODO..매니저 판별 코드값 확인 후 변경예정
 const wmAuth = ref((userInfo.rsbNm === '매니저' || userInfo.rsbNm === '플래너') && userInfo.tenantCd === 'W' && userInfo.ogTpCd !== 'HR1');
 
 // -------------------------------------------------------------------------------------------------
@@ -195,9 +196,6 @@ async function onClickExcelDownload() {
  *  Event - 방문담당자 검색 버튼 클릭
  */
 async function onFxnPrtnrNoSearchPopup() {
-  if (wmAuth.value) {
-    return;
-  }
   const mngrDvCd = searchParams.value.fxnPrtnrDvCd ?? '';
   const searchText = searchParams.value.fxnPrtnrKnm;
 
@@ -209,21 +207,49 @@ async function onFxnPrtnrNoSearchPopup() {
     },
   });
 
+  console.log('close popup userInfo >>>', userInfo);
+  console.log('close popup payload[0] >>>', payload[0]);
+
+  if (userInfo.careerLevelCode === '1' || userInfo.careerLevelCode === '2') {
+    if (userInfo.ogId !== payload[0].dgr1LevlOgId) {
+      searchParams.value.fxnPrtnrNo = '';
+      searchParams.value.fxnPrtnrKnm = '';
+      await notify(t('소속 매니저가 아닙니다.'));
+      return;
+    }
+  } else if (userInfo.careerLevelCode === '4') {
+    if (userInfo.ogId !== payload[0].dgr2LevlOgId) {
+      searchParams.value.fxnPrtnrNo = '';
+      searchParams.value.fxnPrtnrKnm = '';
+      await notify(t('소속 매니저가 아닙니다.'));
+      return;
+    }
+  } else if (userInfo.careerLevelCode === '7') {
+    if (userInfo.ogId !== payload[0].dgr3LevlOgId) {
+      searchParams.value.fxnPrtnrNo = '';
+      searchParams.value.fxnPrtnrKnm = '';
+      await notify(t('소속 매니저가 아닙니다.'));
+      return;
+    }
+  }
+
   if (isChanged) {
     searchParams.value.fxnPrtnrNo = payload[0].prtnrNo;
     searchParams.value.fxnPrtnrKnm = payload[0].prtnrKnm;
   }
 }
 
+// const authReadOnly = ref(false);
 onMounted(async () => {
+  console.log('onMounted userInfo >>>>', userInfo);
   if (wmAuth.value) {
     searchParams.value.fxnPrtnrKnm = userInfo.userName;
     searchParams.value.fxnPrtnrNo = userInfo.employeeIDNumber;
   }
 
+  console.log('onMounted props >>>>', props);
   // 다른 화면에서 넘어온 값을 기준으로 바로 조회하도록 처리
-  const { baseDateFrom, baseDateTo, fxnPrtnrNo, fxnPrtnrKnm } = searchParams.value;
-  if (!isEmpty(baseDateFrom) && !isEmpty(baseDateTo) && !isEmpty(fxnPrtnrNo) && !isEmpty(fxnPrtnrKnm)) {
+  if (!isEmpty(props.prtnrNo) && !isEmpty(props.fromDate) && !isEmpty(props.toDate)) {
     await onClickSearch();
   }
 });
