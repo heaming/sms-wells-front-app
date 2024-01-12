@@ -1386,7 +1386,10 @@ async function onClickTaxInvoice() {
 async function onClickDepositRegistration() {
   await modal({
     component: 'ZwwdbDepositRegP',
-    componentProps: customer.value,
+    componentProps: {
+      ...customer.value,
+      selectPage: 'link',
+    },
   });
 }
 
