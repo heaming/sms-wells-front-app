@@ -267,10 +267,11 @@ async function onClickDetailFileSave() {
 // 상세내역 다운로드
 async function onClickDetailExportView() {
   const { baseYm } = searchParams.value;
-  const res = await dataService.post('/sms/wells/closing/product-account/download', { baseYm }, { responseType: 'blob' });
-  if (res.data === 'P') {
+  const response = await dataService.get('/sms/wells/closing/product-account/check-downloadable', { params: baseYm });
+  if (response.data === 'P') {
     notify(t('MSG_ALT_FILE_GENERATING_STARTED'));
   } else {
+    const res = await dataService.post('/sms/wells/closing/product-account/download', { baseYm }, { responseType: 'blob' });
     fileUtil.downloadBlob(res.data, `${currentRoute.value.meta.menuName}_${baseYm}.csv`);
   }
 }
