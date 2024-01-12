@@ -556,6 +556,8 @@ const initGrdMain = defineGrid((data, view) => {
       renderer: { type: 'button' },
     },
     { fieldName: 'rcgvpKnm', header: t('MSG_TXT_CST_NM'), width: '100', styleName: 'text-center' }, // 고객명
+    { fieldName: 'cralLocaraTno', visible: false }, // 연락처 010
+    { fieldName: 'mexnoEncr', visible: false }, // 연락처 중간 복호화
     { fieldName: 'cralIdvTno',
       header: t('MSG_TXT_CONTACT'),
       width: '120',
@@ -568,6 +570,8 @@ const initGrdMain = defineGrid((data, view) => {
         }
       },
     }, // 연락처
+    { fieldName: 'locaraTno', visible: false }, // 휴대전화번호 010
+    { fieldName: 'exnoEncr', visible: false }, // 휴대전화번호 중간 복호화
     { fieldName: 'idvTno',
       header: t('MSG_TXT_MPNO'),
       width: '120',
@@ -631,6 +635,9 @@ const initGrdMain = defineGrid((data, view) => {
     { fieldName: 'asMatItmGrpNm', header: t('MSG_TXT_ITM_GRP'), width: '180', styleName: 'text-center', options: codes.AS_MAT_ITM_GRP_CD }, // 품목그룹
     { fieldName: 'hirFomNm', header: t('MSG_TXT_HIR_FOM'), width: '150', styleName: 'text-center', options: codes.HIR_FOM_CD }, // 고용형태
     { fieldName: 'pdNm', visible: false }, // 상품명
+    { fieldName: 'cstSvAsnNo', visible: false }, // 배정번호
+    { fieldName: 'cntrNo', visible: false }, // 계약번호
+    { fieldName: 'cntrSn', visible: false }, // 계약일련번호
   ];
 
   data.setFields(columns.map(({ fieldName, dataType }) => (dataType ? { fieldName, dataType } : { fieldName })));
@@ -657,7 +664,7 @@ const initGrdMain = defineGrid((data, view) => {
           cntrSn,
         },
       });
-      // 투입(예정)부품 현황 팝업
+      // 투입(예정)부품 현황 팝업WwsncExpProductP
       // TODO..
       // 20231226 인수인계 내용
       // 예정부품 조회권한 없음 외 1종..아직 권한 채번 안됨
@@ -665,7 +672,6 @@ const initGrdMain = defineGrid((data, view) => {
       const cntrNo = grid.getValue(clickData.itemIndex, 'cntrNo');
       const cntrSn = grid.getValue(clickData.itemIndex, 'cntrSn');
       const cstSvAsnNo = grid.getValue(clickData.itemIndex, 'cstSvAsnNo');
-
       await modal({
         component: 'WwsncExpProductP', // 예정부품
         componentProps: { cntrNo, cntrSn, cstSvAsnNo },
