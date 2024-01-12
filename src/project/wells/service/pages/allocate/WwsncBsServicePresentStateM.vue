@@ -282,6 +282,7 @@ onMounted(async () => {
   if (isEmpty(searchParams.value.branch)) {
     branchDisabled.value = false;
   }
+
   // TODO...웰스 매니저인지 권한 확인 필요
   /** =============================
    * B/S 서비스현황 권한체크 START
@@ -297,7 +298,13 @@ onMounted(async () => {
 
   // 1. 지역단장인 경우 총괄단, 지역단만 disable
   console.log('onMounted searchParams.value.prtnrNo >>>>>', searchParams.value.prtnrNo);
-  if (userInfo.rsbCd === 'W0203') {
+  // if (userInfo.rsbCd === 'W0203') {
+  //   searchParams.value.prtnrNo = '';
+  // }
+  // userInfo.careerLevelCode === '1' || userInfo.careerLevelCode === '2'
+  const arrBossAuthNo = ['1', '2', '4', '7'];
+  if (arrBossAuthNo.includes(userInfo.careerLevelCode)) {
+    console.log('userInfo.careerLevelCode >>', userInfo.careerLevelCode);
     searchParams.value.prtnrNo = '';
   }
 

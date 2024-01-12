@@ -179,6 +179,7 @@ const searchParams = ref({
   baseDateFrom: dayjs().format('YYYYMMDD'),
   baseDateTo: dayjs().format('YYYYMMDD'),
   fxnPrtnrNo: '',
+  fxnPrtnrKnm: '',
   managementYear: dayjs().format('YYYY'),
   selectweeks: '',
   weekDay1: '',
@@ -291,6 +292,35 @@ async function onFxnPrtnrNoSearchPopup() {
       searchText,
     },
   });
+
+  const arrDgrOgId = [];
+  console.log('arrDgrOgId >>>>', arrDgrOgId);
+
+  console.log('close popup userInfo >>>', userInfo);
+  console.log('close popup payload[0] >>>', payload[0]);
+
+  if (userInfo.careerLevelCode === '1' || userInfo.careerLevelCode === '2') {
+    if (userInfo.ogId !== payload[0].dgr1LevlOgId) {
+      searchParams.value.fxnPrtnrNo = '';
+      searchParams.value.fxnPrtnrKnm = '';
+      await notify(t('소속 매니저가 아닙니다.'));
+      return;
+    }
+  } else if (userInfo.careerLevelCode === '4') {
+    if (userInfo.ogId !== payload[0].dgr2LevlOgId) {
+      searchParams.value.fxnPrtnrNo = '';
+      searchParams.value.fxnPrtnrKnm = '';
+      await notify(t('소속 매니저가 아닙니다.'));
+      return;
+    }
+  } else if (userInfo.careerLevelCode === '7') {
+    if (userInfo.ogId !== payload[0].dgr3LevlOgId) {
+      searchParams.value.fxnPrtnrNo = '';
+      searchParams.value.fxnPrtnrKnm = '';
+      await notify(t('소속 매니저가 아닙니다.'));
+      return;
+    }
+  }
 
   if (isChanged) {
     searchParams.value.fxnPrtnrNo = payload[0].prtnrNo;
