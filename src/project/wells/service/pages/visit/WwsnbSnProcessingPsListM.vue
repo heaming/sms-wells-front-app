@@ -66,8 +66,8 @@
             use-partner
             dgr1-levl-og-required
             dgr2-levl-og-required
-            dgr1-levl-og-first-option="all"
-            dgr2-levl-og-first-option="all"
+            dgr1-levl-og-first-option="select"
+            dgr2-levl-og-first-option="select"
             dgr3-levl-og-first-option="all"
             partner-first-option="all"
             dgr1-levl-og-label="ogCdNm"
@@ -157,7 +157,7 @@
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
-import { useGlobal, codeUtil, useDataService, getComponentType, defineGrid, gridUtil, modal } from 'kw-lib';
+import { useGlobal, codeUtil, useDataService, getComponentType, defineGrid, gridUtil, modal, useMeta } from 'kw-lib';
 import { cloneDeep, isEmpty } from 'lodash-es';
 import dayjs from 'dayjs';
 import WwsnManagerOgSearchItemGroup from '~sms-wells/service/components/WwsnManagerOgSearchItemGroup.vue';
@@ -165,6 +165,7 @@ import WwsnEngineerOgSearchItemGroup from '~sms-wells/service/components/WwsnEng
 
 const { alert } = useGlobal();
 const { t } = useI18n();
+const { getConfig } = useMeta();
 const now = dayjs();
 const dataService = useDataService();
 const grdMainRef = ref(getComponentType('KwGrid'));
@@ -206,7 +207,7 @@ const searchParams = ref({
 const pageInfo = ref({
   totalCount: 0,
   pageIndex: 1,
-  pageSize: Number(codes.COD_PAGE_SIZE_OPTIONS[0].codeName),
+  pageSize: Number(getConfig('CFG_CMZ_DEFAULT_PAGE_SIZE')),
   needTotalCount: true,
 });
 
