@@ -3,7 +3,7 @@
  * 프로그램 개요
  ****************************************************************************************************
  1. 모듈 : SNY (기준정보)
- 2. 프로그램 ID : PGE_SNY_00005 - 유상 AS 출장비 관리 (W-SV-U-0101M01)
+ 2. 프로그램 ID : WwsnyAsVisitCostMgtM - 유상 AS 출장비 관리 (W-SV-U-0101M01)
  3. 작성자 : gs.piit122
  4. 작성일 : 2022.11.18
  ****************************************************************************************************
@@ -17,6 +17,7 @@
     <kw-search
       :cols="2"
       one-row
+      :modified-targets="['grdMain']"
       @search="onClickSearch"
     >
       <kw-search-row>
@@ -79,7 +80,7 @@
           vertical
         />
         <kw-btn
-          :disable="isDisable"
+          :disable="!isAdd"
           :label="$t('MSG_BTN_ROW_ADD')"
           grid-action
           @click="onClickAdd"
@@ -98,22 +99,6 @@
           secondary
           @click="onClickExcelDownload"
         />
-        <!--        <kw-separator
-          inset
-          spaced
-          vertical
-        />
-        <kw-date-range-picker
-          :from-placeholder="$t('MSG_TXT_APY_STRT_D_CHO')"
-          :to-placeholder="$t('MSG_TXT_APY_END_D_CHO')"
-          class="w320"
-          dense
-        />
-        <kw-btn
-          :label="$t('MSG_BTN_APY_DT_BLK_CH')"
-          dense
-          secondary
-        />-->
       </kw-action-top>
       <ul class="filter-box mb12">
         <li class="filter-box__item">
@@ -122,16 +107,15 @@
             {{ $t('MSG_TXT_MAT_DV') }}
           </p>
           <kw-field
-            v-model="searchParams.apyMtrChk"
-            @update:model-value="onUpdateMtrChk"
+            :model-value="['Y', 'N']"
           >
             <template #default="{ field }">
-              <!-- TODO: 현재적용자재 -->
+              <!-- 현재적용자재 -->
               <kw-checkbox
-                :label="$t('MSG_TXT_CRTL_APY_MAT')"
-                dense
                 v-bind="field"
-                :val="t('MSG_TXT_CRTL_APY_MAT')"
+                v-model="searchParams.apyMtrChk"
+                :label="$t('MSG_TXT_CRTL_APY_MTR')"
+                @update:model-value="onUpdateMtrChk"
               />
             </template>
           </kw-field>
@@ -158,11 +142,10 @@
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
-import { alert, notify, gridUtil, defineGrid, useMeta, codeUtil, getComponentType, useDataService }
-  from 'kw-lib';
+import { alert, notify, gridUtil, defineGrid, useMeta, codeUtil, getComponentType, useDataService } from 'kw-lib';
 import { isEmpty, cloneDeep } from 'lodash-es';
+import { RowState } from 'realgrid';
 import smsCommon from '~sms-wells/service/composables/useSnCode';
-// eslint-disable-next-line no-unused-vars
 import dayjs from 'dayjs';
 
 const { getPartMaster } = smsCommon();
@@ -175,7 +158,7 @@ const { currentRoute } = useRouter();
 // -------------------------------------------------------------------------------------------------
 // Function & Event
 // -------------------------------------------------------------------------------------------------
-const isDisable = ref(false);
+
 const grdMainRef = ref(getComponentType('KwGrid'));
 let cachedParams;
 const searchParams = ref({
@@ -183,70 +166,98 @@ const searchParams = ref({
   pdCd: '',
   apyMtrChk: 'N',
 });
+
 const pageInfo = ref({
   totalCount: 0,
   pageIndex: 1,
   pageSize: Number(getConfig('CFG_CMZ_DEFAULT_PAGE_SIZE')),
 });
+
 const codes = await codeUtil.getMultiCodes(
   'COD_PAGE_SIZE_OPTIONS',
   'PD_GRP_CD',
 );
 
-const pds = ref([]);
-async function changePdGrpCd() {
-  if (searchParams.value.pdGrpCd) {
-    pds.value = await getPartMaster(
-      '4',
-      searchParams.value.pdGrpCd,
-      'M',
-      null,
-      null,
-      null,
-      null,
-      null,
-      null,
-      null,
-      null,
-      'X', /* 단종여부Y/N, 만약 X로 데이터가 유입되면 단종여부를 조회하지 않음 */
-    );
-  } else pds.value = [];
-  searchParams.value.pdCd = '';
-}
-changePdGrpCd();
+const curDt = dayjs().format('YYYYMMDD');
 
+const pds = ref([]);
+// 상품그룹 변경 시
+async function changePdGrpCd() {
+  pds.value = [];
+  searchParams.value.pdCd = '';
+
+  const { pdGrpCd } = searchParams.value;
+
+  if (isEmpty(pdGrpCd)) return;
+
+  pds.value = await getPartMaster(
+    '4',
+    searchParams.value.pdGrpCd,
+    'M',
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    'Y',
+  );
+}
+
+const isAdd = ref(false);
+function isValidAddBtn() {
+  if (grdMainRef.value != null) {
+    const view = grdMainRef.value.getView();
+    const createdRows = gridUtil.getCreatedRowValues(view);
+    isAdd.value = !isEmpty(cachedParams) && cachedParams.pdCd !== '' && isEmpty(createdRows);
+  } else {
+    isAdd.value = false;
+  }
+}
+
+// 조회
 async function fetchData() {
-  const res = await dataService.get('/sms/wells/service/as-visit-costs/paging', { params: {
-    ...cachedParams, ...pageInfo.value } });
+  const res = await dataService.get('/sms/wells/service/as-visit-costs/paging', { params: { ...cachedParams, ...pageInfo.value } });
   const { list: products, pageInfo: pagingResult } = res.data;
+
   pageInfo.value = pagingResult;
+
   const view = grdMainRef.value.getView();
   view.getDataSource().setRows(products);
-  view.resetCurrent();
-  isDisable.value = false;
+  view.rowIndicator.indexOffset = gridUtil.getPageIndexOffset(pageInfo);
+  isValidAddBtn();
 }
+
+// 조회버튼 클릭
 async function onClickSearch() {
   pageInfo.value.pageIndex = 1;
   cachedParams = cloneDeep(searchParams.value);
   await fetchData();
 }
 
+// 저장
 async function onClickSave() {
   const view = grdMainRef.value.getView();
-  if (await gridUtil.alertIfIsNotModified(view)) { return; }
-  if (!await gridUtil.validate(view)) { return; }
-  const modifedData = gridUtil.getChangedRowValues(view);
-  modifedData.forEach((item) => {
-    const oldData = gridUtil.getOrigRowValue(view, item.dataRow);
-    item.oldApyStrtdt = oldData.apyStrtdt;
-    item.oldApyEnddt = oldData.apyEnddt;
-    item.oldRmkCn = oldData.rmkCn;
-  });
-  await dataService.put('/sms/wells/service/as-visit-costs', modifedData);
-  await notify(t('MSG_ALT_SAVE_DATA'));
-  await fetchData();
+  const chkRows = gridUtil.getCheckedRowValues(view);
+
+  if (chkRows.length === 0) {
+    notify(t('MSG_ALT_NOT_SEL_ITEM'));
+    return;
+  }
+
+  if (!await gridUtil.validate(view, { isCheckedOnly: true })) { return; }
+
+  const res = await dataService.post('/sms/wells/service/as-visit-costs', chkRows);
+  const { processCount } = res.data;
+  if (processCount > 0) {
+    notify(t('MSG_ALT_SAVE_DATA'));
+    await fetchData();
+  }
 }
 
+// 엑셀 다운로드
 async function onClickExcelDownload() {
   const view = grdMainRef.value.getView();
 
@@ -259,40 +270,110 @@ async function onClickExcelDownload() {
   });
 }
 
+// 마지막 데이터 찾기
+function findLastData(pdCd) {
+  const view = grdMainRef.value.getView();
+  const rows = gridUtil.filter(view, (e) => e.pdCd === pdCd);
+  const sortRows = rows.sort((a, b) => {
+    if (Number(a.izSn) < Number(b.izSn)) return 1;
+    if (Number(a.izSn) > Number(b.izSn)) return -1;
+    return 0;
+  });
+  return isEmpty(sortRows) ? '' : sortRows[0];
+}
+
+// 삭제
 async function onClickDelete() {
   const view = grdMainRef.value.getView();
   const checkedRows = gridUtil.getCheckedRowValues(view);
-  if (checkedRows.length === 0) {
-    notify(t('MSG_ALT_NOT_SEL_ITEM')); // 데이터를 선택해주세요.
+  if (isEmpty(checkedRows)) {
+    notify(t('MSG_ALT_DEL_NO_DATA'));
     return;
   }
-  if (checkedRows[0].isLast === 'Y') {
-    gridUtil.deleteCheckedRows(view);
-    isDisable.value = false;
-  } else alert('MSG_TXT_CRTL_APY_MAT_USE_OK');
+
+  let valid = false;
+  checkedRows.forEach((e) => {
+    const { apyStrtdt } = e;
+    if (apyStrtdt < curDt) {
+      valid = true;
+      return false;
+    }
+  });
+
+  if (valid) {
+    // 오늘 이후의 건만 삭제할 수 있습니다.
+    await alert(t('MSG_ALT_TOD_AF_DEL_VALID'));
+    return;
+  }
+
+  const deletedRows = await gridUtil.confirmDeleteCheckedRows(view);
+  if (isEmpty(deletedRows)) {
+    const data = grdMainRef.value.getData();
+    const newPdCd = checkedRows.find((e) => e.rowState === RowState.CREATED).pdCd;
+    const lastData = findLastData(newPdCd);
+    data.setValue(lastData.dataRow, 'isLast', 'Y');
+    isValidAddBtn();
+    return;
+  }
+
+  const res = await dataService.delete('/sms/wells/service/as-visit-costs', { data: [...deletedRows] });
+  const { processCount } = res.data;
+  if (processCount > 0) {
+    notify(t('MSG_ALT_DELETED'));
+    await fetchData();
+  }
 }
 
+// 적용시작일 찾기
+function findLastApyStrtDt(pdCd) {
+  const lastData = findLastData(pdCd);
+
+  if (isEmpty(lastData)) {
+    return curDt;
+  }
+
+  const apyStrtDt = lastData.apyStrtdt;
+  return curDt < apyStrtDt ? dayjs(apyStrtDt).add('1', 'day').format('YYYYMMDD') : curDt;
+}
+
+// 행 추가
 async function onClickAdd() {
-  if (isEmpty(searchParams.value.pdGrpCd) || isEmpty(searchParams.value.pdCd)) {
+  const { pdGrpCd, pdCd } = cachedParams;
+
+  if (isEmpty(pdGrpCd) || isEmpty(pdCd)) {
     alert(t('MSG_TXT_PD_GRP_PDCT_CHO'));
     return false;
   }
+
   const view = grdMainRef.value.getView();
+
+  const row = gridUtil.find(view, (e) => e.isLast === 'Y');
+  const data = grdMainRef.value.getData();
+  data.setValue(row.dataRow, 'isLast', 'N');
+  view.checkItem(row.dataRow, false);
+
+  const pdInfo = pds.value.find((v) => v.cd === pdCd);
+  const lastData = findLastData(pdCd);
+  const apyStrtDt = findLastApyStrtDt(pdCd);
+
   await gridUtil.insertRowAndFocus(view, 0, {
-    sapMatCd: pds.value.filter((v) => v.cd === searchParams.value.pdCd)[0].sapMatCd,
-    pdCd: searchParams.value.pdCd,
-    pdNm: pds.value.filter((v) => v.cd === searchParams.value.pdCd)[0].cdNm,
+    sapMatCd: Number(pdInfo.sapMatCd),
+    pdCd,
+    pdNm: pdInfo.cdNm,
     bstrCsAmt: '0',
-    apyStrtdt: dayjs().add('1', 'day').format('YYYYMMDD'),
+    apyStrtdt: apyStrtDt,
     apyEnddt: '99991231',
     isLast: 'Y',
+    izSn: Number(lastData.izSn) + 1,
   });
-  isDisable.value = true;
+
   view.checkItem(0, true);
+  isValidAddBtn();
 }
 
+// 현재적용자재 체크
 async function onUpdateMtrChk() {
-  onClickSearch();
+  await onClickSearch();
 }
 
 // -------------------------------------------------------------------------------------------------
@@ -312,11 +393,11 @@ const initGrdMain = defineGrid((data, view) => {
   ];
   const columns = [
     /* SAP코드 */
-    { fieldName: 'sapMatCd', header: t('MSG_TXT_SAPCD'), width: '180', styleName: 'text-center' },
+    { fieldName: 'sapMatCd', header: t('MSG_TXT_SAPCD'), width: '100', styleName: 'text-center' },
     /* 품목코드 */
     { fieldName: 'pdCd',
       header: t('MSG_TXT_ITM_CD'),
-      width: '180',
+      width: '120',
       styleName: 'text-center',
       editor: { type: 'dropdown' },
       options: codes.PD_CD,
@@ -387,23 +468,34 @@ const initGrdMain = defineGrid((data, view) => {
   view.editOptions.columnEditableFirst = true;
 
   view.editOptions.editable = true;
-  // view.setEditOptions({
-  //   editable: true,
-  //   updatable: true,
-  // });
 
   view.onCellEditable = (g, { column, itemIndex, dataRow }) => {
-    // 수정
-    if (['bstrCsAmt', 'rmkCn'].includes(column) && !gridUtil.isCreatedRow(g, dataRow) && g.getValues(itemIndex).isLast === 'Y') {
-      return true;
-    }
+    const { isLast } = g.getValues(itemIndex);
+    const isCreated = gridUtil.isCreatedRow(g, dataRow);
+
+    if (isLast !== 'Y') return false;
+
     // 신규
-    if (['bstrCsAmt', 'rmkCn', 'apyStrtdt'].includes(column)
-    && gridUtil.isCreatedRow(g, dataRow)
-    && g.getValues(itemIndex).isLast === 'Y') {
-      return true;
+    if (isCreated) {
+      return ['bstrCsAmt', 'rmkCn', 'apyStrtdt'].includes(column);
     }
-    return false;
+    return ['bstrCsAmt', 'rmkCn'].includes(column);
+  };
+
+  view.onCellEdited = async (grid, itemIndex, row, field) => {
+    const { pdCd, apyStrtdt } = grid.getValues(itemIndex);
+    const changedFieldName = grid.getDataSource().getOrgFieldName(field);
+
+    if (changedFieldName === 'apyStrtdt') {
+      const lastStrtDt = findLastApyStrtDt(pdCd);
+      const formatDt = `${lastStrtDt.substring(0, 4)}-${lastStrtDt.substring(4, 6)}-${lastStrtDt.substring(6, 8)}`;
+
+      if (apyStrtdt < lastStrtDt) {
+        // 적용시작일자는 {0} 이후로 입력해 주세요.
+        notify(t('MSG_ALT_APY_DT_VALID', [formatDt]));
+        grid.setValue(itemIndex, 'apyStrtdt', lastStrtDt);
+      }
+    }
   };
 });
 </script>
