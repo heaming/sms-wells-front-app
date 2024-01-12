@@ -268,7 +268,11 @@ async function onClickDetailFileSave() {
 async function onClickDetailExportView() {
   const { baseYm } = searchParams.value;
   const res = await dataService.post('/sms/wells/closing/product-account/download', { baseYm }, { responseType: 'blob' });
-  fileUtil.downloadBlob(res.data, `${currentRoute.value.meta.menuName}_${baseYm}.csv`);
+  if (res.data === 'P') {
+    notify(t('MSG_ALT_FILE_GENERATING_STARTED'));
+  } else {
+    fileUtil.downloadBlob(res.data, `${currentRoute.value.meta.menuName}_${baseYm}.csv`);
+  }
 }
 
 watch(() => searchParams.value.sellTpCd, async (val) => {
