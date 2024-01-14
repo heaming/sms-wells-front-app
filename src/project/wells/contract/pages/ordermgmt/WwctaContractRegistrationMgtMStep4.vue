@@ -644,6 +644,7 @@ const { codes, getCodeName } = await useCtCode(
   'USE_ELECT_TP_CD',
   'COD_YN',
   'SELL_TP_CD',
+  'SV_IST_PCSV_DV_CD',
 );
 codes.FMMB_N = [
   { codeId: 1, codeName: '1인 가구' },
@@ -972,7 +973,8 @@ const initGrdMain = defineGrid((data, view) => {
     { fieldName: 'stplPtrm', dataType: 'number' },
     { fieldName: 'cntrPtrm', dataType: 'number' },
     { fieldName: 'dscAmt', dataType: 'number' },
-    { fieldName: 'svPrd', dataType: 'number' },
+    { fieldName: 'svIstPcsvDvCd' },
+    { fieldName: 'svPrd' },
   ];
   const columns = [
     {
@@ -985,7 +987,7 @@ const initGrdMain = defineGrid((data, view) => {
         return `${pCntrNo}-${cntrSn}`;
       },
     },
-    { fieldName: 'sellTpCd', header: t('MSG_TXT_CNTR_DV'), width: 70, options: codes.SELL_TP_CD },
+    { fieldName: 'sellTpCd', header: t('MSG_TXT_CNTR_DV'), fillWidth: 1, options: codes.SELL_TP_CD },
     { fieldName: 'pdNm',
       header: t('MSG_TXT_PRDT_NM'),
       width: 200,
@@ -994,9 +996,9 @@ const initGrdMain = defineGrid((data, view) => {
         return cstBasePdAbbrNm || pdNm;
       },
     },
-    { fieldName: 'regAmt', header: '등록비(계약금)', width: 90, styleName: 'text-right' },
-    { fieldName: 'rntlAmt', header: '월납부금', width: 90, styleName: 'text-right' },
-    { fieldName: 'pdAmt', header: t('MSG_TXT_PRDT_AMT'), width: 90, styleName: 'text-right' },
+    { fieldName: 'regAmt', header: '등록비(계약금)', fillWidth: 1, styleName: 'text-right' },
+    { fieldName: 'rntlAmt', header: '월납부금', fillWidth: 1, styleName: 'text-right' },
+    { fieldName: 'pdAmt', header: t('MSG_TXT_PRDT_AMT'), fillWidth: 1, styleName: 'text-right' },
     {
       fieldName: 'stplPtrm',
       header: t('MSG_TXT_CONTRACT_PERI'),
@@ -1004,8 +1006,17 @@ const initGrdMain = defineGrid((data, view) => {
       styleName: 'text-right',
     },
     { fieldName: 'cntrPtrm', header: t('MSG_TXT_CNTR_PTRM'), width: 90, styleName: 'text-right' },
-    { fieldName: 'dscAmt', header: t('MSG_TXT_DSC_AMT'), width: 90, styleName: 'text-right' },
-    { fieldName: 'svPrd', header: '서비스주기', width: 90, styleName: 'text-right' },
+    { fieldName: 'dscAmt', header: t('MSG_TXT_DSC_AMT'), fillWidth: 1, styleName: 'text-right' },
+    { fieldName: 'svIstPcsvDvCd', header: '설치/택배', fillWidth: 1, options: codes.SV_IST_PCSV_DV_CD },
+    { fieldName: 'svPrd',
+      header: '서비스주기',
+      width: 90,
+      styleName: 'text-right',
+      displayCallback: (g, i) => {
+        const { svPrd } = gridUtil.getRowValue(g, i.dataRow);
+        return svPrd ? `${svPrd}개월` : '';
+      },
+    },
   ];
   data.setFields(fields);
   view.setColumns(columns);
