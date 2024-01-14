@@ -107,6 +107,7 @@
               <kw-virtual-scroll
                 v-slot="{item: product, index: idx}"
                 scroll-target=".scoped-product-select__product-box"
+                initial-index="1"
                 virtual-scroll-item-size="79"
                 virtual-scroll-slice-ratio-before="1"
                 virtual-scroll-slice-ratio-after="1"
