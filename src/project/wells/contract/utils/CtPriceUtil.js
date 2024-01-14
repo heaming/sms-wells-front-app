@@ -13,6 +13,7 @@ export function getFormattedStr(numValue, unit = '원') {
 }
 
 function getFnlAmt(fnlVal, appliedPromotions = [], sellDscCtrAmt = 0) {
+  let sellAmt = fnlVal;
   const minRentalFxam = appliedPromotions
     .reduce(
       (minVal, promotion) => {
@@ -21,13 +22,19 @@ function getFnlAmt(fnlVal, appliedPromotions = [], sellDscCtrAmt = 0) {
         }
         return Math.min(minVal, Number(promotion.rentalFxam));
       },
-      fnlVal,
+      Number.MAX_SAFE_INTEGER,
     );
-  if (minRentalFxam - sellDscCtrAmt < 0) {
+
+  if (minRentalFxam < Number.MAX_SAFE_INTEGER) {
+    warn('프로모션 할인판매가가 선택된 가격보다 큽니다.');
+    sellAmt = minRentalFxam;
+  }
+
+  if (sellAmt - sellDscCtrAmt < 0) {
     warn('법인 특별 할인가가 프로모션 적용 금액보다 큽니다.');
   }
 
-  return Math.max(minRentalFxam - sellDscCtrAmt, 0);
+  return Math.max(sellAmt - sellDscCtrAmt, 0);
 }
 
 export function getSpayAmt(pdBas, finalPrice, appliedPromotions = [], sellDscCtrAmt = 0) {
