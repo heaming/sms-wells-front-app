@@ -280,7 +280,7 @@
                   :label="t('MSG_TXT_TXINV_PBL')"
                 >
                   <p>
-                    {{ codes.COD_YN.find((code) => code.codeId === item.txinvPblOjYn)?.codeName }}
+                    {{ getCodeName('COD_YN', item.txinvPblOjYn) }}
                   </p>
                 </kw-form-item>
               </kw-form-row>
@@ -606,7 +606,14 @@
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
 import ZwcmFileAttacher from '~common/components/ZwcmFileAttacher.vue';
-import { defineGrid, getComponentType, stringUtil, useDataService, useGlobal } from 'kw-lib';
+import {
+  defineGrid,
+  getComponentType,
+  gridUtil,
+  stringUtil,
+  useDataService,
+  useGlobal,
+} from 'kw-lib';
 import { cloneDeep, isEmpty } from 'lodash-es';
 import dayjs from 'dayjs';
 import { warn } from 'vue';
@@ -636,6 +643,7 @@ const { codes, getCodeName } = await useCtCode(
   'WPRS_ITST_TP_CD',
   'USE_ELECT_TP_CD',
   'COD_YN',
+  'SELL_TP_CD',
 );
 codes.FMMB_N = [
   { codeId: 1, codeName: '1인 가구' },
@@ -954,14 +962,17 @@ const initGrdMain = defineGrid((data, view) => {
   const fields = [
     { fieldName: 'cntrNo' },
     { fieldName: 'cntrSn' },
+    { fieldName: 'sellTpCd' },
     { fieldName: 'sellTpNm' },
     { fieldName: 'pdNm' },
+    { fieldName: 'cstBasePdAbbrNm' },
     { fieldName: 'regAmt', dataType: 'number' },
     { fieldName: 'rntlAmt', dataType: 'number' },
     { fieldName: 'pdAmt', dataType: 'number' },
     { fieldName: 'stplPtrm', dataType: 'number' },
     { fieldName: 'cntrPtrm', dataType: 'number' },
     { fieldName: 'dscAmt', dataType: 'number' },
+    { fieldName: 'svPrd', dataType: 'number' },
   ];
   const columns = [
     {
@@ -974,8 +985,15 @@ const initGrdMain = defineGrid((data, view) => {
         return `${pCntrNo}-${cntrSn}`;
       },
     },
-    { fieldName: 'sellTpNm', header: t('MSG_TXT_CNTR_DV'), width: 70 },
-    { fieldName: 'pdNm', header: t('MSG_TXT_PRDT_NM'), width: 200 },
+    { fieldName: 'sellTpCd', header: t('MSG_TXT_CNTR_DV'), width: 70, options: codes.SELL_TP_CD },
+    { fieldName: 'pdNm',
+      header: t('MSG_TXT_PRDT_NM'),
+      width: 200,
+      displayCallback: (g, i) => {
+        const { pdNm, cstBasePdAbbrNm } = gridUtil.getRowValue(g, i.dataRow);
+        return cstBasePdAbbrNm || pdNm;
+      },
+    },
     { fieldName: 'regAmt', header: '등록비(계약금)', width: 90, styleName: 'text-right' },
     { fieldName: 'rntlAmt', header: '월납부금', width: 90, styleName: 'text-right' },
     { fieldName: 'pdAmt', header: t('MSG_TXT_PRDT_AMT'), width: 90, styleName: 'text-right' },
@@ -987,6 +1005,7 @@ const initGrdMain = defineGrid((data, view) => {
     },
     { fieldName: 'cntrPtrm', header: t('MSG_TXT_CNTR_PTRM'), width: 90, styleName: 'text-right' },
     { fieldName: 'dscAmt', header: t('MSG_TXT_DSC_AMT'), width: 90, styleName: 'text-right' },
+    { fieldName: 'svPrd', header: '서비스주기', width: 90, styleName: 'text-right' },
   ];
   data.setFields(fields);
   view.setColumns(columns);
