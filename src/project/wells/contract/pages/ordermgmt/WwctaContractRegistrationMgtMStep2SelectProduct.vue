@@ -89,6 +89,7 @@
             expansion-icon-align="center"
             expand-icon-class="hidden"
             expand-icon-toggle
+            :duration="0"
           >
             <template #header="{ toggle, expanded }">
               <kw-item-section>
@@ -107,7 +108,8 @@
                 v-slot="{item: product, index: idx}"
                 scroll-target=".scoped-product-select__product-box"
                 virtual-scroll-item-size="79"
-                virtual-scroll-slice-ratio-after="3"
+                virtual-scroll-slice-ratio-before="1"
+                virtual-scroll-slice-ratio-after="1"
                 class="scoped-product-picker-list"
                 :items="filteredClassifyingProducts[pdClsfCd]"
                 type="list"
