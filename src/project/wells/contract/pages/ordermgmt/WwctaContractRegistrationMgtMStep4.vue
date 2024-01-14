@@ -836,27 +836,35 @@ async function isValidStep() {
   return true;
 }
 
+async function validateCustomer(cntrt) {
+  const { cikVal, hsCtfYn, itgCstNo, copnDvCd } = cntrt;
+
+  if (copnDvCd === COPN_DV_CD.INDIVIDUAL) {
+    if (!cikVal) {
+      // await alert('본인인증 미완료 상태입니다.\n완료 후 계약자를 재 조회해 주세요.'); /* 네이버렌탈 */
+      // return false; // TODO: re-rollback 다시살리기, 20231228 rollback: 전아영 매니저님 요청에 의한 일시 제거
+    }
+    if (hsCtfYn !== 'Y') {
+      // await alert('고객 정보 변경으로 본인인증이 필요합니다.\n완료 후 계약자를 재 조회해 주세요.');
+      // return false; // 20231228 rollback: 전아영 매니저님 요청에 의한 일시 제거
+    }
+    if (!itgCstNo) {
+      // await alert('통합고객 약관동의 미완료 상태입니다.\n완료 후 계약자를 재 조회해 주세요.');
+      // return false; // 20231228 rollback: 전아영 매니저님 요청에 의한 일시 제거
+    }
+  }
+
+  return true;
+}
+
 async function saveStep(isTemp) {
   if (isRestipulation.value) {
     const savedCntr = await dataService.post('sms/wells/contract/re-stipulation/save-contract', restipulationBasInfo.value);
     return savedCntr?.data?.key;
   }
 
-  const { cikVal, hsCtfYn, itgCstNo, copnDvCd } = step4.value.cntrt;
-
-  if (copnDvCd === COPN_DV_CD.INDIVIDUAL) {
-    if (!cikVal) {
-      await alert('본인인증 미완료 상태입니다.\n완료 후 계약자를 재 조회해 주세요.');
-      // return false; // TODO: re-rollback 다시살리기, 20231228 rollback: 전아영 매니저님 요청에 의한 일시 제거
-    }
-    if (hsCtfYn !== 'Y') {
-      await alert('고객 정보 변경으로 본인인증이 필요합니다.\n완료 후 계약자를 재 조회해 주세요.');
-      // return false; // 20231228 rollback: 전아영 매니저님 요청에 의한 일시 제거
-    }
-    if (!itgCstNo) {
-      await alert('통합고객 약관동의 미완료 상태입니다.\n완료 후 계약자를 재 조회해 주세요.');
-      // return false; // 20231228 rollback: 전아영 매니저님 요청에 의한 일시 제거
-    }
+  if (await validateCustomer()) {
+    return false;
   }
 
   // 법인할인고객 주소변경 첨부파일이 존재하는 경우,
@@ -864,7 +872,7 @@ async function saveStep(isTemp) {
     step4.value.bas.dcevdnDocs = fileParams.value.dcevdnDocs;
     // step4.value.bas.dcevdnDocId = fileParams.value.dcevdnDocId;
   }
-  console.log(JSON.stringify(step4.value, null, '\t'));
+
   const api = isTemp ? 'save-cntr-step4-temp' : 'save-cntr-step4';
   const savedCntr = await dataService.post(`sms/wells/contract/contracts/${api}`, step4.value);
   notify(t('MSG_ALT_SAVE_DATA'));
