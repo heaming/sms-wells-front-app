@@ -39,13 +39,11 @@
             :options="codes.SELL_TP_CD"
             first-option="all"
           />
-          <kw-field
-            :model-value="['Y', 'N']"
-          >
+          <kw-field>
             <template #default="{ field }">
               <kw-checkbox
-                v-model="searchParams.totalCsmr"
                 v-bind="field"
+                v-model="searchParams.totalCsmr"
                 :label="$t('MSG_TXT_COM_TOT')+' '+$t('MSG_TXT_MGT')+$t('MSG_TXT_CUSTOMER')"
               />
             </template>
