@@ -530,7 +530,7 @@ const initGrdMain = defineGrid((data, view) => {
         editable: true } },
     { fieldName: 'fstRgstDt', header: t('MSG_TXT_FST_RGST_DT'), width: '110', styleName: 'text-center', datetimeFormat: 'date' },
     { fieldName: 'deptNm', header: t('MSG_TXT_BLG'), width: '130', styleName: 'text-left' },
-    { fieldName: 'usrNm', header: t('MSG_TXT_FST_RGST_USR'), width: '80', styleName: 'text-left' },
+    { fieldName: 'usrNm', header: t('MSG_TXT_FST_RGST_USR'), width: '80', styleName: 'text-center' },
   ];
 
   data.setFields(fields);
