@@ -165,7 +165,7 @@
         <!-- 업무담당 -->
         <kw-form-item :label="$t('MSG_TXT_BIZ_ICHR')">
           <kw-input
-            v-model="frmMainData.fstRgstUsrId"
+            v-model="frmMainData.bizUsrId"
             placeholder=""
             readonly
           />
@@ -173,7 +173,7 @@
         <!-- 업무담당명 -->
         <kw-form-item :label="$t('MSG_TXT_BIZ_ICHR_NM')">
           <kw-input
-            v-model="frmMainData.fstRgstUsrNm"
+            v-model="frmMainData.bizUsrNm"
             placeholder=""
             readonly
           />
@@ -1078,9 +1078,9 @@ const frmMainData = ref({
   dgr3LevlDgPrtnrNm: '', // 지점 - 지점장명
   fstRgstDt: '', // 등록일시-일자
   fstRgstTm: '', // 등록일시-시간
-  fstRgstUsrId: '', // 업무담당
-  fstRgstUsrNm: '', // 업무담당 명
-  fstRgstPrgId: '', // 등록프로그램
+  bizUsrId: '', // 업무담당
+  bizUsrNm: '', // 업무담당명
+  fstRgstPrgId: '', // 등록프로그램(최초등록프로그램ID)
   cstKnm: '', // 계약자 명
   cstNo: '', // 계약자사업/주민번호
   cntrCralTno: '', // 계약자 휴대전화번호
@@ -1210,9 +1210,9 @@ async function fetchData() {
     frmMainData.value.dgr3LevlDgPrtnrNm = pages[0].dgr3LevlDgPrtnrNm; // 지점 - 지점장명
     frmMainData.value.fstRgstDt = pages[0].fstRgstDt; // 등록일시-일자
     frmMainData.value.fstRgstTm = pages[0].fstRgstTm; // 등록일시-시간
-    frmMainData.value.fstRgstUsrId = pages[0].fstRgstUsrId; // 업무담당
-    frmMainData.value.fstRgstUsrNm = pages[0].fstRgstUsrNm; // 업무담당 명
-    frmMainData.value.fstRgstPrgId = pages[0].fstRgstPrgId; // 등록프로그램
+    frmMainData.value.bizUsrId = pages[0].bizUsrId; // 업무담당
+    frmMainData.value.bizUsrNm = pages[0].bizUsrNm; // 업무담당명
+    frmMainData.value.fstRgstPrgId = pages[0].fstRgstPrgId; // 등록프로그램(최초등록프로그램ID)
     // -------------------------------------------------------------------------------------------------
     // 계약자 정보
     // -------------------------------------------------------------------------------------------------
