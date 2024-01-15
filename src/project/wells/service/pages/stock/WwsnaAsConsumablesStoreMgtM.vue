@@ -423,7 +423,7 @@ const initGrdMain = defineGrid((data, view) => {
         text: t('MSG_TXT_STR_RGST_DT'),
         styleName: 'essential',
       },
-      width: '110',
+      width: '120',
       styleName: 'text-center',
       editor: { type: 'btdate' },
       datetimeFormat: 'date',
