@@ -53,11 +53,8 @@
       <kw-action-top>
         <template #left>
           <kw-paging-info
-            v-model:page-index="pageInfo.pageIndex"
-            v-model:page-size="pageInfo.pageSize"
-            :total-count="pageInfo.totalCount"
-            :page-size-options="codes.COD_PAGE_SIZE_OPTIONS"
-            @change="fetchData"
+            :total-count="totalCount"
+            :page-size="100"
           />
         </template>
         <kw-btn
@@ -65,7 +62,7 @@
           dense
           secondary
           :label="$t('MSG_BTN_EXCEL_DOWN')"
-          :disable="pageInfo.totalCount === 0"
+          :disable="totalCount === 0"
           @click="onClickExcelDownload"
         />
         <kw-separator
@@ -77,23 +74,21 @@
           secondary
           dense
           :label="$t('MSG_TXT_RTNGD_OSTR')+$t('MSG_TXT_SLIP')+$t('MSG_BTN_PRINT')"
-          :disable="pageInfo.totalCount === 0"
+          :disable="totalCount === 0"
           @click="onClickPrintSlipPopup"
         />
       </kw-action-top>
       <kw-grid
         ref="grdMainRef"
         name="grdMain"
-        :page-size="pageInfo.pageSize"
-        :total-count="pageInfo.totalCount"
+        :total-count="totalCount"
         @init="initGrid"
       />
-      <kw-pagination
+      <!-- <kw-pagination
         v-model:page-index="pageInfo.pageIndex"
-        v-model:page-size="pageInfo.pageSize"
         :total-count="pageInfo.totalCount"
         @change="fetchData"
-      />
+      /> -->
     </div>
   </kw-page>
 </template>
@@ -122,7 +117,6 @@ const userInfo = getters['meta/getUserInfo'];
 console.log(userInfo);
 
 const codes = await codeUtil.getMultiCodes(
-  'COD_PAGE_SIZE_OPTIONS',
   'RTNGD_PROCS_TP_CD',
   'SV_CNR_CD',
 );
@@ -138,11 +132,12 @@ const searchParams = ref({
  *  Page Info setting
  */
 const pageInfo = ref({
-  totalCount: 0,
+  totalCount: 300,
   pageIndex: 1,
-  pageSize: Number(codes.COD_PAGE_SIZE_OPTIONS[0].codeName),
+  pageSize: 500,
   needTotalCount: true,
 });
+const totalCount = ref(0);
 
 /*
  *  창고 선택 초기 설정
@@ -159,10 +154,15 @@ onMounted(async () => {
 });
 
 async function fetchData() {
-  const res = await dataService.get('/sms/wells/service/returning-goods-out-of-storages-agrg/paging', { params: { ...cachedParams, ...pageInfo.value } });
-  const { list: state, pageInfo: pagingResult } = res.data;
+  // eslint-disable-next-line max-len
+  // const res = await dataService.get('/sms/wells/service/returning-goods-out-of-storages-agrg/paging', { params: { ...cachedParams, ...pageInfo.value } });
+  const res = await dataService.get('/sms/wells/service/returning-goods-out-of-storages-agrg/excel-download', { params: { ...cachedParams, ...pageInfo.value } });
+  const state = res.data;
+  // const { list: state, pageInfo: pagingResult } = res.data;
 
-  pageInfo.value = pagingResult;
+  console.log(state);
+
+  totalCount.value = state.length;
 
   const view = grdMainRef.value.getView();
   view.getDataSource().setRows(state);
@@ -176,7 +176,6 @@ async function fetchData() {
  *  Search - 조회
  */
 async function onClickSearch() {
-  pageInfo.value.pageIndex = 1;
   cachedParams = cloneDeep(searchParams.value);
   await fetchData();
 }
@@ -199,6 +198,7 @@ async function onClickExcelDownload() {
  *  Event - 반품출고전표출력 팝업창
  */
 async function onClickPrintSlipPopup() {
+  console.log(cachedParams);
   const { result } = await modal({
     component: 'WwsnaReturningGoodsOstrSlipPrintP',
     componentProps: {
