@@ -872,7 +872,7 @@ async function saveStep(isTemp) {
     return savedCntr?.data?.key;
   }
 
-  if (!await validateCustomer()) {
+  if (!await validateCustomer(step4.value.cntrt)) {
     return false;
   }
 
