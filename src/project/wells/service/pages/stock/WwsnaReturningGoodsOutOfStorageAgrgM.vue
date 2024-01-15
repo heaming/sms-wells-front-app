@@ -131,12 +131,12 @@ const searchParams = ref({
 /*
  *  Page Info setting
  */
-const pageInfo = ref({
-  totalCount: 300,
-  pageIndex: 1,
-  pageSize: 500,
-  needTotalCount: true,
-});
+// const pageInfo = ref({
+//   totalCount: 300,
+//   pageIndex: 1,
+//   pageSize: 500,
+//   needTotalCount: true,
+// });
 const totalCount = ref(0);
 
 /*
@@ -156,7 +156,7 @@ onMounted(async () => {
 async function fetchData() {
   // eslint-disable-next-line max-len
   // const res = await dataService.get('/sms/wells/service/returning-goods-out-of-storages-agrg/paging', { params: { ...cachedParams, ...pageInfo.value } });
-  const res = await dataService.get('/sms/wells/service/returning-goods-out-of-storages-agrg/excel-download', { params: { ...cachedParams, ...pageInfo.value } });
+  const res = await dataService.get('/sms/wells/service/returning-goods-out-of-storages-agrg/excel-download', { params: cachedParams });
   const state = res.data;
   // const { list: state, pageInfo: pagingResult } = res.data;
 
