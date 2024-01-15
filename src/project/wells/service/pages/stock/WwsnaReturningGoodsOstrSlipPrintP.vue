@@ -124,7 +124,10 @@ const searchParams = ref({
 });
 
 onMounted(async () => {
-  searchParams.value.wareNo = codes.SV_CNR_CD.filter((v) => v.codeId === props.mgtStrNo)[0].length > 0
+  console.log(props);
+  console.log(codes.SV_CNR_CD);
+  console.log(codes.SV_CNR_CD.filter((v) => v.codeId === props.mgtStrNo));
+  searchParams.value.wareNo = codes.SV_CNR_CD.filter((v) => v.codeId === props.mgtStrNo).length > 0
     ? codes.SV_CNR_CD.filter((v) => v.codeId === props.mgtStrNo)[0].codeId : '';
 });
 
