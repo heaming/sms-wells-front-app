@@ -315,10 +315,24 @@ async function fetchData() {
 
   Object.assign(fieldParams.value, res.data);
 
-  fieldParams.value.cntrCralTno = `${fieldParams.value.cntrCralLocaraTno}-${fieldParams.value.cntrMexnoEncr}-${fieldParams.value.cntrCralIdvTno}`;
-  fieldParams.value.istCralTno = `${fieldParams.value.istCralLocaraTno}${fieldParams.value.istMexnoEncr}${fieldParams.value.istCralIdvTno}`;
-  fieldParams.value.cntrCopnCralTno = `${fieldParams.value.cntrCopnLocaraTno}-${fieldParams.value.cntrCopnExnoEncr}-${fieldParams.value.cntrCopnIdvTno}`;
-  fieldParams.value.istPhoneNo = `${fieldParams.value.istLocaraTno}${fieldParams.value.istExnoEncr}${fieldParams.value.istIdvTno}`;
+  const {
+    cntrCralLocaraTno,
+    cntrMexnoEncr,
+    cntrCralIdvTno,
+    istCralLocaraTno,
+    istMexnoEncr,
+    istCralIdvTno,
+    cntrCopnLocaraTno,
+    cntrCopnExnoEncr,
+    cntrCopnIdvTno,
+    istLocaraTno,
+    istExnoEncr,
+    istIdvTno } = fieldParams.value;
+
+  if (!isEmpty(cntrCralLocaraTno) && !isEmpty(cntrMexnoEncr) && !isEmpty(cntrCralIdvTno)) { fieldParams.value.cntrCralTno = `${cntrCralLocaraTno}-${cntrMexnoEncr}-${cntrCralIdvTno}`; }
+  if (!isEmpty(istCralLocaraTno) && !isEmpty(istMexnoEncr) && !isEmpty(istCralIdvTno)) { fieldParams.value.istCralTno = `${istCralLocaraTno}${istMexnoEncr}${istCralIdvTno}`; }
+  if (!isEmpty(cntrCopnLocaraTno) && !isEmpty(cntrCopnExnoEncr) && !isEmpty(cntrCopnIdvTno)) { fieldParams.value.cntrCopnCralTno = `${cntrCopnLocaraTno}-${cntrCopnExnoEncr}-${cntrCopnIdvTno}`; }
+  if (!isEmpty(istLocaraTno) && !isEmpty(istExnoEncr) && !isEmpty(istIdvTno)) { fieldParams.value.istPhoneNo = `${istLocaraTno}${istExnoEncr}${istIdvTno}`; }
 
   orgCntrAdrId = fieldParams.value.cntrAdrId;
 
@@ -392,13 +406,15 @@ async function onClickSave() {
 // getBzrnoFormat: 생일, 사업자 번호 구분처리
 function getBzrnoFormat(copnDvCd, bryyBzrno) {
   let msg = bryyBzrno;
-  switch (copnDvCd) {
-    case '2':
-      msg = `${bryyBzrno.substr(0, 3)}-${bryyBzrno.substr(3, 2)}-${bryyBzrno.substr(5, 5)}`;
-      break;
-    default:
-      msg = stringUtil.getDateFormat(bryyBzrno);
-      break;
+  if (!isEmpty(bryyBzrno)) {
+    switch (copnDvCd) {
+      case '2':
+        msg = `${bryyBzrno.substr(0, 3)}-${bryyBzrno.substr(3, 2)}-${bryyBzrno.substr(5, 5)}`;
+        break;
+      default:
+        msg = stringUtil.getDateFormat(bryyBzrno);
+        break;
+    }
   }
   return msg;
 }
@@ -407,13 +423,25 @@ function onChangeAddrInput() {
   const { check } = fieldParams.value;
   if (check) {
     fieldParams.value.rcgvpKnm = fieldParams.value.cstKnm;
+
+    /* 설치자 휴대전화번호 */
     fieldParams.value.istCralTno = fieldParams.value.cntrCralTno;
     fieldParams.value.istCralLocaraTno = fieldParams.value.cntrCralLocaraTno;
     fieldParams.value.istMexnoEncr = fieldParams.value.cntrMexnoEncr;
     fieldParams.value.istCralIdvTno = fieldParams.value.cntrCralIdvTno;
+
+    /* 설치자 전화번호 */
+    fieldParams.value.istPhoneNo = fieldParams.value.cntrCopnCralTno;
+    fieldParams.value.istLocaraTno = fieldParams.value.cntrCopnLocaraTno;
+    fieldParams.value.istExnoEncr = fieldParams.value.cntrCopnExnoEncr;
+    fieldParams.value.istIdvTno = fieldParams.value.cntrCopnIdvTno;
+
+    /* 설치자 주소id, 우편번호, 주소구분코드 */
     fieldParams.value.istAdrId = fieldParams.value.cntrAdrId;
     fieldParams.value.istAdrZip = fieldParams.value.cntrAdrZip;
     fieldParams.value.adrDvCd = fieldParams.value.cntrAdrDvCd;
+
+    /* 설치자 주소 */
     fieldParams.value.istRnadr = fieldParams.value.cntrCstRnadr;
     fieldParams.value.istRdadr = fieldParams.value.cntrCstRdadr;
   }
