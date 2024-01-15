@@ -313,7 +313,7 @@ const perfLast201903AndDstrcColumnLayout = [
   {
     header: t('MSG_TXT_REDF_FEE'),
     direction: 'horizontal',
-    items: ['mchnChRedf201903', 'spRedf', 'homeCareRedf', 'envrTrgRedf', 'envrBznsRedf201903', 'envrMetgRedf', 'envrExcpBznsRedf201903', 'envrExcpMetgRedf', 'envrOgRedf', 'envrExcpOgRedf201904', 'envrExcpOgMetgRedf', 'sumPerfLast201903RedfDstrc'],
+    items: ['mchnChRedf201903', 'spRedf', 'homeCareRedf', 'envrTrgRedf', 'envrBznsRedf201903', 'envrMetgRedf', 'envrExcpBznsRedf201903', 'envrExcpMetgRedf', 'envrOgRedf', 'envrExcpOgRedf201904', 'envrExcpOgMetgRedf', 'canRedfAmt'],
   },
 
   {
@@ -355,7 +355,7 @@ const perf201904Between202012AndDstrcColumnLayout = [
   {
     header: t('MSG_TXT_REDF_FEE'),
     direction: 'horizontal',
-    items: ['homeCareRedf', 'mchnChRedf201904', 'envrBznsRedf201904', 'envrExcpBznsRedf201904', 'sellEncrgRedf', 'eduRedf', 'settleRedf', 'sellEncrgRettRedf', 'sumPerf201904Between202012RedfDstrc'],
+    items: ['homeCareRedf', 'mchnChRedf201904', 'envrBznsRedf201904', 'envrExcpBznsRedf201904', 'sellEncrgRedf', 'eduRedf', 'settleRedf', 'sellEncrgRettRedf', 'canRedfAmt'],
   },
   'cpsnRedfYn',
 ];
@@ -400,7 +400,7 @@ const perfAfter202101AndDstrcColumnLayout = [
       'eduRedf',
       'settleRedf',
       'sellEncrgRettRedf',
-      'sumPerf202101RedfDstrc',
+      'canRedfAmt',
     ],
   },
   'cpsnRedfYn',
@@ -453,7 +453,7 @@ const perfAllAndDstrcColumnLayout = [
   {
     header: t('MSG_TXT_REDF_FEE'),
     direction: 'horizontal',
-    items: ['mchnChRedf201903', 'mchnChRedf201904', 'spRedf', 'homeCareRedf', 'envrTrgRedf', 'envrBznsRedf201903', 'envrMetgRedf', 'envrBznsRedf201904', 'envrExcpBznsRedf201903', 'envrExcpMetgRedf', 'envrExcpBznsRedf201904', 'sellEncrgRedf', 'eduRedf', 'settleRedf', 'sellEncrgRettRedf', 'envrOgRedf', 'envrOgMetg', 'envrExcpOgRedf201904', 'envrExcpOgMetgRedf', 'sumPerfAllRedfDstrc'],
+    items: ['mchnChRedf201903', 'mchnChRedf201904', 'spRedf', 'homeCareRedf', 'envrTrgRedf', 'envrBznsRedf201903', 'envrMetgRedf', 'envrBznsRedf201904', 'envrExcpBznsRedf201903', 'envrExcpMetgRedf', 'envrExcpBznsRedf201904', 'sellEncrgRedf', 'eduRedf', 'settleRedf', 'sellEncrgRettRedf', 'envrOgRedf', 'envrOgMetg', 'envrExcpOgRedf201904', 'envrExcpOgMetgRedf', 'canRedfAmt'],
   },
   {
     header: t('MSG_TXT_TGT_RECRT'),
@@ -490,7 +490,7 @@ const perfLast201903AndBrchColumnLayout = [
   {
     header: t('MSG_TXT_REDF_FEE'),
     direction: 'horizontal',
-    items: ['mchnChRedf201903', 'spRedf', 'homeCareRedf', 'envrTrgRedf', 'envrBznsRedf201903', 'envrMetgRedf', 'envrExcpBznsRedf201903', 'envrExcpMetgRedf', 'envrOgRedf', 'envrOgMetg', 'envrExcpOgRedf201904', 'envrExcpOgMetgRedf', 'sumPerfLast201903RedfBrch'],
+    items: ['mchnChRedf201903', 'spRedf', 'homeCareRedf', 'envrTrgRedf', 'envrBznsRedf201903', 'envrMetgRedf', 'envrExcpBznsRedf201903', 'envrExcpMetgRedf', 'envrOgRedf', 'envrOgMetg', 'envrExcpOgRedf201904', 'envrExcpOgMetgRedf', 'canRedfAmt'],
   },
   {
     header: t('MSG_TXT_TGT_RECRT'),
@@ -576,7 +576,7 @@ const perf201904Between202012AndBrchColumnLayout = [
   {
     header: t('MSG_TXT_REDF_FEE'),
     direction: 'horizontal',
-    items: ['homeCareRedf', 'mchnChRedf201904', 'envrBznsRedf201904', 'envrExcpBznsRedf201904', 'sellEncrgRedf', 'eduRedf', 'wpSettleRedfBrch', 'envrExcpOgRedf201903', 'ogSellEncrgRedf', 'nwSellRedf', 'ogMgtRedf', 'sumPerf201904Between202012RedfBrch'],
+    items: ['homeCareRedf', 'mchnChRedf201904', 'envrBznsRedf201904', 'envrExcpBznsRedf201904', 'sellEncrgRedf', 'eduRedf', 'wpSettleRedfBrch', 'envrExcpOgRedf201903', 'ogSellEncrgRedf', 'nwSellRedf', 'ogMgtRedf', 'canRedfAmt'],
   },
   'cpsnRedfYn',
 ];
@@ -658,7 +658,7 @@ const perfAfter202101AndBrchColumnLayout = [
   {
     header: t('MSG_TXT_REDF_FEE'),
     direction: 'horizontal',
-    items: ['homeCareRedf', 'mchnChRedf201904', 'envrBznsRedf201904', 'envrExcpBznsRedf201904', 'sellEncrgRedf', 'eduRedf', 'wpSettleRedfBrch', 'envrExcpOgRedf201903', 'ogSellEncrgRedf', 'nwSellRedf', 'ogMgtRedf', 'sumPerf202101RedfBrch'],
+    items: ['homeCareRedf', 'mchnChRedf201904', 'envrBznsRedf201904', 'envrExcpBznsRedf201904', 'sellEncrgRedf', 'eduRedf', 'wpSettleRedfBrch', 'envrExcpOgRedf201903', 'ogSellEncrgRedf', 'nwSellRedf', 'ogMgtRedf', 'canRedfAmt'],
   },
   'cpsnRedfYn',
 ];
@@ -755,7 +755,7 @@ const perfAllAndBrchColumnLayout = [
   {
     header: t('MSG_TXT_REDF_FEE'),
     direction: 'horizontal',
-    items: ['mchnChRedf201903', 'spRedf', 'homeCareRedf', 'mchnChRedf201904', 'sellEncrgRedf', 'eduRedf', 'wpSettleRedfBrch', 'envrTrgRedf', 'envrBznsRedf201903', 'envrExcpBznsRedf201903', 'envrBznsRedf201904', 'envrExcpBznsRedf201904', 'envrMetgRedf', 'envrExcpMetgRedf', 'envrOgRedf', 'envrExcpOgRedf201904', 'envrOgMetg', 'envrExcpOgMetgRedf', 'ogSellEncrgRedf', 'nwSellRedf', 'ogMgtRedf', 'sumPerfAllRedfBrch'],
+    items: ['mchnChRedf201903', 'spRedf', 'homeCareRedf', 'mchnChRedf201904', 'sellEncrgRedf', 'eduRedf', 'wpSettleRedfBrch', 'envrTrgRedf', 'envrBznsRedf201903', 'envrExcpBznsRedf201903', 'envrBznsRedf201904', 'envrExcpBznsRedf201904', 'envrMetgRedf', 'envrExcpMetgRedf', 'envrOgRedf', 'envrExcpOgRedf201904', 'envrOgMetg', 'envrExcpOgMetgRedf', 'ogSellEncrgRedf', 'nwSellRedf', 'ogMgtRedf', 'canRedfAmt'],
   },
   {
     header: t('MSG_TXT_TGT_RECRT'),
@@ -795,7 +795,7 @@ const wpAndDstrcColumnLayout = [
   {
     header: t('MSG_TXT_REDF_FEE'),
     direction: 'horizontal',
-    items: ['wpEnvrPrRedf', 'wpEnvrExcpPrRedf', 'wpPrSellEncrgRedf', 'wpMetgRedf', 'wpSettleRedfDstrc', 'wpFxamRedfDstrc', 'sumWpRedfDstrc'],
+    items: ['wpEnvrPrRedf', 'wpEnvrExcpPrRedf', 'wpPrSellEncrgRedf', 'wpMetgRedf', 'wpSettleRedfDstrc', 'wpFxamRedfDstrc', 'canRedfAmt'],
   },
   'wpLifRedfAmt',
   'wpLif0203RedfAmt',
@@ -828,12 +828,12 @@ const wpAndBrchColumnLayout = [
   {
     header: t('MSG_TXT_ACL_ACTI'),
     direction: 'horizontal',
-    items: ['col163', 'col164', 'col165', 'col166', 'col167'],
+    items: ['tbOgMgtPpl', 'tOgMgtPpl', 'bOgMgtPpl', 'ogMgtPpl', 'aOgMgtPpl'],
   },
   {
     header: t('MSG_TXT_REDF_FEE'),
     direction: 'horizontal',
-    items: ['wpEnvrPrRedf', 'wpEnvrExcpPrRedf', 'sellEncrgRedf', 'wpEnvrOgRedf', 'wpEnvrExcpOgRedf', 'wpOgSellEncrgRedf', 'wpSettleRedfBrch', 'wpFxamRedfBrch', 'sumWpRedfBrch'],
+    items: ['wpEnvrPrRedf', 'wpEnvrExcpPrRedf', 'sellEncrgRedf', 'wpEnvrOgRedf', 'wpEnvrExcpOgRedf', 'wpOgSellEncrgRedf', 'wpSettleRedfBrch', 'wpFxamRedfBrch', 'canRedfAmt'],
   },
   'wpLifRedfAmt',
   'wpLif0203RedfAmt',
@@ -1160,16 +1160,16 @@ function initGrid(data, view) {
     { fieldName: 'dlqRedfPerfRental', dataType: 'number' },
     { fieldName: 'dlqRedfPerfExcp', dataType: 'number' },
     { fieldName: 'dlqRedfPerfTot', dataType: 'number' },
-    { fieldName: 'sumPerfLast201903RedfDstrc', dataType: 'number' },
-    { fieldName: 'sumPerf201904Between202012RedfDstrc', dataType: 'number' },
-    { fieldName: 'sumPerf202101RedfDstrc', dataType: 'number' },
-    { fieldName: 'sumPerfAllRedfDstrc', dataType: 'number' },
-    { fieldName: 'sumPerfLast201903RedfBrch', dataType: 'number' },
-    { fieldName: 'sumPerf201904Between202012RedfBrch', dataType: 'number' },
-    { fieldName: 'sumPerf202101RedfBrch', dataType: 'number' },
-    { fieldName: 'sumPerfAllRedfBrch', dataType: 'number' },
-    { fieldName: 'sumWpRedfDstrc', dataType: 'number' },
-    { fieldName: 'sumWpRedfBrch', dataType: 'number' },
+    { fieldName: 'canRedfAmt', dataType: 'number' },
+    // { fieldName: 'canRedfAmt', dataType: 'number' },
+    // { fieldName: 'canRedfAmt', dataType: 'number' },
+    // { fieldName: 'canRedfAmt', dataType: 'number' },
+    // { fieldName: 'canRedfAmt', dataType: 'number' },
+    // { fieldName: 'canRedfAmt', dataType: 'number' },
+    // { fieldName: 'canRedfAmt', dataType: 'number' },
+    // { fieldName: 'canRedfAmt', dataType: 'number' },
+    // { fieldName: 'canRedfAmt', dataType: 'number' },
+    // { fieldName: 'canRedfAmt', dataType: 'number' },
     { fieldName: 'ogMgtRedf', dataType: 'number' },
 
   ];
@@ -1384,16 +1384,25 @@ function initGrid(data, view) {
     { fieldName: 'dlqRedfPerfRental', header: t('MSG_TXT_RENTAL'), width: '120', styleName: 'text-right', numberFormat: '#,##0' }, // 연체되물림실적.렌탈
     { fieldName: 'dlqRedfPerfExcp', header: t('MSG_TXT_ELHM_EXCP_SPAY_PERF'), width: '120', styleName: 'text-right', numberFormat: '#,##0' }, // 연체되물림실적.가전외일시불
     { fieldName: 'dlqRedfPerfTot', header: t('MSG_TXT_AGG'), width: '120', styleName: 'text-right', numberFormat: '#,##0' }, // 연체되물림실적.계
-    { fieldName: 'sumPerfLast201903RedfDstrc', header: t('MSG_TXT_REDF_SUM_AMT'), width: '120', styleName: 'text-right', numberFormat: '#,##0' }, // 2019년 3월 이전 + 지구장 이하 되물림합계
-    { fieldName: 'sumPerf201904Between202012RedfDstrc', header: t('MSG_TXT_REDF_SUM_AMT'), width: '120', styleName: 'text-right', numberFormat: '#,##0' }, // 실적년월 2019년 04월 ~ 2020년 12월 + 지구장 이하 되물림합계
-    { fieldName: 'sumPerf202101RedfDstrc', header: t('MSG_TXT_REDF_SUM_AMT'), width: '120', styleName: 'text-right', numberFormat: '#,##0' }, // 실적년월 2021년 1월 이후 + 지구장 이하 되물림합계
-    { fieldName: 'sumPerfAllRedfDstrc', header: t('MSG_TXT_REDF_SUM_AMT'), width: '120', styleName: 'text-right', numberFormat: '#,##0' }, // 실적년월 전기간 + 지구장 이하 되물림합계
-    { fieldName: 'sumPerfLast201903RedfBrch', header: t('MSG_TXT_REDF_SUM_AMT'), width: '120', styleName: 'text-right', numberFormat: '#,##0' }, // 2019년 3월 이전 + 지점장 이상 되물림합계
-    { fieldName: 'sumPerf201904Between202012RedfBrch', header: t('MSG_TXT_REDF_SUM_AMT'), width: '120', styleName: 'text-right', numberFormat: '#,##0' }, // 실적년월 2019년 04월 ~ 2020년 12월 + 지점장 이상 되물림합계
-    { fieldName: 'sumPerf202101RedfBrch', header: t('MSG_TXT_REDF_SUM_AMT'), width: '120', styleName: 'text-right', numberFormat: '#,##0' }, // 실적년월 2021년 1월 이후 + 지점장 이상 되물림합계
-    { fieldName: 'sumPerfAllRedfBrch', header: t('MSG_TXT_REDF_SUM_AMT'), width: '120', styleName: 'text-right', numberFormat: '#,##0' }, // 실적년월 전기간 + 지점장 이상 되물림합계
-    { fieldName: 'sumWpRedfDstrc', header: t('MSG_TXT_REDF_SUM_AMT'), width: '120', styleName: 'text-right', numberFormat: '#,##0' }, // WELLS-P + 지구장 이하
-    { fieldName: 'sumWpRedfBrch', header: t('MSG_TXT_REDF_SUM_AMT'), width: '120', styleName: 'text-right', numberFormat: '#,##0' }, // WELLS-P + 지점장 이상
+    { fieldName: 'canRedfAmt', header: t('MSG_TXT_REDF_SUM_AMT'), width: '120', styleName: 'text-right', numberFormat: '#,##0' }, // 2019년 3월 이전 + 지구장 이하 되물림합계
+    // eslint-disable-next-line max-len
+    // { fieldName: 'canRedfAmt', header: t('MSG_TXT_REDF_SUM_AMT'), width: '120', styleName: 'text-right', numberFormat: '#,##0' }, // 실적년월 2019년 04월 ~ 2020년 12월 + 지구장 이하 되물림합계
+    // eslint-disable-next-line max-len
+    // { fieldName: 'canRedfAmt', header: t('MSG_TXT_REDF_SUM_AMT'), width: '120', styleName: 'text-right', numberFormat: '#,##0' }, // 실적년월 2021년 1월 이후 + 지구장 이하 되물림합계
+    // eslint-disable-next-line max-len
+    // { fieldName: 'canRedfAmt', header: t('MSG_TXT_REDF_SUM_AMT'), width: '120', styleName: 'text-right', numberFormat: '#,##0' }, // 실적년월 전기간 + 지구장 이하 되물림합계
+    // eslint-disable-next-line max-len
+    // { fieldName: 'canRedfAmt', header: t('MSG_TXT_REDF_SUM_AMT'), width: '120', styleName: 'text-right', numberFormat: '#,##0' }, // 2019년 3월 이전 + 지점장 이상 되물림합계
+    // eslint-disable-next-line max-len
+    // { fieldName: 'canRedfAmt', header: t('MSG_TXT_REDF_SUM_AMT'), width: '120', styleName: 'text-right', numberFormat: '#,##0' }, // 실적년월 2019년 04월 ~ 2020년 12월 + 지점장 이상 되물림합계
+    // eslint-disable-next-line max-len
+    // { fieldName: 'canRedfAmt', header: t('MSG_TXT_REDF_SUM_AMT'), width: '120', styleName: 'text-right', numberFormat: '#,##0' }, // 실적년월 2021년 1월 이후 + 지점장 이상 되물림합계
+    // eslint-disable-next-line max-len
+    // { fieldName: 'canRedfAmt', header: t('MSG_TXT_REDF_SUM_AMT'), width: '120', styleName: 'text-right', numberFormat: '#,##0' }, // 실적년월 전기간 + 지점장 이상 되물림합계
+    // eslint-disable-next-line max-len
+    // { fieldName: 'canRedfAmt', header: t('MSG_TXT_REDF_SUM_AMT'), width: '120', styleName: 'text-right', numberFormat: '#,##0' }, // WELLS-P + 지구장 이하
+    // eslint-disable-next-line max-len
+    // { fieldName: 'canRedfAmt', header: t('MSG_TXT_REDF_SUM_AMT'), width: '120', styleName: 'text-right', numberFormat: '#,##0' }, // WELLS-P + 지점장 이상
 
     // 적채용
     { fieldName: 'tRedfPpl', header: t('MSG_TXT_BLNG_MM_PPL'), width: '120', styleName: 'text-right', numberFormat: '#,##0' },
