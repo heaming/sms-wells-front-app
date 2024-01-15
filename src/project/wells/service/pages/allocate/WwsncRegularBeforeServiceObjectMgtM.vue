@@ -18,22 +18,23 @@
     <kw-search
       v-permission:read
       :cols="4"
+      :no-reset-btn="true"
       @search="onClickSearch"
     >
-      <kw-form-row>
-        <kw-form-item :label="$t('배정년월')">
+      <kw-search-row>
+        <kw-search-item :label="$t('배정년월')">
           <kw-date-picker
             v-model="searchParams.asnOjYm"
             type="month"
           />
-        </kw-form-item>
-        <kw-form-item :label="$t('생성대상')">
+        </kw-search-item>
+        <kw-search-item :label="$t('생성대상')">
           <kw-select
             v-model="searchParams.createTarget"
             :options="customCodes.CRT_TRGT"
           />
-        </kw-form-item>
-      </kw-form-row>
+        </kw-search-item>
+      </kw-search-row>
     </kw-search>
     <div class="normal-area normal-area--button-set-bottom">
       <kw-form
