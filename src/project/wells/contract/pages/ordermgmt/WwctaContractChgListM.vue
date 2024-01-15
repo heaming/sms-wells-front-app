@@ -392,7 +392,7 @@ function initGrid(data, view) {
     { fieldName: 'pdNm', header: t('MSG_TXT_PRDT_NM', null, '상품명'), width: '100', styleName: 'text-left' },
     { fieldName: 'cntrRelDtlNm', header: t('MSG_TXT_CNTR_REL_DTL_NM', null, '계약관계상세명'), width: '100', styleName: 'text-center' },
     { fieldName: 'cntrRelDtlCd', header: t('MSG_TXT_CNTR_REL_DTL_NM', null, '계약관계상세코드'), width: '100', styleName: 'text-center', visible: false },
-    { fieldName: 'cntrCstRelId', header: t('MSG_TXT_UNIQUE_NUM', null, '고유번호'), width: '120', styleName: 'text-center', visible: true },
+    { fieldName: 'cntrCstRelId', header: t('MSG_TXT_UNIQUE_NUM', null, '고유번호'), width: '120', styleName: 'text-center', visible: false },
   ];
 
   data.setFields(fields);
