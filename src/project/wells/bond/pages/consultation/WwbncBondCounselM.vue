@@ -893,7 +893,6 @@ function onClickSysCALLMakeCall(sTelNo) {
 }
 
 function onClickPhoneYn(type) {
-  searchParams.value.phone = searchParams.value.tno;
   searchParams.value.phoneYn = type;
 }
 
