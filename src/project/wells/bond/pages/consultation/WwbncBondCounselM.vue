@@ -283,7 +283,7 @@
         <kw-btn
           outlined
           dense
-          :label="$t('MSG_TXT_CALLBK')"
+          :label="`${$t('MSG_TXT_CALLBK')}(${callbackCount})`"
           border-color="bg-white"
           class="call-center-btn"
           @click="onClickBncCallBack"
@@ -426,6 +426,7 @@ const dataParams = ref({
   ext: '',
 });
 
+const callbackCount = ref(0);
 function init() {
   timer.value.timeStr = '00:00:00';
   timer.value.time = 0;
@@ -1211,6 +1212,20 @@ async function startClient() {
   });
 }
 
+async function getCallbackCount() {
+  const res = await dataService.get('/sms/common/bond/callback/count', {
+    params: {
+      callbackData0101: searchParams.value.callbackData0101,
+      callbackData0102: searchParams.value.callbackData0102,
+      callbackData0103: searchParams.value.callbackData0103,
+      queueId: searchParams.value.queueId,
+    },
+  });
+  if (Array.isArray(res.data) && res.data.length > 0) {
+    callbackCount.value = res.data[0].todo1000Cnt;
+  }
+}
+
 async function fetchData() {
   const response = await dataService.get('/sms/wells/bond/bond-counsel/user-info', { params: searchParams.value });
 
@@ -1236,6 +1251,7 @@ async function fetchData() {
   }
   startClient();
   ctiConnect();
+  setInterval(await getCallbackCount, 10000);
 }
 
 onMounted(async () => {
