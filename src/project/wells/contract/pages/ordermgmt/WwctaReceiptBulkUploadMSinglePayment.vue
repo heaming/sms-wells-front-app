@@ -128,7 +128,7 @@ async function onClickExcelUpload() {
       validationBtn: false,
       downloadBtn: false,
       serverSideValidation: validate,
-      serverSideValidateOption: { sideEffect: true },
+      serverSideValidateOption: { sideEffect: true, oneByOne: true },
     },
   });
   if (result) {
@@ -175,7 +175,7 @@ const initGrd = defineGrid((data, view) => {
     spayPmotDvCd: { label: t('일시불프로모션구분'), width: 210, options: codes.SPAY_PMOT_DV_CD }, /* 무상BS기간수 */
     svPdCd: { label: t('서비스상품코드'), width: 146, classes: 'text-center' }, /* 상품코드 긁어올까.. */
     copnDvCd: { label: t('개인법인구분'), width: 146, options: codes.COPN_DV_CD, required: true },
-    cstNo: { label: t('고객번호'), width: 146, classes: 'text-center', required: true },
+    cstNo: { label: t('고객번호'), width: 146, classes: 'text-center' },
     cstKnm: { label: t('고객명'), width: 146, classes: 'text-center', required: true },
     bryyMmdd: {
       label: t('MSG_TXT_BIRTH_DATE'),
