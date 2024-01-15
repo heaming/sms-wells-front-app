@@ -77,7 +77,7 @@
         <!-- 등급정보 -->
         <kw-form-item :label="$t('MSG_TXT_GRD_INF')">
           <kw-input
-            v-model="frmMainData.levelsNm"
+            v-model="frmMainData.levels"
             placeholder=""
             readonly
           />
@@ -123,7 +123,7 @@
         <!-- 조직코드 -->
         <kw-form-item :label="$t('MSG_TXT_OG_CD')">
           <kw-input
-            v-model="frmMainData.dgr3LevlOgId"
+            v-model="frmMainData.dgr3LevlOgCd"
             placeholder=""
             readonly
           />
@@ -165,7 +165,7 @@
         <!-- 업무담당 -->
         <kw-form-item :label="$t('MSG_TXT_BIZ_ICHR')">
           <kw-input
-            v-model="frmMainData.fstRgstUsrId"
+            v-model="frmMainData.bizUsrId"
             placeholder=""
             readonly
           />
@@ -173,7 +173,7 @@
         <!-- 업무담당명 -->
         <kw-form-item :label="$t('MSG_TXT_BIZ_ICHR_NM')">
           <kw-input
-            v-model="frmMainData.fstRgstUsrNm"
+            v-model="frmMainData.bizUsrNm"
             placeholder=""
             readonly
           />
@@ -1064,7 +1064,7 @@ const frmMainData = ref({
   empDvVal: '', // 직원구분
   cntrCstNo: '', // 고객번호
   safekey: '', // 세이프키(SAFE-KEY)
-  levelsNm: '', // 등급정보
+  levels: '', // 등급정보
   rveCd: '', // 수납정보코드
   rveNm: '', // 수납정보코드명
   sellPrtnrNo: '', // 파트너-번호
@@ -1073,14 +1073,14 @@ const frmMainData = ref({
   cralLocaraTno: '', // 파트너 휴대지역전화번호
   mexnoEncr: '', // 파트너 휴대전화국번호암호화
   cralIdvTno: '', // 파트너 휴대개별전화번호
-  dgr3LevlOgId: '', // 조직코드
+  dgr3LevlOgCd: '', // 조직코드
   dgr3LevlDgPrtnrNo: '', // 지점 - 지점장
   dgr3LevlDgPrtnrNm: '', // 지점 - 지점장명
   fstRgstDt: '', // 등록일시-일자
   fstRgstTm: '', // 등록일시-시간
-  fstRgstUsrId: '', // 업무담당
-  fstRgstUsrNm: '', // 업무담당 명
-  fstRgstPrgId: '', // 등록프로그램
+  bizUsrId: '', // 업무담당
+  bizUsrNm: '', // 업무담당명
+  fstRgstPrgId: '', // 등록프로그램(최초등록프로그램ID)
   cstKnm: '', // 계약자 명
   cstNo: '', // 계약자사업/주민번호
   cntrCralTno: '', // 계약자 휴대전화번호
@@ -1196,7 +1196,7 @@ async function fetchData() {
     frmMainData.value.empDvVal = pages[0].empDvVal; // 직원구분
     frmMainData.value.cntrCstNo = pages[0].cntrCstNo; // 고객번호
     frmMainData.value.safekey = pages[0].safekey; // 세이프키(SAFE-KEY)
-    frmMainData.value.levelsNm = pages[0].levelsNm; // 등급정보
+    frmMainData.value.levels = pages[0].levels; // 등급정보
     frmMainData.value.rveCd = pages[0].rveCd; // 수납정보코드
     frmMainData.value.rveNm = pages[0].rveNm; // 수납정보코드명
     frmMainData.value.sellPrtnrNo = pages[0].sellPrtnrNo; // 파트너-번호
@@ -1205,14 +1205,14 @@ async function fetchData() {
     const { mexnoEncr } = pages[0]; // 파트너 휴대전화국번호암호화
     const { cralIdvTno } = pages[0]; // 파트너 휴대개별전화번호
     frmMainData.value.sellPrtnrCralTno = !isEmpty(cralLocaraTno) && !isEmpty(mexnoEncr) && !isEmpty(cralIdvTno) ? `${cralLocaraTno}-${mexnoEncr}-${cralIdvTno}` : ''; // 파트너-휴대전화번호
-    frmMainData.value.dgr3LevlOgId = pages[0].dgr3LevlOgId; // 조직코드
+    frmMainData.value.dgr3LevlOgCd = pages[0].dgr3LevlOgCd; // 조직코드
     frmMainData.value.dgr3LevlDgPrtnrNo = pages[0].dgr3LevlDgPrtnrNo; // 지점 - 지점장
     frmMainData.value.dgr3LevlDgPrtnrNm = pages[0].dgr3LevlDgPrtnrNm; // 지점 - 지점장명
     frmMainData.value.fstRgstDt = pages[0].fstRgstDt; // 등록일시-일자
     frmMainData.value.fstRgstTm = pages[0].fstRgstTm; // 등록일시-시간
-    frmMainData.value.fstRgstUsrId = pages[0].fstRgstUsrId; // 업무담당
-    frmMainData.value.fstRgstUsrNm = pages[0].fstRgstUsrNm; // 업무담당 명
-    frmMainData.value.fstRgstPrgId = pages[0].fstRgstPrgId; // 등록프로그램
+    frmMainData.value.bizUsrId = pages[0].bizUsrId; // 업무담당
+    frmMainData.value.bizUsrNm = pages[0].bizUsrNm; // 업무담당명
+    frmMainData.value.fstRgstPrgId = pages[0].fstRgstPrgId; // 등록프로그램(최초등록프로그램ID)
     // -------------------------------------------------------------------------------------------------
     // 계약자 정보
     // -------------------------------------------------------------------------------------------------
