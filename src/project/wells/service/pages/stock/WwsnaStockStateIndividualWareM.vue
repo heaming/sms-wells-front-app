@@ -320,7 +320,7 @@ async function getWareHouseList() {
 }
 
 async function fetchData() {
-  const res = await dataService.get(`${baseUrl}`, { params: cachedParams });
+  const res = await dataService.get(`${baseUrl}`, { params: cachedParams, timeout: 180000 });
   const resList = res.data;
   totalCount.value = resList.length;
   const view = grdMainRef.value.getView();
