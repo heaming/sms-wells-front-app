@@ -389,7 +389,7 @@ function connectReactivities() {
   fnlAmt = toRef(props.modelValue, 'fnlAmt');
   pdQty = toRef(props.modelValue, 'pdQty', 1);
   ojCntrRels = toRef(props.modelValue, 'ojCntrRels');
-  promotions = ref(props.modelValue?.promotions, []); /* 적용가능한 프로모션 목록 */
+  promotions = toRef(props.modelValue, 'promotions'); /* 적용가능한 프로모션 목록 */
   appliedPromotions = toRef(props.modelValue, 'appliedPromotions', []);
   wellsDtl = toRef(props.modelValue, 'wellsDtl');
   sellDscCtrAmt = toRef(props.modelValue, 'sellDscCtrAmt');
