@@ -147,6 +147,7 @@ import { cloneDeep, isEmpty } from 'lodash-es';
 
 const { getConfig, hasPermission } = useMeta();
 const { t } = useI18n();
+const { getters } = useStore();
 const { currentRoute } = useRouter();
 const { modal, notify } = useGlobal();
 const dataService = useDataService();
@@ -154,6 +155,9 @@ const dataService = useDataService();
 // Function & Event
 // -------------------------------------------------------------------------------------------------
 const grdMainRef = ref(getComponentType('KwGrid'));
+
+const userInfo = getters['meta/getUserInfo'];
+const { userName } = userInfo;
 
 // 업데이트 권한 체크
 const isPermission = hasPermission('update');
@@ -266,8 +270,13 @@ async function onClickDeleteRow() {
 // 행 추가
 async function onClickAddRow() {
   const view = grdMainRef.value.getView();
+
   await gridUtil.insertRowAndFocus(view, 0, {
     strRgstDt: dayjs().format('YYYYMMDD'),
+    fstRgstDt: dayjs().format('YYYY-MM-DD'),
+    rgstUsrNm: userName,
+    fnlMdfcDt: dayjs().format('YYYY-MM-DD'),
+    mdfcUsrNm: userName,
   });
 }
 
@@ -375,6 +384,10 @@ const initGrdMain = defineGrid((data, view) => {
     { fieldName: 'itmStrNo' }, // 품목입고번호
     { fieldName: 'itmStrSn' }, // 품목입고순번
     { fieldName: 'mngtUnitCd' }, // 관리단위코드
+    { fieldName: 'fstRgstDt' }, // 등록일
+    { fieldName: 'rgstUsrNm' }, // 등록자
+    { fieldName: 'fnlMdfcDt' }, // 최종수정일
+    { fieldName: 'mdfcUsrNm' }, // 최종수정자
 
   ];
 
@@ -387,7 +400,7 @@ const initGrdMain = defineGrid((data, view) => {
         styleName: 'essential',
       },
       editable: true,
-      width: '200',
+      width: '150',
       styleName: 'text-center',
       rules: 'required',
     },
@@ -398,7 +411,7 @@ const initGrdMain = defineGrid((data, view) => {
         text: t('MSG_TXT_WARE_NM'),
         styleName: 'essential',
       },
-      width: '200',
+      width: '100',
       styleName: 'text-left',
       editable: false,
       rules: 'required',
@@ -410,7 +423,7 @@ const initGrdMain = defineGrid((data, view) => {
         text: t('MSG_TXT_STR_RGST_DT'),
         styleName: 'essential',
       },
-      width: '150',
+      width: '120',
       styleName: 'text-center',
       editor: { type: 'btdate' },
       datetimeFormat: 'date',
@@ -424,7 +437,7 @@ const initGrdMain = defineGrid((data, view) => {
         text: t('MSG_TXT_SAP_CD'),
         styleName: 'essential',
       },
-      width: '150',
+      width: '100',
       styleName: 'text-center',
       editable: true,
       rules: 'required',
@@ -436,7 +449,7 @@ const initGrdMain = defineGrid((data, view) => {
         text: t('MSG_TXT_ITM_CD'),
         styleName: 'essential',
       },
-      width: '150',
+      width: '120',
       styleName: 'text-center',
       editable: true,
       rules: 'required',
@@ -448,7 +461,7 @@ const initGrdMain = defineGrid((data, view) => {
         text: t('MSG_TXT_ITM_NM'),
         styleName: 'essential',
       },
-      width: '250',
+      width: '200',
       styleName: 'text-left',
       editable: false,
       rules: 'required',
@@ -460,7 +473,7 @@ const initGrdMain = defineGrid((data, view) => {
         text: t('MSG_TXT_GD'),
         styleName: 'essential',
       },
-      width: '100',
+      width: '70',
       styleName: 'text-center',
       editor: { type: 'list' },
       options: pdGdCds,
@@ -478,7 +491,7 @@ const initGrdMain = defineGrid((data, view) => {
         positiveOnly: true,
       },
       numberFormat: '###,###,###,##0',
-      width: '100',
+      width: '80',
       styleName: 'text-right',
       editable: true,
       rules: 'required|max_value:999999',
@@ -491,13 +504,17 @@ const initGrdMain = defineGrid((data, view) => {
         text: t('MSG_TXT_STR_RSON'),
         styleName: 'essential',
       },
-      width: '148',
+      width: '130',
       styleName: 'text-left',
       editable: true,
       rules: 'required',
       editor: {
         maxLength: 4000 },
     },
+    { fieldName: 'fstRgstDt', header: t('MSG_TXT_RGST_DT'), width: '110', styleName: 'text-center', datetimeFormat: 'date', editable: false },
+    { fieldName: 'rgstUsrNm', header: t('MSG_TXT_RGST_USR'), width: '90', styleName: 'text-center', editable: false },
+    { fieldName: 'fnlMdfcDt', header: t('MSG_TXT_FNL_MDFC_D'), width: '110', styleName: 'text-center', datetimeFormat: 'date', editable: false },
+    { fieldName: 'mdfcUsrNm', header: t('MSG_TXT_FNL_MDFC_USR'), width: '90', styleName: 'text-center', editable: false },
     { fieldName: 'itmStrNo', header: t('MSG_TXT_STR_NO'), width: '170', styleName: 'text-left', visible: false },
     { fieldName: 'mngtUnitCd', header: t('MSG_TXT_MNGT_UNIT'), width: '170', styleName: 'text-left', visible: false },
     { fieldName: 'itmStrSn',
@@ -523,6 +540,10 @@ const initGrdMain = defineGrid((data, view) => {
     'itmGdCd',
     'strQty',
     'rmkCn',
+    'fstRgstDt',
+    'rgstUsrNm',
+    'fnlMdfcDt',
+    'mdfcUsrNm',
   ];
 
   data.setFields(fields);
