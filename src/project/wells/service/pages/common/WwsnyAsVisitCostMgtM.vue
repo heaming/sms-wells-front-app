@@ -311,7 +311,7 @@ async function onClickDelete() {
   if (isEmpty(deletedRows)) {
     const { pdCd } = cachedParams;
     const lastData = findLastData(pdCd);
-    if (lastData.apyEnddt === '99991231') {
+    if (!isEmpty(lastData) && lastData.apyEnddt === '99991231') {
       const data = grdMainRef.value.getData();
       data.setValue(lastData.dataRow, 'isLast', 'Y');
     }
@@ -357,6 +357,7 @@ async function onClickAdd() {
   const pdInfo = pds.value.find((v) => v.cd === pdCd);
   const lastData = findLastData(pdCd);
   const apyStrtDt = findLastApyStrtDt(pdCd);
+  const izSn = isEmpty(lastData) ? 1 : Number(lastData.izSn) + 1;
 
   const row = gridUtil.find(view, (e) => e.isLast === 'Y');
   if (!isEmpty(row)) {
@@ -373,7 +374,7 @@ async function onClickAdd() {
     apyStrtdt: apyStrtDt,
     apyEnddt: '99991231',
     isLast: 'Y',
-    izSn: Number(lastData.izSn) + 1,
+    izSn,
   });
 
   view.checkItem(0, true);
