@@ -1,3 +1,5 @@
+<!-- eslint-disable max-len -->
+<!-- eslint-disable vue/no-parsing-error -->
 <!----
 ****************************************************************************************************
 * 프로그램 개요
@@ -26,14 +28,14 @@
           />
           <ul class="preview-attach__infos">
             <!-- 166730259072721428.jpg -->
-            <li class="text-underline cursor-pointer">
+            <li class="text-underline cursor-pointer" />
+            <div class="ml100 mb5">
               <kw-btn
-                dense
-                underline
+                secondary
                 :label="$t('이미지상세')"
                 @click="onClickImgDetail(props.files.istEnvrFileId)"
               />
-            </li>
+            </div>
           </ul>
         </div>
       </div>
@@ -41,25 +43,30 @@
         <div class="preview-attach__top">
           {{ $t('MSG_TXT_IST_KIT') }}
         </div>
+
         <div class="preview-attach__bottom">
           <kw-image
             :file-uid="props.files.istKitFileId"
+            width="100%"
+            height="100%"
+            fit="contain"
           />
-          <ul class="preview-attach__infos">
-            <!-- 166730259072721428.jpg -->
-            <li class="text-underline cursor-pointer">
-              <kw-btn
-                dense
-                underline
-                :label="$t('이미지상세')"
-                @click="onClickImgDetail(props.files.istKitFileId)"
-              />
-            </li>
-          </ul>
-          <!-- <kw-image
+        </div>
+        <!-- kw-image
+            :file-uid="props.files.istKitFileId"
+          / -->
+        <!-- <div style="align-items: center;"> -->
+        <div class="ml100 mb5">
+          <kw-btn
+            :label="$t('이미지상세')"
+            secondary
+            class="kw-font-caption center ml2"
+            @click="onClickImgDetail(props.files.istKitFileId)"
+          />
+        </div>
+        <!-- <kw-image
             :src="props.files.istKitFileId"
           /> -->
-        </div>
       </div>
       <div class="preview-attach col">
         <div class="preview-attach__top">
@@ -68,17 +75,20 @@
         <div class="preview-attach__bottom">
           <kw-image
             :file-uid="props.files.celngFileId"
+            width="100%"
+            height="100%"
+            fit="contain"
           />
           <ul class="preview-attach__infos">
             <!-- 166730259072721428.jpg -->
-            <li class="text-underline cursor-pointer">
+            <li class="text-underline cursor-pointer" />
+            <div class="ml100 mb5">
               <kw-btn
-                dense
-                underline
+                secondary
                 :label="$t('이미지상세')"
                 @click="onClickImgDetail(props.files.celngFileId)"
               />
-            </li>
+            </div>
           </ul>
           <!-- <kw-image
             :src="props.files.celngFileId"
@@ -103,7 +113,7 @@ const props = defineProps({
 async function onClickImgDetail(fileid) {
   await modal({
     component: 'ZwcmzImagePreviewP',
-    componentProps: { files: fileid.value },
+    componentProps: { files: fileid },
   });
 }
 /*
