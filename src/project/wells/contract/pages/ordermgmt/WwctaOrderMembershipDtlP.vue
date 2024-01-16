@@ -62,7 +62,7 @@
         <!-- 등급구분 -->
         <kw-form-item :label="$t('MSG_TXT_GRD_DV')">
           <kw-input
-            v-model="frmMainData.levelsnm"
+            v-model="frmMainData.levels"
             placeholder=""
             readonly
           />
@@ -774,7 +774,7 @@ const frmMainData = ref({
   sellInflwChnlDtlNm: '', // 주문구분
   mshDvNm: '', // 멤버십구분
   cntrCstNo: '', // 고객번호
-  levelsnm: '', // 등급구분
+  levels: '', // 등급구분
   ordCnfp: '', // 원주문정보
   sellPrtnrNo: '', // 파트너-번호
   prtnrKnm: '', // 파트너-이름
@@ -873,7 +873,7 @@ async function fetchData() {
     frmMainData.value.sellInflwChnlDtlNm = pages[0].sellInflwChnlDtlNm; // 주문구분
     frmMainData.value.mshDvNm = pages[0].mshDvNm; // 멤버십구분
     frmMainData.value.cntrCstNo = pages[0].cntrCstNo; // 고객번호
-    frmMainData.value.levelsnm = pages[0].levelsnm; // 등급구분
+    frmMainData.value.levels = pages[0].levels; // 등급구분
     frmMainData.value.ordCnfp = pages[0].ordCnfp; // 원주문정보
     frmMainData.value.sellPrtnrNo = pages[0].sellPrtnrNo; // 파트너-번호
     frmMainData.value.prtnrKnm = pages[0].prtnrKnm; // 파트너-이름

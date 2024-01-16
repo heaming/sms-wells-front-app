@@ -57,7 +57,6 @@
           <kw-date-range-picker
             v-model:from="searchParams.cntrCnfmStrtDt"
             v-model:to="searchParams.cntrCnfmEndDt"
-            rules="date_range_months:12"
             class="w265"
           />
         </kw-search-item>

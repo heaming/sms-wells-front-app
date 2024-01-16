@@ -186,6 +186,8 @@ async function onClickSendEmail() {
     ok(payload);
   } else if (props.isPrntYn === 'N') {
     const { docDvCd } = fieldParams.value;
+    fieldParams.value.startDt = dayjs(fieldParams.value.firstDt).format('YYYY년MM월DD일');
+    fieldParams.value.endDt = dayjs(fieldParams.value.lastDt).format('YYYY년MM월DD일');
 
     cachedFieldParams = cloneDeep(fieldParams.value);
 
