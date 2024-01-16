@@ -326,7 +326,8 @@ fieldsObj = {
   defaultFields: [
     { fieldName: 'sapMatCd', header: t('MSG_TXT_SAP_CD'), width: '170', styleName: 'text-center' },
     { fieldName: 'pdCd', header: t('MSG_TXT_ITM_CD'), width: '150', styleName: 'text-center' },
-    { fieldName: 'pdNm', header: t('MSG_TXT_ITM_NM'), width: '240', styleName: 'text-left' },
+    { fieldName: 'pdAbbrNm', header: t('MSG_TXT_ITM_NM'), width: '240', styleName: 'text-left' },
+    { fieldName: 'pdNm', visible: false },
     { fieldName: 'asMatCmnClsfCd', width: '150', styleName: 'text-center', visible: false, autoFilter: false },
     { fieldName: 'ordnyHvMatYn', width: '150', styleName: 'text-center', visible: false, autoFilter: false },
   ],
