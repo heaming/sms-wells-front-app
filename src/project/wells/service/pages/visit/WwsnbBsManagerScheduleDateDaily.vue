@@ -131,7 +131,6 @@ const props = defineProps({
 });
 
 let cachedParams;
-// TODO..파트너번호로 바로 조회 가능한 방법이 있으면 파트너명 굳이 props 로 받지 않아도 됨...방법을 못찾음
 const searchParams = ref({
   baseDateFrom: isEmpty(props.fromDate) ? dayjs().subtract(0, 'month').startOf('month').format('YYYYMMDD') : props.fromDate,
   baseDateTo: isEmpty(props.toDate) ? dayjs().subtract(0, 'month').endOf('day').format('YYYYMMDD') : props.toDate,
@@ -179,6 +178,24 @@ async function onClickSearch() {
   await fetchData1();
   await fetchData2();
 }
+
+watch(() => props.prtnrNo, async () => {
+  searchParams.value.fxnPrtnrNo = props.prtnrNo;
+  searchParams.value.fxnPrtnrKnm = props.prtnrKnm;
+  searchParams.value.baseDateFrom = props.fromDate;
+  searchParams.value.baseDateTo = props.toDate;
+
+  await onClickSearch();
+});
+
+watch(() => props.fromDate, async () => {
+  searchParams.value.fxnPrtnrNo = props.prtnrNo;
+  searchParams.value.fxnPrtnrKnm = props.prtnrKnm;
+  searchParams.value.baseDateFrom = props.fromDate;
+  searchParams.value.baseDateTo = props.toDate;
+
+  await onClickSearch();
+});
 
 async function onClickExcelDownload() {
   const view = grdMainRef.value.getView();
