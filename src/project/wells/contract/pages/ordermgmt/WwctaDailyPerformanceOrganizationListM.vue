@@ -514,99 +514,350 @@ const initGrdTotal = defineGrid((data, view) => {
 // 선택한 상품분류 배열로 동적 그리드 필드 생성
 // 10.전체
 const initGrdMain = defineGrid((data, view) => {
-  const fields = [
-    { fieldName: 'ogCd' }, // 소속
-    { fieldName: 'prtnrNm' }, // 성명
-    { fieldName: 'grpNo' }, // 사번
-    { fieldName: 'col4' }, // 빌딩명
-    { fieldName: 'goalCnt' }, // 환경가전_목표
-    { fieldName: 'dayCnt' }, // 환경가전_일계
-    { fieldName: 'sumCnt' }, // 환경가전_누계
-    { fieldName: 'trgAchvRt' }, // 환경가전_목표달성률
-    { fieldName: 'corpCnt' }, // 법인판매
-    { fieldName: 'branchCnt' }, // 지점
-    { fieldName: 'optnTrgTot' }, // 종합_가동묙표
-    { fieldName: 'optnPplCnt' }, // 종합_가동인원
-    { fieldName: 'optnTrgRtTot' }, // 종합_달성률
-    { fieldName: 'optnTrgWm' }, // 매니저_가동묙표
-    { fieldName: 'optnPplCntWm' }, // 매니저_가동인원
-    { fieldName: 'optnTrgRtWm' }, // 매니저_달성률
-    { fieldName: 'optnTrgSp' }, // 수석플래너_가동묙표
-    { fieldName: 'optnPplCntSp' }, // 수석플래너_가동인원
-    { fieldName: 'optnTrgRtSp' }, // 수석플래너_달성률
-    { fieldName: 'optnTrgWp' }, // 플래너_가동묙표
-    { fieldName: 'optnPplCntWp' }, // 플래너_가동인원
-    { fieldName: 'optnTrgRtWp' }, // 플래너_달성률
-    { fieldName: 'optnTrgBsfm' }, // BS프리매니저_ 가동묙표
-    { fieldName: 'optnPplCntBsfm' }, // BS프리매니저_가동인원
-    { fieldName: 'optnTrgRtBsfm' }, // BS프리매니저_달성률
-    { fieldName: 'optnTrgFm' }, // 프리매니저_ 가동묙표
-    { fieldName: 'optnPplCntFm' }, // 프리매니저_가동인원
-    { fieldName: 'optnTrgRtFm' }, // 프리매니저_달성률
-    { fieldName: 'optnTrgBr' }, // 지점장개인_ 가동묙표
-    { fieldName: 'optnPplCntBr' }, // 지점장개인_가동인원
-    { fieldName: 'optnTrgRtBr' }, // 지점장개인_달성률
-    { fieldName: 'col32' }, // 전월 총가동
-    { fieldName: 'aclActiPplCntWm' }, // 실동_웰스매니저
-    { fieldName: 'aclActiPplCntSp' }, // 실동_수석플래너
-    { fieldName: 'aclActiPplCntWp' }, // 실동_플래너
-    { fieldName: 'aclActiPplCntBsfm' }, // 실동_BS프리매니저
-    { fieldName: 'aclCctiPplCntFm' }, // 실동_프리매니저
-    { fieldName: 'aclActiPplCntBr' }, // 실동_지점장개인
-    { fieldName: 'aclActiPplCnt' }, // 실동_합계
-    { fieldName: 'engmPplCnt' }, // 채용인원
-    { fieldName: 'optnPplCnt1nmn' }, // 1차월가동
-  ];
+  // const fields = [
+  //   { fieldName: 'ogCd' }, // 소속
+  //   { fieldName: 'prtnrNm' }, // 성명
+  //   { fieldName: 'grpNo' }, // 사번
+  //   { fieldName: 'col4' }, // 빌딩명
+  //   { fieldName: 'goalCnt' }, // 환경가전_목표
+  //   { fieldName: 'dayCnt' }, // 환경가전_일계
+  //   { fieldName: 'sumCnt' }, // 환경가전_누계
+  //   { fieldName: 'trgAchvRt' }, // 환경가전_목표달성률
+  //   { fieldName: 'corpCnt' }, // 법인판매
+  //   { fieldName: 'branchCnt' }, // 지점
+  //   { fieldName: 'optnTrgTot' }, // 종합_가동목표
+  //   { fieldName: 'optnPplCnt' }, // 종합_가동인원
+  //   { fieldName: 'optnTrgRtTot' }, // 종합_달성률
+  //   { fieldName: 'optnTrgWm' }, // 매니저_가동목표
+  //   { fieldName: 'optnPplCntWm' }, // 매니저_가동인원
+  //   { fieldName: 'optnTrgRtWm' }, // 매니저_달성률
+  //   { fieldName: 'optnTrgSp' }, // 수석플래너_가동목표
+  //   { fieldName: 'optnPplCntSp' }, // 수석플래너_가동인원
+  //   { fieldName: 'optnTrgRtSp' }, // 수석플래너_달성률
+  //   { fieldName: 'optnTrgWp' }, // 플래너_가동목표
+  //   { fieldName: 'optnPplCntWp' }, // 플래너_가동인원
+  //   { fieldName: 'optnTrgRtWp' }, // 플래너_달성률
+  //   { fieldName: 'optnTrgBsfm' }, // BS프리매니저_ 가동목표
+  //   { fieldName: 'optnPplCntBsfm' }, // BS프리매니저_가동인원
+  //   { fieldName: 'optnTrgRtBsfm' }, // BS프리매니저_달성률
+  //   { fieldName: 'optnTrgFm' }, // 프리매니저_ 가동목표
+  //   { fieldName: 'optnPplCntFm' }, // 프리매니저_가동인원
+  //   { fieldName: 'optnTrgRtFm' }, // 프리매니저_달성률
+  //   { fieldName: 'optnTrgBr' }, // 지점장개인_ 가동목표
+  //   { fieldName: 'optnPplCntBr' }, // 지점장개인_가동인원
+  //   { fieldName: 'optnTrgRtBr' }, // 지점장개인_달성률
+  //   { fieldName: 'col32' }, // 전월 총가동
+  //   { fieldName: 'aclActiPplCntWm' }, // 실동_웰스매니저
+  //   { fieldName: 'aclActiPplCntSp' }, // 실동_수석플래너
+  //   { fieldName: 'aclActiPplCntWp' }, // 실동_플래너
+  //   { fieldName: 'aclActiPplCntBsfm' }, // 실동_BS프리매니저
+  //   { fieldName: 'aclCctiPplCntFm' }, // 실동_프리매니저
+  //   { fieldName: 'aclActiPplCntBr' }, // 실동_지점장개인
+  //   { fieldName: 'aclActiPplCnt' }, // 실동_합계
+  //   { fieldName: 'engmPplCnt' }, // 채용인원
+  //   { fieldName: 'optnPplCnt1nmn' }, // 1차월가동
+  // ];
 
   const columns = [
-    { fieldName: 'ogCd', header: t('MSG_TXT_BLG'), width: '120', styleName: 'text-center' }, // 소속
+    { fieldName: 'ogCd',
+      header: t('MSG_TXT_BLG'),
+      width: '120',
+      styleName: 'text-center',
+      footer: {
+        text: t('MSG_TXT_SUM'),
+        styleName: 'text-center',
+      } }, // 소속
     { fieldName: 'prtnrNm', header: t('MSG_TXT_EMPL_NM'), width: '100', styleName: 'text-left' }, // 성명
     { fieldName: 'grpNo', header: t('MSG_TXT_EPNO'), width: '80', styleName: 'text-center' }, // 사번
     { fieldName: 'col4', header: t('MSG_TXT_BLD_NM'), width: '120', styleName: 'text-center' }, // 빌딩명
-    { fieldName: 'goalCnt', header: t('MSG_TXT_TRG'), width: '120', styleName: 'text-center' }, // 목표
-    { fieldName: 'dayCnt', header: t('MSG_TXT_SUM_DAY'), width: '80', styleName: 'text-right' }, // 일계
-    { fieldName: 'sumCnt', header: t('MSG_TXT_AGGS'), width: '200', styleName: 'text-right' }, // 누계
-    { fieldName: 'trgAchvRt', header: t('MSG_TXT_GOAL_ACHV_RT'), width: '80', styleName: 'text-right' }, // 목표달성률
-    { fieldName: 'corpCnt', header: t('MSG_TXT_CORP_SAL'), width: '80', styleName: 'text-center' }, // 법인판매
-    { fieldName: 'branchCnt', header: t('MSG_TXT_BRANCH'), width: '100', styleName: 'text-center' }, // 지점
-    { fieldName: 'optnTrgTot', header: t('MSG_TXT_OPER_TGT'), width: '100', styleName: 'text-right' }, // 종합_가동묙표
-    { fieldName: 'optnPplCnt', header: t('MSG_TXT_OPTN_PPL'), width: '100', styleName: 'text-right' }, // 종합_가동인원
-    { fieldName: 'optnTrgRtTot', header: t('MSG_TXT_ACHV_RATE'), width: '150', styleName: 'text-right' }, // 종합_달성률
-    { fieldName: 'optnTrgWm', header: t('MSG_TXT_OPER_TGT'), width: '80', styleName: 'text-right' },
-    { fieldName: 'optnPplCntWm', header: t('MSG_TXT_OPTN_PPL'), width: '80', styleName: 'text-right' },
-    { fieldName: 'optnTrgRtWm', header: t('MSG_TXT_ACHV_RATE'), width: '150', styleName: 'text-right' },
-    { fieldName: 'optnTrgSp', header: t('MSG_TXT_OPER_TGT'), width: '150', styleName: 'text-right' },
-    { fieldName: 'optnPplCntSp', header: t('MSG_TXT_OPTN_PPL'), width: '100', styleName: 'text-right' },
-    { fieldName: 'optnTrgRtSp', header: t('MSG_TXT_ACHV_RATE'), width: '150', styleName: 'text-right' },
-    { fieldName: 'optnTrgWp', header: t('MSG_TXT_OPER_TGT'), width: '100', styleName: 'text-right' },
-    { fieldName: 'optnPplCntWp', header: t('MSG_TXT_OPTN_PPL'), width: '150', styleName: 'text-right' },
-    { fieldName: 'optnTrgRtWp', header: t('MSG_TXT_ACHV_RATE'), width: '100', styleName: 'text-right' },
-    { fieldName: 'optnTrgBsfm', header: t('MSG_TXT_OPER_TGT'), width: '150', styleName: 'text-right' },
-    { fieldName: 'optnPplCntBsfm', header: t('MSG_TXT_OPTN_PPL'), width: '100', styleName: 'text-right' },
-    { fieldName: 'optnTrgRtBsfm', header: t('MSG_TXT_ACHV_RATE'), width: '150', styleName: 'text-right' },
-    { fieldName: 'optnTrgFm', header: t('MSG_TXT_OPER_TGT'), width: '100', styleName: 'text-right' },
-    { fieldName: 'optnPplCntFm', header: t('MSG_TXT_OPTN_PPL'), width: '100', styleName: 'text-right' },
-    { fieldName: 'optnTrgRtFm', header: t('MSG_TXT_ACHV_RATE'), width: '100', styleName: 'text-right' },
-    { fieldName: 'optnTrgBr', header: t('MSG_TXT_OPER_TGT'), width: '100', styleName: 'text-right' },
-    { fieldName: 'optnPplCntBr', header: t('MSG_TXT_OPTN_PPL'), width: '100', styleName: 'text-right' },
-    { fieldName: 'optnTrgRtBr', header: t('MSG_TXT_ACHV_RATE'), width: '100', styleName: 'text-center' },
-    { fieldName: 'col32', header: t('MSG_TXT_TOT_OPER_LST_MON'), width: '100', styleName: 'text-right' }, // 전월 총가동
-    { fieldName: 'aclActiPplCntWm', header: t('MSG_TXT_WELLS_MGR'), width: '100', styleName: 'text-right' }, // 실동_웰스매니저
-    { fieldName: 'aclActiPplCntSp', header: t('MSG_TXT_TOPMR_PLAR'), width: '100', styleName: 'text-right' }, // 실동_웰스매니저
-    { fieldName: 'aclActiPplCntWp', header: t('MSG_TXT_PLAR'), width: '100', styleName: 'text-right' }, // 실동_플래너
-    { fieldName: 'aclActiPplCntBsfm', header: t('MSG_TXT_BS_FREE_MGR'), width: '100', styleName: 'text-right' }, // 실동_BS프리매니저
-    { fieldName: 'aclCctiPplCntFm', header: t('MSG_TXT_FREE_MGR'), width: '100', styleName: 'text-center' }, // 실동_프리매니저
-    { fieldName: 'aclActiPplCntBr', header: t('MSG_TXT_BRCH_MGR_INDIV'), width: '100', styleName: 'text-center' }, // 실동_지점장개인
-    { fieldName: 'aclActiPplCnt', header: t('MSG_TXT_SUM'), width: '100', styleName: 'text-right' }, // 실동_합계
-    { fieldName: 'engmPplCnt', header: t('MSG_TXT_NUM_PEOP_EMP'), width: '100', styleName: 'text-right' }, // 채용인원
-    { fieldName: 'optnPplCnt1nmn', header: t('MSG_TXT_1ST_MON_OPER'), width: '100', styleName: 'text-right' }, // 1차월가동
+    { fieldName: 'goalCnt',
+      header: t('MSG_TXT_TRG'),
+      width: '120',
+      styleName: 'text-right',
+      dataType: 'number',
+      footer: { expression: 'sum', numberFormat: '#,##0', styleName: 'text-right' } }, // 목표
+    { fieldName: 'dayCnt',
+      header: t('MSG_TXT_SUM_DAY'),
+      width: '80',
+      styleName: 'text-right',
+      dataType: 'number',
+      footer: { expression: 'sum', numberFormat: '#,##0', styleName: 'text-right' } }, // 일계
+    { fieldName: 'sumCnt',
+      header: t('MSG_TXT_AGGS'),
+      width: '200',
+      styleName: 'text-right',
+      dataType: 'number',
+      footer: { expression: 'sum', numberFormat: '#,##0', styleName: 'text-right' } }, // 누계
+    { fieldName: 'trgAchvRt',
+      header: t('MSG_TXT_GOAL_ACHV_RT'),
+      width: '80',
+      styleName: 'text-right',
+      footer: { expression: 'sum',
+        numberFormat: '#,##0.#',
+        styleName: 'text-right',
+        valueCallback(grid) {
+          const rtSum = grid.getSummary('goalCnt', 'sum') === 0 ? 0
+            : (grid.getSummary('sumCnt', 'sum') / grid.getSummary('goalCnt', 'sum')) * 100;
+
+          return rtSum || '%';
+        } } }, // 목표달성률
+    { fieldName: 'corpCnt',
+      header: t('MSG_TXT_CORP_SAL'),
+      width: '80',
+      styleName: 'text-right',
+      dataType: 'number',
+      footer: { expression: 'sum', numberFormat: '#,##0', styleName: 'text-right' } }, // 법인판매
+    { fieldName: 'branchCnt',
+      header: t('MSG_TXT_BRANCH'),
+      width: '100',
+      styleName: 'text-right',
+      dataType: 'number',
+      footer: { expression: 'sum', numberFormat: '#,##0', styleName: 'text-right' } }, // 지점
+    { fieldName: 'optnTrgTot',
+      header: t('MSG_TXT_OPER_TGT'),
+      width: '100',
+      styleName: 'text-right',
+      dataType: 'number',
+      footer: { expression: 'sum', numberFormat: '#,##0', styleName: 'text-right' } }, // 종합_가동목표
+    { fieldName: 'optnPplCnt',
+      header: t('MSG_TXT_OPTN_PPL'),
+      width: '100',
+      styleName: 'text-right',
+      dataType: 'number',
+      footer: { expression: 'sum', numberFormat: '#,##0', styleName: 'text-right' } }, // 종합_가동인원
+    { fieldName: 'optnTrgRtTot',
+      header: t('MSG_TXT_ACHV_RATE'),
+      width: '150',
+      styleName: 'text-right',
+      footer: { expression: 'sum',
+        numberFormat: '#,##0.#',
+        styleName: 'text-right',
+        valueCallback(grid) {
+          const rtSum = grid.getSummary('optnTrgTot', 'sum') === 0 ? 0
+            : (grid.getSummary('optnPplCnt', 'sum') / grid.getSummary('optnTrgTot', 'sum')) * 100;
+
+          return rtSum || '%';
+        } } }, // 종합_달성률
+    { fieldName: 'optnTrgWm',
+      header: t('MSG_TXT_OPER_TGT'),
+      width: '80',
+      styleName: 'text-right',
+      dataType: 'number',
+      footer: { expression: 'sum', numberFormat: '#,##0', styleName: 'text-right' } }, // 매니저_가동목표
+    { fieldName: 'optnPplCntWm',
+      header: t('MSG_TXT_OPTN_PPL'),
+      width: '80',
+      styleName: 'text-right',
+      dataType: 'number',
+      footer: { expression: 'sum', numberFormat: '#,##0', styleName: 'text-right' } }, // 매니저_가동인원
+    { fieldName: 'optnTrgRtWm',
+      header: t('MSG_TXT_ACHV_RATE'),
+      width: '150',
+      styleName: 'text-right',
+      footer: { expression: 'sum',
+        numberFormat: '#,##0.#',
+        styleName: 'text-right',
+        valueCallback(grid) {
+          const rtSum = grid.getSummary('optnTrgWm', 'sum') === 0 ? 0
+            : (grid.getSummary('optnPplCntWm', 'sum') / grid.getSummary('optnTrgWm', 'sum')) * 100;
+
+          return rtSum || '%';
+        } } }, // 매니저_달성률
+    { fieldName: 'optnTrgSp',
+      header: t('MSG_TXT_OPER_TGT'),
+      width: '150',
+      styleName: 'text-right',
+      dataType: 'number',
+      footer: { expression: 'sum', numberFormat: '#,##0', styleName: 'text-right' } }, // 수석플래너_가동목표
+    { fieldName: 'optnPplCntSp',
+      header: t('MSG_TXT_OPTN_PPL'),
+      width: '100',
+      styleName: 'text-right',
+      dataType: 'number',
+      footer: { expression: 'sum', numberFormat: '#,##0', styleName: 'text-right' } }, // 수석플래너_가동인원
+    { fieldName: 'optnTrgRtSp',
+      header: t('MSG_TXT_ACHV_RATE'),
+      width: '150',
+      styleName: 'text-right',
+      footer: { expression: 'sum',
+        numberFormat: '#,##0.#',
+        styleName: 'text-right',
+        valueCallback(grid) {
+          const rtSum = grid.getSummary('optnTrgSp', 'sum') === 0 ? 0
+            : (grid.getSummary('optnPplCntSp', 'sum') / grid.getSummary('optnTrgSp', 'sum')) * 100;
+
+          return rtSum || '%';
+        } } }, // 수석플래너_달성률
+    { fieldName: 'optnTrgWp',
+      header: t('MSG_TXT_OPER_TGT'),
+      width: '100',
+      styleName: 'text-right',
+      dataType: 'number',
+      footer: { expression: 'sum', numberFormat: '#,##0', styleName: 'text-right' } }, // 플래너_가동목표
+    { fieldName: 'optnPplCntWp',
+      header: t('MSG_TXT_OPTN_PPL'),
+      width: '150',
+      styleName: 'text-right',
+      dataType: 'number',
+      footer: { expression: 'sum', numberFormat: '#,##0', styleName: 'text-right' } }, // 플래너_가동인원
+    { fieldName: 'optnTrgRtWp',
+      header: t('MSG_TXT_ACHV_RATE'),
+      width: '100',
+      styleName: 'text-right',
+      footer: { expression: 'sum',
+        numberFormat: '#,##0.#',
+        styleName: 'text-right',
+        valueCallback(grid) {
+          const rtSum = grid.getSummary('optnTrgWp', 'sum') === 0 ? 0
+            : (grid.getSummary('optnPplCntWp', 'sum') / grid.getSummary('optnTrgWp', 'sum')) * 100;
+
+          return rtSum || '%';
+        } } }, // 플래너_달성률
+    { fieldName: 'optnTrgBsfm',
+      header: t('MSG_TXT_OPER_TGT'),
+      width: '150',
+      styleName: 'text-right',
+      dataType: 'number',
+      footer: { expression: 'sum', numberFormat: '#,##0', styleName: 'text-right' } }, // BS프리매니저_가동목표
+    { fieldName: 'optnPplCntBsfm',
+      header: t('MSG_TXT_OPTN_PPL'),
+      width: '100',
+      styleName: 'text-right',
+      dataType: 'number',
+      footer: { expression: 'sum', numberFormat: '#,##0', styleName: 'text-right' } }, // BS프리매니저_가동인원
+    { fieldName: 'optnTrgRtBsfm',
+      header: t('MSG_TXT_ACHV_RATE'),
+      width: '150',
+      styleName: 'text-right',
+      footer: { expression: 'sum',
+        numberFormat: '#,##0.#',
+        styleName: 'text-right',
+        valueCallback(grid) {
+          const rtSum = grid.getSummary('optnTrgBsfm', 'sum') === 0 ? 0
+            : (grid.getSummary('optnPplCntBsfm', 'sum') / grid.getSummary('optnTrgBsfm', 'sum')) * 100;
+
+          return rtSum || '%';
+        } } }, // BS프리매니저_달성률
+    { fieldName: 'optnTrgFm',
+      header: t('MSG_TXT_OPER_TGT'),
+      width: '100',
+      styleName: 'text-right',
+      dataType: 'number',
+      footer: { expression: 'sum', numberFormat: '#,##0', styleName: 'text-right' } }, // 프리매니저_가동목표
+    { fieldName: 'optnPplCntFm',
+      header: t('MSG_TXT_OPTN_PPL'),
+      width: '100',
+      styleName: 'text-right',
+      dataType: 'number',
+      footer: { expression: 'sum', numberFormat: '#,##0', styleName: 'text-right' } }, // 프리매니저_가동인원
+    { fieldName: 'optnTrgRtFm',
+      header: t('MSG_TXT_ACHV_RATE'),
+      width: '100',
+      styleName: 'text-right',
+      footer: { expression: 'sum',
+        numberFormat: '#,##0.#',
+        styleName: 'text-right',
+        valueCallback(grid) {
+          const rtSum = grid.getSummary('optnTrgFm', 'sum') === 0 ? 0
+            : (grid.getSummary('optnPplCntFm', 'sum') / grid.getSummary('optnTrgFm', 'sum')) * 100;
+
+          return rtSum || '%';
+        } } }, // 프리매니저_달성률
+    { fieldName: 'optnTrgBr',
+      header: t('MSG_TXT_OPER_TGT'),
+      width: '100',
+      styleName: 'text-right',
+      dataType: 'number',
+      footer: { expression: 'sum', numberFormat: '#,##0', styleName: 'text-right' } }, // 지점장개인_가동목표
+    { fieldName: 'optnPplCntBr',
+      header: t('MSG_TXT_OPTN_PPL'),
+      width: '100',
+      styleName: 'text-right',
+      dataType: 'number',
+      footer: { expression: 'sum', numberFormat: '#,##0', styleName: 'text-right' } }, // 지점장개인_가동인원
+    { fieldName: 'optnTrgRtBr',
+      header: t('MSG_TXT_ACHV_RATE'),
+      width: '100',
+      styleName: 'text-right',
+      footer: { expression: 'sum',
+        numberFormat: '#,##0.#',
+        styleName: 'text-right',
+        valueCallback(grid) {
+          const rtSum = grid.getSummary('optnTrgBr', 'sum') === 0 ? 0
+            : (grid.getSummary('optnPplCntBr', 'sum') / grid.getSummary('optnTrgBr', 'sum')) * 100;
+
+          return rtSum || '%';
+        } } }, // // 지점장개인_달성률
+    { fieldName: 'col32',
+      header: t('MSG_TXT_TOT_OPER_LST_MON'),
+      width: '100',
+      styleName: 'text-right',
+      dataType: 'number',
+      footer: { expression: 'sum', numberFormat: '#,##0', styleName: 'text-right' } }, // 전월 총가동
+    { fieldName: 'aclActiPplCntWm',
+      header: t('MSG_TXT_WELLS_MGR'),
+      width: '100',
+      styleName: 'text-right',
+      dataType: 'number',
+      footer: { expression: 'sum', numberFormat: '#,##0', styleName: 'text-right' } }, // 실동_웰스매니저
+    { fieldName: 'aclActiPplCntSp',
+      header: t('MSG_TXT_TOPMR_PLAR'),
+      width: '100',
+      styleName: 'text-right',
+      dataType: 'number',
+      footer: { expression: 'sum', numberFormat: '#,##0', styleName: 'text-right' } }, // 실동_웰스매니저
+    { fieldName: 'aclActiPplCntWp',
+      header: t('MSG_TXT_PLAR'),
+      width: '100',
+      styleName: 'text-right',
+      dataType: 'number',
+      footer: { expression: 'sum', numberFormat: '#,##0', styleName: 'text-right' } }, // 실동_플래너
+    { fieldName: 'aclActiPplCntBsfm',
+      header: t('MSG_TXT_BS_FREE_MGR'),
+      width: '100',
+      styleName: 'text-right',
+      dataType: 'number',
+      footer: { expression: 'sum', numberFormat: '#,##0', styleName: 'text-right' } }, // 실동_BS프리매니저
+    { fieldName: 'aclCctiPplCntFm',
+      header: t('MSG_TXT_FREE_MGR'),
+      width: '100',
+      styleName: 'text-right',
+      dataType: 'number',
+      footer: { expression: 'sum', numberFormat: '#,##0', styleName: 'text-right' } }, // 실동_프리매니저
+    { fieldName: 'aclActiPplCntBr',
+      header: t('MSG_TXT_BRCH_MGR_INDIV'),
+      width: '100',
+      styleName: 'text-right',
+      dataType: 'number',
+      footer: { expression: 'sum', numberFormat: '#,##0', styleName: 'text-right' } }, // 실동_지점장개인
+    { fieldName: 'aclActiPplCnt',
+      header: t('MSG_TXT_SUM'),
+      width: '100',
+      styleName: 'text-right',
+      dataType: 'number',
+      footer: { expression: 'sum', numberFormat: '#,##0', styleName: 'text-right' } }, // 실동_합계
+    { fieldName: 'engmPplCnt',
+      header: t('MSG_TXT_NUM_PEOP_EMP'),
+      width: '100',
+      styleName: 'text-right',
+      dataType: 'number',
+      footer: { expression: 'sum', numberFormat: '#,##0', styleName: 'text-right' } }, // 채용인원
+    { fieldName: 'optnPplCnt1nmn',
+      header: t('MSG_TXT_1ST_MON_OPER'),
+      width: '100',
+      styleName: 'text-right',
+      dataType: 'number',
+      footer: { expression: 'sum', numberFormat: '#,##0', styleName: 'text-right' } }, // 1차월가동
 
   ];
 
+  const fields = columns.map(({ fieldName, dataType }) => (dataType ? { fieldName, dataType } : { fieldName }));
   data.setFields(fields);
   view.setColumns(columns);
-  view.checkBar.visible = true;
+  view.checkBar.visible = false;
+  view.rowIndicator.visible = true; // create number indicator column
 
+  // multi row header setting
   view.setColumnLayout([
     // single
     'ogCd', 'prtnrNm', 'grpNo', 'col4',
@@ -666,6 +917,10 @@ const initGrdMain = defineGrid((data, view) => {
     'engmPplCnt', 'optnPplCnt1nmn',
   ]);
 
+  view.setRowGroup({ expandedAdornments: 'footer', collapsedAdornments: 'footer' });
+  view.groupBy([]);
+  view.setFooters({ visible: true, items: [{ height: 42 }] });
+  view.layoutByColumn('ogCd').footerUserSpans = [{ colspan: 4 }];
   view.setFixedOptions({ colCount: 2 });
 });
 
@@ -685,21 +940,80 @@ const initGrdMain2 = defineGrid((data, view) => {
   ];
 
   const columns = [
-    { fieldName: 'ogCd', header: t('MSG_TXT_BLG'), width: '120', styleName: 'text-center' },
+    { fieldName: 'ogCd',
+      header: t('MSG_TXT_BLG'),
+      width: '120',
+      styleName: 'text-center',
+      footer: {
+        text: t('MSG_TXT_SUM'),
+        styleName: 'text-center',
+      } },
     { fieldName: 'prtnrNm', header: t('MSG_TXT_EMPL_NM'), width: '100', styleName: 'text-left' },
     { fieldName: 'grpNo', header: t('MSG_TXT_EPNO'), width: '80', styleName: 'text-center' },
     { fieldName: 'col4', header: t('MSG_TXT_BLD_NM'), width: '120', styleName: 'text-center' },
-    { fieldName: 'w399RntlCnt', header: t('MSG_TXT_PERF'), width: '120', styleName: 'text-right' },
-    { fieldName: 'col6', header: t('MSG_TXT_BRNCH_OFFC_AVG'), width: '80', styleName: 'text-right' },
-    { fieldName: 'w399LspyCnt', header: t('MSG_TXT_PERF'), width: '200', styleName: 'text-right' },
-    { fieldName: 'col8', header: t('MSG_TXT_BRNCH_OFFC_AVG'), width: '80', styleName: 'text-right' },
-    { fieldName: 'col9', header: t('MSG_TXT_PERF'), width: '80', styleName: 'text-right' },
-    { fieldName: 'col10', header: t('MSG_TXT_BRNCH_OFFC_AVG'), width: '100', styleName: 'text-right' },
+    { fieldName: 'w399RntlCnt',
+      header: t('MSG_TXT_PERF'),
+      width: '120',
+      styleName: 'text-right',
+      dataType: 'number',
+      footer: { expression: 'sum', numberFormat: '#,##0', styleName: 'text-right' } },
+    { fieldName: 'col6',
+      header: t('MSG_TXT_BRNCH_OFFC_AVG'),
+      width: '80',
+      styleName: 'text-right',
+      footer: { expression: 'sum',
+        numberFormat: '#,##0.#',
+        styleName: 'text-right',
+        valueCallback(grid) {
+          const rtSum = grid.getSummary('branchCnt', 'sum') === 0 ? 0
+            : (grid.getSummary('col6', 'sum') / grid.getSummary('branchCnt', 'sum')) * 100;
+
+          return rtSum || '%';
+        } } },
+    { fieldName: 'w399LspyCnt',
+      header: t('MSG_TXT_PERF'),
+      width: '200',
+      styleName: 'text-right',
+      dataType: 'number',
+      footer: { expression: 'sum', numberFormat: '#,##0', styleName: 'text-right' } },
+    { fieldName: 'col8',
+      header: t('MSG_TXT_BRNCH_OFFC_AVG'),
+      width: '80',
+      styleName: 'text-right',
+      footer: { expression: 'sum',
+        numberFormat: '#,##0.#',
+        styleName: 'text-right',
+        valueCallback(grid) {
+          const rtSum = grid.getSummary('branchCnt', 'sum') === 0 ? 0
+            : (grid.getSummary('w399LspyCnt', 'sum') / grid.getSummary('branchCnt', 'sum')) * 100;
+
+          return rtSum || '%';
+        } } },
+    { fieldName: 'col9',
+      header: t('MSG_TXT_PERF'),
+      width: '80',
+      styleName: 'text-right',
+      dataType: 'number',
+      footer: { expression: 'sum', numberFormat: '#,##0', styleName: 'text-right' } },
+    { fieldName: 'col10',
+      header: t('MSG_TXT_BRNCH_OFFC_AVG'),
+      width: '100',
+      styleName: 'text-right',
+      footer: { expression: 'sum',
+        numberFormat: '#,##0.#',
+        styleName: 'text-right',
+        valueCallback(grid) {
+          const rtSum = grid.getSummary('branchCnt', 'sum') === 0 ? 0
+            : (grid.getSummary('col10', 'sum') / grid.getSummary('branchCnt', 'sum')) * 100;
+
+          return rtSum || '%';
+        } } },
   ];
 
   data.setFields(fields);
   view.setColumns(columns);
-  view.checkBar.visible = true;
+  view.checkBar.visible = false;
+  view.rowIndicator.visible = true; // create number indicator column
 
   view.setColumnLayout([
     // single
@@ -721,6 +1035,10 @@ const initGrdMain2 = defineGrid((data, view) => {
     },
   ]);
 
+  view.setRowGroup({ expandedAdornments: 'footer', collapsedAdornments: 'footer' });
+  view.groupBy([]);
+  view.setFooters({ visible: true, items: [{ height: 42 }] });
+  view.layoutByColumn('ogCd').footerUserSpans = [{ colspan: 4 }];
   view.setFixedOptions({ colCount: 2 });
 });
 
@@ -740,21 +1058,68 @@ const initGrdMain3 = defineGrid((data, view) => {
   ];
 
   const columns = [
-    { fieldName: 'ogCd', header: t('MSG_TXT_BLG_CD'), width: '120', styleName: 'text-center' },
-    { fieldName: 'prtnrNm', header: t('MSG_TXT_EMPL_NM'), width: '100', styleName: 'text-left' },
-    { fieldName: 'grpNo', header: t('MSG_TXT_EPNO'), width: '80', styleName: 'text-center' },
-    { fieldName: 'col4', header: t('MSG_TXT_BLD_NM'), width: '120', styleName: 'text-center' },
-    { fieldName: 'pp399DayCnt', header: t('MSG_TXT_RTL_399'), width: '120', styleName: 'text-right' },
-    { fieldName: 'pp599DayCnt', header: t('MSG_TXT_RTL_599'), width: '80', styleName: 'text-right' },
-    { fieldName: 'col7', header: t('MSG_TXT_SUM_TOT'), width: '200', styleName: 'text-right' },
-    { fieldName: 'pp399SumCnt', header: t('MSG_TXT_RTL_399'), width: '80', styleName: 'text-right' },
-    { fieldName: 'pp599SumCnt', header: t('MSG_TXT_RTL_599'), width: '80', styleName: 'text-right' },
-    { fieldName: 'col10', header: t('MSG_TXT_SUM_TOT'), width: '100', styleName: 'text-right' },
+    { fieldName: 'ogCd',
+      header: t('MSG_TXT_BLG_CD'),
+      width: '120',
+      styleName: 'text-center',
+      footer: {
+        text: t('MSG_TXT_SUM'),
+        styleName: 'text-center',
+      } },
+    { fieldName: 'prtnrNm',
+      header: t('MSG_TXT_EMPL_NM'),
+      width: '100',
+      styleName: 'text-left' },
+    { fieldName: 'grpNo',
+      header: t('MSG_TXT_EPNO'),
+      width: '80',
+      styleName: 'text-center' },
+    { fieldName: 'col4',
+      header: t('MSG_TXT_BLD_NM'),
+      width: '120',
+      styleName: 'text-center' },
+    { fieldName: 'pp399DayCnt',
+      header: t('MSG_TXT_RTL_399'),
+      width: '120',
+      styleName: 'text-right',
+      dataType: 'number',
+      footer: { expression: 'sum', numberFormat: '#,##0', styleName: 'text-right' } },
+    { fieldName: 'pp599DayCnt',
+      header: t('MSG_TXT_RTL_599'),
+      width: '80',
+      styleName: 'text-right',
+      dataType: 'number',
+      footer: { expression: 'sum', numberFormat: '#,##0', styleName: 'text-right' } },
+    { fieldName: 'col7',
+      header: t('MSG_TXT_SUM_TOT'),
+      width: '200',
+      styleName: 'text-right',
+      dataType: 'number',
+      footer: { expression: 'sum', numberFormat: '#,##0', styleName: 'text-right' } },
+    { fieldName: 'pp399SumCnt',
+      header: t('MSG_TXT_RTL_399'),
+      width: '80',
+      styleName: 'text-right',
+      dataType: 'number',
+      footer: { expression: 'sum', numberFormat: '#,##0', styleName: 'text-right' } },
+    { fieldName: 'pp599SumCnt',
+      header: t('MSG_TXT_RTL_599'),
+      width: '80',
+      styleName: 'text-right',
+      dataType: 'number',
+      footer: { expression: 'sum', numberFormat: '#,##0', styleName: 'text-right' } },
+    { fieldName: 'col10',
+      header: t('MSG_TXT_SUM_TOT'),
+      width: '100',
+      styleName: 'text-right',
+      dataType: 'number',
+      footer: { expression: 'sum', numberFormat: '#,##0', styleName: 'text-right' } },
   ];
 
   data.setFields(fields);
   view.setColumns(columns);
-  view.checkBar.visible = true;
+  view.checkBar.visible = false;
+  view.rowIndicator.visible = true; // create number indicator column
 
   view.setColumnLayout([
     // single
@@ -771,40 +1136,70 @@ const initGrdMain3 = defineGrid((data, view) => {
     },
   ]);
 
+  view.setRowGroup({ expandedAdornments: 'footer', collapsedAdornments: 'footer' });
+  view.groupBy([]);
+  view.setFooters({ visible: true, items: [{ height: 42 }] });
+  view.layoutByColumn('ogCd').footerUserSpans = [{ colspan: 4 }];
   view.setFixedOptions({ colCount: 2 });
 });
 
 // 40. 플래너상조제휴
 const initGrdMain4 = defineGrid((data, view) => {
-  const fields = [
-    { fieldName: 'ogCd' }, // 소속
-    { fieldName: 'prtnrNm' }, // 성명
-    { fieldName: 'grpNo' }, // 사번
-    { fieldName: 'col4' }, // 빌딩명
-    { fieldName: 'pl429DayCnt' }, // 429(렌탈)
-    { fieldName: 'pl599DayCnt' }, // 599(렌탈)
-    { fieldName: 'col7' }, // 합
-    { fieldName: 'pl429SumCnt' }, // 429(렌탈)
-    { fieldName: 'pl599SumCnt' }, // 599(렌탈)
-    { fieldName: 'col10' }, // 합
-  ];
-
   const columns = [
-    { fieldName: 'ogCd', header: t('MSG_TXT_BLG'), width: '120', styleName: 'text-center' },
+    { fieldName: 'ogCd',
+      header: t('MSG_TXT_BLG'),
+      width: '120',
+      styleName: 'text-center',
+      footer: {
+        text: t('MSG_TXT_SUM'),
+        styleName: 'text-center',
+      } },
     { fieldName: 'prtnrNm', header: t('MSG_TXT_EMPL_NM'), width: '100', styleName: 'text-left' },
     { fieldName: 'grpNo', header: t('MSG_TXT_EPNO'), width: '80', styleName: 'text-center' },
     { fieldName: 'col4', header: t('MSG_TXT_BLD_NM'), width: '120', styleName: 'text-center' },
-    { fieldName: 'pl429DayCnt', header: t('MSG_TXT_RTL_429'), width: '120', styleName: 'text-right' },
-    { fieldName: 'pl599DayCnt', header: t('MSG_TXT_RTL_599'), width: '80', styleName: 'text-right' },
-    { fieldName: 'col7', header: t('MSG_TXT_SUM_TOT'), width: '200', styleName: 'text-right' },
-    { fieldName: 'pl429SumCnt', header: t('MSG_TXT_RTL_429'), width: '80', styleName: 'text-right' },
-    { fieldName: 'pl599SumCnt', header: t('MSG_TXT_RTL_599'), width: '80', styleName: 'text-right' },
-    { fieldName: 'col10', header: t('MSG_TXT_SUM_TOT'), width: '100', styleName: 'text-right' },
+    { fieldName: 'pl429DayCnt',
+      header: t('MSG_TXT_RTL_429'),
+      width: '120',
+      styleName: 'text-right',
+      dataType: 'number',
+      footer: { expression: 'sum', numberFormat: '#,##0', styleName: 'text-right' } },
+    { fieldName: 'pl599DayCnt',
+      header: t('MSG_TXT_RTL_599'),
+      width: '80',
+      styleName: 'text-right',
+      dataType: 'number',
+      footer: { expression: 'sum', numberFormat: '#,##0', styleName: 'text-right' } },
+    { fieldName: 'plDayTotCnt',
+      header: t('MSG_TXT_SUM_TOT'),
+      width: '80',
+      styleName: 'text-right',
+      dataType: 'number',
+      footer: { expression: 'sum', numberFormat: '#,##0', styleName: 'text-right' } },
+    { fieldName: 'pl429SumCnt',
+      header: t('MSG_TXT_RTL_429'),
+      width: '80',
+      styleName: 'text-right',
+      dataType: 'number',
+      footer: { expression: 'sum', numberFormat: '#,##0', styleName: 'text-right' } },
+    { fieldName: 'pl599SumCnt',
+      header: t('MSG_TXT_RTL_599'),
+      width: '80',
+      styleName: 'text-right',
+      dataType: 'number',
+      footer: { expression: 'sum', numberFormat: '#,##0', styleName: 'text-right' } },
+    { fieldName: 'plSumTotCnt',
+      header: t('MSG_TXT_SUM_TOT'),
+      width: '100',
+      styleName: 'text-right',
+      dataType: 'number',
+      footer: { expression: 'sum', numberFormat: '#,##0', styleName: 'text-right' } },
   ];
 
+  const fields = columns.map(({ fieldName, dataType }) => (dataType ? { fieldName, dataType } : { fieldName }));
   data.setFields(fields);
   view.setColumns(columns);
-  view.checkBar.visible = true;
+  view.checkBar.visible = false;
+  view.rowIndicator.visible = true; // create number indicator column
 
   view.setColumnLayout([
     // single
@@ -812,15 +1207,19 @@ const initGrdMain4 = defineGrid((data, view) => {
     {
       header: t('MSG_TXT_PLN_MTL_AID_HLD_PLN'), // 플래너상조제휴일계 colspan title
       direction: 'horizontal', // merge type
-      items: ['pl429DayCnt', 'pl599DayCnt', 'col7'],
+      items: ['pl429DayCnt', 'pl599DayCnt', 'plDayTotCnt'],
     },
     {
       header: t('MSG_TXT_PLN_MTL_AID_PTS_CUM'), // 플래너상조제휴누계 colspan title
       direction: 'horizontal', // merge type
-      items: ['pl429SumCnt', 'pl599SumCnt', 'col10'],
+      items: ['pl429SumCnt', 'pl599SumCnt', 'plSumTotCnt'],
     },
   ]);
 
+  view.setRowGroup({ expandedAdornments: 'footer', collapsedAdornments: 'footer' });
+  view.groupBy([]);
+  view.setFooters({ visible: true, items: [{ height: 42 }] });
+  view.layoutByColumn('ogCd').footerUserSpans = [{ colspan: 4 }];
   view.setFixedOptions({ colCount: 2 });
 });
 
@@ -837,25 +1236,25 @@ const initGrdMain5 = defineGrid((data, view) => {
     { fieldName: 'trgAchvRt' }, // 환경가전_목표달성률
     { fieldName: 'corpCnt' }, // 법인판매
     { fieldName: 'branchCnt' }, // 지점
-    { fieldName: 'optnTrgTot' }, // 종합_가동묙표
+    { fieldName: 'optnTrgTot' }, // 종합_가동목표
     { fieldName: 'optnPplCnt' }, // 종합_가동인원
     { fieldName: 'optnTrgRtTot' }, // 종합_달성률
-    { fieldName: 'optnTrgWm' }, // 매니저_가동묙표
+    { fieldName: 'optnTrgWm' }, // 매니저_가동목표
     { fieldName: 'optnPplCntWm' }, // 매니저_가동인원
     { fieldName: 'optnTrgRtWm' }, // 매니저_달성률
-    { fieldName: 'optnTrgSp' }, // 수석플래너_가동묙표
+    { fieldName: 'optnTrgSp' }, // 수석플래너_가동목표
     { fieldName: 'optnPplCntSp' }, // 수석플래너_가동인원
     { fieldName: 'optnTrgRtSp' }, // 수석플래너_달성률
-    { fieldName: 'optnTrgWp' }, // 플래너_가동묙표
+    { fieldName: 'optnTrgWp' }, // 플래너_가동목표
     { fieldName: 'optnPplCntWp' }, // 플래너_가동인원
     { fieldName: 'optnTrgRtWp' }, // 플래너_달성률
-    { fieldName: 'optnTrgBsfm' }, // BS프리매니저_ 가동묙표
+    { fieldName: 'optnTrgBsfm' }, // BS프리매니저_ 가동목표
     { fieldName: 'optnPplCntBsfm' }, // BS프리매니저_가동인원
     { fieldName: 'optnTrgRtBsfm' }, // BS프리매니저_달성률
-    { fieldName: 'optnTrgFm' }, // 프리매니저_ 가동묙표
+    { fieldName: 'optnTrgFm' }, // 프리매니저_ 가동목표
     { fieldName: 'optnPplCntFm' }, // 프리매니저_가동인원
     { fieldName: 'optnTrgRtFm' }, // 프리매니저_달성률
-    { fieldName: 'optnTrgBr' }, // 지점장개인_ 가동묙표
+    { fieldName: 'optnTrgBr' }, // 지점장개인_ 가동목표
     { fieldName: 'optnPplCntBr' }, // 지점장개인_가동인원
     { fieldName: 'optnTrgRtBr' }, // 지점장개인_달성률
     { fieldName: 'col32' }, // 전월 총가동
@@ -881,10 +1280,10 @@ const initGrdMain5 = defineGrid((data, view) => {
     { fieldName: 'trgAchvRt', header: t('MSG_TXT_GOAL_ACHV_RT'), width: '80', styleName: 'text-right' }, // 목표달성률
     { fieldName: 'corpCnt', header: t('MSG_TXT_CORP_SAL'), width: '80', styleName: 'text-center' }, // 법인판매
     { fieldName: 'branchCnt', header: t('MSG_TXT_BRANCH'), width: '100', styleName: 'text-center' }, // 지점
-    { fieldName: 'optnTrgTot', header: t('MSG_TXT_OPER_TGT'), width: '100', styleName: 'text-right' }, // 종합_가동묙표
+    { fieldName: 'optnTrgTot', header: t('MSG_TXT_OPER_TGT'), width: '100', styleName: 'text-right' }, // 종합_가동목표
     { fieldName: 'optnPplCnt', header: t('MSG_TXT_OPTN_PPL'), width: '100', styleName: 'text-right' }, // 종합_가동인원
     { fieldName: 'optnTrgRtTot', header: t('MSG_TXT_ACHV_RATE'), width: '150', styleName: 'text-left' }, // 종합_달성률
-    { fieldName: 'optnTrgWm', header: t('MSG_TXT_OPER_TGT'), width: '80', styleName: 'text-right' },
+    { fieldName: 'optnTrgWm', header: t('MSG_TXT_OPER_TGT'), width: '80', styleName: 'text-right' }, // // 매니저_가동목표
     { fieldName: 'optnPplCntWm', header: t('MSG_TXT_OPTN_PPL'), width: '80', styleName: 'text-right' },
     { fieldName: 'optnTrgRtWm', header: t('MSG_TXT_ACHV_RATE'), width: '150', styleName: 'text-right' },
     { fieldName: 'optnTrgSp', header: t('MSG_TXT_OPER_TGT'), width: '150', styleName: 'text-right' },
@@ -917,7 +1316,8 @@ const initGrdMain5 = defineGrid((data, view) => {
 
   data.setFields(fields);
   view.setColumns(columns);
-  view.checkBar.visible = true;
+  view.checkBar.visible = false;
+  view.rowIndicator.visible = true; // create number indicator column
 
   view.setColumnLayout([
     // single
@@ -1025,7 +1425,8 @@ const initGrdMain6 = defineGrid((data, view) => {
 
   data.setFields(fields);
   view.setColumns(columns);
-  view.checkBar.visible = true;
+  view.checkBar.visible = false;
+  view.rowIndicator.visible = true; // create number indicator column
 
   view.setColumnLayout([
     // single
