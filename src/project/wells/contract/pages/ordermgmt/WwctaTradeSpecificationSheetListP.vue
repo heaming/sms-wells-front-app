@@ -497,6 +497,8 @@ async function onClickEmailSend() {
 
   if (searchParams.value.cntrDvCd === '2' && checkedItems.length === 0) {
     notify(t('MSG_ALT_BEFORE_SELECT_IT', [t('MSG_TXT_ITEM')])); // 항목 (을)를 선택해주세요
+  } else if (searchParams.value.cntrDvCd === '2' && checkedItems.length >= 81) {
+    await alert(t('MSG_ALT_SEL_MORE_THAN_CNTRS', [80])); // 최대 {0}개까지 선택할 수 있습니다.
   } else {
     switch (searchParams.value.cntrDvCd) { // 계약/고객번호 구분
       case '1': // 계약상세번호
