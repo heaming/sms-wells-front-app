@@ -75,6 +75,7 @@
             :model-value="searchParams.sellTpCd ? searchParams.sellTpCd : []"
             :multiple="true"
             class="w300"
+            @update:model-value="onUpdateSellTpCd"
           />
         </kw-search-item>
       </kw-search-row>
@@ -103,6 +104,7 @@
         dense
         icon="report"
         :label="$t('MSG_BTN_PBL_PRNT')"
+        :disable="searchParams.cntrDvCd === '2' && pageInfo.totalCount1 === 0"
         @click="onClickPblPrnt"
       />
     </kw-action-top>
@@ -209,13 +211,15 @@ const codes = await codeUtil.getMultiCodes(
   'SELL_TP_CD',
 );
 
+const filters = codes.SELL_TP_CD.map((v) => ({ name: v.codeId, criteria: `value = '${v.codeId}'` }));
+
 const pageInfo = ref({
   totalCount: 0,
   totalCount1: 0,
   totalCount2: 0,
   pageIndex: 1,
   // 환경변수에서 기본설정값 받아오는 코드 현재 CFG_CMZ_DEFAULT_PAGE_SIZE 기본값:10
-  pageSize: Number(getConfig('CFG_CMZ_DEFAULT_PAGE_SIZE')) - 1,
+  pageSize: Number(getConfig('CFG_CMZ_DEFAULT_PAGE_SIZE')),
   needTotalCount: true,
 });
 
@@ -225,7 +229,8 @@ const pageInfoContracts = ref({
   totalCount2: 0,
   pageIndex: 1,
   // 환경변수에서 기본설정값 받아오는 코드 현재 CFG_CMZ_DEFAULT_PAGE_SIZE 기본값:10
-  pageSize: Number(getConfig('CFG_CMZ_DEFAULT_PAGE_SIZE')) - 1,
+  // pageSize: 100,
+  pageSize: Number(getConfig('CFG_CMZ_DEFAULT_PAGE_SIZE')) + 70,
   needTotalCount: true,
 });
 
@@ -302,6 +307,10 @@ async function onChangeDocDvCd() {
 // 고객번호 변경 이벤트 호출
 async function onChangeCntrDvCd() {
   if (searchParams.value.cntrDvCd === '1') { // 계약번호
+    // searchParams.value.sellTpCd = [];
+    const view = grdContracts.value.getView();
+    // 필터 초기화
+    view.activateAllColumnFilters('sellTpCd', false);
     isGrdContractsVisible.value = false;
     isSearchDivVisible.value = false;
 
@@ -330,6 +339,17 @@ async function onChangeCntrDvCd() {
   }
 }
 
+// 판매유형코드 필터링
+async function onUpdateSellTpCd(val) {
+  const view = grdContracts.value.getView();
+  // 필터 초기화
+  view.activateAllColumnFilters('sellTpCd', false);
+  // 필터 처리
+  view.activateColumnFilters('sellTpCd', val, true);
+  // console.log(`getItemCount : ${view.getItemCount()}`);
+  pageInfo.value.totalCount1 = view.getItemCount(); // 판매유형에 따른 총건수 필터링
+}
+
 // 계약목록
 async function fetchCtnrLstData(bOnly) {
   // changing api & cacheparams according to search classification
@@ -341,24 +361,19 @@ async function fetchCtnrLstData(bOnly) {
   // console.log(cachedParams);
   // console.log(pageInfoContracts.value);
 
-  res = await dataService.get('/sms/wells/contract/contracts/order-details/specification/contracts', { params: { ...cachedParams, ...pageInfoContracts.value } });
+  res = await dataService.get('/sms/wells/contract/contracts/order-details/specification/contracts', { params: { ...cachedParams } });
   if (res.data.length === 0) {
     await notify(t('MSG_ALT_NO_DATA')); // 데이터가 존재하지 않습니다.
     return;
   }
 
-  const { list: pages, pageInfo: pagingResult } = res.data;
-  pageInfoContracts.value = pagingResult;
   const view = grdContracts.value.getView();
-  const dataSource = view.getDataSource();
+  view.getDataSource().setRows(res.data);
 
-  // Row 변경상태감지를 풀고 데이터 교체후, 다시 변경감지 On
-  dataSource.checkRowStates(false);
-  dataSource.addRows(pages);
-  dataSource.checkRowStates(true);
-
-  // console.log(pageInfo.value.totalCount);
+  pageInfoContracts.value.totalCount = view.getItemCount();
   pageInfo.value.totalCount1 = pageInfoContracts.value.totalCount;
+  view.autoFiltersRefresh('sellTpCd', false);
+  view.setColumnFilters('sellTpCd', filters, true);
   view.resetCurrent();
 
   if (bOnly === false) {
@@ -436,6 +451,10 @@ async function fetchTrdSpcData(bFirstOnly) {
 
 // 초기화버튼 클릭 이벤트
 async function onClickReset() {
+  searchParams.value.sellTpCd = [];
+  const view = grdContracts.value.getView();
+  // 필터 초기화
+  view.activateAllColumnFilters('sellTpCd', false);
   isGrdContractsVisible.value = false;
   isSearchDivVisible.value = false;
 
@@ -745,7 +764,8 @@ const initGrdContracts = defineGrid((data, view) => {
     { fieldName: 'pdNm', header: t('MSG_TXT_PRDT_NM'), width: '292', styleName: 'text-left' }, // 상품명
     { fieldName: 'cntrDt', header: t('MSG_TXT_CNTRCT_DT'), width: '131', styleName: 'text-center', datetimeFormat: 'date' }, // 계약일
     { fieldName: 'canDt', header: t('MSG_TXT_CAN_D'), width: '131', styleName: 'text-center', datetimeFormat: 'date' }, // 취소일
-    { fieldName: 'sellTpNm', header: t('MSG_TXT_TYPE'), width: '131', styleName: 'text-left' }, // 구분(유형)
+    { fieldName: 'sellTpCd', header: t('MSG_TXT_TYPE'), width: '131', styleName: 'text-left', visible: false, autoFilter: false }, // 판매유형코드
+    { fieldName: 'sellTpNm', header: t('MSG_TXT_TYPE'), width: '131', styleName: 'text-left' }, // 구분명(판매유형코드명)
     { fieldName: 'spayAmt', header: `${t('MSG_TXT_SNGL_PMNT')} ${t('MSG_TXT_SALE_PRICE')}`, width: '110', styleName: 'text-right' }, // 일시불 판매금액
     { fieldName: 'rentalAmt', header: t('MSG_TXT_RTLFE1'), width: '100', styleName: 'text-right' }, // 렌탈료1
     { fieldName: 'rentalAmt2', header: t('MSG_TXT_RTLFE2'), width: '110', styleName: 'text-right' }, // 렌탈료2
@@ -759,18 +779,6 @@ const initGrdContracts = defineGrid((data, view) => {
   view.checkBar.visible = true;
   view.rowIndicator.visible = true;
   view.filteringOptions.enabled = true;
-
-  /**
-   * Infinite Scroll
-   *
-   */
-  view.onScrollToBottom = async (g) => {
-    if (pageInfoContracts.value.pageIndex * pageInfoContracts.value.pageSize <= g.getItemCount()) {
-      pageInfoContracts.value.pageIndex += 1;
-      isOnly = true;
-      await fetchCtnrLstData(isOnly);
-    }
-  };
 });
 
 // 증빙서류종류(입금내역서)
