@@ -518,7 +518,7 @@
         <!-- 계약총액 -->
         <kw-form-item :label="$t('MSG_TXT_CNTRCT_AMT')">
           <kw-input
-            v-model="frmMainData.cntrAmt"
+            v-model="frmMainData.cntrTam"
             align="right"
             placeholder=""
             readonly
@@ -677,7 +677,7 @@
         <!-- 가격유형 -->
         <kw-form-item :label="$t('MSG_TXT_PRC_TP')">
           <kw-input
-            v-model="frmMainData.lcck05Nm"
+            v-model="frmMainData.rglrSppPrcDvCd"
             placeholder=""
             readonly
           />
@@ -858,7 +858,7 @@
         <!-- 매출일 -->
         <kw-form-item :label="$t('MSG_TXT_DT_OF_SALE')">
           <kw-input
-            v-model="frmMainData.slDt"
+            v-model="frmMainData.istDt"
             mask="####-##-##"
             placeholder=""
             readonly
@@ -932,15 +932,8 @@
         </kw-form-item>
         <!-- 주문확정일시 -->
         <kw-form-item :label="$t('MSG_TXT_ORDR_CNFM_DTM')">
-          <!-- 주문확정일시 - 일자 -->
           <kw-input
-            v-model="frmMainData.cntrCnfmDt"
-            placeholder=""
-            readonly
-          />
-          <!-- 주문확정일시 - 시간 -->
-          <kw-input
-            v-model="frmMainData.cntrCnfmTm"
+            v-model="frmMainData.cntrCnfmDtm"
             placeholder=""
             readonly
           />
@@ -948,7 +941,8 @@
         <!-- 일 매출확정 -->
         <kw-form-item :label="$t('MSG_TXT_D_SL_CNFM')">
           <kw-input
-            v-model="frmMainData.slDt"
+            v-model="frmMainData.dySlCnfmYn"
+            align="left"
             placeholder=""
             readonly
           />
@@ -956,7 +950,7 @@
         <!-- 일 매출확정일시 -->
         <kw-form-item :label="$t('MSG_TXT_D_SL_CNFM_DTM')">
           <kw-input
-            v-model="frmMainData.slTm"
+            v-model="frmMainData.slDtm"
             placeholder=""
             readonly
           />
@@ -1117,7 +1111,7 @@ const frmMainData = ref({
   fnlAmt: '', // 판매가격
   sellAmt: '', // 공급가액
   vat: '', // 부가세
-  cntrAmt: '', // 계약총액
+  cntrTam: '', // 계약총액
   pdBaseAmt: '', // 제품정상가격
   ackmtPerfRt: '', // 인정실적율(%)
   ackmtPerfAmt: '', // 인정실적액
@@ -1134,7 +1128,7 @@ const frmMainData = ref({
   txinvPblOjYn: '', // 세금계산서발행 여부
   frisuBfsvcPtrmN: '', // 무료개월
   lcmcnt: '', // 무료회수
-  lcck05Nm: '', // 가격유형
+  rglrSppPrcDvCd: '', // 가격유형
   alncStatTpCd: '', // 제휴상태코드
   alncStatTpNm: '', // 제휴상태코드명
   alncmpCd: '', // 제휴업체코드
@@ -1156,10 +1150,9 @@ const frmMainData = ref({
   lcscnt: '', // 배송기준횟수
   cntrCnfmYn: '', // 확정유무
   ordCnfmYn: '', // 주문확정여부
-  cntrCnfmDt: '', // 주문확정일시(일자)
-  cntrCnfmTm: '', // 주문확정일시(시간)
-  slDt: '', // 일 매출확정
-  slTm: '', // 일 매출확정일시
+  cntrCnfmDtm: '', // 주문확정일시
+  dySlCnfmYn: '', // 일 매출확정
+  slDtm: '', // 일 매출확정일시
   frisuYn: '', // 체험유무
   cttRsCd: '', // 컨택코드
   cttRsNm: '', // 컨택내용
@@ -1272,7 +1265,7 @@ async function fetchData() {
     frmMainData.value.fnlAmt = stringUtil.getNumberWithComma(Number(pages[0].fnlAmt), 0); // 판매가격
     frmMainData.value.sellAmt = stringUtil.getNumberWithComma(Number(pages[0].sellAmt), 0); // 공급가액
     frmMainData.value.vat = stringUtil.getNumberWithComma(Number(pages[0].vat), 0); // 부가세
-    frmMainData.value.cntrAmt = stringUtil.getNumberWithComma(Number(pages[0].cntrAmt), 0); // 계약총액
+    frmMainData.value.cntrTam = stringUtil.getNumberWithComma(Number(pages[0].cntrTam), 0); // 계약총액
     frmMainData.value.pdBaseAmt = stringUtil.getNumberWithComma(Number(pages[0].pdBaseAmt), 0); // 제품정상가격
     frmMainData.value.ackmtPerfRt = pages[0].ackmtPerfRt; // 인정실적율(%)
     frmMainData.value.ackmtPerfAmt = stringUtil.getNumberWithComma(Number(pages[0].ackmtPerfAmt), 0); // 인정실적액
@@ -1289,7 +1282,7 @@ async function fetchData() {
     frmMainData.value.txinvPblOjYn = pages[0].txinvPblOjYn; // 세금계산서발행 여부
     frmMainData.value.mpyMthdTpNm = pages[0].mpyMthdTpNm; // 무료개월
     frmMainData.value.lcmcnt = pages[0].lcmcnt; // 무료회수
-    frmMainData.value.lcck05Nm = pages[0].lcck05Nm; // 가격유형
+    frmMainData.value.rglrSppPrcDvCd = pages[0].rglrSppPrcDvCd; // 가격유형
     // -------------------------------------------------------------------------------------------------
     // 프로모션
     // -------------------------------------------------------------------------------------------------
@@ -1328,10 +1321,9 @@ async function fetchData() {
     frmMainData.value.lcscnt = pages[0].lcscnt; // 배송기준횟수
     frmMainData.value.cntrCnfmYn = pages[0].cntrCnfmYn; // 확정유무
     frmMainData.value.ordCnfmYn = pages[0].ordCnfmYn; // 주문확정여부
-    frmMainData.value.cntrCnfmDt = pages[0].cntrCnfmDt; // 주문확정일시(일자)
-    frmMainData.value.cntrCnfmTm = pages[0].cntrCnfmTm; // 주문확정일시(시간)
-    frmMainData.value.slDt = pages[0].slDt; // 일 매출확정
-    frmMainData.value.slTm = pages[0].slTm; // 일 매출확정일시
+    frmMainData.value.cntrCnfmDtm = stringUtil.getDatetimeFormat(pages[0].cntrCnfmDtm); // 주문확정일시
+    frmMainData.value.dySlCnfmYn = pages[0].dySlCnfmYn; // 일 매출확정
+    frmMainData.value.slDtm = stringUtil.getDatetimeFormat(pages[0].slDtm); // 일 매출확정일시
     frmMainData.value.frisuYn = pages[0].frisuYn; // 무료체험유무
     // -------------------------------------------------------------------------------------------------
     // 참고사항
