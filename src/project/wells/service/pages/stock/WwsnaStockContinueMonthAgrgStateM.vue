@@ -20,6 +20,7 @@
       @search="onClickSearch"
     >
       <kw-search-row>
+        <!-- 기준년월 -->
         <kw-search-item
           :label="$t('MSG_TXT_BASE_YM')"
           :colspan="2"
@@ -32,6 +33,7 @@
             rules="required"
           />
         </kw-search-item>
+        <!-- 사용 여부 -->
         <kw-search-item
           :label="$t('MSG_TXT_USE_YN')"
           :colspan="2"
@@ -42,6 +44,7 @@
             first-option="all"
           />
         </kw-search-item>
+        <!-- 재고유형 -->
         <kw-search-item
           :label="$t('MSG_TXT_STOC_TYPE')"
           :colspan="2"
@@ -54,6 +57,7 @@
         </kw-search-item>
       </kw-search-row>
       <kw-search-row>
+        <!-- 품목구분 -->
         <kw-search-item
           :label="$t('MSG_TXT_ITM_DV')"
           :colspan="2"
@@ -63,6 +67,7 @@
             :options="codes.ITM_KND_CD"
           />
         </kw-search-item>
+        <!-- 등급 -->
         <kw-search-item
           :label="$t('MSG_TXT_GD')"
           :colspan="2"
@@ -70,6 +75,49 @@
           <kw-select
             v-model="searchParams.itmGdCd"
             :options="tempOptions.itmGdCd"
+          />
+        </kw-search-item>
+        <!-- 표시유형 -->
+        <!-- 권고사항...추가 작업예정 -->
+        <!-- <kw-search-item
+          :label="$t('MSG_TXT_DISP_TYPE')"
+          :colspan="2"
+        >
+          <kw-select
+            v-model="searchParams.markTp"
+            :options="tempOptions.markTp"
+          />
+        </kw-search-item> -->
+      </kw-search-row>
+      <kw-search-row>
+        <!-- 품목코드 -->
+        <kw-search-item
+          :label="$t('MSG_TXT_ITM_CD')"
+          :colspan="2"
+        >
+          <kw-input
+            v-model="searchParams.itmPdCd"
+            upper-case
+            type="text"
+            :label="$t('MSG_TXT_ITM_CD')"
+            rules="alpha_num|max:10"
+          />
+        </kw-search-item>
+        <!-- SAP코드 -->
+        <kw-search-item
+          :label="$t('MSG_TXT_SAPCD')"
+          :colspan="4"
+        >
+          <kw-input
+            v-model="searchParams.strtSapCd"
+            :label="$t('MSG_TXT_STRT_SAP_CD')"
+            rules="numeric|max:18"
+          />
+          <span>~</span>
+          <kw-input
+            v-model="searchParams.endSapCd"
+            :label="$t('MSG_TXT_END_SAP_CD')"
+            rules="numeric|max:18"
           />
         </kw-search-item>
       </kw-search-row>
@@ -160,6 +208,10 @@ const tempOptions = {
   //   { codeId: '4', codeName: t('기준4') }, // 기준4
   //   { codeId: '5', codeName: t('기준5') }, // 기준5
   // ],
+  markTp: [
+    { codeId: 'Mm', codeName: t('지속월') },
+    { codeId: 'notMm', codeName: t('표시율') },
+  ],
 };
 
 let cachedParams;
@@ -169,6 +221,10 @@ const searchParams = ref({
   useYn: '', // 사용여부
   stockTpCd: '', // 재고유형
   itmKndCd: '', // 품목구분 - 디폴트 4 상품
+  markTp: '', // 표시유형
+  itmPdCd: '', // 품목코드
+  strtSapCd: '', // SAP 시작
+  endSapCd: '', // SAP 종료
 });
 
 let gridView;
@@ -266,6 +322,7 @@ async function fetchData() {
 async function onClickSearch() {
   await getWareHouseList();
   searchParams.value.matUtlzDvCd = '';
+  console.log('searchParams.value ???', searchParams.value);
   cachedParams = cloneDeep(searchParams.value);
   await fetchData();
 }
@@ -279,10 +336,16 @@ async function onClickExcelDownload() {
   });
 }
 
+// 표시유형 변경시 그리드 표시 변경
+// async function onChangeMarkTp() {
+//   console.log('onChangeMarkTp searchParams.value.markTp >>', searchParams.value.markTp);
+// }
+
 onMounted(async () => {
   // 품목구분 : 상품 기본설정(4)
   searchParams.value.itmKndCd = '4';
   searchParams.value.itmGdCd = 'A';
+  searchParams.value.markTp = 'Mm';
   // 창고조회
   await getWareHouseList();
 });
