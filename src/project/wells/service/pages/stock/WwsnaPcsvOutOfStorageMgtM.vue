@@ -239,8 +239,8 @@ async function onClickSave() {
   if (chkRows.length === 0) {
     notify(t('MSG_ALT_NOT_SEL_ITEM'));
   } else if (await gridUtil.validate(view, { isCheckedOnly: true })) {
-    const checkRowProducts = [];
     chkRows.forEach((obj) => {
+      const checkRowProducts = [];
       // 상품 갯수만큼 셋팅
       for (let cnt = 1; cnt <= obj.partCnt; cnt += 1) {
         checkRowProducts.push(
