@@ -332,6 +332,7 @@ async function onClickW313P(feeSchdId, feeSchdLvCd, feeSchdLvStatCd) {
     ogTpCd: 'W04',
     perfYm: `${perfYm.substring(0, 4)}-${perfYm.substring(4, 6)}`,
     ocYm: `${perfYm.substring(0, 4)}-${perfYm.substring(4, 6)}`,
+    feeTcntDvCd: searchParams.value.feeTcntDvCd,
     // rsbDvCd: rsbTpCd,
   };
   const { result: isChanged } = await modal({
