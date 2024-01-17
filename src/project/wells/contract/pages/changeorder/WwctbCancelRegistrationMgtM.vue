@@ -337,9 +337,9 @@ function calTotRfndAmt(repObj, targetObj, resObj) {
 
   if (targetObj.sell !== '3') {
     switch (repObj.ccamExmptDvCd) {
-      case '1': borAmt = resObj.borAmt; break;// 위약금 적용
-      case '4': borAmt = targetObj.borAmt; break;// 입력
-      case '6': borAmt = resObj.borAmt * 0.5; break; // 위약금 50#
+      case '1': borAmt = resObj.borAmt; resObj.rentalRgstCostRfndAmt = 0; break;// 위약금 적용
+      case '4': borAmt = targetObj.borAmt; resObj.rentalRgstCostRfndAmt = 0; break;// 입력
+      case '6': borAmt = resObj.borAmt * 0.5; resObj.rentalRgstCostRfndAmt = 0; break; // 위약금 50#
     }
 
     switch (repObj.csmbCsExmptDvCd) {
