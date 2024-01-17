@@ -116,7 +116,8 @@
           <kw-select
             v-model="searchParams.stRtngdProcsTpCd"
             :options="codes.RTNGD_PROCS_TP_CD"
-            first-option=""
+            first-option="true"
+            first-option-label=" "
           />
         </kw-search-item>
       </kw-search-row>
@@ -193,7 +194,8 @@
           :options="codes.RTNGD_PROCS_TP_CD"
           dense
           class="w130"
-          first-option=""
+          first-option="true"
+          first-option-label=" "
         />
         <!-- 반품처리유형 일괄변경 -->
         <kw-btn
