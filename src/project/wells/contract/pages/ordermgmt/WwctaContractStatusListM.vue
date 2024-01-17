@@ -364,6 +364,12 @@
               @click="onClickF2fPayment(item)"
             />
             <kw-btn
+              v-if="item.isPsc40NonF2Pay"
+              :label="$t('MSG_TXT_NON_FCF_PYMNT')"
+              padding="10px"
+              @click="onClickNonFcfPayment(item)"
+            />
+            <kw-btn
               :label="$t('MSG_BTN_DEL')"
               padding="10px"
               @click="onClickContractDelete(item)"
@@ -612,6 +618,8 @@ async function fetchData() {
     let isPsc20F2Pay = false;
     let isPsc20NonF2Pay = false;
 
+    let isPsc40NonF2Pay = false;
+
     let isPsc50NonF2Pay = false;
     let isPsc50Confirm = false;
     let isPsc50RequestConfirm = false;
@@ -623,21 +631,32 @@ async function fetchData() {
     let isPsc60RequestDel = false;
 
     if (!isSoDbt) {
-      // 20
+      // 20 작성완료
       if (item.confirmPsbYn === 'Y') {
         isPsc20Confirm = true;
         isPsc20F2Pay = CCS_BASE_RLE_CDS.includes(sessionUserInfo.baseRleCd);
       } else if (item.resultDiv === '1') {
-        isPsc20NonF2Pay = (item.pymnSkipYn === 'N');
         isPsc20F2Pay = true;
+        isPsc20NonF2Pay = (item.pymnSkipYn === 'N');
+      }
+      if (item.isCcs === 'Y') {
+        isPsc20NonF2Pay = isPsc20F2Pay;
       }
 
-      // 50
+      // 20 결제중
+      if (item.isCcs === 'Y') {
+        isPsc40NonF2Pay = true;
+      }
+
+      // 50 결제완료
       if (searchParams.value.isBrmgr === 'Y') {
         isPsc50NonF2Pay = true;
         isPsc50Confirm = (item.dfntaprcnt > 0);
       } else {
         isPsc50RequestConfirm = (item.dfntaprcnt > 0 && item.pymnSkipYn === 'Y');
+      }
+      if (item.isCcs === 'Y') {
+        isPsc50NonF2Pay = true;
       }
 
       // 60
@@ -664,6 +683,7 @@ async function fetchData() {
       isPsc20Confirm,
       isPsc20F2Pay,
       isPsc20NonF2Pay,
+      isPsc40NonF2Pay,
       isPsc50NonF2Pay,
       isPsc50Confirm,
       isPsc50RequestConfirm,
@@ -840,7 +860,7 @@ async function onClickChange({ cntrNo, cntrCnfmDtm }) {
 
 // CARD > BUTTON > 비대면결제
 async function onClickNonFcfPayment(item) {
-  if (item.viewCntrPrgsStatCd === '20' || item.viewCntrPrgsStatCd === '50') {
+  if (item.viewCntrPrgsStatCd === '20' || item.viewCntrPrgsStatCd === '40' || item.viewCntrPrgsStatCd === '50') {
     // 계약진행상태코드 재확인
     if (!await getPrgsStatCd(item)) { return; }
 
