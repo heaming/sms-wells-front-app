@@ -3,13 +3,13 @@
 * 프로그램 개요
 ****************************************************************************************************
 1. 모듈 : SNA (재고관리)
-2. 프로그램 ID : WwsnaAsMaterialDailyTaskTypeOutOfStoragePsM - AS자재 일일 업무유형별출고현황
+2. 프로그램 ID : WwsnaAsMaterialDailyTaskTypeOutOfStoragePsM - A/S 자재 일일 출고 현황
 3. 작성자 : jungheejin
 4. 작성일 : 2023-10-13
 ****************************************************************************************************
 * 프로그램 설명
 ****************************************************************************************************
-- AS자재 일일 업무유형별출고현황 (http://localhost:3000/#/service/wwsna-as-material-daily-task-type-out-storage-ps)
+- A/S 자재 일일 출고 현황 (http://localhost:3000/#/service/wwsna-as-material-daily-task-type-out-of-storage-ps)
 ****************************************************************************************************
 --->
 
@@ -69,6 +69,64 @@
             first-option="all"
           />
         </kw-search-item>
+        <!-- 품목구분 -->
+        <kw-search-item
+          :label="$t('MSG_TXT_ITM_DV')"
+          :colspan="2"
+        >
+          <kw-select
+            v-model="searchParams.itmKndCd"
+            :options="codes.ITM_KND_CD.filter((v) => ['4', '5', '6','7','9'].includes(v.codeId))"
+            first-option="all"
+            class="w150"
+            @change="onChangeItmDvCd"
+          />
+          <kw-select
+            v-model="searchParams.itmGrpCd"
+            :options="codes.PD_GRP_CD"
+            first-option="all"
+            class="w150"
+            @change="onChangeItmDvCd"
+          />
+          <kw-select
+            v-model="searchParams.itmPdCds"
+            :options="optionsItmPdCd"
+            option-value="pdCd"
+            option-label="pdNm"
+            :multiple="true"
+          />
+        </kw-search-item>
+      </kw-search-row>
+      <kw-search-row>
+        <!-- 품목코드 -->
+        <kw-search-item :label="$t('MSG_TXT_ITM_CD')">
+          <kw-input
+            v-model="searchParams.itmPdCd"
+            upper-case
+            type="text"
+            :label="$t('MSG_TXT_ITM_CD')"
+            rules="alpha_num|max:10"
+          />
+        </kw-search-item>
+        <!-- SAP코드 -->
+        <kw-search-item
+          :label="$t('MSG_TXT_SAPCD')"
+          :colspan="2"
+        >
+          <kw-input
+            v-model="searchParams.strtSapCd"
+            :label="$t('MSG_TXT_STRT_SAP_CD')"
+            rules="numeric|max:18"
+            @change="onChangeStrtSapCd"
+          />
+          <span>~</span>
+          <kw-input
+            v-model="searchParams.endSapCd"
+            :label="$t('MSG_TXT_END_SAP_CD')"
+            rules="numeric|max:18"
+            @change="onChangeEndSapCd"
+          />
+        </kw-search-item>
         <!-- 사용여부 -->
         <kw-search-item
           :label="$t('MSG_TXT_USE_SEL')"
@@ -80,26 +138,7 @@
             :options="codes.USE_YN"
           />
         </kw-search-item>
-        <!-- 품목구분 -->
-        <kw-search-item
-          :label="$t('MSG_TXT_ITM_DV')"
-          :colspan="2"
-        >
-          <kw-select
-            v-model="searchParams.itmKndCd"
-            :colspan="2"
-            first-option="all"
-            :options="codes.ITM_KND_CD.filter((v) => ['4', '5', '6','7','9'].includes(v.codeId))"
-            @change="onChangeItmKndCd"
-          />
-          <kw-select
-            v-model="searchParams.itmPdCd"
-            :options="productCodes"
-            first-option="all"
-          />
-        </kw-search-item>
-      </kw-search-row>
-      <kw-search-row>
+        <!--
         <kw-search-item
           :label="$t('MSG_TXT_PRDT_CODE')"
           :colspan="2"
@@ -118,6 +157,7 @@
             icon="search"
           />
         </kw-search-item>
+        -->
       </kw-search-row>
     </kw-search>
     <div class="result-area">
@@ -201,6 +241,7 @@ const codes = await codeUtil.getMultiCodes(
   'USE_YN',
   'SV_BIZ_HCLSF_CD',
   'WARE_DV_CD',
+  'PD_GRP_CD',
 );
 const customCodes = {
   svBizHclsfCd: [
@@ -220,19 +261,24 @@ const customCodes = {
 
 let cachedParams;
 const searchParams = ref({
-  baseYm: now.format('YYYYMM'),
-  baseYear: now.format('YYYY'),
-  baseMonth: now.format('MM'),
-  wareDtlDvCd: '',
-  wareNoM: '',
-  wareNoD: '',
-  itmKndCd: '',
-  svBizHclsfCd: '',
-  useYn: '',
-  itmPdCdFrom: '',
-  itmPdCdTo: '',
-  wareDvCd: '2',
-  inputDaily: '',
+  baseYm: now.format('YYYYMM'), // 기준년월
+  baseYear: now.format('YYYY'), // 기준년
+  baseMonth: now.format('MM'), // 기준월
+  wareDtlDvCd: '', // 창고구분
+  wareNoM: '', // 창고1
+  wareNoD: '', // 창고2
+  itmKndCd: '', // 품목구분
+  itmGrpCd: '', // 품목그룹
+  itmPdCds: [], // 물품코드 Array
+  svBizHclsfCd: '', // 업무유형
+  useYn: '', // 사용여부
+  itmPdCdFrom: '', // 상품코드시작
+  itmPdCdTo: '', // 상품코드종료
+  wareDvCd: '2', // 서비스센터 '2'고정
+  inputDaily: '', // 일별필터링
+  itmPdCd: '', // 물품코드
+  strtSapCd: '', // SAP시작코드
+  endSapCd: '', // SAP종료코드
 });
 
 let gridView;
@@ -247,7 +293,7 @@ const customwareDvCd = {
     ],
   },
 };
-const productCodes = ref();
+// const productCodes = ref();
 const filteringOptions = ref([]);
 const filterWareDtlDvCd = [
   // { codeId: '10', codeName: '물류센터창고', wareDvCd: '1' },
@@ -264,10 +310,11 @@ const filterWareDtlDvCd = [
 // };
 
 // 품목구분 변경시, 품목 목록 조회 셋팅
-async function onChangeItmKndCd() {
-  const res = await dataService.get(`/sms/wells/service/bs-consumables/${searchParams.value.itmKndCd}/product-codes`);
-  productCodes.value = res.data.map((v) => ({ codeId: v.svpdPdCd, codeName: v.svpdNmKor }));
-}
+// async function onChangeItmKndCd() {
+//   const res =
+//   await dataService.get(`/sms/wells/service/bs-consumables/${searchParams.value.itmKndCd}/product-codes`);
+//   productCodes.value = res.data.map((v) => ({ codeId: v.svpdPdCd, codeName: v.svpdNmKor }));
+// }
 
 // 필터링 처리
 async function onChangefilteringCd(val) {
@@ -338,6 +385,7 @@ async function fetchData() {
 }
 
 async function onClickSearch() {
+  console.log('hello world');
   searchParams.value.baseYear = searchParams.value.baseYm.substring(0, 4);
   searchParams.value.baseMonth = searchParams.value.baseYm.substring(4, 6);
 
@@ -354,6 +402,64 @@ async function onClickExcelDownload() {
   });
 }
 
+const optionsItmPdCd = ref();
+const optionsAllItmPdCd = ref();
+
+// 품목조회
+const getProducts = async () => {
+  const result = await dataService.get('/sms/wells/service/monthly-by-stock-state/products');
+  const pdCds = result.data.map((v) => v.pdCd);
+  optionsItmPdCd.value = result.data.filter((v, i) => pdCds.indexOf(v.pdCd) === i);
+  optionsAllItmPdCd.value = result.data;
+};
+
+// 품목종류, 품목그룹 변경 시 품목 필터링
+function onChangeItmDvCd() {
+  // 품목코드 클리어
+  searchParams.value.itmPdCds = [];
+  const { itmKndCd, itmGrpCd } = searchParams.value;
+
+  if (isEmpty(itmKndCd) && isEmpty(itmGrpCd)) {
+    const pdCds = optionsAllItmPdCd.value.map((v) => v.pdCd);
+    optionsItmPdCd.value = optionsAllItmPdCd.value.filter((v, i) => pdCds.indexOf(v.pdCd) === i);
+    return;
+  }
+  console.log('hello');
+  const filterPdInfos = optionsAllItmPdCd.value.filter(
+    (v) => (isEmpty(itmKndCd) || itmKndCd === v.itmKndCd) && (isEmpty(itmGrpCd) || itmGrpCd === v.itmGrpCd),
+  );
+
+  if (isEmpty(itmGrpCd)) {
+    const pdCds = filterPdInfos.map((v) => v.pdCd);
+    optionsItmPdCd.value = filterPdInfos.filter((v, i) => pdCds.indexOf(v.pdCd) === i);
+  } else {
+    optionsItmPdCd.value = filterPdInfos;
+  }
+}
+
+// SAP 시작코드 변경 시
+function onChangeStrtSapCd() {
+  const { strtSapCd, endSapCd } = searchParams.value;
+
+  if (!isEmpty(strtSapCd) && !isEmpty(endSapCd) && strtSapCd > endSapCd) {
+    searchParams.value.strtSapCd = strtSapCd;
+    searchParams.value.endSapCd = strtSapCd;
+  }
+}
+
+// SAP 종료코드 변경 시
+function onChangeEndSapCd() {
+  const { strtSapCd, endSapCd } = searchParams.value;
+
+  if (!isEmpty(strtSapCd) && !isEmpty(endSapCd) && strtSapCd > endSapCd) {
+    searchParams.value.strtSapCd = endSapCd;
+    searchParams.value.endSapCd = endSapCd;
+  }
+}
+
+await Promise.all([
+  getProducts(),
+]);
 // -------------------------------------------------------------------------------------------------
 // Initialize Grid
 // -------------------------------------------------------------------------------------------------
