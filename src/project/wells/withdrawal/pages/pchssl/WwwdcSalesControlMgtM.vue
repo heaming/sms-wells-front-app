@@ -431,8 +431,8 @@ async function onClickRemove() {
       if (isEmpty(p1.slCtrAmt)) {
         p1.slCtrAmt = p1.slCtrAmtDummy;
       }
+      p1.rowState = 'deleted';
     });
-    console.log(deletedRows);
     await dataService.delete(`${apiUri}/delete`, { data: deletedRows });
 
     await alert(t('MSG_ALT_DELETED')); // 삭제 되었습니다.
@@ -1057,10 +1057,10 @@ const initGrid1 = defineGrid((data, view) => {
 
         const { cntrDtlStatCd } = res.data.list[0];
 
-        view.setValue(itemIndex, 'canAfOjYn', 'Y');
+        view.setValue(itemIndex, 'canAfOjYn', 'N');
 
         if (cntrDtlStatCd === '301' || cntrDtlStatCd === '302' || cntrDtlStatCd === '303') {
-          view.setValue(itemIndex, 'canAfOjYn', 'N');
+          view.setValue(itemIndex, 'canAfOjYn', 'Y');
         }
 
         // 매출일 경우
