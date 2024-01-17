@@ -20,6 +20,7 @@
       @search="onClickSearch"
     >
       <kw-search-row>
+        <!-- 조회기간 -->
         <kw-search-item
           :label="$t('MSG_TXT_LOOKUP_PERIOD')"
           :colspan="3"
@@ -58,6 +59,7 @@
         </kw-search-item>
       </kw-search-row>
       <kw-search-row>
+        <!-- 등급 -->
         <kw-search-item
           :label="$t('MSG_TXT_GD')"
           :colspan="3"
@@ -67,6 +69,7 @@
             :options="tempOptions.itmGdCd"
           />
         </kw-search-item>
+        <!-- 사용 여부 -->
         <kw-search-item
           :label="$t('MSG_TXT_USE_YN')"
           :colspan="3"
@@ -77,6 +80,7 @@
             first-option="all"
           />
         </kw-search-item>
+        <!-- 품목구분 -->
         <kw-search-item
           :label="$t('MSG_TXT_ITM_DV')"
           :colspan="3"
@@ -89,7 +93,7 @@
         </kw-search-item>
       </kw-search-row>
       <kw-search-row>
-        <kw-search-item>
+        <!-- <kw-search-item>
           <kw-input
             v-model="searchParams.pdCdFrom"
             type="text"
@@ -100,6 +104,36 @@
             v-model="searchParams.pdCdTo"
             type="text"
             placeholder=""
+          />
+        </kw-search-item> -->
+        <!-- 품목코드 -->
+        <kw-search-item
+          :label="$t('MSG_TXT_ITM_CD')"
+          :colspan="3"
+        >
+          <kw-input
+            v-model="searchParams.itmPdCd"
+            upper-case
+            type="text"
+            :label="$t('MSG_TXT_ITM_CD')"
+            rules="alpha_num|max:10"
+          />
+        </kw-search-item>
+        <!-- SAP코드 -->
+        <kw-search-item
+          :label="$t('MSG_TXT_SAPCD')"
+          :colspan="6"
+        >
+          <kw-input
+            v-model="searchParams.strtSapCd"
+            :label="$t('MSG_TXT_STRT_SAP_CD')"
+            rules="numeric|max:18"
+          />
+          <span>~</span>
+          <kw-input
+            v-model="searchParams.endSapCd"
+            :label="$t('MSG_TXT_END_SAP_CD')"
+            rules="numeric|max:18"
           />
         </kw-search-item>
       </kw-search-row>
@@ -237,6 +271,9 @@ const searchParams = ref({
   stokContMmCd: '',
   pdCdFrom: '',
   pdCdTo: '',
+  itmPdCd: '',
+  strtSapCd: '',
+  endSapCd: '',
 });
 
 searchParams.value.startDt = dayjs().set('date', 1).format('YYYYMMDD');
@@ -287,6 +324,7 @@ let cachedParams;
 const totalCount = ref(0);
 
 async function fetchData() {
+  console.log('searchParams.value >>>', searchParams.value);
   cachedParams = cloneDeep(searchParams.value);
   const res = await dataService.get(`${baseUrl}`, { params: cachedParams });
   const list = res.data;
