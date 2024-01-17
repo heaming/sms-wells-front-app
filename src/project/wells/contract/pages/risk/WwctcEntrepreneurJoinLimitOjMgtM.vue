@@ -243,6 +243,7 @@ async function onClickDelete() {
   const deletedRows = await gridUtil.confirmDeleteCheckedRows(view);
 
   const deleteKeys = deletedRows.map((row) => row.sellLmId);
+  notify(t('MSG_ALT_DELETED'));
 
   if (deleteKeys.length) {
     await dataService.delete('/sms/wells/contract/sales-limits/business-partners', { data: deleteKeys });
