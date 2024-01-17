@@ -35,9 +35,6 @@
           v-model:dgr1-levl-og-id="searchParams.mgtDept"
           v-model:dgr2-levl-og-id="searchParams.rgnlGrp"
           v-model:dgr3-levl-og-id="searchParams.branch"
-          v-model:dgr1-levl-og="searchParams.dgr1LevlOg"
-          v-model:dgr2-levl-og="searchParams.dgr2LevlOg"
-          v-model:dgr3-levl-og="searchParams.dgr3LevlOg"
           use-og-level="3"
           :use-partner="false"
           dgr1-levl-og-required
@@ -47,6 +44,7 @@
           dgr1-levl-og-label="ogCdNm"
           dgr2-levl-og-label="ogCdNm"
           dgr3-levl-og-label="ogCdNm"
+          :disable="true"
         />
       </kw-search-row>
       <kw-search-row>
@@ -134,10 +132,6 @@ const searchParams = ref({
   branch: '', // 지점
   zipFrom: '', // 우편번호
   zipTo: '',
-  dgr1LevlOg: {},
-  dgr2LevlOg: {},
-  dgr3LevlOg: {},
-  partner: {},
   dgr1LevlOgId: '',
   dgr2LevlOgId: '',
   dgr3LevlOgId: '',
