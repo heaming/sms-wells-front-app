@@ -828,7 +828,7 @@ const wpAndBrchColumnLayout = [
   {
     header: t('MSG_TXT_ACL_ACTI'),
     direction: 'horizontal',
-    items: ['tbOgMgtPpl', 'tOgMgtPpl', 'bOgMgtPpl', 'ogMgtPpl', 'aOgMgtPpl'],
+    items: ['tbActi', 'tActi', 'bActi', 'acti', 'aActi'],
   },
   {
     header: t('MSG_TXT_REDF_FEE'),
@@ -1132,11 +1132,11 @@ function initGrid(data, view) {
     { fieldName: 'fxam', dataType: 'number' },
     { fieldName: 'aFxam', dataType: 'number' },
     { fieldName: 'tbEnvrElhmExcp', dataType: 'number' },
-    { fieldName: 'col163', dataType: 'number' },
-    { fieldName: 'col164', dataType: 'number' },
-    { fieldName: 'col165', dataType: 'number' },
-    { fieldName: 'col166', dataType: 'number' },
-    { fieldName: 'col167', dataType: 'number' },
+    { fieldName: 'tbActi', dataType: 'number' },
+    { fieldName: 'tActi', dataType: 'number' },
+    { fieldName: 'bActi', dataType: 'number' },
+    { fieldName: 'acti', dataType: 'number' },
+    { fieldName: 'aActi', dataType: 'number' },
     { fieldName: 'wpEnvrPrRedf', dataType: 'number' },
     { fieldName: 'wpEnvrExcpPrRedf', dataType: 'number' },
     { fieldName: 'wpPrSellEncrgRedf', dataType: 'number' },
@@ -1434,11 +1434,11 @@ function initGrid(data, view) {
     { fieldName: 'aOgMgtPpl', header: t('MSG_TXT_REDF_AF_PERF'), width: '100', styleName: 'text-right', numberFormat: '#,##0' },
 
     // 실활동
-    { fieldName: 'col163', header: t('MSG_TXT_BLNG_LSTMM_PERF'), width: '100', styleName: 'text-right', numberFormat: '#,##0' },
-    { fieldName: 'col164', header: t('MSG_TXT_BLNG_MM_PERF'), width: '100', styleName: 'text-right', numberFormat: '#,##0' },
-    { fieldName: 'col165', header: t('MSG_TXT_REDF_BF_PERF'), width: '100', styleName: 'text-right', numberFormat: '#,##0' },
-    { fieldName: 'col166', header: t('MSG_TXT_REDF_PERF1'), width: '100', styleName: 'text-right', numberFormat: '#,##0' },
-    { fieldName: 'col167', header: t('MSG_TXT_REDF_AF_PERF'), width: '100', styleName: 'text-right', numberFormat: '#,##0' },
+    { fieldName: 'tbActi', header: t('MSG_TXT_BLNG_LSTMM_PERF'), width: '100', styleName: 'text-right', numberFormat: '#,##0' },
+    { fieldName: 'tActi', header: t('MSG_TXT_BLNG_MM_PERF'), width: '100', styleName: 'text-right', numberFormat: '#,##0' },
+    { fieldName: 'bActi', header: t('MSG_TXT_REDF_BF_PERF'), width: '100', styleName: 'text-right', numberFormat: '#,##0' },
+    { fieldName: 'acti', header: t('MSG_TXT_REDF_PERF1'), width: '100', styleName: 'text-right', numberFormat: '#,##0' },
+    { fieldName: 'aActi', header: t('MSG_TXT_REDF_AF_PERF'), width: '100', styleName: 'text-right', numberFormat: '#,##0' },
 
   ];
 
