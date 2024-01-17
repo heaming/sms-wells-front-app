@@ -33,6 +33,7 @@
         <kw-search-item :label="t('MSG_TXT_PSTN_DV')">
           <kw-select
             v-model="searchParams.pstnDvCd"
+            :disable="gridType.type === 'second'"
             :options="codes.DDTN_RPLC_WELLS_PSTN_DV_CD"
           />
         </kw-search-item>
@@ -89,13 +90,13 @@
         </template>
 
         <!-- 테스트용 재지급팝업 연결 -->
-        <kw-btn
+        <!-- <kw-btn
           v-permission:read
           primary
           dense
           :label="t('MSG_BTN_ADSB_POP')"
           @click="onClickTest"
-        />
+        /> -->
 
         <kw-btn
           v-permission:download
@@ -349,18 +350,26 @@ async function onClickAdsbObjAndAmtCreate() {
   }
 }
 
-async function onClickTest() {
-  const result = await modal({
-    component: 'WwdebAgainDisbursementDetailP',
-    componentProps: {
-      prtnrNo: searchParams.value.prtnrNo,
-      ogTpCd: searchParams.value.ogTpCd,
-    },
-  });
-  if (result) {
-    await onClickSearch();
+// async function onClickTest() {
+//   const result = await modal({
+//     component: 'WwdebAgainDisbursementDetailP',
+//     componentProps: {
+//       prtnrNo: searchParams.value.prtnrNo,
+//       ogTpCd: searchParams.value.ogTpCd,
+//     },
+//   });
+//   if (result) {
+//     await onClickSearch();
+//   }
+// }
+
+watch(() => gridType.value.type, async (newVal) => {
+  if (newVal === 'main') {
+    searchParams.value.pstnDvCd = codes.DDTN_RPLC_WELLS_PSTN_DV_CD[0].codeId;
+  } else {
+    searchParams.value.pstnDvCd = '';
   }
-}
+});
 
 // -------------------------------------------------------------------------------------------------
 // Initialize Grid
@@ -383,7 +392,7 @@ function initGrid(data, view) {
   const columns = [
     { fieldName: 'redfAdsbOcYm',
       header: t('MSG_TXT_YEAR_OCCURNCE'),
-      width: '120',
+      width: '100',
       styleName: 'text-center',
       datetimeFormat: 'YYYY-MM',
       headerSummary: {
@@ -391,16 +400,16 @@ function initGrid(data, view) {
         styleName: 'text-center',
       },
     },
-    { fieldName: 'perfYm', header: t('MSG_TXT_PERF_YM'), width: '120', styleName: 'text-center', datetimeFormat: 'YYYY-MM' },
-    { fieldName: 'ogCd', header: t('MSG_TXT_BLG_CD'), width: '120', styleName: 'text-center' },
-    { fieldName: 'prtnrNo', header: t('MSG_TXT_PRTNR_NUMBER'), width: '120', styleName: 'text-center' },
-    { fieldName: 'prtnrKnm', header: t('MSG_TXT_EMPL_NM'), width: '120', styleName: 'text-center' },
-    { fieldName: 'rsbDvNm', header: t('MSG_TXT_RSB'), width: '120', styleName: 'text-center' },
-    { fieldName: 'cltnYm', header: t('MSG_TXT_CLTN_YM'), width: '120', styleName: 'text-center', datetimeFormat: 'YYYY-MM' },
-    { fieldName: 'redfAdsbDvNm', header: t('MSG_TXT_DSB_DV'), width: '120', styleName: 'text-center' },
+    { fieldName: 'perfYm', header: t('MSG_TXT_PERF_YM'), width: '100', styleName: 'text-center', datetimeFormat: 'YYYY-MM' },
+    { fieldName: 'ogCd', header: t('MSG_TXT_BLG_CD'), width: '100', styleName: 'text-center' },
+    { fieldName: 'prtnrNo', header: t('MSG_TXT_PRTNR_NUMBER'), width: '100', styleName: 'text-center' },
+    { fieldName: 'prtnrKnm', header: t('MSG_TXT_EMPL_NM'), width: '100', styleName: 'text-center' },
+    { fieldName: 'rsbDvNm', header: t('MSG_TXT_RSB'), width: '100', styleName: 'text-center' },
+    { fieldName: 'cltnYm', header: t('MSG_TXT_CLTN_YM'), width: '100', styleName: 'text-center', datetimeFormat: 'YYYY-MM' },
+    { fieldName: 'redfAdsbDvNm', header: t('MSG_TXT_DSB_DV'), width: '100', styleName: 'text-center' },
     { fieldName: 'prAdsbAmt',
       header: t('MSG_TXT_INDV'),
-      width: '120',
+      width: '100',
       styleName: 'text-right',
       numberFormat: '#,##0',
       headerSummary: {
@@ -410,7 +419,7 @@ function initGrid(data, view) {
     },
     { fieldName: 'ogAdsbAmt',
       header: t('MSG_TXT_OG'),
-      width: '120',
+      width: '100',
       styleName: 'text-right',
       numberFormat: '#,##0',
       headerSummary: {
@@ -420,7 +429,7 @@ function initGrid(data, view) {
     },
     { fieldName: 'sumAdsbAmt',
       header: t('MSG_TXT_ADSB_AMT_SUM'),
-      width: '258',
+      width: '200',
       styleName: 'text-right',
       numberFormat: '#,##0',
       headerSummary: {
