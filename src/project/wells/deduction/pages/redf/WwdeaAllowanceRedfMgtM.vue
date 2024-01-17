@@ -706,7 +706,15 @@ function initGrid2(data, view) {
     { fieldName: 'ogCd', header: t('MSG_TXT_BLG_CD'), width: '100', styleName: 'text-center' },
     { fieldName: 'prtnrKnm', header: t('MSG_TXT_SELL_NM'), width: '100', styleName: 'text-center' },
     { fieldName: 'prtnrNo', header: t('MSG_TXT_PRTNR_NUMBER'), width: '140', styleName: 'text-center' },
-    { fieldName: 'cntrNoSn', header: t('MSG_TXT_CNTR_DTL_NO'), width: '140', styleName: 'text-center' },
+    { fieldName: 'cntrNoSn',
+      header: t('MSG_TXT_CNTR_DTL_NO'),
+      width: '140',
+      styleName: 'text-center',
+      displayCallback(grid, index) {
+        const { cntrNo, cntrSn } = grid.getValues(index.itemIndex);
+        return `${cntrNo}-${cntrSn}`;
+      },
+    },
     { fieldName: 'cstKnm', header: t('MSG_TXT_CUST_STMT'), width: '100', styleName: 'text-center' },
     { fieldName: 'pdCd', header: t('MSG_TXT_PROD_CD'), width: '140', styleName: 'text-center' },
     { fieldName: 'pdClsfNm', header: t('MSG_TXT_GOODS_NM'), width: '100', styleName: 'text-left' },
