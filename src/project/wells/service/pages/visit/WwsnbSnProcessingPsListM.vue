@@ -362,7 +362,7 @@ const initMainGrid = defineGrid((data, view) => {
 
   view.onCellItemClicked = async (grid, { column, dataRow }) => {
     // TODO: 고객서명 이미지 uid -> 현재 vs106 값 이행 안된듯
-    const { cntrNo, cntrSn, cstSvAsnNo, cstSignCn } = gridUtil.getRowValue(grid, dataRow);
+    const { cntrNo, cntrSn, cstSvAsnNo } = gridUtil.getRowValue(grid, dataRow);
 
     if (column === 'cstNo') {
       router.push({
@@ -378,14 +378,16 @@ const initMainGrid = defineGrid((data, view) => {
         componentProps: { svAsnNo: cstSvAsnNo },
       });
     } else if (column === 'cstSign') {
+      const cstSignCn = dataService.get('/sms/wells/service/sn-processing-ps/cstSignCn', { params: cstSvAsnNo });
+
       if (!cstSignCn || cstSignCn === '') {
         alert('서명 데이터 없음');
         return;
       }
 
       await modal({
-        component: 'ZwcmzImagePreviewP',
-        componentProps: { files: [cstSignCn] }, // fileUid만 주면 됨
+        component: 'WwsnzSignPreviewP',
+        componentProps: { sign: cstSignCn }, // fileUid만 주면 됨
       });
     }
   };
