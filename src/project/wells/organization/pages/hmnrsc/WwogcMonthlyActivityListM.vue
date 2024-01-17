@@ -286,6 +286,8 @@ watch(() => searchParams.value.ogTpCd, async (newVal) => {
     view.setColumnProperty('metgPrscDcYn', 'visible', false);
     view.setColumnProperty('edu11Yn', 'visible', false);
     view.setColumnProperty('edu17Yn', 'visible', false);
+    view.setColumnProperty('prfmtMon', 'visible', true);
+    view.setColumnProperty('ejtPersonCt', 'visible', true);
     view.setColumnProperty('lcvcnt', 'header', t('MSG_TXT_MNGT_PD') + t('MSG_TXT_COUNT'));
     view.setColumnLayout([
       'baseYm',
@@ -330,7 +332,7 @@ watch(() => searchParams.value.ogTpCd, async (newVal) => {
         direction: 'horizontal', // merge type
         items: ['edu11Yn', 'edu17Yn'],
       },
-      'lcvcnt', 'fnlCltnDtYn',
+      'lcvcnt', 'fnlCltnDtYn', 'prfmtMon', 'ejtPersonCt',
     ]);
     view.resetCurrent();
     data.clearRows();
@@ -371,6 +373,8 @@ watch(() => searchParams.value.ogTpCd, async (newVal) => {
     view.setColumnProperty('metgPrscDcYn', 'visible', true);
     view.setColumnProperty('edu11Yn', 'visible', true);
     view.setColumnProperty('edu17Yn', 'visible', true);
+    view.setColumnProperty('prfmtMon', 'visible', false);
+    view.setColumnProperty('ejtPersonCt', 'visible', false);
     view.setColumnProperty('lcvcnt', 'header', t('MSG_TXT_BF_SV_ACC'));
     view.setColumnLayout([
       'baseYm',
@@ -415,7 +419,7 @@ watch(() => searchParams.value.ogTpCd, async (newVal) => {
         direction: 'horizontal', // merge type
         items: ['edu11Yn', 'edu17Yn'],
       },
-      'lcvcnt', 'fnlCltnDtYn',
+      'lcvcnt', 'fnlCltnDtYn', 'prfmtMon', 'ejtPersonCt',
     ]);
     view.resetCurrent();
     data.clearRows();
@@ -544,6 +548,17 @@ const initGrid = defineGrid((data, view) => {
       header: `3${t('MSG_TXT_REG_IN_MN')}`,
       width: '160',
       styleName: 'text-center' },
+    { fieldName: 'prfmtMon',
+      header: t('MSG_TXT_PRFMT_MON'),
+      datetimeFormat: 'YYYY-MM',
+      width: '104',
+      visible: searchParams.value.ogTpCd === 'W01',
+      styleName: 'text-center' },
+    { fieldName: 'ejtPersonCt',
+      header: `${t('MSG_TXT_EJT_CT')}(${t('MSG_TXT_PERSONS')})`,
+      width: '120',
+      visible: searchParams.value.ogTpCd === 'W01',
+      styleName: 'text-center' },
   ];
 
   data.setFields(columns.map(({ fieldName, dataType }) => (dataType ? { fieldName, dataType } : { fieldName })));
@@ -595,7 +610,7 @@ const initGrid = defineGrid((data, view) => {
       direction: 'horizontal', // merge type
       items: ['edu11Yn', 'edu17Yn'],
     },
-    'lcvcnt', 'fnlCltnDtYn',
+    'lcvcnt', 'fnlCltnDtYn', 'prfmtMon', 'ejtPersonCt',
   ]);
 });
 
