@@ -116,6 +116,7 @@
           <kw-select
             v-model="searchParams.stRtngdProcsTpCd"
             :options="codes.RTNGD_PROCS_TP_CD"
+            first-option=""
           />
         </kw-search-item>
       </kw-search-row>
@@ -192,6 +193,7 @@
           :options="codes.RTNGD_PROCS_TP_CD"
           dense
           class="w130"
+          first-option=""
         />
         <!-- 반품처리유형 일괄변경 -->
         <kw-btn
@@ -308,9 +310,6 @@ const filterCodes = ref({
 // 코드값 필터링
 filterCodes.value.filterPdGdCd = codes.PD_GD_CD.filter((v) => ['A', 'B', 'E', 'R', 'X'].includes(v.codeId));
 filterCodes.value.filterSvBizDclsfCd = codes.SV_BIZ_DCLSF_CD.filter((v) => ['3420', '3410', '3488', '3210', '3230', '3112'].includes(v.codeId));
-
-// 반품처리유형 코드값 첫번째 자리에 빈값추가
-codes.RTNGD_PROCS_TP_CD.unshift({ codeId: '', codeName: '' });
 
 // 조회용 파라미터
 const searchParams = ref({
