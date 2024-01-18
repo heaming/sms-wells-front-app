@@ -117,7 +117,9 @@
         <kw-form-item
           :label="t('MSG_TXT_ACL_PY_ET_AMT')"
         >
-          <p class="kw-fc--black1 text-right ml16">
+          <p
+            class="kw-fc--black1 text-right ml16"
+          >
             {{ stringUtil.getNumberWithComma(toInteger(returnData.prmExpAmt)) }}
           </p>
         </kw-form-item>
@@ -134,7 +136,11 @@
           />
           -->
           <p class="kw-fc--black1 text-right ml16">
-            {{ returnData.cntrChDtlAkCn }}
+            <span
+              style="color: red;"
+            >
+              {{ returnData.cntrChDtlAkCn }}
+            </span>
           </p>
         </kw-form-item>
       </kw-form-row>
@@ -213,7 +219,13 @@ const returnData = ref({
 async function fetchData() {
   const res = await dataService.get('/sms/wells/withdrawal/pchssl/prepayment-et-amt', { params: cachedParams });
   if (!isEmpty(res.data[0])) {
-    returnData.value = res.data[0];
+    if (!isEmpty(res.data[0].cntrChDtlAkCn)) {
+      returnData.value.cntrChDtlAkCn = res.data[0].cntrChDtlAkCn;
+    } else {
+      returnData.value = res.data[0];
+    }
+  } else {
+    returnData.value.cntrChDtlAkCn = '실적작업　완료　후　조회(or 처리)가능합니다！';
   }
 }
 
