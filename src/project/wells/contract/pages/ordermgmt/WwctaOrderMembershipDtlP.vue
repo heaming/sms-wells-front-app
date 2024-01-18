@@ -71,7 +71,7 @@
         <kw-form-item :label="$t('MSG_TXT_ORG_ODER_INF')">
           <kw-input
             v-model="frmMainData.ordCnfp"
-            placeholder=""
+            :placeholder="$t('MSG_TXT_ORG_ODER_INF')"
             readonly
           />
         </kw-form-item>
@@ -93,7 +93,7 @@
         <!-- 조직코드 -->
         <kw-form-item :label="$t('MSG_TXT_OG_CD')">
           <kw-input
-            v-model="frmMainData.dgr3LevlOgId"
+            v-model="frmMainData.ogCd"
             placeholder=""
             readonly
           />
@@ -341,7 +341,7 @@
         <kw-form-item :label="$t('MSG_TXT_AUTO_FNT_DV')">
           <kw-input
             v-model="frmMainData.mpyMthdTpNm"
-            placeholder=""
+            :placeholder="$t('MSG_TXT_AUTO_FNT_DV')"
             readonly
           />
         </kw-form-item>
@@ -350,14 +350,14 @@
           <!-- 은행/카드사 -->
           <kw-input
             v-model="frmMainData.stlmFnit"
-            placeholder=""
+            :placeholder="$t('MSG_TXT_BNK_CDCO')"
             readonly
           />
           <!-- 이체일 -->
           <kw-input
             v-model="frmMainData.mpyBsdt"
             mask="####-##-##"
-            placeholder=""
+            :placeholder="$t('MSG_TXT_FTD')"
             readonly
           />
         </kw-form-item>
@@ -365,7 +365,7 @@
         <kw-form-item :label="$t('MSG_TXT_AC_CDNO')">
           <kw-input
             v-model="frmMainData.aftnInf"
-            placeholder=""
+            :placeholder="$t('MSG_TXT_AC_CDNO')"
             readonly
           />
         </kw-form-item>
@@ -373,7 +373,7 @@
         <kw-form-item :label="$t('MSG_TXT_CARD')+$t('MSG_TXT_VL_YM')">
           <kw-input
             v-model="frmMainData.cardExpdtYm"
-            placeholder=""
+            :placeholder="$t('MSG_TXT_VL_YM')"
             readonly
           />
         </kw-form-item>
@@ -390,7 +390,7 @@
         <kw-form-item :label="$t('MSG_TXT_CTT_D')">
           <kw-input
             v-model="frmMainData.cttFshDt"
-            placeholder=""
+            :placeholder="$t('MSG_TXT_CTT_D')"
             readonly
           />
         </kw-form-item>
@@ -398,7 +398,7 @@
         <kw-form-item :label="$t('MSG_TXT_CTT_ICHR')">
           <kw-input
             v-model="frmMainData.cttRsNmUsrId"
-            placeholder=""
+            :placeholder="$t('MSG_TXT_CTT_ICHR')"
             readonly
           />
         </kw-form-item>
@@ -410,13 +410,13 @@
           <!-- 컨택코드 -->
           <kw-input
             v-model="frmMainData.cttRsCd"
-            placeholder=""
+            :placeholder="$t('MSG_TXT_CTT_CD')"
             readonly
           />
           <!-- 컨택내용 -->
           <kw-input
             v-model="frmMainData.cttRsNm"
-            placeholder=""
+            :placeholder="$t('MSG_TXT_CTT_CNTN')"
             readonly
           />
         </kw-form-item>
@@ -523,7 +523,7 @@
           <kw-input
             v-model="frmMainData.txinvPblOjYn"
             align="left"
-            placeholder=""
+            :placeholder="$t('MSG_TXT_TXINV')"
             readonly
           />
         </kw-form-item>
@@ -534,7 +534,7 @@
         >
           <kw-input
             v-model="frmMainData.sconCn"
-            placeholder=""
+            :placeholder="$t('MSG_TXT_SPEC_CNTR_CNTN')"
             readonly
           />
         </kw-form-item>
@@ -557,7 +557,7 @@
           <kw-input
             v-model="frmMainData.feeFxamYn"
             align="left"
-            placeholder="Y"
+            :placeholder="$t('MSG_TXT_SPAY_STPL_YN')"
             readonly
           />
         </kw-form-item>
@@ -566,7 +566,7 @@
           <kw-input
             v-model="frmMainData.frisuCstYn"
             align="left"
-            placeholder=""
+            :placeholder="$t('MSG_TXT_FRISU_CST_YN')"
             readonly
           />
         </kw-form-item>
@@ -778,7 +778,7 @@ const frmMainData = ref({
   ordCnfp: '', // 원주문정보
   sellPrtnrNo: '', // 파트너-번호
   prtnrKnm: '', // 파트너-이름
-  dgr3LevlOgId: '', // 조직코드
+  ogCd: '', // 조직코드
   dgr3LevlDgPrtnrNo: '', // 지점 - 지점장
   dgr3LevlDgPrtnrNm: '', // 지점 - 지점장명
   cntrRcpFshDt: '', // 접수일
@@ -877,7 +877,7 @@ async function fetchData() {
     frmMainData.value.ordCnfp = pages[0].ordCnfp; // 원주문정보
     frmMainData.value.sellPrtnrNo = pages[0].sellPrtnrNo; // 파트너-번호
     frmMainData.value.prtnrKnm = pages[0].prtnrKnm; // 파트너-이름
-    frmMainData.value.dgr3LevlOgId = pages[0].dgr3LevlOgId; // 조직코드
+    frmMainData.value.ogCd = pages[0].ogCd; // 조직코드
     frmMainData.value.dgr3LevlDgPrtnrNo = pages[0].dgr3LevlDgPrtnrNo; // 지점 - 지점장
     frmMainData.value.dgr3LevlDgPrtnrNm = pages[0].dgr3LevlDgPrtnrNm; // 지점 - 지점장명
     frmMainData.value.cntrRcpFshDt = pages[0].cntrRcpFshDt; // 접수일
