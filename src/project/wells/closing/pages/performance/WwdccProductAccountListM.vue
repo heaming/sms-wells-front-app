@@ -99,6 +99,9 @@
     </kw-search>
 
     <div class="result-area">
+      <ul class="kw-notification">
+        <li><span class="kw-fc--primary">{{ t('MSG_ALT_PRODUCT_ACCOUNT_FILE_GUIDE') }}</span></li>
+      </ul>
       <kw-action-top>
         <template #left>
           <kw-paging-info :total-count="totalCount" />
