@@ -321,12 +321,12 @@ async function onClickRemove() {
   const deletedRows = await gridUtil.confirmDeleteCheckedRows(view);
   // deleteKeys needs to be updated as per API
   const deleteKeys = deletedRows.map((row) => row);
-  notify(t('MSG_ALT_DELETED'));
 
   if (deleteKeys.length > 0) {
     await dataService.delete('/sms/wells/contract/contracts/approval-standards', { data: deleteKeys });
     await onClickSearch();
   }
+  notify(t('MSG_ALT_DELETED'));
 }
 
 function onClickAdd() {
