@@ -253,10 +253,10 @@ async function onClickSave() {
   */
 
   if (feeCnfmYn === 'N') { /* 2024.01.18 수정요청 */
-    await alert(t('MSG_ALT_BF_CNFM_MDFC_IMP'));
+    await alert(t('MSG_ALT_HDQ_PERF_CHECK')); // 본부 집계 완료 이전 생성불가
     return;
   } if (opngCnfmYn === 'Y') {
-    await alert(t('MSG_ALT_DATA_ALREADY_CNFM'));
+    await alert(t('MSG_ALT_BF_CNFM_CONF')); // 개시구분 확정 이후 생성불가
     return;
   } if (opngCnfmCnt <= 0) {
     await alert(t('MSG_ALT_DTA_EXST'));
