@@ -326,6 +326,7 @@ async function fetchData() {
   // 방학면제에 따라 컬럼변경
   data.checkRowStates(false);
   data.setRows(pages);
+  view.rowIndicator.indexOffset = gridUtil.getPageIndexOffset(pageInfo);
   // view.resetCurrent();
   data.checkRowStates(true);
 }
@@ -661,6 +662,10 @@ const initGrid1 = defineGrid((data, view) => {
       rules: 'required|min:12|max:17',
       editable: false,
       buttonVisibleCallback(grid, index) {
+        if (index.dataRow < 0) {
+          console.log(index);
+          return false;
+        }
         return grid.getDataSource().getRowState(index.dataRow) === 'created';
       },
     },
@@ -1087,8 +1092,8 @@ const initGrid1 = defineGrid((data, view) => {
       return t('MSG_ALT_SEARCH_CNTR_NO'); // 계약 번호를 검색해 주세요
     }
 
-    if (!(slCtrTpCd === '2')) {
-      if (slCtrAmt < 1) {
+    if (slCtrTpCd !== '2') {
+      if (isEmpty(slCtrAmt)) {
         return t('MSG_ALT_NCSR_CD', [t('MSG_TXT_CTR_AMT')]);
         // 조정금액 은(는) 필수 입력 항목입니다.
       }
@@ -1142,6 +1147,10 @@ const initGrid2 = defineGrid((data, view) => {
       // },
       editable: false,
       buttonVisibleCallback(grid, index) {
+        if (index.dataRow < 0) {
+          console.log(index);
+          return false;
+        }
         return grid.getDataSource().getRowState(index.dataRow) === 'created';
       },
     },
