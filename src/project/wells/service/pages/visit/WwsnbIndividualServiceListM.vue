@@ -566,6 +566,7 @@
 // -------------------------------------------------------------------------------------------------
 import { useDataService, defineGrid, getComponentType, modal, notify, stringUtil, gridUtil, popupUtil, useMeta } from 'kw-lib';
 import { isEmpty } from 'lodash-es';
+import dayjs from 'dayjs';
 import ZctzContractDetailNumber from '~sms-common/contract/components/ZctzContractDetailNumber.vue';
 
 const { t } = useI18n();
@@ -583,6 +584,8 @@ const props = defineProps({
   cntrNo: { type: String, required: true, default: '' },
   cntrSn: { type: String, required: true, default: '' },
 });
+
+const today = dayjs().format('YYYYMMDD');
 
 // -------------------------------------------------------------------------------------------------
 // Function & Event
@@ -844,6 +847,54 @@ onMounted(async () => {
   }
 });
 
+// function isAfterMonth(paramYm) {
+//   if (isEmpty(paramYm)) {
+//     return false;
+//   } if (paramYm.length < 6) {
+//     return false;
+//   }
+
+//   console.log(`cherro ::: ${paramYm.substring(0, 6)}`);
+
+//   if (todayYm <= paramYm.substring(0, 6)) {
+//     return true;
+//   }
+//   return false;
+// }
+/*
+ *  처리결과 Column Link 설정을 위한 function
+ */
+function isProcLink(strProcStus, strVstFshDt, strSvBizHclsfCd) {
+  // 작업진행상태코드, 처리일자, 서비스대분류 중 하나라도 없을 경우 Link 제거
+  if (isEmpty(strProcStus) || isEmpty(strVstFshDt) || isEmpty(strSvBizHclsfCd)) {
+    return false;
+  }
+
+  if (strVstFshDt.length < 8) {
+    return false;
+  }
+
+  if (strProcStus === '00' || strProcStus === '10') {
+    // 작업대기 00 , 작업중 10 인 경우(유형 AS(or 설치) : 조건 없이 모두 링크 가능 / 유형 BS : 당월만 링크 가능)
+    // BS인 경우
+    if (strSvBizHclsfCd === '2') {
+      if (strVstFshDt.substring(0, 6) === today.substring(0, 6)) {
+        return true;
+      }
+      return false;
+    }
+    // BS가 아닌 경우
+    return true;
+  } if (strProcStus === '20') {
+    // 작업완료 20 - 당일 이후는 링크가능 그외는 X
+    if (strVstFshDt.substring(0, 8) >= today) {
+      return true;
+    }
+  }
+
+  return false;
+}
+
 // -------------------------------------------------------------------------------------------------
 // Function & Event
 // -------------------------------------------------------------------------------------------------
@@ -960,11 +1011,13 @@ const initGridState = defineGrid((data, view) => {
       width: '100',
       styleName: 'text-center',
       styleCallback(grid, dataCell) {
-        const { procStus, taikYn } = grid.getValues(dataCell.index.itemIndex);
+        const { procStus, taikYn, vstFshDt, svBizHclsfCd } = grid.getValues(dataCell.index.itemIndex);
         if (taikYn === 'Y') {
           return { renderer: { type: 'text' } };
         }
-        return (procStus === '00' || procStus === '10' || procStus === '20') ? { styleName: 'rg-button-link', renderer: { type: 'button' } } : { renderer: { type: 'text' } };
+        // return (procStus === '00' || procStus === '10' || procStus === '20')
+        // ? { styleName: 'rg-button-link', renderer: { type: 'button' } } : { renderer: { type: 'text' } };
+        return isProcLink(procStus, vstFshDt, svBizHclsfCd) ? { styleName: 'rg-button-link', renderer: { type: 'button' } } : { renderer: { type: 'text' } };
       },
     },
     { fieldName: 'asCaus', header: t('MSG_TXT_PROCS_IZ'), width: '100' },
@@ -1036,9 +1089,11 @@ const initGridState = defineGrid((data, view) => {
         procStus,
         cntrNo,
         cntrSn,
+        vstFshDt,
       } = g.getValues(cData.itemIndex);
 
-      if (procStus === '00' || procStus === '10' || procStus === '20') {
+      // if (procStus === '00' || procStus === '10' || procStus === '20') {
+      if (isProcLink(procStus, vstFshDt, svBizHclsfCd)) {
         const bypassPrtnrNo = prtnrNo;
         const wkPrgsStatCd = procStus;
 
