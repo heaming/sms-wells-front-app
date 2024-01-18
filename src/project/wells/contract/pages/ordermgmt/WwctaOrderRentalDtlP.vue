@@ -112,7 +112,7 @@
         <!-- 조직코드 -->
         <kw-form-item :label="$t('MSG_TXT_OG_CD')">
           <kw-input
-            v-model="frmMainData.dgr3LevlOgId"
+            v-model="frmMainData.dgr3LevlOgCd"
             placeholder=""
             readonly
           />
@@ -1736,7 +1736,7 @@ const frmMainData = ref({
   alncPrtnrDrmDvNm: '', // 조직구분명
   cntrtRelNm: '', // 관계구분
   lcck07: '', // 주문입력구분
-  dgr3LevlOgId: '', // 조직코드
+  dgr3LevlOgCd: '', // 조직코드
   dgr3LevlDgPrtnrNo: '', // 지점 - 지점장
   dgr3LevlDgPrtnrNm: '', // 지점 - 지점장명
   ftfDvCd: '', // 총판대면
@@ -1951,7 +1951,7 @@ async function fetchData() {
     frmMainData.value.alncPrtnrDrmDvNm = pages[0].alncPrtnrDrmDvNm; // 조직구분명
     frmMainData.value.cntrtRelNm = pages[0].cntrtRelNm; // 관계구분
     frmMainData.value.lcck07 = pages[0].lcck07; // 주문입력구분
-    frmMainData.value.dgr3LevlOgId = pages[0].dgr3LevlOgId; // 조직코드
+    frmMainData.value.dgr3LevlOgCd = pages[0].dgr3LevlOgCd; // 조직코드
     frmMainData.value.dgr3LevlDgPrtnrNo = pages[0].dgr3LevlDgPrtnrNo; // 지점 - 지점장
     frmMainData.value.dgr3LevlDgPrtnrNm = pages[0].dgr3LevlDgPrtnrNm; // 지점 - 지점장명
     frmMainData.value.ftfDvCd = pages[0].ftfDvCd; // 총판대면
