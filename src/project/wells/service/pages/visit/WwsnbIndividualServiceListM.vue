@@ -864,13 +864,13 @@ onMounted(async () => {
 /*
  *  처리결과 Column Link 설정을 위한 function
  */
-function isProcLink(strProcStus, strVstFshDt, strSvBizHclsfCd, reqDt) {
+function isProcLink(strProcStus, strVstFshDt, strSvBizHclsfCd, strReqDt) {
   // 작업진행상태코드, 요청일자, 서비스대분류 중 하나라도 없을 경우 Link 제거
-  if (isEmpty(strProcStus) || isEmpty(reqDt) || isEmpty(strSvBizHclsfCd)) {
+  if (isEmpty(strProcStus) || isEmpty(strReqDt) || isEmpty(strSvBizHclsfCd)) {
     return false;
   }
 
-  if (reqDt.length < 8) {
+  if (strReqDt.length < 8) {
     return false;
   }
 
@@ -878,7 +878,7 @@ function isProcLink(strProcStus, strVstFshDt, strSvBizHclsfCd, reqDt) {
     // 작업대기 00 , 작업중 10 인 경우(유형 AS(or 설치) : 조건 없이 모두 링크 가능 / 유형 BS : 요청일자가 당월인것만 링크 가능)
     // BS인 경우
     if (strSvBizHclsfCd === '2') {
-      if (reqDt.substring(0, 6) === today.substring(0, 6)) {
+      if (strReqDt.substring(0, 6) === today.substring(0, 6)) {
         return true;
       }
       return false;
