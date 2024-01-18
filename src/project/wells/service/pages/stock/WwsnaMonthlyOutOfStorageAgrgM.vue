@@ -61,40 +61,49 @@
         </kw-search-item>
       </kw-search-row>
       <kw-search-row>
+        <!-- SAP코드 -->
         <kw-search-item
-          :label="$t('MSG_TXT_GD')"
-          :colspan="2"
+          :label="$t('MSG_TXT_SAPCD')"
+          :colspan="3"
         >
-          <kw-select
-            v-model="searchParams.itmGdCd"
-            first-option="all"
-            :options="codes.PD_GD_CD.filter((v) => ['A', 'B', 'E', 'R', 'X'].includes(v.codeId))"
+          <kw-input
+            v-model="searchParams.strtSapCd"
+            :label="$t('MSG_TXT_STRT_SAP_CD')"
+            rules="numeric|max:18"
+            @change="onChangeStrtSapCd"
+          />
+          <span>~</span>
+          <kw-input
+            v-model="searchParams.endSapCd"
+            :label="$t('MSG_TXT_END_SAP_CD')"
+            rules="numeric|max:18"
+            @change="onChangeEndSapCd"
           />
         </kw-search-item>
-        <kw-search-item
-          :label="$t('MSG_TXT_USE_SEL')"
-          :colspan="2"
-        >
-          <kw-select
-            v-model="searchParams.useYn"
-            first-option="all"
-            :options="codes.USE_YN"
-          />
-        </kw-search-item>
+        <!-- 품목구분 -->
         <kw-search-item
           :label="$t('MSG_TXT_ITM_DV')"
-          :colspan="3"
+          :colspan="4"
         >
           <kw-select
             v-model="searchParams.itmKndCd"
-            :colspan="3"
-            :options="codes.ITM_KND_CD.filter((v) => ['4', '5', '6','7','9'].includes(v.codeId))"
-            @change="onChangeItmKndCd"
+            :options="codes.ITM_KND_CD"
+            first-option="all"
+            @change="onChangeItmDvCd"
+          />
+          <kw-select
+            v-model="searchParams.itmGrpCd"
+            :options="codes.PD_GRP_CD"
+            first-option="all"
+            @change="onChangeItmDvCd"
           />
           <kw-select
             v-model="searchParams.itmPdCd"
-            :options="productCodes"
+            :options="optionsItmPdCd"
+            option-value="pdCd"
+            option-label="pdNm"
             first-option="all"
+            @change="onChangePdCd"
           />
         </kw-search-item>
         <kw-search-item
@@ -105,6 +114,53 @@
             v-model="searchParams.wareUseYn"
             :options="customCodes.wareUseYn"
             first-option="all"
+          />
+        </kw-search-item>
+      </kw-search-row>
+      <kw-search-row>
+        <!-- 품목코드 -->
+        <kw-search-item
+          :label="$t('MSG_TXT_ITM_CD')"
+          :colspan="3"
+        >
+          <kw-input
+            v-model="searchParams.itmPdCd"
+            upper-case
+            type="text"
+            :label="$t('MSG_TXT_ITM_CD')"
+            rules="alpha_num|max:10"
+            @change="onChangePdCd"
+          />
+        </kw-search-item>
+        <kw-search-item
+          :label="$t('MSG_TXT_GD')"
+          :colspan="2"
+        >
+          <kw-select
+            v-model="searchParams.itmGdCd"
+            first-option="all"
+            :options="codes.PD_GD_CD"
+          />
+        </kw-search-item>
+        <!-- 자재그룹 -->
+        <kw-search-item
+          :label="t('TXT_MSG_SAP_MAT_GRP_VAL')"
+          :colspan="2"
+        >
+          <kw-select
+            v-model="searchParams.svMatGrpCd"
+            :options="codes.SV_MAT_GRP_CD"
+            first-option="all"
+          />
+        </kw-search-item>
+        <kw-search-item
+          :label="$t('MSG_TXT_USE_SEL')"
+          :colspan="2"
+        >
+          <kw-select
+            v-model="searchParams.useYn"
+            first-option="all"
+            :options="codes.USE_YN"
           />
         </kw-search-item>
       </kw-search-row>
@@ -134,7 +190,7 @@
             dense
             :model-value="matUtlzOptions"
             type="checkbox"
-            :options="codes.MAT_UTLZ_DV_CD.filter((v) => ['01','02'].includes(v.codeId))"
+            :options="codes.MAT_UTLZ_DV_CD"
             @change="onChangeMatUtlzDvCd"
           />
         </li>
@@ -154,7 +210,7 @@
 // -------------------------------------------------------------------------------------------------
 
 import { getComponentType, defineGrid, gridUtil, useDataService, codeUtil, validate } from 'kw-lib';
-import { cloneDeep } from 'lodash-es';
+import { cloneDeep, isEmpty } from 'lodash-es';
 import dayjs from 'dayjs';
 import ZwcmWareHouseSearch from '~sms-common/service/components/ZwsnzWareHouseSearch.vue';
 
@@ -177,6 +233,8 @@ const codes = await codeUtil.getMultiCodes(
   'WARE_DTL_DV_CD',
   'MAT_UTLZ_DV_CD',
   'USE_YN',
+  'PD_GRP_CD',
+  'SV_MAT_GRP_CD',
 );
 const customCodes = {
   wareUseYn: [
@@ -197,10 +255,14 @@ const searchParams = ref({
   wareNoM: '', // 조직창고
   wareNoD: '', // 개인창고
   wareUseYn: '', // 창고 사용여부
-  itmGdCd: 'A', // 등급
-  itmKndCd: '4', // 품목구분
+  itmGdCd: '', // 등급
+  itmKndCd: '', // 품목구분
   itmPdCd: '', // 품목
   useYn: '', // 사용여부
+  itmPdCds: [],
+  itmGrpCd: '',
+  strtSapCd: '',
+  endSapCd: '',
 });
 
 let gridView;
@@ -209,7 +271,6 @@ let fieldsObj;
 
 const totalCount = ref(0);
 const initTotalCount = ref(0);
-const productCodes = ref();
 const matUtlzOptions = ref([]);
 
 // 창고구분 변경 시, 창고상세구분 세팅
@@ -243,13 +304,64 @@ watch(() => searchParams.value.wareDvCd, (val) => {
   }
   onChangeWareDvCd();
 });
-// 창고구분 변경시, 창고상세구분 세팅 END
 
-// 품목구분 변경시, 품목 목록 조회 셋팅
-async function onChangeItmKndCd() {
-  const res = await dataService.get(`/sms/wells/service/bs-consumables/${searchParams.value.itmKndCd}/product-codes`);
-  productCodes.value = res.data.map((v) => ({ codeId: v.svpdPdCd, codeName: v.svpdNmKor }));
+// SAP 시작코드 변경 시
+function onChangeStrtSapCd() {
+  const { strtSapCd, endSapCd } = searchParams.value;
+
+  if (!isEmpty(strtSapCd) && !isEmpty(endSapCd) && strtSapCd > endSapCd) {
+    searchParams.value.strtSapCd = strtSapCd;
+    searchParams.value.endSapCd = strtSapCd;
+  }
 }
+
+// SAP 종료코드 변경 시
+function onChangeEndSapCd() {
+  const { strtSapCd, endSapCd } = searchParams.value;
+
+  if (!isEmpty(strtSapCd) && !isEmpty(endSapCd) && strtSapCd > endSapCd) {
+    searchParams.value.strtSapCd = endSapCd;
+    searchParams.value.endSapCd = endSapCd;
+  }
+}
+
+// 품목구분 변경
+const optionsItmPdCd = ref();
+const optionsAllItmPdCd = ref();
+
+const getProducts = async () => {
+  const result = await dataService.get('/sms/wells/service/monthly-by-stock-state/products');
+  const pdCds = result.data.map((v) => v.pdCd);
+  optionsItmPdCd.value = result.data.filter((v, i) => pdCds.indexOf(v.pdCd) === i);
+  optionsAllItmPdCd.value = result.data;
+};
+
+const onChangeItmDvCd = () => {
+  searchParams.value.itmPdCds = [];
+  const { itmKndCd, itmGrpCd } = searchParams.value;
+
+  if (isEmpty(itmKndCd) && isEmpty(itmGrpCd)) {
+    const pdCds = optionsAllItmPdCd.value.map((v) => v.pdCd);
+    optionsItmPdCd.value = optionsAllItmPdCd.value.filter((v, i) => pdCds.indexOf(v.pdCd) === i);
+    return;
+  }
+
+  const filterPdInfos = optionsAllItmPdCd.value.filter(
+    (v) => (isEmpty(itmKndCd) || itmKndCd === v.itmKndCd) && (isEmpty(itmGrpCd) || itmGrpCd === v.itmGrpCd),
+  );
+
+  if (isEmpty(itmGrpCd)) {
+    const pdCds = filterPdInfos.map((v) => v.pdCd);
+    optionsItmPdCd.value = filterPdInfos.filter((v, i) => pdCds.indexOf(v.pdCd) === i);
+  } else {
+    optionsItmPdCd.value = filterPdInfos;
+  }
+};
+
+// 품목 변경 (pdCd)
+const onChangePdCd = (val) => {
+  searchParams.value.pdCd = val;
+};
 
 // 출고시작일자 및 출고종료일자 validation 체크 (12개월 미만으로만 선택가능)
 const onValidateDate = async (val, options) => {
@@ -268,14 +380,20 @@ const onValidateDate = async (val, options) => {
 // 중수리 자재, 기초자재 필터 처리
 const filter1 = [{ name: 'cmnPartFilter', criteria: "value = '01'" }]; // 중수리 자재
 const filter2 = [{ name: 'ordnyHvMatFilter', criteria: "value = 'Y'" }]; // 기초 자재
+const filter3 = [{ name: 'trnoverFilter', criteria: 'value="Y"' }]; // 회전율
+
 async function onChangeMatUtlzDvCd(val) {
   const view = grdMainRef.value.getView();
+
   // 필터 등록
   view.setColumnFilters('asMatCmnClsfCd', filter1);
   view.setColumnFilters('ordnyHvMatYn', filter2);
+  view.setColumnFilters('trnovrRtOjYn', filter3);
+
   // 필터 초기화
   view.activateAllColumnFilters('asMatCmnClsfCd', false);
   view.activateAllColumnFilters('ordnyHvMatYn', false);
+  view.activateAllColumnFilters('trnovrRtOjYn', false);
 
   // 필터 처리
   if (val.includes('01')) {
@@ -284,10 +402,13 @@ async function onChangeMatUtlzDvCd(val) {
   } else if (val.includes('02')) {
     view.activateColumnFilters('ordnyHvMatYn', 'ordnyHvMatFilter', true);
     totalCount.value = view.getItemCount(); // 필터된 데이터 건수 표시
+  } else if (val.includes('03')) {
+    view.activateColumnFilters('trnovrRtOjYn', 'trnoverFilter', true);
   } else {
     totalCount.value = initTotalCount.value; // 필터 해제시 초기 데이터 건수 노출
   }
 }
+
 async function fetchData() {
   const res = await dataService.get(`${baseUrl}`, { params: cachedParams });
   const list = res.data;
@@ -306,6 +427,7 @@ async function onClickSearch() {
   fieldsObj.setFields();
   await fetchData();
 }
+
 async function onClickExcelDownload() {
   const view = grdMainRef.value.getView();
   await gridUtil.exportView(view, {
@@ -314,6 +436,11 @@ async function onClickExcelDownload() {
     exportData: gridUtil.getAllRowValues(view),
   });
 }
+
+await Promise.all([
+  getProducts(),
+]);
+
 onMounted(async () => {
   await onChangeWareDvCd();
 });
@@ -326,10 +453,11 @@ fieldsObj = {
   defaultFields: [
     { fieldName: 'sapMatCd', header: t('MSG_TXT_SAP_CD'), width: '170', styleName: 'text-center' },
     { fieldName: 'pdCd', header: t('MSG_TXT_ITM_CD'), width: '150', styleName: 'text-center' },
-    { fieldName: 'pdAbbrNm', header: t('MSG_TXT_ITM_NM'), width: '240', styleName: 'text-left' },
-    { fieldName: 'pdNm', visible: false },
+    { fieldName: 'pdNm', header: t('MSG_TXT_ITM_NM'), width: '240', styleName: 'text-left' },
+    // { fieldName: 'pdNm', visible: false },
     { fieldName: 'asMatCmnClsfCd', width: '150', styleName: 'text-center', visible: false, autoFilter: false },
     { fieldName: 'ordnyHvMatYn', width: '150', styleName: 'text-center', visible: false, autoFilter: false },
+    { fieldName: 'trnovrRtOjYn', width: '150', styleName: 'text-center', visible: false, autoFilter: false },
   ],
   asFields: [
     {
@@ -338,6 +466,7 @@ fieldsObj = {
       width: '90',
       styleName: 'text-right',
       dataType: 'number',
+      nanText: '0',
       numberFormat: '#,##0',
       footer: { expression: 'sum', numberFormat: '#,##0', styleName: 'text-right text-weight-bold' },
     },
@@ -354,46 +483,21 @@ fieldsObj = {
   totalFields: [
     {
       fieldName: 'totIstQty',
-      header: t('MSG_TXT_SL'), // 매출
+      header: t('MSG_TXT_INSTALLATION'), // 설치
       width: '100',
       styleName: 'text-right',
       dataType: 'number',
+      nanText: '0',
       numberFormat: '#,##0',
       footer: { expression: 'sum', numberFormat: '#,##0', styleName: 'text-right text-weight-bold' },
     },
     {
       fieldName: 'totCoIstQty',
-      header: t('MSG_TXT_ETC'), // 기타
+      header: t('MSG_TXT_CO_IST'), // 회사설치
       width: '100',
       styleName: 'text-right',
       dataType: 'number',
-      numberFormat: '#,##0',
-      footer: { expression: 'sum', numberFormat: '#,##0', styleName: 'text-right text-weight-bold' },
-    },
-    {
-      fieldName: 'totChngQty',
-      header: t('MSG_TXT_CHANGE'), // 교체
-      width: '100',
-      styleName: 'text-right',
-      dataType: 'number',
-      numberFormat: '#,##0',
-      footer: { expression: 'sum', numberFormat: '#,##0', styleName: 'text-right text-weight-bold' },
-    },
-    {
-      fieldName: 'totBfsvcQty',
-      header: t('MSG_TXT_BEFORE_SERVICE'), // B/S
-      width: '100',
-      styleName: 'text-right',
-      dataType: 'number',
-      numberFormat: '#,##0',
-      footer: { expression: 'sum', numberFormat: '#,##0', styleName: 'text-right text-weight-bold' },
-    },
-    {
-      fieldName: 'totAsQty',
-      header: t('MSG_TXT_AFTER_SERVICE'), // A/S
-      width: '100',
-      styleName: 'text-right',
-      dataType: 'number',
+      nanText: '0',
       numberFormat: '#,##0',
       footer: { expression: 'sum', numberFormat: '#,##0', styleName: 'text-right text-weight-bold' },
     },
@@ -403,6 +507,7 @@ fieldsObj = {
       width: '100',
       styleName: 'text-right',
       dataType: 'number',
+      nanText: '0',
       numberFormat: '#,##0',
       footer: { expression: 'sum', numberFormat: '#,##0', styleName: 'text-right text-weight-bold' },
     },
@@ -412,6 +517,17 @@ fieldsObj = {
       width: '100',
       styleName: 'text-right',
       dataType: 'number',
+      nanText: '0',
+      numberFormat: '#,##0',
+      footer: { expression: 'sum', numberFormat: '#,##0', styleName: 'text-right text-weight-bold' },
+    },
+    {
+      fieldName: 'totBfsvcQty',
+      header: t('MSG_TXT_BEFORE_SERVICE'), // B/S
+      width: '100',
+      styleName: 'text-right',
+      dataType: 'number',
+      nanText: '0',
       numberFormat: '#,##0',
       footer: { expression: 'sum', numberFormat: '#,##0', styleName: 'text-right text-weight-bold' },
     },
@@ -421,6 +537,7 @@ fieldsObj = {
       width: '100',
       styleName: 'text-right',
       dataType: 'number',
+      nanText: '0',
       numberFormat: '#,##0',
       footer: { expression: 'sum', numberFormat: '#,##0', styleName: 'text-right text-weight-bold' },
     },
@@ -430,6 +547,7 @@ fieldsObj = {
       width: '100',
       styleName: 'text-right',
       dataType: 'number',
+      nanText: '0',
       numberFormat: '#,##0',
       footer: { expression: 'sum', numberFormat: '#,##0', styleName: 'text-right text-weight-bold' },
     },
@@ -437,55 +555,32 @@ fieldsObj = {
   monthlyFields: [
     {
       fieldName: 'istQty',
-      header: t('MSG_TXT_SL'), // 매출
+      header: t('MSG_TXT_INSTALLATION'), // 설치
       width: '100',
       styleName: 'text-right',
       dataType: 'number',
-      numberFormat: '#,##0',
-      footer: { expression: 'sum', numberFormat: '#,##0', styleName: 'text-right text-weight-bold' },
-    },
-    {
-      fieldName: 'chngQty',
-      header: t('MSG_TXT_CHANGE'), // 교체
-      width: '100',
-      styleName: 'text-right',
-      dataType: 'number',
+      nanText: '0',
       numberFormat: '#,##0',
       footer: { expression: 'sum', numberFormat: '#,##0', styleName: 'text-right text-weight-bold' },
     },
     {
       fieldName: 'coIstQty',
-      header: t('MSG_TXT_ETC'), // 기타
+      header: t('MSG_TXT_CO_IST'), // 회사설치
       width: '100',
       styleName: 'text-right',
       dataType: 'number',
+      nanText: '0',
       numberFormat: '#,##0',
       footer: { expression: 'sum', numberFormat: '#,##0', styleName: 'text-right text-weight-bold' },
     },
-    {
-      fieldName: 'bfsvcQty',
-      header: t('MSG_TXT_BEFORE_SERVICE'), // B/S
-      width: '100',
-      styleName: 'text-right',
-      dataType: 'number',
-      numberFormat: '#,##0',
-      footer: { expression: 'sum', numberFormat: '#,##0', styleName: 'text-right text-weight-bold' },
-    },
-    {
-      fieldName: 'asQty',
-      header: t('MSG_TXT_AFTER_SERVICE'), // A/S
-      width: '100',
-      styleName: 'text-right',
-      dataType: 'number',
-      numberFormat: '#,##0',
-      footer: { expression: 'sum', numberFormat: '#,##0', styleName: 'text-right text-weight-bold' },
-    },
+
     {
       fieldName: 'recapAsQty',
       header: t('MSG_TXT_RECAP_AFTER_SERVICE'), // A/S(유)
       width: '100',
       styleName: 'text-right',
       dataType: 'number',
+      nanText: '0',
       numberFormat: '#,##0',
       footer: { expression: 'sum', numberFormat: '#,##0', styleName: 'text-right text-weight-bold' },
     },
@@ -495,6 +590,17 @@ fieldsObj = {
       width: '100',
       styleName: 'text-right',
       dataType: 'number',
+      nanText: '0',
+      numberFormat: '#,##0',
+      footer: { expression: 'sum', numberFormat: '#,##0', styleName: 'text-right text-weight-bold' },
+    },
+    {
+      fieldName: 'bfsvcQty',
+      header: t('MSG_TXT_BEFORE_SERVICE'), // B/S
+      width: '100',
+      styleName: 'text-right',
+      dataType: 'number',
+      nanText: '0',
       numberFormat: '#,##0',
       footer: { expression: 'sum', numberFormat: '#,##0', styleName: 'text-right text-weight-bold' },
     },
@@ -504,6 +610,7 @@ fieldsObj = {
       width: '100',
       styleName: 'text-right',
       dataType: 'number',
+      nanText: '0',
       numberFormat: '#,##0',
       footer: { expression: 'sum', numberFormat: '#,##0', styleName: 'text-right text-weight-bold' },
     },
@@ -513,37 +620,27 @@ fieldsObj = {
       width: '100',
       styleName: 'text-right',
       dataType: 'number',
+      nanText: '0',
       numberFormat: '#,##0',
       footer: { expression: 'sum', numberFormat: '#,##0', styleName: 'text-right text-weight-bold' },
     },
   ],
   setFields() {
-    let columns = [...fieldsObj.defaultFields,
-      ...fieldsObj.totalFields];
+    let columns = [...fieldsObj.defaultFields, ...fieldsObj.totalFields];
 
     // 총계및 월별 필드(품목별로 노출 변경)
     const layoutColumns = [...fieldsObj.getColumnNameArr(fieldsObj.defaultFields)];
     let totalItemFields = [];
     let monthlyItemFields = [];
-    if (searchParams.value.itmKndCd === '4') {
-      // 총계 필드(상품)
-      totalItemFields = ['totIstQty', 'totChngQty', 'totCoIstQty', 'totSumQty'];
-      // 월별 필드(상품)
-      monthlyItemFields = [...fieldsObj.monthlyFields].filter((v) => ['istQty', 'chngQty', 'coIstQty', 'sumQty'].includes(v.fieldName));
-    } else if (searchParams.value.itmKndCd === '5' || searchParams.value.itmKndCd === '9') {
-      // 총계 필드(필터,판매소모품)
-      totalItemFields = ['totIstQty', 'totBfsvcQty', 'totAsQty', 'totSumQty'];
-      // 월별 필드(필터,판매소모품)
-      monthlyItemFields = [...fieldsObj.monthlyFields].filter((v) => ['istQty', 'bfsvcQty', 'asQty', 'sumQty'].includes(v.fieldName));
-    } else if (searchParams.value.itmKndCd === '6' || searchParams.value.itmKndCd === '7') {
-      // 총계 필드(A/S자재, A/S 소모품)
-      totalItemFields = ['totIstQty', 'totBfsvcQty', 'totRecapAsQty', 'totFrisuAsQty', 'totEtcQty', 'totSumQty'];
-      // 월별 필드(A/S자재, AS 소모품)
-      monthlyItemFields = [...fieldsObj.monthlyFields].filter((v) => ['istQty', 'bfsvcQty', 'recapAsQty', 'frisuAsQty', 'etcQty', 'sumQty'].includes(v.fieldName));
-      // AS 필드(리드타임,MOQ) 컬럼 표시
-      columns = [...fieldsObj.defaultFields, ...fieldsObj.asFields, ...fieldsObj.totalFields];
-      layoutColumns.push(...fieldsObj.getColumnNameArr(fieldsObj.asFields));
-    }
+
+    // 총계 필드 (설치, 회사설치, as유상, as무상, bs, 기타, 계 )
+    totalItemFields = ['totIstQty', 'totCoIstQty', 'totRecapAsQty', 'totFrisuAsQty', 'totBfsvcQty', 'totEtcQty', 'totSumQty'];
+    // 월별 필드(설치, 회사설치, as유상, as무상, bs, 기타, 계 )
+    monthlyItemFields = [...fieldsObj.monthlyFields].filter((v) => ['istQty', 'coIstQty', 'recapAsQty', 'frisuAsQty', 'bfsvcQty', 'etcQty', 'sumQty'].includes(v.fieldName));
+    // 공통 필드(리드타임,MOQ) 컬럼 표시
+    columns = [...fieldsObj.defaultFields, ...fieldsObj.asFields, ...fieldsObj.totalFields];
+
+    layoutColumns.push(...fieldsObj.getColumnNameArr(fieldsObj.asFields));
     layoutColumns.push(
       {
         header: t('MSG_TXT_SUM'),
@@ -552,8 +649,12 @@ fieldsObj = {
     );
     // 월별 필드(품목별로 노출 변경)
     const columnMonthlyTotals = [];
+    const mmDuration = dayjs(searchParams.value.endDt).diff(dayjs(searchParams.value.startDt), 'months');
+
     // monthlyFields 필드에 정의된 필드를 기준으로 동적 필드 생성
-    for (let mm = 1; mm <= 12; mm += 1) {
+    for (let i = 0; i <= mmDuration; i += 1) {
+      const mm = dayjs(searchParams.value.startDt).add(i, 'M').format('M'); // .format('MM');
+
       const columnMonthlyItems = [];
       const columnMonthlyFields = [...monthlyItemFields];
       columnMonthlyFields.forEach((row) => {
@@ -566,6 +667,7 @@ fieldsObj = {
             styleName: row.styleName,
             dataType: row.dataType,
             numberFormat: row.numberFormat,
+            nanText: '0',
             footer: row.footer,
           },
         );
@@ -578,6 +680,7 @@ fieldsObj = {
           },
         );
       });
+
       // 월별 레이아웃 필드
       const layoutColumnsMonthly = [];
       layoutColumnsMonthly.push(
@@ -589,6 +692,7 @@ fieldsObj = {
       );
       layoutColumns.push(layoutColumnsMonthly[0]);
     }
+
     columns.push(...columnMonthlyTotals);
     const fields = columns.map(({ fieldName, dataType }) => (dataType ? { fieldName, dataType } : { fieldName }));
     gridData.setFields(fields);
