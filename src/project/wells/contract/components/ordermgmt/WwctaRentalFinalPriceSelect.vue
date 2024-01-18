@@ -574,9 +574,9 @@ const sellEvCdsBySellChnlDtlCd = computed(() => {
   }
   const codeIds = [];
 
-  if (sellInflwChnlDtlCd === '1010') {
-    codeIds.push('5'); /* 라보판매 */
-  }
+  /* if (sellInflwChnlDtlCd === '1010') {
+    codeIds.push('5'); /!* 라보판매 *!/
+  } */ /* 20240118 전아영 매니저님 요청 건 */
   if (sellInflwChnlDtlCd === '5010') {
     codeIds.push('8'); /* 총판판매 */
     codeIds.push('9'); /* 이지웰페어 */
