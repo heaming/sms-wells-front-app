@@ -70,6 +70,33 @@
             first-option="all"
           />
         </kw-search-item>
+        <!-- 품목구분 -->
+        <kw-search-item
+          :label="$t('MSG_TXT_ITM_DV')"
+          :colspan="4"
+        >
+          <kw-select
+            v-model="searchParams.itmKindCd"
+            :options="codes.ITM_KND_CD"
+            first-option="all"
+            class="w120"
+            @change="onChangeItmDvCd"
+          />
+          <kw-select
+            v-model="searchParams.itmGrpCd"
+            :options="codes.PD_GRP_CD"
+            first-option="all"
+            class="w120"
+            @change="onChangeItmDvCd"
+          />
+          <kw-select
+            v-model="searchParams.itmPdCds"
+            :options="optionsItmPdCd"
+            option-value="pdCd"
+            option-label="pdNm"
+            :multiple="true"
+          />
+        </kw-search-item>
         <!-- 등급 -->
         <kw-search-item
           :label="$t('MSG_TXT_GD')"
@@ -78,28 +105,6 @@
           <kw-select
             v-model="searchParams.itmGdCd"
             :options="tempOptions.itmGdCd"
-          />
-        </kw-search-item>
-        <!-- 사용 여부 -->
-        <kw-search-item
-          :label="$t('MSG_TXT_USE_YN')"
-          :colspan="2"
-        >
-          <kw-select
-            v-model="searchParams.useYn"
-            :options="tempOptions.useYn"
-            first-option="all"
-          />
-        </kw-search-item>
-        <!-- 품목구분 -->
-        <kw-search-item
-          :label="$t('MSG_TXT_ITM_DV')"
-          :colspan="2"
-        >
-          <kw-select
-            v-model="searchParams.itmKindCd"
-            :options="codes.ITM_KND_CD"
-            first-option="all"
           />
         </kw-search-item>
       </kw-search-row>
@@ -120,7 +125,7 @@
         <!-- SAP코드 -->
         <kw-search-item
           :label="$t('MSG_TXT_SAPCD')"
-          :colspan="6"
+          :colspan="4"
         >
           <kw-input
             v-model="searchParams.strtSapCd"
@@ -132,6 +137,17 @@
             v-model="searchParams.endSapCd"
             :label="$t('MSG_TXT_END_SAP_CD')"
             rules="numeric|max:18"
+          />
+        </kw-search-item>
+        <!-- 사용 여부 -->
+        <kw-search-item
+          :label="$t('MSG_TXT_USE_YN')"
+          :colspan="2"
+        >
+          <kw-select
+            v-model="searchParams.useYn"
+            :options="tempOptions.useYn"
+            first-option="all"
           />
         </kw-search-item>
       </kw-search-row>
@@ -183,7 +199,7 @@
 
 import { getComponentType, defineGrid, gridUtil, useDataService, useGlobal, codeUtil } from 'kw-lib';
 import ZwcmWareHouseSearch from '~sms-common/service/components/ZwsnzWareHouseSearch.vue';
-import { cloneDeep } from 'lodash-es';
+import { cloneDeep, isEmpty } from 'lodash-es';
 import dayjs from 'dayjs';
 
 const grdMainRef = ref(getComponentType('KwGrid'));
@@ -206,6 +222,7 @@ const codes = await codeUtil.getMultiCodes(
   'WARE_DTL_DV_CD',
   'ITM_KND_CD',
   'MAT_UTLZ_DV_CD',
+  'PD_GRP_CD',
 );
 
 const tempOptions = {
@@ -247,9 +264,12 @@ const searchParams = ref({
   useYn: '', // 사용여부
   stockTpCd: '', // 재고유형
   itmKindCd: '', // 품목구분
+  itmGrpCd: '',
+  itmPdCds: [],
   itmPdCd: '', // 품목코드
   strtSapCd: '', // SAP 시작
   endSapCd: '', // SAP 시작
+  matUtlzDvCds: [''],
 });
 
 searchParams.value.startDt = dayjs().set('date', 1).format('YYYYMMDD');
@@ -258,6 +278,40 @@ searchParams.value.endDt = dayjs().format('YYYYMMDD');
 const filterCodes = ref({
   wareDtlDvCd: [],
 });
+
+const optionsItmPdCd = ref();
+const optionsAllItmPdCd = ref();
+
+// 품목조회
+const getProducts = async () => {
+  const result = await dataService.get('/sms/wells/service/monthly-by-stock-state/products');
+  const pdCds = result.data.map((v) => v.pdCd);
+  optionsItmPdCd.value = result.data.filter((v, i) => pdCds.indexOf(v.pdCd) === i);
+  optionsAllItmPdCd.value = result.data;
+};
+
+// 품목종류, 품목그룹 변경 시 품목 필터링
+function onChangeItmDvCd() {
+  // 품목코드 클리어
+  searchParams.value.itmPdCds = [];
+  const { itmKndCd, itmGrpCd } = searchParams.value;
+
+  if (isEmpty(itmKndCd) && isEmpty(itmGrpCd)) {
+    const pdCds = optionsAllItmPdCd.value.map((v) => v.pdCd);
+    optionsItmPdCd.value = optionsAllItmPdCd.value.filter((v, i) => pdCds.indexOf(v.pdCd) === i);
+    return;
+  }
+  const filterPdInfos = optionsAllItmPdCd.value.filter(
+    (v) => (isEmpty(itmKndCd) || itmKndCd === v.itmKndCd) && (isEmpty(itmGrpCd) || itmGrpCd === v.itmGrpCd),
+  );
+
+  if (isEmpty(itmGrpCd)) {
+    const pdCds = filterPdInfos.map((v) => v.pdCd);
+    optionsItmPdCd.value = filterPdInfos.filter((v, i) => pdCds.indexOf(v.pdCd) === i);
+  } else {
+    optionsItmPdCd.value = filterPdInfos;
+  }
+}
 
 const isOk = ref();
 
@@ -308,8 +362,36 @@ async function fetchData() {
   view.getDataSource().setRows(list);
   view.resetCurrent();
 }
+
+// 체크박스 조건 변환
+// function convertCheckBox() {
+//   const { matUtlzDvCds } = cachedParams;
+
+//   // 중수리자재 여부
+//   const commGb = isEmpty(matUtlzDvCds.find((v) => v === '01')) ? 'N' : 'Y';
+//   // 기초자재 여부
+//   const baseGb = isEmpty(matUtlzDvCds.find((v) => v === '02')) ? 'N' : 'Y';
+//   // 회전율대상 여부
+//   const turnoverGb = isEmpty(matUtlzDvCds.find((v) => v === '03')) ? 'N' : 'Y';
+
+//   cachedParams.commGb = commGb;
+//   cachedParams.baseGb = baseGb;
+//   cachedParams.turnoverGb = turnoverGb;
+// }
+
 async function onClickSearch() {
   cachedParams = cloneDeep(searchParams.value);
+
+  const selPdLength = cachedParams.itmPdCds.length;
+  const allPdLength = optionsItmPdCd.value.length;
+
+  if (selPdLength === allPdLength) {
+    cachedParams.itmPdCds = [];
+  }
+
+  // 체크박스 조건 변환
+  // convertCheckBox();
+
   await fetchData();
 }
 async function onClickExcelDownload() {
@@ -321,6 +403,10 @@ async function onClickExcelDownload() {
     exportData: res.data,
   });
 }
+
+await Promise.all([
+  getProducts(),
+]);
 
 onMounted(async () => {
   await onChangeWareDvCd();
