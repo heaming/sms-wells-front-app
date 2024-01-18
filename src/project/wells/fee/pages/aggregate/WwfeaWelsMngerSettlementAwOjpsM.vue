@@ -252,7 +252,7 @@ async function onClickSave() {
   }
   */
 
-  if (feeCnfmYn === 'Y') {
+  if (feeCnfmYn === 'N') { /* 2024.01.18 수정요청 */
     await alert(t('MSG_ALT_BF_CNFM_MDFC_IMP'));
     return;
   } if (opngCnfmYn === 'Y') {
