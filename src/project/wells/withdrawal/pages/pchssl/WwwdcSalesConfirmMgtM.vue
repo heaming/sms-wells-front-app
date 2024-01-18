@@ -34,7 +34,7 @@
           :label="t('MSG_TXT_SEL_TYPE')"
         >
           <kw-option-group
-            v-model="searchParams.cellTpCd"
+            v-model="searchParams.sellTpCd"
             type="radio"
             :options="codes.SELL_TP_CD"
           />
@@ -181,7 +181,7 @@ const searchParams = ref({
   ogTpCd: wkOjOgTpCd === null ? ogTpCd : wkOjOgTpCd,
   cntrNo: '',
   cntrSn: '',
-  cellTpCd: '1', // 업무구분 1~7 (기본:일시불)
+  sellTpCd: '1', // 업무구분 1~7 (기본:일시불)
   dgr1LevlOgId: '', // 조직레벨LV1
   dgr2LevlOgId: '', // 조직레벨LV2
   // dgr3LevlOgId: '', // 설계서상x
@@ -296,7 +296,6 @@ async function onClickSalesRecognize() {
  * TODO: EDU와 동작구성 흡사.
  * 매출인식 재인식/인식시키는 화면 (매출확정 상태변경 화면 - 렌탈 신규/철거 집계현황 미완성)
  * ※
- * - cellTpCd - 230623 기준 조회되는 데이터 없어서 미기입시 데이터값 확인가능.
  * - ogTpCd - 조직레벨 코드 임시적으로 넣음. 설계서 변경에 따라 알맞는 값 기입 요청. ( 설계서상 설명없음.)
 */
 
