@@ -76,7 +76,7 @@
           :label="t('MSG_TXT_MM_RTLFE')"
         >
           <p class="kw-fc--black1 text-right ml16">
-            {{ returnData.dcAmt }}
+            {{ stringUtil.getNumberWithComma(toInteger(returnData.dcAmt)) }}
           </p>
         </kw-form-item>
       </kw-form-row>
@@ -86,7 +86,7 @@
           :label="t('MSG_TXT_DSC_AMT')"
         >
           <p class="kw-fc--black1 text-right ml16">
-            {{ returnData.dcData }}
+            {{ stringUtil.getNumberWithComma(toInteger(returnData.dcData)) }}
           </p>
         </kw-form-item>
       </kw-form-row>
@@ -108,7 +108,7 @@
         <!-- 선납예상 총금액 -->
         <kw-form-item :label="t('MSG_TXT_PRM_ET_TOT_AMT')">
           <p class="kw-fc--black1 text-right ml16">
-            {{ returnData.totDpAmt }}
+            {{ stringUtil.getNumberWithComma(toInteger(returnData.totDpAmt)) }}
           </p>
         </kw-form-item>
       </kw-form-row>
@@ -118,7 +118,7 @@
           :label="t('MSG_TXT_ACL_PY_ET_AMT')"
         >
           <p class="kw-fc--black1 text-right ml16">
-            {{ returnData.prmExpAmt }}
+            {{ stringUtil.getNumberWithComma(toInteger(returnData.prmExpAmt)) }}
           </p>
         </kw-form-item>
       </kw-form-row>
@@ -146,8 +146,8 @@
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
-import { useGlobal, useModal, useDataService, codeUtil } from 'kw-lib'; // defineGrid, codeUtil
-import { cloneDeep, isEmpty } from 'lodash-es';
+import { useGlobal, useModal, useDataService, codeUtil, stringUtil } from 'kw-lib'; // defineGrid, codeUtil
+import { cloneDeep, isEmpty, toInteger } from 'lodash-es';
 
 const { t } = useI18n();
 // eslint-disable-next-line no-unused-vars
