@@ -379,7 +379,12 @@ const initMainGrid = defineGrid((data, view) => {
         componentProps: { svAsnNo: cstSvAsnNo },
       });
     } else if (column === 'cstSign') {
-      const cstSignCn = dataService.get('/sms/wells/service/sn-processing-ps/cstSignCn', { params: cstSvAsnNo });
+      console.log(cstSvAsnNo);
+      const res = await dataService.get(`/sms/wells/service/sn-processing-ps/cstSignCn?cstSvAsnNo=${cstSvAsnNo}`);
+      console.log(res);
+
+      const { cstSignCn } = res.data;
+      console.log(cstSignCn);
 
       if (!cstSignCn || cstSignCn === '') {
         alert('서명 데이터 없음');
