@@ -1092,11 +1092,9 @@ const initGrid1 = defineGrid((data, view) => {
       return t('MSG_ALT_SEARCH_CNTR_NO'); // 계약 번호를 검색해 주세요
     }
 
-    if (slCtrTpCd !== '2') {
-      if (isEmpty(slCtrAmt)) {
-        return t('MSG_ALT_NCSR_CD', [t('MSG_TXT_CTR_AMT')]);
-        // 조정금액 은(는) 필수 입력 항목입니다.
-      }
+    if (slCtrTpCd !== '2' && slCtrAmt === 0) {
+      return t('MSG_ALT_NCSR_CD', [t('MSG_TXT_CTR_AMT')]);
+      // 조정금액 은(는) 필수 입력 항목입니다.
     }
   };
 
