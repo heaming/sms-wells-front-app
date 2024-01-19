@@ -199,32 +199,15 @@ async function onClickSearch() {
 
 // 알림톡 대상생성
 async function onClickSave() {
-  const view = isCustomer.value ? grdCustomerRef.value.getView() : grdContractRef.value.getView();
   // 조회구분이 "계약별" 선택된 경우
   if (searchParams.value.selGbn !== '1') {
     // 조회구분이 "고객별" 이 선택되었을때에만 저장 가능합니다.
     await alert(t('MSG_ALT_SAVE_PSB_SRCH_PARAM_BY_CST')); return;
   }
-  const checkedRows = gridUtil.getCheckedRowValues(view);
-  // grid에서 체크박스가 선택되지 않았을 경우
-  if (checkedRows.length === 0) {
-    await alert(t('MSG_ALT_NO_CHECK_DATA')); return;
-  }
 
-  // check data 중 "알림수신여부" Y 체크
-  if (checkedRows.some((x) => x.notyRcvYn === 'Y')) {
-    // 알림톡 대상으로 선정된 건이 포함되어 있습니다. 체크 제외 후 다시 진행해주시기 바랍니다.
-    await alert(t('MSG_ALT_INC_MSG_OBJ_CHECK_EXCD')); return false;
-  }
-
-  const updateParams = [];
-  for (let i = 0; i < checkedRows.length; i += 1) {
-    updateParams.push({
-      cstNo: checkedRows[i].cstNo,
-      baseYm: cachedParams.baseYm,
-    });
-  }
-  await dataService.put(baseUrl, updateParams);
+  await dataService.put(baseUrl, {
+    baseYm: cachedParams.baseYm,
+  });
   notify(t('MSG_ALT_SAVE_DATA'));
   await fetchData();
 }
@@ -263,7 +246,7 @@ const initCustomerGrid = defineGrid((data, view) => {
   data.setFields(fields);
   view.setColumns(columns);
 
-  view.checkBar.visible = true;
+  view.checkBar.visible = false;
   view.rowIndicator.visible = true;
 
   // 렌탈CB 납입정보 팝업 open
