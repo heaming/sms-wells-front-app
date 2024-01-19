@@ -292,7 +292,7 @@ async function onClickMod(bool) {
   view.columnByName('feeW060020').editable = bool;
   view.columnByName('feeW060021').editable = bool;
   view.columnByName('feeW060022').editable = bool;
-  view.columnByName('feeW060023Cnt').editable = bool;
+  // view.columnByName('feeW060023Cnt').editable = bool;
   view.columnByName('feeW060024Cnt').editable = bool;
   view.columnByName('feeW060025Cnt').editable = bool;
   view.columnByName('feeW060026Cnt').editable = bool;
