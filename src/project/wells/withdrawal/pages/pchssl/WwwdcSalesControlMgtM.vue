@@ -448,12 +448,13 @@ async function onClickExcelDownload() {
   for (let i = 0; i < limitCount; i += 1) {
     cachedParams.limitCount = i * 100000;
 
-    gridUtil.exportBulkView(view, {
+    // eslint-disable-next-line no-await-in-loop
+    await gridUtil.exportBulkView(view, {
       url: `${apiUri}/excel-download-bulk`, // url 지정
       parameter: { // 검색 조건을 그대로 넣어준다. 없을 경우 추가 하지 않아도 됨
         ...cachedParams, timeout: 6000000,
       },
-      fileName: `${currentRoute.value.meta.menuName}_${dayjs().format('YYYYMMDDHHmmss')}_Bulk`,
+      fileName: `${currentRoute.value.meta.menuName}_${dayjs().format('YYYYMMDDHHmmss')}_Bulk_${i + 1}`,
     });
   }
 
@@ -644,6 +645,7 @@ const initGrid1 = defineGrid((data, view) => {
     { fieldName: 'usrNm' }, /* 등록자 */
     { fieldName: 'fnlMdfcUsrId' }, /* 번호 */
     { fieldName: 'mdfyYn' }, /* 마감데이터체크 */
+    { fieldName: 'cntrDtlStatCd' }, /* 계약상세상태코드 */
   ];
 
   const columns = [
@@ -883,7 +885,7 @@ const initGrid1 = defineGrid((data, view) => {
       header: t('MSG_TXT_CAN_AFT_APY'), // 취소 후 적용
       width: '100',
       editor: { type: 'list', textReadOnly: true },
-      editable: false,
+      // editable: false,
       // styleCallback(grid, dataCell) {
       //   const mdfyYn = grid.getValue(dataCell.index.itemIndex, 'mdfyYn');
       //   let ret = {};
@@ -1001,7 +1003,8 @@ const initGrid1 = defineGrid((data, view) => {
   // eslint-disable-next-line no-unused-vars
   view.onCellEdited = async (grid, itemIndex, row, field) => {
     const { fieldName } = grid.getCurrent();
-    const { dummySlCtrAmt, slCtrMtrDvCd, dummyDlqAddAmt, dummyRsgBorAmt, slCtrTpCd } = grid.getValues(itemIndex);
+    // eslint-disable-next-line max-len
+    const { dummySlCtrAmt, slCtrMtrDvCd, dummyDlqAddAmt, dummyRsgBorAmt, slCtrTpCd, cntrDtlStatCd, canAfOjYn } = grid.getValues(itemIndex);
 
     if (fieldName === 'slCtrSellTpCd') {
       grid.commit();
@@ -1010,6 +1013,7 @@ const initGrid1 = defineGrid((data, view) => {
 
     const slCtrMtrDvCdIndex = data.getFieldIndex('slCtrMtrDvCd');
     const slCtrTpCdIndex = data.getFieldIndex('slCtrTpCd');
+    const canAfOjYnIndex = data.getFieldIndex('canAfOjYn');
 
     // 자료구분이 연체가산금 or 위약금 입력 시 현재월로 입력, 수정 불가
     if (slCtrMtrDvCd !== '1' && field === slCtrMtrDvCdIndex) {
@@ -1017,6 +1021,14 @@ const initGrid1 = defineGrid((data, view) => {
       view.setValue(itemIndex, 'slCtrEndYm', dayjs().format('YYYYMM'));
     }
 
+    // 마감 체크시
+    if (field === canAfOjYnIndex && canAfOjYn === 'N') {
+      if (cntrDtlStatCd === '301' || cntrDtlStatCd === '302' || cntrDtlStatCd === '303') {
+        alert('취소된 계약은 Y 만 선택 가능합니다.');
+        view.setValue(itemIndex, 'canAfOjYn', 'Y');
+        return;
+      }
+    }
     // 수정한 필드가 자료구분이거나, 조정유형일 때
     if (slCtrMtrDvCd === '1' && (field === slCtrMtrDvCdIndex || field === slCtrTpCdIndex)) {
       if (slCtrTpCd === '2') {
@@ -1061,6 +1073,7 @@ const initGrid1 = defineGrid((data, view) => {
         const res = await dataService.get('/sms/common/common/codes/contract/detail/paging', { params: cachedParams2 });
 
         const { cntrDtlStatCd } = res.data.list[0];
+        view.setValue(itemIndex, 'cntrDtlStatCd', cntrDtlStatCd);
 
         view.setValue(itemIndex, 'canAfOjYn', 'N');
 
