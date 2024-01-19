@@ -332,20 +332,8 @@ const initGrd = defineGrid((data, view) => {
     zip: {
       label: t('MSG_TXT_ZIP'), width: 120, classes: 'text-center',
     },
-    adr: { displaying: false },
-    dtlAdr: { displaying: false },
-    address: {
-      label: t('MSG_TXT_ADDR'),
-      width: 400,
-      valueCallback: (gridBase, rowId, fieldName, fields, values) => {
-        const adr = values[fields.indexOf('adr')];
-        const dtlAdr = values[fields.indexOf('dtlAdr')];
-        if (!adr) {
-          return '';
-        }
-        return `${adr}${dtlAdr ? ` ${dtlAdr}` : ''}`;
-      },
-    },
+    adr: { label: t('MSG_TXT_ADDR'), width: 220, classes: 'text-left' },
+    dtlAdr: { label: t('MSG_TXT_ADDR_DTL'), width: 350, classes: 'text-left' },
     pdMclsfId: { displaying: false },
     pdMclsfNm: {
       label: `${t('MSG_TXT_PRDT_NM')}(${t('MSG_TXT_PD_MCLSF_ID')})`,
@@ -418,6 +406,26 @@ const initGrd = defineGrid((data, view) => {
       label: t('MSG_TXT_ORD_TYP'),
       width: 134,
       options: codes.SELL_TP_CD,
+    },
+    ogCd: {
+      label: t('MSG_TXT_SELLER_BLG'),
+      width: 100,
+      classes: 'text-center',
+    },
+    dgr3LevlDgPrtnrNm: {
+      label: t('MSG_TXT_SELLER_BRMGR'),
+      width: 100,
+      classes: 'text-center',
+    },
+    prtnrKnm: {
+      label: t('MSG_TXT_SELLER_FNM'),
+      width: 100,
+      classes: 'text-center',
+    },
+    prtnrNo: {
+      label: t('MSG_TXT_PTNR_NO'),
+      width: 100,
+      classes: 'text-center',
     },
   });
   view.checkBar.visible = false; // create checkbox column
@@ -459,20 +467,8 @@ const initGrdCombi = defineGrid((data, view) => {
     zip: {
       label: t('MSG_TXT_ZIP'), width: 120, classes: 'text-center',
     },
-    adr: { displaying: false },
-    dtlAdr: { displaying: false },
-    address: {
-      label: t('MSG_TXT_ADDR'),
-      width: 400,
-      valueCallback: (gridBase, rowId, fieldName, fields, values) => {
-        const adr = values[fields.indexOf('adr')];
-        const dtlAdr = values[fields.indexOf('dtlAdr')];
-        if (!adr) {
-          return '';
-        }
-        return `${adr}${dtlAdr ? ` ${dtlAdr}` : ''}`;
-      },
-    },
+    adr: { label: t('MSG_TXT_ADDR'), width: 220, classes: 'text-left' },
+    dtlAdr: { label: t('MSG_TXT_ADDR_DTL'), width: 350, classes: 'text-left' },
     pdMclsfId: { displaying: false },
     pdMclsfNm: {
       label: `${t('MSG_TXT_PRDT_NM')}(${t('MSG_TXT_PD_MCLSF_ID')})`,
@@ -490,17 +486,6 @@ const initGrdCombi = defineGrid((data, view) => {
           return '';
         }
         return `${pdNm}${pdCd ? `(${pdCd})` : ''}`;
-      },
-    },
-    combiPdNm: {
-      label: t('MSG_TXT_COMBI_PRDT_NM'),
-      width: 240,
-      valueCallback: (gridBase, rowId, fieldName, fields, values) => {
-        const combiPdNm = values[fields.indexOf('combiPdNm')];
-        if (!combiPdNm) {
-          return '';
-        }
-        return `${combiPdNm}`;
       },
     },
     cralLocaraTno: { displaying: false },
@@ -555,6 +540,26 @@ const initGrdCombi = defineGrid((data, view) => {
       label: t('MSG_TXT_ORD_TYP'),
       width: 134,
       options: codes.SELL_TP_CD,
+    },
+    ogCd: {
+      label: t('MSG_TXT_SELLER_BLG'),
+      width: 100,
+      classes: 'text-center',
+    },
+    dgr3LevlDgPrtnrNm: {
+      label: t('MSG_TXT_SELLER_BRMGR'),
+      width: 100,
+      classes: 'text-center',
+    },
+    prtnrKnm: {
+      label: t('MSG_TXT_SELLER_FNM'),
+      width: 100,
+      classes: 'text-center',
+    },
+    prtnrNo: {
+      label: t('MSG_TXT_PTNR_NO'),
+      width: 100,
+      classes: 'text-center',
     },
   });
   view.checkBar.visible = false; // create checkbox column
