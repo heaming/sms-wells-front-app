@@ -35,15 +35,6 @@
           <p>{{ codes.FEE_TCNT_DV_CD.find((v) => v.codeId === params?.feeTcntDvCd)?.codeName }}</p>
         </kw-form-item>
       </kw-form-row>
-      <kw-form-row>
-        <kw-form-item
-          :label="$t('MSG_TXT_PRGS_STATUS')"
-        >
-          <p>
-            {{ perfAgrgStatus }}
-          </p>
-        </kw-form-item>
-      </kw-form-row>
     </kw-form>
     <template #action>
       <!-- 취소 -->
@@ -96,7 +87,6 @@ const params = ref({
   feeTcntDvCd: props.feeTcntDvCd,
   perfAgrgCrtDvCd: props.ogTpCd === 'W02' ? '201' : '301',
 });
-const perfAgrgStatus = ref('');
 
 // -------------------------------------------------------------------------------------------------
 // Function & Event
@@ -110,40 +100,11 @@ const codes = await codeUtil.getMultiCodes(
 async function onClickCancel() {
   cancel();
 }
-/* 실적집계진행상태 체크 - 두번째 이상 */
-async function checkPerfAgrgPrtcContStatus(perfAgrgPrtcId) {
-  const res = await dataService.get(`/sms/common/fee/perf-agrg-prtc-hist/perf-agrg-prtc-status/${perfAgrgPrtcId}`, { spinner: false });
-
-  if (res.data.perfAgrgPrtcStatCd === '01') {
-    perfAgrgStatus.value = res.data.perfAgrgStatusString;
-    setTimeout(async () => await checkPerfAgrgPrtcContStatus(perfAgrgPrtcId), 1000);
-  }
-}
-
-/* 실적집계진행상태 체크 - 최초, 배치를 호출하고 실행ID가 변경될 때까지 반복 */
-async function checkPerfAgrgPrtcStatus(beforePerfAgrgPrtcId = undefined) {
-  const res = await dataService.get(`/sms/common/fee/perf-agrg-prtc-hist/perf-agrg-prtc-first-status/${params.value.perfYm}-${params.value.feeTcntDvCd}-02-${params.value.perfAgrgCrtDvCd}`, { spinner: false });
-
-  if (beforePerfAgrgPrtcId === undefined || beforePerfAgrgPrtcId === res.data.perfAgrgPrtcId) {
-    setTimeout(async () => await checkPerfAgrgPrtcStatus(res.data.perfAgrgPrtcId), 1000);
-  } else if (beforePerfAgrgPrtcId !== res.data.perfAgrgPrtcId) {
-    if (res.data.perfAgrgPrtcStatCd === '01') {
-      perfAgrgStatus.value = res.data.perfAgrgStatusString;
-      setTimeout(async () => await checkPerfAgrgPrtcContStatus(res.data.perfAgrgPrtcId), 1000);
-    }
-  }
-}
 // 집계
 async function onClickSave() {
   if (!await confirm(t('MSG_ALT_AGRG'))) { return; }
-
-  perfAgrgStatus.value = '실적집계 호출 중';
   // params.value.perfAgrgCrtDvCd = params.value.ogTpCd === 'W02' ? '201' : '301';
-  const [response] = await Promise.all([
-    dataService.post('/sms/wells/fee/bs-fees', params.value, { timeout: 600000 }),
-    checkPerfAgrgPrtcStatus(undefined),
-  ]);
-
+  const response = await dataService.post('/sms/wells/fee/bs-fees', params.value, { timeout: 600000 });
   ok(true);
   if (response.data === 'Ended OK') notify(t('MSG_ALT_AGRG_FSH')); // 집계 되었습니다.
   else if (response.data === 'Ended Not OK') notify(t('MSG_ALT_AGRG_FAIL')); // 집계가 실패 되었습니다.
