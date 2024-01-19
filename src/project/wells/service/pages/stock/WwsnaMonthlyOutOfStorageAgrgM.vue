@@ -423,6 +423,14 @@ async function fetchData() {
 }
 
 async function onClickSearch() {
+  if (!isEmpty(searchParams.value.strtSapCd) && isEmpty(searchParams.value.endSapCd)) {
+    searchParams.value.endSapCd = searchParams.value.strtSapCd;
+  }
+
+  if (!isEmpty(searchParams.value.endSapCd) && isEmpty(searchParams.value.strtSapCd)) {
+    searchParams.value.strtSapCd = searchParams.value.endSapCd;
+  }
+
   cachedParams = cloneDeep(searchParams.value);
   fieldsObj.setFields();
   await fetchData();
