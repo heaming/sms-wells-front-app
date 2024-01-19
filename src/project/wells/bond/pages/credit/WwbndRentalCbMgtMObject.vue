@@ -205,9 +205,7 @@ async function onClickSave() {
     await alert(t('MSG_ALT_SAVE_PSB_SRCH_PARAM_BY_CST')); return;
   }
 
-  await dataService.put(baseUrl, {
-    baseYm: cachedParams.baseYm,
-  });
+  await dataService.put(baseUrl, null, { params: { baseYm: cachedParams.baseYm } });
   notify(t('MSG_ALT_SAVE_DATA'));
   await fetchData();
 }
