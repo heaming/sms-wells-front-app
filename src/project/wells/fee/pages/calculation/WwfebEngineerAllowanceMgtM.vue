@@ -1305,29 +1305,29 @@ const initEgerMain = defineGrid((data, view) => {
     const editRow = gridUtil.getRowValue(grid, itemIndex);
 
     let feeCd;
-    const perfVal = {};
+    // const perfVal = {};
     let feeAmt = 0;
 
     // 테이블에 수당 코드별로 값이 들어가기 때문에
     // 수정된 그리드 한 row를 수당 코드별로 쪼개서 넣음
     if (columnName === 'feeW060023Cnt') {
       feeCd = 'W060023';
-      perfVal.W06R00018 = editRow.feeW060023Cnt; /* 토요근무건수 */
-      const response = await dataService.post(`/sms/common/fee/fee-calculation/screen-performance-input-fees/${searchParams.value.perfYm}-${feeCd}`, perfVal);
-      feeAmt = response.data;
+      feeAmt = editRow.feeW060023Cnt * 2000;
     } else if (columnName === 'feeW060024Cnt') {
       feeCd = 'W060024';
-      perfVal.W06R00019 = editRow.feeW060024Cnt; /* 휴무당직건수 */
-      const response = await dataService.post(`/sms/common/fee/fee-calculation/screen-performance-input-fees/${searchParams.value.perfYm}-${feeCd}`, perfVal);
-      feeAmt = response.data;
+      // perfVal.W06R00019 = editRow.feeW060024Cnt; /* 휴무당직건수 */
+      // eslint-disable-next-line max-len
+      // const response = await dataService.post(`/sms/common/fee/fee-calculation/screen-performance-input-fees/${searchParams.value.perfYm}-${feeCd}`, perfVal);
+      feeAmt = editRow.feeW060024Cnt * 20000;
     } else if (columnName === 'feeW060025Cnt') {
       feeCd = 'W060025';
       feeAmt = editRow.feeW060025Cnt * 10000;
     } else if (columnName === 'feeW060026Cnt') {
       feeCd = 'W060026';
-      perfVal.W06R00021 = editRow.feeW060026Cnt; /* 방문일수 */
-      const response = await dataService.post(`/sms/common/fee/fee-calculation/screen-performance-input-fees/${searchParams.value.perfYm}-${feeCd}`, perfVal);
-      feeAmt = response.data;
+      // perfVal.W06R00021 = editRow.feeW060026Cnt; /* 방문일수 */
+      // eslint-disable-next-line max-len
+      // const response = await dataService.post(`/sms/common/fee/fee-calculation/screen-performance-input-fees/${searchParams.value.perfYm}-${feeCd}`, perfVal);
+      feeAmt = editRow.feeW060026Cnt * 10000;
     } else if (columnName === 'feeW060019') {
       feeCd = 'W060019';
       feeAmt = Math.floor(editRow.feeW060019);

@@ -100,7 +100,6 @@ const codes = await codeUtil.getMultiCodes(
 async function onClickCancel() {
   cancel();
 }
-
 // 집계
 async function onClickSave() {
   if (!await confirm(t('MSG_ALT_AGRG'))) { return; }
