@@ -502,6 +502,16 @@ fieldsObj = {
       footer: { expression: 'sum', numberFormat: '#,##0', styleName: 'text-right text-weight-bold' },
     },
     {
+      fieldName: 'totBfsvcQty',
+      header: t('MSG_TXT_BEFORE_SERVICE'), // B/S
+      width: '100',
+      styleName: 'text-right',
+      dataType: 'number',
+      nanText: '0',
+      numberFormat: '#,##0',
+      footer: { expression: 'sum', numberFormat: '#,##0', styleName: 'text-right text-weight-bold' },
+    },
+    {
       fieldName: 'totRecapAsQty',
       header: t('MSG_TXT_RECAP_AFTER_SERVICE'), // A/S(유)
       width: '100',
@@ -514,16 +524,6 @@ fieldsObj = {
     {
       fieldName: 'totFrisuAsQty',
       header: t('MSG_TXT_FRISU_AFTER_SERVICE'), // A/S(무)
-      width: '100',
-      styleName: 'text-right',
-      dataType: 'number',
-      nanText: '0',
-      numberFormat: '#,##0',
-      footer: { expression: 'sum', numberFormat: '#,##0', styleName: 'text-right text-weight-bold' },
-    },
-    {
-      fieldName: 'totBfsvcQty',
-      header: t('MSG_TXT_BEFORE_SERVICE'), // B/S
       width: '100',
       styleName: 'text-right',
       dataType: 'number',
@@ -575,6 +575,16 @@ fieldsObj = {
     },
 
     {
+      fieldName: 'bfsvcQty',
+      header: t('MSG_TXT_BEFORE_SERVICE'), // B/S
+      width: '100',
+      styleName: 'text-right',
+      dataType: 'number',
+      nanText: '0',
+      numberFormat: '#,##0',
+      footer: { expression: 'sum', numberFormat: '#,##0', styleName: 'text-right text-weight-bold' },
+    },
+    {
       fieldName: 'recapAsQty',
       header: t('MSG_TXT_RECAP_AFTER_SERVICE'), // A/S(유)
       width: '100',
@@ -587,16 +597,6 @@ fieldsObj = {
     {
       fieldName: 'frisuAsQty',
       header: t('MSG_TXT_FRISU_AFTER_SERVICE'), // A/S(무)
-      width: '100',
-      styleName: 'text-right',
-      dataType: 'number',
-      nanText: '0',
-      numberFormat: '#,##0',
-      footer: { expression: 'sum', numberFormat: '#,##0', styleName: 'text-right text-weight-bold' },
-    },
-    {
-      fieldName: 'bfsvcQty',
-      header: t('MSG_TXT_BEFORE_SERVICE'), // B/S
       width: '100',
       styleName: 'text-right',
       dataType: 'number',
@@ -634,9 +634,9 @@ fieldsObj = {
     let monthlyItemFields = [];
 
     // 총계 필드 (설치, 회사설치, as유상, as무상, bs, 기타, 계 )
-    totalItemFields = ['totIstQty', 'totCoIstQty', 'totRecapAsQty', 'totFrisuAsQty', 'totBfsvcQty', 'totEtcQty', 'totSumQty'];
+    totalItemFields = ['totIstQty', 'totCoIstQty', 'totBfsvcQty', 'totRecapAsQty', 'totFrisuAsQty', 'totEtcQty', 'totSumQty'];
     // 월별 필드(설치, 회사설치, as유상, as무상, bs, 기타, 계 )
-    monthlyItemFields = [...fieldsObj.monthlyFields].filter((v) => ['istQty', 'coIstQty', 'recapAsQty', 'frisuAsQty', 'bfsvcQty', 'etcQty', 'sumQty'].includes(v.fieldName));
+    monthlyItemFields = [...fieldsObj.monthlyFields].filter((v) => ['istQty', 'bfsvcQty', 'coIstQty', 'recapAsQty', 'frisuAsQty', 'etcQty', 'sumQty'].includes(v.fieldName));
     // 공통 필드(리드타임,MOQ) 컬럼 표시
     columns = [...fieldsObj.defaultFields, ...fieldsObj.asFields, ...fieldsObj.totalFields];
 
