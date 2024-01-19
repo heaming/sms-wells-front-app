@@ -318,8 +318,6 @@ async function onClickSearch() {
   await fetchData();
 }
 
-let params;
-
 // 저장버튼 클릭 이벤트
 async function onClickSave() {
   const view = grdMainRef.value.getView();
@@ -336,20 +334,19 @@ async function onClickSave() {
       return;
     }
 
-    if (minusQty !== 0) {
-      if (isEmpty(acinspRmkCn) || acinspRmkCn?.length < 5) {
-        // 재고차이 발생건 사유 입력을 해야합니다.
-        notify(t('MSG_ALT_STOC_GAP_OC_RSON_IN'));
-        return;
-      }
+    if (minusQty !== 0 && (isEmpty(acinspRmkCn) || acinspRmkCn?.length < 5)) {
+      // 재고차이 발생 사유를 5글자 이상 입력해 주세요.
+      notify(t('MSG_ALT_STOC_GAP_OC_RSON_IN'));
+      return;
     }
   }
-  params = searchParams.value;
-  await dataService.post('/sms/wells/service/stock-acinp-rgst', checkedRows.map((v) => ({ ...v, ...params })));
 
-  notify(t('MSG_ALT_SAVE_DATA'));
-
-  await fetchData();
+  const res = await dataService.post('/sms/wells/service/stock-acinp-rgst', checkedRows.map((v) => ({ ...v, ...cachedParams })));
+  const { processCount } = res.data;
+  if (processCount > 0) {
+    notify(t('MSG_ALT_SAVE_DATA'));
+    await fetchData();
+  }
 }
 
 // 실사확정 버튼클릭 이벤트
@@ -374,13 +371,18 @@ async function onClickAcinspCnfm() {
     }
   }
 
-  const currentMonth = searchParams.value.baseYm;
-  if (await confirm(t('MSG_ALT_ACINSP_CNFM_MTR_CNFM', [currentMonth.substring(0, 4), currentMonth.substring(4, 6)]))) {
-    params = searchParams.value;
-    await dataService.post('/sms/wells/service/stock-acinp-rgst/acinsp-cnfm', checkedRows.map((v) => ({ ...v, ...params })));
+  const { baseYm } = cachedParams;
+  const baseYear = baseYm.substring(0, 4);
+  const baseMonth = baseYm.substring(4, 6);
 
-    notify(t('MSG_ALT_SAVE_DATA'));
+  if (!await confirm(t('MSG_ALT_ACINSP_CNFM_MTR_CNFM', [baseYear, baseMonth]))) return;
 
+  const res = await dataService.post('/sms/wells/service/stock-acinp-rgst/acinsp-cnfm', checkedRows.map((v) => ({ ...v, ...cachedParams })));
+  const { processCount } = res.data;
+
+  if (processCount > 0) {
+    // 확정 처리 되었습니다.
+    notify(t('MSG_ALT_PASS_CONFIRM'));
     await fetchData();
   }
 }
@@ -392,7 +394,7 @@ async function onClikcStocApy() {
 
   if (!validateIsApplyRowExists()) return;
 
-  if (!(await gridUtil.validate(view, { isCheckedOnly: true }))) { return; }
+  if (!await gridUtil.validate(view, { isCheckedOnly: true })) { return; }
 
   for (let i = 0; i < checkedRows.length; i += 1) {
     const { statusT } = checkedRows[i];
@@ -408,15 +410,17 @@ async function onClikcStocApy() {
     }
   }
 
-  const currentMonth = searchParams.value.baseYm;
+  const { baseYm } = cachedParams;
+  const baseYear = baseYm.substring(0, 4);
+  const baseMonth = baseYm.substring(4, 6);
 
-  if (await confirm(t('MSG_ALT_RVPY_RFLT', [currentMonth.substring(0, 4), currentMonth.substring(4, 6)]))) {
-    params = searchParams.value;
+  if (!await confirm(t('MSG_ALT_RVPY_RFLT', [baseYear, baseMonth]))) return;
 
-    await dataService.post('/sms/wells/service/stock-acinp-rgst/stoc-apy', checkedRows.map((v) => ({ ...v, ...params })));
-
-    notify(t('MSG_ALT_SAVE_DATA'));
-
+  const res = await dataService.post('/sms/wells/service/stock-acinp-rgst/stoc-apy', checkedRows.map((v) => ({ ...v, ...cachedParams })));
+  const { processCount } = res.data;
+  if (processCount > 0) {
+    // 반영되었습니다.
+    notify(t('MSG_ALT_SUCCESS_RFL'));
     await fetchData();
   }
 }
@@ -428,7 +432,7 @@ async function onClickApplCancel() {
 
   if (!validateIsApplyRowExists()) return;
 
-  if (!(await gridUtil.validate(view, { isCheckedOnly: true }))) { return; }
+  if (!await gridUtil.validate(view, { isCheckedOnly: true })) { return; }
 
   for (let i = 0; i < checkedRows.length; i += 1) {
     const { cnfmdt } = checkedRows[i];
@@ -443,7 +447,8 @@ async function onClickApplCancel() {
   const res = await dataService.delete('/sms/wells/service/stock-acinp-rgst', { data: checkedRows });
   const { processCount } = res.data;
   if (processCount > 0) {
-    notify(t('MSG_ALT_DELETED'));
+    // 취소되었습니다.
+    notify(t('MSG_ALT_WAS_CNCL'));
     await fetchData();
   }
 }
@@ -455,7 +460,7 @@ async function onClickStocCancel() {
 
   if (!validateIsApplyRowExists()) return;
 
-  if (!(await gridUtil.validate(view, { isCheckedOnly: true }))) { return; }
+  if (!await gridUtil.validate(view, { isCheckedOnly: true })) { return; }
 
   for (let i = 0; i < checkedRows.length; i += 1) {
     const { statusT } = checkedRows[i];
@@ -472,15 +477,17 @@ async function onClickStocCancel() {
     }
   }
 
-  const currentMonth = searchParams.value.baseYm;
+  const { baseYm } = cachedParams;
+  const baseYear = baseYm.substring(0, 4);
+  const baseMonth = baseYm.substring(4, 6);
 
-  if (await confirm(t('MSG_ALT_MTR_CNFM_CAN', [currentMonth.substring(0, 4), currentMonth.substring(4, 6)]))) {
-    params = searchParams.value;
+  if (!await confirm(t('MSG_ALT_MTR_CNFM_CAN', [baseYear, baseMonth]))) return;
 
-    await dataService.post('/sms/wells/service/stock-acinp-rgst/stoc-cancel', checkedRows.map((v) => ({ ...v, ...params })));
-
-    notify(t('MSG_ALT_SAVE_DATA'));
-
+  const res = await dataService.post('/sms/wells/service/stock-acinp-rgst/stoc-cancel', checkedRows.map((v) => ({ ...v, ...cachedParams })));
+  const { processCount } = res.data;
+  if (processCount > 0) {
+    // 취소되었습니다.
+    notify(t('MSG_ALT_WAS_CNCL'));
     await fetchData();
   }
 }
