@@ -25,13 +25,17 @@
         <div class="preview-attach__bottom">
           <kw-image
             :file-uid="props.files.istEnvrFileId"
+            width="100%"
+            height="100%"
+            fit="contain"
           />
           <ul class="preview-attach__infos">
             <!-- 166730259072721428.jpg -->
             <li class="text-underline cursor-pointer" />
             <div class="ml100 mb5">
               <kw-btn
-                secondary
+                dense
+                underline
                 :label="$t('이미지상세')"
                 @click="onClickImgDetail(props.files.istEnvrFileId)"
               />
@@ -59,7 +63,8 @@
         <div class="ml100 mb5">
           <kw-btn
             :label="$t('이미지상세')"
-            secondary
+            dense
+            underline
             class="kw-font-caption center ml2"
             @click="onClickImgDetail(props.files.istKitFileId)"
           />
@@ -84,7 +89,8 @@
             <li class="text-underline cursor-pointer" />
             <div class="ml100 mb5">
               <kw-btn
-                secondary
+                dense
+                underline
                 :label="$t('이미지상세')"
                 @click="onClickImgDetail(props.files.celngFileId)"
               />
@@ -113,7 +119,7 @@ const props = defineProps({
 async function onClickImgDetail(fileid) {
   await modal({
     component: 'ZwcmzImagePreviewP',
-    componentProps: { files: fileid },
+    componentProps: { files: [{ fileUid: fileid.value }] },
   });
 }
 /*
