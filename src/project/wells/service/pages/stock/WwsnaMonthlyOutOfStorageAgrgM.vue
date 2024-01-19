@@ -360,7 +360,7 @@ const onChangeItmDvCd = () => {
 
 // 품목 변경 (pdCd)
 const onChangePdCd = (val) => {
-  searchParams.value.pdCd = val;
+  searchParams.value.itmPdCd = val;
 };
 
 // 출고시작일자 및 출고종료일자 validation 체크 (12개월 미만으로만 선택가능)
