@@ -185,3 +185,9 @@ export const RVE_DV_CD = {
 export const ATTACH_GROUP_ID = {
   RCP_FILE: 'ATG_CTA_RCP_FILE',
 };
+
+export const AG_STAT_CD = {
+  AG: '01', // "동의"
+  REJ: '02', // "거절"
+  UNDEF: '03', // "미확정"
+};
