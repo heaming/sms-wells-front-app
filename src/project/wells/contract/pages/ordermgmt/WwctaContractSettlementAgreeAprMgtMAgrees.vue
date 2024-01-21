@@ -44,7 +44,7 @@
         v-for="(item) in innerAgrees"
         :key="`agree-item-${item.agAtcDvCd}`"
         class="scoped-list__item"
-        :class="{'scoped-list__item--selected': item.agStatCd === AG_STAT_CD_AG}"
+        :class="{'scoped-list__item--selected': item.agStatCd === AG_STAT_CD.AG}"
       >
         <kw-item-section
           side
@@ -52,9 +52,9 @@
         >
           <kw-checkbox
             v-model="item.agStatCd"
-            :true-value="AG_STAT_CD_AG"
-            :false-value="AG_STAT_CD_REJ"
-            :indeterminate-value="AG_STAT_CD_UNDEF"
+            :true-value="AG_STAT_CD.AG"
+            :false-value="AG_STAT_CD.REJ"
+            :indeterminate-value="AG_STAT_CD.UNDEF"
             checked-icon="dialog_checked_on"
             unchecked-icon="dialog_checked_off"
             indeterminate-icon="dialog_checked_off"
@@ -81,7 +81,7 @@
           center
         >
           <kw-btn
-            v-if="codeTerms[item.agAtcDvCd]"
+            v-if="item.termsId"
             borderless
             dense
             icon="arrow_stepper"
@@ -108,6 +108,7 @@ import WwctaContractSettlementAgreeItem
 
 import { useGlobal } from 'kw-lib';
 import { useCtCode } from '~sms-common/contract/composable';
+import { AG_STAT_CD } from '~sms-wells/contract/constants/ctConst';
 
 const { alert, modal } = useGlobal();
 
@@ -121,43 +122,21 @@ const emit = defineEmits(['confirm']);
 
 const { getCodeName } = await useCtCode(AG_ATC_DV_CD);
 
-const AG_STAT_CD_AG = '01';
-const AG_STAT_CD_REJ = '02';
-const AG_STAT_CD_UNDEF = '03';
-
-const codeTerms = {
-  114: {
-    agAtcDvCd: '114', // [필수] 개인신용정보 수집, 제공, 조회 동의
-    termsId: 'W002',
-  },
-  111: {
-    agAtcDvCd: '111', // [필수] 개인정보 수집 및 이용동의
-    termsId: 'W003',
-  },
-  112: {
-    agAtcDvCd: '112', // [선택] 개인정보 제3자 제공동의
-    termsId: 'W004',
-  },
-  113: {
-    agAtcDvCd: '113', // [선택] 마케팅 목적 처리 동의
-    termsId: 'W005',
-  },
-  151: {
-    agAtcDvCd: '151', // 포인트 플러스 또는 플래너 429/599 가입 후 캐쉬 보유 고객 필수 동의서
-    termsId: 'W006',
-  },
-};
 // -------------------------------------------------------------------------------------------------
 // Function & Event
 // -------------------------------------------------------------------------------------------------
 async function onClickShowTerms(val) {
-  // console.log(JSON.stringify(val, null, '\t'));
+  const {
+    termsGroupTypeCd,
+    termsTypeCd,
+    termsId,
+  } = val;
   await modal({
     component: 'ZmcsxCustomerTermsDtlP',
     componentProps: {
-      termsGroupTypeCd: 'CT',
-      termsTypeCd: 'CTA',
-      termsId: codeTerms[val.agAtcDvCd]?.termsId,
+      termsGroupTypeCd,
+      termsTypeCd,
+      termsId,
     },
   });
 }
@@ -176,14 +155,14 @@ const agreeAll = computed(() => {
   if (!Array.isArray(innerAgrees.value)) {
     return false;
   }
-  return !innerAgrees.value.some((a) => a.agStatCd !== AG_STAT_CD_AG);
+  return !innerAgrees.value.some((a) => a.agStatCd !== AG_STAT_CD.AG);
 });
 
 function onChangeAgreeAll(val) {
   if (!Array.isArray(innerAgrees.value)) {
     return;
   }
-  innerAgrees.value.forEach((a) => { a.agStatCd = (val ? AG_STAT_CD_AG : AG_STAT_CD_REJ); });
+  innerAgrees.value.forEach((a) => { a.agStatCd = (val ? AG_STAT_CD.AG : AG_STAT_CD.REJ); });
 }
 
 function requiredButNotAgreeExist() {
@@ -191,7 +170,7 @@ function requiredButNotAgreeExist() {
     return;
   }
   return innerAgrees.value.some((a) => {
-    if (a.required && a.agStatCd !== AG_STAT_CD_AG) {
+    if (a.required && a.agStatCd !== AG_STAT_CD.AG) {
       alert(`[${a.name}] 동의 항목에 동의 해주세요.`);
       return true;
     }
