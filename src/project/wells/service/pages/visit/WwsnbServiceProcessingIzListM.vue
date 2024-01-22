@@ -258,6 +258,7 @@ const pageInfo = ref({
   totalCount: 0,
   pageIndex: 1,
   pageSize: Number(getConfig('CFG_CMZ_DEFAULT_PAGE_SIZE')),
+  needTotalCount: true,
 });
 
 const codes = await codeUtil.getMultiCodes(
@@ -329,6 +330,8 @@ async function fetchData() {
   const res = await dataService.get('/sms/wells/service/service-processing/paging', { params: { ...cachedParams, ...pageInfo.value }, timeout: 300000 });
   const { list: itemizations, pageInfo: pagingResult } = res.data;
 
+  pagingResult.needTotalCount = false;
+
   pageInfo.value = pagingResult;
   const view = grdMainRef.value.getView();
   view.getDataSource().setRows(itemizations);
@@ -343,6 +346,7 @@ async function fetchData() {
 // 조회 버튼 클릭
 async function onClickSearch() {
   pageInfo.value.pageIndex = 1;
+  pageInfo.value.needTotalCount = true;
   cachedParams = cloneDeep(searchParams.value);
   await fetchData();
 }
