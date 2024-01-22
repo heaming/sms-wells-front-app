@@ -115,6 +115,7 @@
             v-model="searchParams.itmGdCd"
             first-option="all"
             :options="codes.PD_GD_CD"
+            :disable="true"
           />
         </kw-search-item>
       </kw-search-row>
@@ -212,13 +213,13 @@ const tempOptions = {
     { codeId: 'Y', codeName: t('MSG_TXT_USE') }, // 사용
     { codeId: 'N', codeName: t('MSG_TXT_NUSD') }, // 미사용
   ],
-  // stockTpCd: [ // 재고유형기준
-  //   { codeId: '1', codeName: t('기준1') }, // 기준1
-  //   { codeId: '2', codeName: t('기준2') }, // 기준2
-  //   { codeId: '3', codeName: t('기준3') }, // 기준3
-  //   { codeId: '4', codeName: t('기준4') }, // 기준4
-  //   { codeId: '5', codeName: t('기준5') }, // 기준5
-  // ],
+  stockTpCd: [ // 재고유형기준
+    { codeId: '1', codeName: t('기준1') }, // 기준1
+    { codeId: '2', codeName: t('기준2') }, // 기준2
+    { codeId: '3', codeName: t('기준3') }, // 기준3
+    { codeId: '4', codeName: t('기준4') }, // 기준4
+    { codeId: '5', codeName: t('기준5') }, // 기준5
+  ],
   markTp: [
     { codeId: 'Mm', codeName: t('지속월') },
     { codeId: 'notMm', codeName: t('회전율') },
@@ -309,14 +310,14 @@ async function getWareHouseList() {
       fieldName: `ware${v.wareNo}`,
       width: fieldsWidth,
       direction: 'horizontal',
-      items: [`ware${v.wareNo}PitmStocGdQty`, `ware${v.wareNo}KeppMm`],
+      items: [`ware${v.wareNo}Pitm`, `ware${v.wareNo}Kepp`],
     })));
     serviceFields.push(...wareServiceFields.map((v) => ({
       fieldName: `ware${v.wareNo}`,
       header: v.wareNm,
       width: fieldsWidth,
       direction: 'horizontal',
-      items: [`ware${v.wareNo}PitmStocGdQty`, `ware${v.wareNo}KeppMm`],
+      items: [`ware${v.wareNo}Pitm`, `ware${v.wareNo}Kepp`],
     })));
     // 필드 셋팅
     fieldsObj.setFields();
@@ -368,10 +369,17 @@ async function fetchData() {
   totalCount.value = resList.length;
   const view = grdMainRef.value.getView();
   view.getDataSource().setRows(resList);
-  view.resetCurrent();
+  // view.resetCurrent();
 }
 
 async function onClickSearch() {
+  if (!isEmpty(searchParams.value.strtSapCd) && isEmpty(searchParams.value.endSapCd)) {
+    searchParams.value.endSapCd = searchParams.value.strtSapCd;
+  }
+
+  if (!isEmpty(searchParams.value.endSapCd) && isEmpty(searchParams.value.strtSapCd)) {
+    searchParams.value.strtSapCd = searchParams.value.endSapCd;
+  }
   await getWareHouseList();
   searchParams.value.matUtlzDvCd = '';
   console.log('searchParams.value ???', searchParams.value);
