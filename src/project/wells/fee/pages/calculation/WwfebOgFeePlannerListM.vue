@@ -1349,7 +1349,7 @@ const initGrd2Main = defineGrid((data, view) => {
         expression: 'sum',
       } },
     { fieldName: 'aksd05',
-      header: t('MSG_TXT_STMNT') + t('MSG_TXT_FEE'),
+      header: t('MSG_TXT_STMNT'),
       width: '122.7',
       styleName: 'text-right',
       numberFormat: '#,###,##0',
