@@ -91,7 +91,7 @@
           />
         </kw-search-item>
         <kw-search-item
-          v-if="popupRequiredCstInfos && searchParams.copnDvCd === '1'"
+          v-if="popupRequiredCstInfos && searchParams.copnDvCd === COPN_DV_CD.INDIVIDUAL"
           :label="cstKnmLabel"
           required
         >
@@ -104,7 +104,7 @@
           />
         </kw-search-item>
         <kw-search-item
-          v-if="popupRequiredCstInfos && searchParams.copnDvCd === '2'"
+          v-if="popupRequiredCstInfos && searchParams.copnDvCd === COPN_DV_CD.COOPERATION"
           :label="$t('MSG_TXT_CRNO')"
           required
         >
@@ -121,7 +121,7 @@
         v-if="popupRequiredCstInfos"
       >
         <kw-search-item
-          v-if="searchParams.copnDvCd === '2'"
+          v-if="searchParams.copnDvCd === COPN_DV_CD.COOPERATION"
           :label="cstKnmLabel"
         >
           <kw-input
@@ -132,7 +132,7 @@
           />
         </kw-search-item>
         <kw-search-item
-          v-if="searchParams.copnDvCd === '1'"
+          v-if="searchParams.copnDvCd === COPN_DV_CD.INDIVIDUAL"
           :label="$t('MSG_TXT_MPNO')"
           required
         >
@@ -251,7 +251,7 @@
       <h3>
         {{ t('MSG_TXT_CNTRT_INF') }}
         <kw-btn
-          v-if="searchParams.copnDvCd === '1'"
+          v-if="searchParams.copnDvCd === COPN_DV_CD.INDIVIDUAL"
           v-permission:update
           icon-right="write_24"
           dense
@@ -269,11 +269,11 @@
         <template
           v-if="cntrTpIs.indv
             || cntrTpIs.ensm
-            || (cntrTpIs.msh && searchParams.copnDvCd === '1')
-            || (cntrTpIs.rstl && searchParams.copnDvCd === '1')"
+            || (cntrTpIs.msh && searchParams.copnDvCd === COPN_DV_CD.INDIVIDUAL)
+            || (cntrTpIs.rstl && searchParams.copnDvCd === COPN_DV_CD.INDIVIDUAL)"
         >
           <kw-form-row
-            v-if="searchParams.copnDvCd === '1'"
+            v-if="searchParams.copnDvCd === COPN_DV_CD.INDIVIDUAL"
           >
             <!-- 개인 -->
             <kw-form-item
@@ -325,7 +325,7 @@
             </kw-form-item>
           </kw-form-row>
           <kw-form-row
-            v-if="searchParams.copnDvCd === '2'"
+            v-if="searchParams.copnDvCd === COPN_DV_CD.COOPERATION"
           >
             <!-- 법인 -->
             <kw-form-item
@@ -366,8 +366,8 @@
         </template>
         <template
           v-if="cntrTpIs.crp
-            || (cntrTpIs.msh && searchParams.copnDvCd === '2')
-            || (cntrTpIs.rstl && searchParams.copnDvCd === '2')"
+            || (cntrTpIs.msh && searchParams.copnDvCd === COPN_DV_CD.COOPERATION)
+            || (cntrTpIs.rstl && searchParams.copnDvCd === COPN_DV_CD.COOPERATION)"
         >
           <kw-form-row>
             <kw-form-item
@@ -653,12 +653,12 @@ async function getCntrInfo() {
 
   if (cntrt) {
     searchParams.value.cstKnm = cntrt.cstKnm;
-    if (searchParams.value.copnDvCd === '1') {
+    if (searchParams.value.copnDvCd === COPN_DV_CD.INDIVIDUAL) {
       searchParams.value.cntrtTno = `${cntrt.cralLocaraTno}${cntrt.mexnoEncr}${cntrt.cralIdvTno}`;
       searchParams.value.cralLocaraTno = cntrt.cralLocaraTno;
       searchParams.value.mexnoEncr = cntrt.mexnoEncr;
       searchParams.value.cralIdvTno = cntrt.cralIdvTno;
-    } else if (searchParams.value.copnDvCd === '2') {
+    } else if (searchParams.value.copnDvCd === COPN_DV_CD.COOPERATION) {
       searchParams.value.bzrno = cntrt.bzrno;
     }
   }
@@ -754,7 +754,7 @@ async function checkExistContractor() {
 
 async function openCustomerSelectPopup() {
   const { copnDvCd } = searchParams.value;
-  const customerListPopupProps = copnDvCd === '1' ? {
+  const customerListPopupProps = copnDvCd === COPN_DV_CD.INDIVIDUAL ? {
     cstType: '1',
     cstNm: searchParams.value.cstKnm,
     cralLocaraTno: searchParams.value.cralLocaraTno,

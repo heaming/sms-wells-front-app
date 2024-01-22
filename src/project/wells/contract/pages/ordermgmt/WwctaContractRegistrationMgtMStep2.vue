@@ -137,6 +137,12 @@ const { notify, modal } = useGlobal();
 const cntrNo = computed(() => props.contract?.cntrNo);
 const step2 = toRef(props.contract, 'step2');
 const ogStep2 = ref({});
+const arcnCntrRels = computed(() => {
+  if (!step2.value.dtls?.length) { return []; }
+  return step2.value.dtls
+    .flatMap((cntrDtl) => (cntrDtl.cntrRels || []))
+    .filter((cntrRel) => cntrRel.cntrRelDtlCd === CNTR_REL_DTL_CD.LK_ARCN);
+});
 
 // -------------------------------------------------------------------------------------------------
 // Function & Event
@@ -145,6 +151,13 @@ const setTempKey = (pd) => {
   pd.tempKey = uniqueId('new-product');
 };
 
+/**
+ * 상품 판매제한을 조회한다.
+ * 영업시간 제한, 기계약 필요 여부 및 존재여부, 총판타조직 계약 존재여부 등을 조회합니다.
+ *
+ * @param product
+ * @return {Promise<void>}
+ */
 async function fetchPdSellLimit(product) {
   const { data } = await dataService.get('sms/wells/contract/contracts/product-limit', {
     params: {
@@ -162,6 +175,8 @@ function validatePdSellLimit(pdSellLimit) {
     bznsClYn,
     pcntrMndtYn,
     pcntrExistYn,
+    arcnPdRels,
+    arcnRelOjCntrDtls,
     sodbtOtherOgMclsfCntrExistYn,
   } = pdSellLimit;
 
@@ -171,21 +186,8 @@ function validatePdSellLimit(pdSellLimit) {
     precontractRequired: false,
     bizStartTime: undefined,
     bizEndTime: undefined,
+    arcnCntrRelRequired: false,
   };
-
-  validationObject.precontractRequired = pcntrMndtYn === 'Y';
-
-  if (sodbtOtherOgMclsfCntrExistYn === 'Y') {
-    validationObject.valid = false;
-    validationObject.reason = '타조직 총판 계약 건이 존재합니다.';
-    return validationObject;
-  }
-
-  if (pcntrMndtYn === 'Y' && pcntrExistYn === 'N') {
-    validationObject.valid = false;
-    validationObject.reason = '해당 상품은 기계약 상품의 계약 건이 존재해야만 선택 가능합니다.';
-    return validationObject;
-  }
 
   if (bznsClYn === 'Y') {
     validationObject.valid = false;
@@ -209,6 +211,32 @@ function validatePdSellLimit(pdSellLimit) {
     }
   }
 
+  validationObject.precontractRequired = pcntrMndtYn === 'Y';
+
+  if (pcntrMndtYn === 'Y' && pcntrExistYn === 'N') {
+    validationObject.valid = false;
+    validationObject.reason = '해당 상품은 기계약 상품의 계약 건이 존재해야만 선택 가능합니다.';
+    return validationObject;
+  }
+
+  if (sodbtOtherOgMclsfCntrExistYn === 'Y') {
+    validationObject.valid = false;
+    validationObject.reason = '타조직 총판 계약 건이 존재합니다.';
+    return validationObject;
+  }
+
+  if (arcnPdRels?.length) {
+    validationObject.arcnCntrRelRequired = true;
+    if (!arcnRelOjCntrDtls?.length) {
+      validationObject.valid = false;
+      const ojPdCds = arcnPdRels
+        .map((cntrRel) => cntrRel.ojPdCd).join(', ');
+      validationObject.reason = `스탠드와 함께 구매해야하는 상품입니다. (${ojPdCds})`;
+      return validationObject;
+    }
+    validationObject.arcnRelOjCntrDtls = arcnRelOjCntrDtls;
+  }
+
   validationObject.valid = true;
   return validationObject;
 }
@@ -222,11 +250,50 @@ async function onSelectProduct(product, wellsFarmMachineCntrDtl) {
   const newProduct = { ...product };
   const newProducts = [];
 
-  const { valid, reason } = await validatePreconditions(newProduct);
+  const { valid, reason, arcnCntrRelRequired, arcnRelOjCntrDtls } = await validatePreconditions(newProduct);
 
   if (!valid) {
     alert(reason);
     return;
+  }
+
+  const isCombiAirConditioner = newProduct.pdDclsfId === 'PDC000000000043'; /* 에어컨 > 스탠드형 > 17평형 */
+  if (isCombiAirConditioner && arcnCntrRelRequired) {
+    if (!arcnRelOjCntrDtls?.length) {
+      warn('에어컨 결합 대상 계약목록이 없습니다.');
+      return;
+    }
+
+    const selectableOjCntrDtls = arcnRelOjCntrDtls.filter((cntrDtl) => {
+      const alreadySelected = arcnCntrRels.value
+        .some((cntrRel) => cntrRel.ojDtlCntrNo === cntrDtl.cntrNo && cntrRel.ojDtlCntrSn === cntrDtl.cntrSn);
+      return !alreadySelected;
+    });
+
+    if (!selectableOjCntrDtls.length) {
+      warn('선택 가능한 모든 스탠드가 결합상태입니다.');
+      return;
+    }
+
+    const selectedOjCntrDtl = selectableOjCntrDtls[0];
+
+    if (selectedOjCntrDtl.length > 1) {
+      // TODO 선택 팝업.
+    }
+
+    newProduct.cntrRels = [{
+      cntrRelId: undefined,
+      cntrRelDtlCd: CNTR_REL_DTL_CD.LK_ARCN, /* 모종결합 */
+      baseDtlCntrNo: cntrNo.value,
+      baseDtlCntrSn: undefined,
+      ojDtlCntrNo: selectedOjCntrDtl.cntrNo,
+      ojDtlCntrSn: selectedOjCntrDtl.cntrSn,
+      basePdBas: {
+        pdCd: newProduct.pdCd,
+        pdNm: newProduct.pdNm,
+      },
+      ojBasePdBas: { ...selectedOjCntrDtl }, /* 기기 선택 해야함. */
+    }];
   }
 
   const isDryer = newProduct.pdMclsfId === 'PDC000000000096';
