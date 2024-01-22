@@ -20,6 +20,7 @@
       @search="onClickSearch"
     >
       <kw-search-row>
+        <!-- 배송창고 -->
         <kw-search-item :label="$t('MSG_TXT_DELV_WARE')">
           <kw-select
             v-model="searchParams.wkWareNo"
@@ -27,6 +28,7 @@
           />
         </kw-search-item>
         <kw-search-item :label="$t('MSG_TXT_LGST_WK_MTHD_CD')">
+          <!-- 물류배송방식코드 -->
           <kw-select
             v-model="searchParams.lgstWkMthdCd"
             :options="products"
@@ -41,12 +43,14 @@
           />
         </kw-search-item>
         <kw-search-item :label="$t('MSG_TXT_OSTR_DV')">
+          <!-- 출고구분 -->
           <kw-select
             v-model="searchParams.svBizDclsfCd"
             :options="filterSvBizDclsfCd"
           />
         </kw-search-item>
         <kw-search-item :label="$t('MSG_TXT_WK_STS')">
+          <!-- 작업상태 -->
           <kw-select
             v-model="searchParams.findGb"
             :options="customCodes.findGb"
@@ -55,6 +59,7 @@
         </kw-search-item>
       </kw-search-row>
       <kw-search-row>
+        <!-- 계약일자 시작/종료 -->
         <kw-search-item
           v-if="!isCompStatus"
           :colspan="2"
@@ -67,6 +72,7 @@
             rules="date_range_required"
           />
         </kw-search-item>
+        <!-- 출고확정일 -->
         <kw-search-item
           v-if="isCompStatus"
           :colspan="2"
@@ -79,6 +85,7 @@
             rules="required"
           />
         </kw-search-item>
+        <!-- 조회제한건수 -->
         <kw-search-item
           v-show="isWaitStatus"
           :label="$t('MSG_TXT_SEL_LIMIT_CNT')"
@@ -100,12 +107,14 @@
             :total-count="totalCount"
           />
         </template>
+        <!-- BUTTON 저장 -->
         <kw-btn
           v-show="isWaitStatus"
           grid-action
           :label="$t('MSG_BTN_SAVE')"
           @click="onClickSave"
         />
+        <!-- BUTTON 엑셀다운로드 -->
         <kw-btn
           icon="download_on"
           dense
@@ -150,7 +159,8 @@ const baseUrl = '/sms/wells/service/pcsv-out-of-storage';
 const codes = await codeUtil.getMultiCodes(
   'SV_BIZ_DCLSF_CD',
 );
-const filterSvBizDclsfCd = computed(() => codes.SV_BIZ_DCLSF_CD.filter((v) => ['1112', '1113'].includes(v.codeId)).sort((a, b) => (a.codeId > b.codeId ? 1 : -1)));
+// 1112 재품배송, 1113 재품재배송, 1114 사은품배송
+const filterSvBizDclsfCd = computed(() => codes.SV_BIZ_DCLSF_CD.filter((v) => ['1112', '1113', '1410'].includes(v.codeId)).sort((a, b) => (a.codeId > b.codeId ? 1 : -1)));
 
 const customCodes = {
   findGb: [
@@ -266,11 +276,11 @@ async function onClickSave() {
 
 const initGrdMain = defineGrid((data, view) => {
   const columns = [
-    { fieldName: 'cntrRcpFshDtm', header: t('MSG_TXT_CNTR_DATE'), width: '100', styleName: 'text-center', datetimeFormat: 'date' },
-    { fieldName: 'svBizDclsfCd', header: t('MSG_TXT_TASK_TYPE_CD'), width: '90', styleName: 'text-center' },
-    { fieldName: 'svBizDclsfNm', header: t('MSG_TXT_TASK_TYPE'), width: '110', styleName: 'text-center' },
-    { fieldName: 'wkPrgsStatNm', header: t('MSG_TXT_WK_STS'), width: '80', styleName: 'text-center' },
-    { fieldName: 'vstFshDt', header: t('MSG_TXT_OSTR_CNFM_DT'), width: '100', styleName: 'text-center', datetimeFormat: 'date' },
+    { fieldName: 'cntrRcpFshDtm', header: t('MSG_TXT_CNTR_DATE'), width: '100', styleName: 'text-center', datetimeFormat: 'date' }, // 계약일자
+    { fieldName: 'svBizDclsfCd', header: t('MSG_TXT_TASK_TYPE_CD'), width: '90', styleName: 'text-center' }, // 업무유형코드
+    { fieldName: 'svBizDclsfNm', header: t('MSG_TXT_TASK_TYPE'), width: '110', styleName: 'text-center' }, // 업무유형
+    { fieldName: 'wkPrgsStatNm', header: t('MSG_TXT_WK_STS'), width: '80', styleName: 'text-center' }, // 작업상태
+    { fieldName: 'vstFshDt', header: t('MSG_TXT_OSTR_CNFM_DT'), width: '100', styleName: 'text-center', datetimeFormat: 'date' }, // 출고확정일
     {
       fieldName: 'cntrNo',
       header: t('MSG_TXT_CNTR_DTL_NO'),
@@ -282,11 +292,11 @@ const initGrdMain = defineGrid((data, view) => {
           return `${cntrNo}-${cntrSn}`;
         }
       },
-    },
+    }, // 계약상세번호
     { fieldName: 'cntrSn', visible: false },
-    { fieldName: 'rcgvpKnm', header: t('MSG_TXT_CST_NM'), width: '100', styleName: 'text-center' },
-    { fieldName: 'basePdCd', header: t('MSG_TXT_ITM_CD'), width: '120', styleName: 'text-center' },
-    { fieldName: 'basePdNm', header: t('MSG_TXT_ITM_NM'), width: '300', styleName: 'text-left' },
+    { fieldName: 'rcgvpKnm', header: t('MSG_TXT_CST_NM'), width: '100', styleName: 'text-center' }, // 고객명
+    { fieldName: 'basePdCd', header: t('MSG_TXT_ITM_CD'), width: '120', styleName: 'text-center' }, // 품목코드
+    { fieldName: 'basePdNm', header: t('MSG_TXT_ITM_NM'), width: '300', styleName: 'text-left' }, // 품목명
     { fieldName: 'cralLocaraTno', visible: false }, // [휴대전화번호1]
     { fieldName: 'mexnoEncr', visible: false }, // [휴대전화번호2]
     { fieldName: 'cralIdvTno', // [휴대전화번호3]
@@ -315,16 +325,16 @@ const initGrdMain = defineGrid((data, view) => {
           return `${values.locaraTno}-${values.exnoEncr}-${value}`;
         }
       },
-    },
-    { fieldName: 'newAdrZip', header: t('MSG_TXT_ZIP'), width: '80', styleName: 'text-center' },
-    { fieldName: 'rnadr', header: t('MSG_TXT_ADDR'), width: '380', styleName: 'text-left' },
-    { fieldName: 'rdadr', header: t('MSG_TXT_ADDR_DTL'), width: '380', styleName: 'text-left' },
-    { fieldName: 'reqdDt', header: t('MSG_TXT_DEM_DT'), width: '130', styleName: 'text-center', datetimeFormat: 'date' },
-    { fieldName: 'rsgFshDt', header: t('MSG_TXT_CANC_DT'), width: '130', styleName: 'text-center', datetimeFormat: 'date' },
-    { fieldName: 'cstSvAsnNo', header: t('MSG_TXT_ASGN_NO'), width: '200', styleName: 'text-center' },
-    { fieldName: 'ostrAkNo', header: t('MSG_TXT_SV_OSTR_AK_NO'), width: '200', styleName: 'text-center' },
-    { fieldName: 'lgstOstrAkNo', header: t('MSG_TXT_LGST_OSTR_AK_NO'), width: '200', styleName: 'text-center' },
-    { fieldName: 'ostrNo', header: t('MSG_TXT_LGST_OSTR_NO'), width: '200', styleName: 'text-center' },
+    }, // 전화번호
+    { fieldName: 'newAdrZip', header: t('MSG_TXT_ZIP'), width: '80', styleName: 'text-center' }, // 우편번호
+    { fieldName: 'rnadr', header: t('MSG_TXT_ADDR'), width: '380', styleName: 'text-left' }, // 주소
+    { fieldName: 'rdadr', header: t('MSG_TXT_ADDR_DTL'), width: '380', styleName: 'text-left' }, // 주소상세
+    { fieldName: 'reqdDt', header: t('MSG_TXT_DEM_DT'), width: '130', styleName: 'text-center', datetimeFormat: 'date' }, // 철거일자
+    { fieldName: 'rsgFshDt', header: t('MSG_TXT_CANC_DT'), width: '130', styleName: 'text-center', datetimeFormat: 'date' }, // 취소일자
+    { fieldName: 'cstSvAsnNo', header: t('MSG_TXT_ASGN_NO'), width: '200', styleName: 'text-center' }, // 배정번호
+    { fieldName: 'ostrAkNo', header: t('MSG_TXT_SV_OSTR_AK_NO'), width: '200', styleName: 'text-center' }, // 서비스출고요청번호
+    { fieldName: 'lgstOstrAkNo', header: t('MSG_TXT_LGST_OSTR_AK_NO'), width: '200', styleName: 'text-center' }, // 물류출고요청번호
+    { fieldName: 'ostrNo', header: t('MSG_TXT_LGST_OSTR_NO'), width: '200', styleName: 'text-center' }, // 물류출고번호
     { fieldName: 'mpacSn', visible: false }, /* 이하 컬럼등은 저장시 사용 */
     { fieldName: 'lgstWkMthdCd', visible: false },
     { fieldName: 'wkWareNo', visible: false },
