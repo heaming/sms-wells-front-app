@@ -557,7 +557,11 @@ async function onClickDelete() {
   setTotalCount();
 
   if (deletedRows.length > 0) {
-    await dataService.delete('/sms/wells/service/returning-goods-out-of-storages', { data: deletedRows.map((v) => ({ ...searchParams.value, ...v })) });
+    const res = await dataService.delete('/sms/wells/service/returning-goods-out-of-storages', { data: deletedRows.map((v) => ({ ...searchParams.value, ...v })) });
+    const { processCount } = res.data;
+    if (processCount > 0) {
+      notify(t('MSG_ALT_DELETED'));
+    }
   }
 }
 
@@ -581,7 +585,7 @@ async function onClickSave() {
   }
   if (!(await gridUtil.validate(view, { isCheckedOnly: true }))) { return; }
 
-  const selectedDay = searchParams.value.ostrDt;
+  const { ostrDt: selectedDay, strWareNo, trnspnCd, ostrTpCd, ostrWareNo } = searchParams.value;
 
   if (selectedDay > dayjs().format('YYYYMMDD')) {
     // {출고일자}는 오늘이거나 이전 일자만 선택이 가능합니다.
@@ -597,14 +601,14 @@ async function onClickSave() {
   }
 
   // 파주물류센터일 경우 운송코드 필수체크 추가
-  if (searchParams.value.strWareNo === '100002' && searchParams.value.trnspnCd === '') {
+  if (strWareNo === '100002' && isEmpty(trnspnCd)) {
     notify(t('MSG_ALT_TRNSPN_CD_ATC_VAL_OMSSN_CONF_NCST'));
     return;
   }
 
   // searchParams 값 체크
-  if (searchParams.value.ostrTpCd === '' || searchParams.value.ostrWareNo === '' || searchParams.value.ostrDt === ''
-    || ((searchParams.value.ostrTpCd === RETURN_INSIDE || searchParams.value.ostrTpCd === RETURN_OUTSIDE) && searchParams.value.strWareNo === '')) {
+  if (isEmpty(ostrTpCd) || isEmpty(ostrWareNo) || isEmpty(selectedDay)
+    || ((ostrTpCd === RETURN_INSIDE || ostrTpCd === RETURN_OUTSIDE) && isEmpty(strWareNo))) {
     notify(t('MSG_ALT_MISSING_VALUE_PLEASE_CHECK'));
     return;
   }
