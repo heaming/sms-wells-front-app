@@ -1153,7 +1153,7 @@ const initGrd2Main = defineGrid((data, view) => {
     { fieldName: 'akcda0',
       header: t('MSG_TXT_ELHM') + t('MSG_TXT_PERF'),
       width: '132.8',
-      styleName: 'text-center',
+      styleName: 'text-right',
       numberFormat: '#,###,##0',
       headerSummary: {
         numberFormat: '#,##0',
