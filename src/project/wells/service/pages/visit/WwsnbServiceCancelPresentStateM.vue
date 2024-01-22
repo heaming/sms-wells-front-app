@@ -614,24 +614,30 @@ function initGrid(data, view) {
     const istImpPhoApnFileUid2 = g.getValues(itemIndex, 'istImpPhoApnFileUid2');
     const istImpPhoApnFileUid3 = g.getValues(itemIndex, 'istImpPhoApnFileUid3');
 
-    let fileUid;
+    // let fileUid;
     if (column === 'imgFile1') {
-      fileUid = istImpPhoApnFileUid1;
+      // fileUid = istImpPhoApnFileUid1;
       await modal({
         component: 'ZwcmzImagePreviewP',
-        componentProps: { files: [fileUid] }, // fileUid만 주면 됨
+        componentProps: { files: [
+          { fileUid: istImpPhoApnFileUid1 },
+        ] }, // fileUid만 주면 됨
       });
     } else if (column === 'imgFile2') {
-      fileUid = istImpPhoApnFileUid2;
+      // fileUid = istImpPhoApnFileUid2;
       await modal({
         component: 'ZwcmzImagePreviewP',
-        componentProps: { files: [fileUid] }, // fileUid만 주면 됨
+        componentProps: { files: [
+          { fileUid: istImpPhoApnFileUid2 },
+        ] }, // fileUid만 주면 됨
       });
     } else if (column === 'imgFile3') {
-      fileUid = istImpPhoApnFileUid3;
+      // fileUid = istImpPhoApnFileUid3;
       await modal({
         component: 'ZwcmzImagePreviewP',
-        componentProps: { files: [fileUid] }, // fileUid만 주면 됨
+        componentProps: { files: [
+          { fileUid: istImpPhoApnFileUid3 },
+        ] }, // fileUid만 주면 됨
       });
     }
 
