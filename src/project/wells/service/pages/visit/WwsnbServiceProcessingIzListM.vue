@@ -326,7 +326,7 @@ function getTime(minutes) {
 
 // 조회
 async function fetchData() {
-  const res = await dataService.get('/sms/wells/service/service-processing/paging', { params: { ...cachedParams, ...pageInfo.value } });
+  const res = await dataService.get('/sms/wells/service/service-processing/paging', { params: { ...cachedParams, ...pageInfo.value }, timeout: 300000 });
   const { list: itemizations, pageInfo: pagingResult } = res.data;
 
   pageInfo.value = pagingResult;
@@ -351,7 +351,7 @@ async function onClickSearch() {
 async function onClickExcelDownload() {
   const view = grdMainRef.value.getView();
 
-  const res = await dataService.get('/sms/wells/service/service-processing/excel-download', { params: cachedParams });
+  const res = await dataService.get('/sms/wells/service/service-processing/excel-download', { params: cachedParams, timeout: 300000 });
 
   await gridUtil.exportView(view, {
     fileName: currentRoute.value.meta.menuName,
