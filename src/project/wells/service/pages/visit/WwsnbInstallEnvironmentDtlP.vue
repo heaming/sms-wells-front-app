@@ -22,25 +22,20 @@
         <div class="preview-attach__top">
           {{ $t('MSG_TXT_IST_ENVR') }}
         </div>
-        <div class="preview-attach__bottom">
+        <div class="preview-attach__col">
           <kw-image
             :file-uid="props.files.istEnvrFileId"
             width="100%"
             height="100%"
             fit="contain"
           />
-          <ul class="preview-attach__infos">
-            <!-- 166730259072721428.jpg -->
-            <li class="text-underline cursor-pointer" />
-            <div class="ml100 mb5">
-              <kw-btn
-                dense
-                underline
-                :label="$t('이미지상세')"
-                @click="onClickImgDetail(props.files.istEnvrFileId)"
-              />
-            </div>
-          </ul>
+        </div>
+        <div class="ml100 mb5 mt5">
+          <kw-btn
+            :label="$t('이미지상세')"
+            class="kw-font-caption center ml2"
+            @click="onClickImgDetail(props.files.istEnvrFileId)"
+          />
         </div>
       </div>
       <div class="preview-attach col">
@@ -48,7 +43,8 @@
           {{ $t('MSG_TXT_IST_KIT') }}
         </div>
 
-        <div class="preview-attach__bottom">
+        <div class="preview-attach__col">
+          <!--:file-uid="props.files.istKitFileId"-->
           <kw-image
             :file-uid="props.files.istKitFileId"
             width="100%"
@@ -60,13 +56,11 @@
             :file-uid="props.files.istKitFileId"
           / -->
         <!-- <div style="align-items: center;"> -->
-        <div class="ml100 mb5">
+        <div class="ml100 mb5 mt5">
           <kw-btn
             :label="$t('이미지상세')"
-            dense
-            underline
             class="kw-font-caption center ml2"
-            @click="onClickImgDetail(props.files.istKitFileId)"
+            @click="onClickImgDetail(fff)"
           />
         </div>
         <!-- <kw-image
@@ -77,29 +71,27 @@
         <div class="preview-attach__top">
           {{ $t('MSG_TXT_CELNG') }}
         </div>
-        <div class="preview-attach__bottom">
+        <div class="preview-attach__col">
+          <!-- :file-uid="props.files.celngFileId" -->
           <kw-image
             :file-uid="props.files.celngFileId"
             width="100%"
             height="100%"
             fit="contain"
           />
-          <ul class="preview-attach__infos">
-            <!-- 166730259072721428.jpg -->
-            <li class="text-underline cursor-pointer" />
-            <div class="ml100 mb5">
-              <kw-btn
-                dense
-                underline
-                :label="$t('이미지상세')"
-                @click="onClickImgDetail(props.files.celngFileId)"
-              />
-            </div>
-          </ul>
-          <!-- <kw-image
+        </div>
+        <!-- 166730259072721428.jpg -->
+        <div class="ml100 mb5 mt5">
+          <kw-btn
+            :label="$t('이미지상세')"
+            class="kw-font-caption center ml2"
+            @click="onClickImgDetail(props.files.celngFileId)"
+          />
+        </div>
+
+        <!-- <kw-image
             :src="props.files.celngFileId"
           /> -->
-        </div>
       </div>
     </div>
   </kw-popup>
@@ -116,12 +108,13 @@ const props = defineProps({
   files: { type: Object, default: undefined },
 });
 
-async function onClickImgDetail(fileid) {
+async function onClickImgDetail(fileexi) {
   await modal({
     component: 'ZwcmzImagePreviewP',
-    componentProps: { files: [{ fileUid: fileid.value }] },
+    componentProps: { files: [{ fileUid: fileexi }] },
   });
 }
+
 /*
 Props 설정
 Props: {
