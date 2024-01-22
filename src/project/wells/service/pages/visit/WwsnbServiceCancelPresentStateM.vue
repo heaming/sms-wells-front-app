@@ -43,17 +43,17 @@
             option-label="ogCdNm"
             first-option="all"
             first-option-value=""
+            @update:model-value="onUpdateSvcCode"
           />
         </kw-search-item>
         <!-- 엔지니어 -->
         <kw-search-item :label="$t('MSG_TXT_EGER')">
           <kw-select
             v-model="searchParams.engineer"
-            :options="engineerList"
+            :options="engineers"
             option-value="prtnrNo"
             option-label="prtnrNoNm"
             first-option="all"
-            first-option-value=""
           />
         </kw-search-item>
         <!-- 작업상태 -->
@@ -254,6 +254,7 @@ const { t } = useI18n();
 const { getConfig } = useMeta();
 const { currentRoute } = useRouter();
 const { getPartMaster } = smsCommon();
+const router = useRouter();
 
 const dataService = useDataService();
 
@@ -286,7 +287,9 @@ const selectDate = [
 const serviceCenterList = ref((await dataService.get('/sms/wells/service/organizations/service-center', { params: { authYn: 'N' } })).data);
 
 // 엔지니어
-const engineerList = ref((await dataService.get('/sms/wells/service/organizations/engineer', { params: { authYn: 'N' } })).data);
+const engineerList = await dataService.get('/sms/wells/service/organizations/engineer', { params: { authYn: 'N' } });
+const engineers = ref(engineerList.data);
+console.log('engineers.value >>>', engineers.value);
 
 // 취소원인
 const causCdList = codes.WK_CAN_CAUS_CD.filter((v) => ['M1', 'M3', 'N1', 'O1', 'O3', 'P1', 'P3'].includes(v.codeId));
@@ -353,6 +356,23 @@ async function changePdGrpCd() {
     );
   } else pds.value = [];
   searchParams.value.pdCd = '';
+}
+
+async function setEngineers() {
+  engineers.value = cloneDeep(engineerList.data);
+
+  if (!isEmpty(searchParams.value.serviceCenter)) {
+    engineers.value = engineers.value.filter((v) => v.ogId === searchParams.value.serviceCenter);
+  }
+
+  if (searchParams.value.rgsnYn === 'Y') {
+    engineers.value = engineers.value.filter((v) => v.cltnDt === null || v.cltnDt === '');
+  }
+}
+
+async function onUpdateSvcCode() {
+  searchParams.value.engineer = '';
+  setEngineers();
 }
 
 // 취소원인 변경 event
@@ -423,7 +443,13 @@ async function onClickExcelDownload() {
 // -------------------------------------------------------------------------------------------------
 function initGrid(data, view) {
   const columns = [
-    { fieldName: 'cntrNoSn', header: t('MSG_TXT_CNTR_DTL_NO'), width: '150', styleName: 'text-center' }, // 계약상세번호
+    { fieldName: 'cntrNoSn',
+      header: t('MSG_TXT_CNTR_DTL_NO'),
+      width: '150',
+      styleName: 'text-center rg-button-link',
+      renderer: {
+        type: 'button',
+      } }, // 계약상세번호
     { fieldName: 'cstKnm', header: t('MSG_TXT_IST_NM'), width: '80', styleName: 'text-center' }, // 설치자명
     { fieldName: 'pdGrpNm', header: t('MSG_TXT_PDGRP'), width: '140', styleName: 'text-center' }, // 상품군
     { fieldName: 'pdNm', header: t('TXT_MSG_MAT_PD_NM'), width: '200', styleName: 'text-left' }, // 제품명
@@ -469,7 +495,7 @@ function initGrid(data, view) {
       fieldName: 'imgFile1',
       header: t('MSG_TXT_PHO'),
       width: '130',
-      styleName: 'text-center',
+      styleName: 'text-center rg-button-default',
       displayCallback(grid, index) {
         const { istImpPhoApnFileUid1 } = grid.getValues(index.itemIndex);
         const returnValue = !istImpPhoApnFileUid1 ? 1 : 0;
@@ -583,24 +609,44 @@ function initGrid(data, view) {
     });
   };
 
-  view.onCellItemClicked = async (g, cData) => {
-    const {
-      istImpPhoApnFileUid1,
-      istImpPhoApnFileUid2,
-      istImpPhoApnFileUid3 } = g.getValues(cData.itemIndex);
+  view.onCellItemClicked = async (g, { column, itemIndex }) => {
+    const istImpPhoApnFileUid1 = g.getValues(itemIndex, 'istImpPhoApnFileUid1');
+    const istImpPhoApnFileUid2 = g.getValues(itemIndex, 'istImpPhoApnFileUid2');
+    const istImpPhoApnFileUid3 = g.getValues(itemIndex, 'istImpPhoApnFileUid3');
 
     let fileUid;
-    if (cData.fieldName === 'imgFile1') {
+    if (column === 'imgFile1') {
       fileUid = istImpPhoApnFileUid1;
-    } else if (cData.fieldName === 'imgFile2') {
+      await modal({
+        component: 'ZwcmzImagePreviewP',
+        componentProps: { files: [fileUid] }, // fileUid만 주면 됨
+      });
+    } else if (column === 'imgFile2') {
       fileUid = istImpPhoApnFileUid2;
-    } else if (cData.fieldName === 'imgFile3') {
+      await modal({
+        component: 'ZwcmzImagePreviewP',
+        componentProps: { files: [fileUid] }, // fileUid만 주면 됨
+      });
+    } else if (column === 'imgFile3') {
       fileUid = istImpPhoApnFileUid3;
+      await modal({
+        component: 'ZwcmzImagePreviewP',
+        componentProps: { files: [fileUid] }, // fileUid만 주면 됨
+      });
     }
-    await modal({
-      component: 'ZwcmzImagePreviewP',
-      componentProps: { files: [fileUid] }, // fileUid만 주면 됨
-    });
+
+    if (column === 'cntrNoSn') {
+      const cntrNo = g.getValue(itemIndex, 'cntrNo');
+      const cntrSn = g.getValue(itemIndex, 'cntrSn');
+
+      router.push({
+        path: '/service/wwsnb-individual-service-list',
+        query: {
+          cntrNo,
+          cntrSn,
+        },
+      });
+    }
   };
 }
 </script>
