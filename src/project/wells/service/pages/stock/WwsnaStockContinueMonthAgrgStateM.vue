@@ -15,8 +15,7 @@
 <template>
   <kw-page>
     <kw-search
-      :cols="6"
-      :modified-targets="['grdMain']"
+      :cols="9"
       @search="onClickSearch"
     >
       <kw-search-row>
@@ -47,7 +46,7 @@
         <!-- 재고유형 -->
         <kw-search-item
           :label="$t('MSG_TXT_STOC_TYPE')"
-          :colspan="2"
+          :colspan="3"
         >
           <kw-select
             v-model="searchParams.stockTpCd"
@@ -55,45 +54,49 @@
             first-option="all"
           />
         </kw-search-item>
-      </kw-search-row>
-      <kw-search-row>
-        <!-- 품목구분 -->
-        <kw-search-item
-          :label="$t('MSG_TXT_ITM_DV')"
-          :colspan="2"
-        >
-          <kw-select
-            v-model="searchParams.itmKndCd"
-            :options="codes.ITM_KND_CD"
-          />
-        </kw-search-item>
-        <!-- 등급 -->
-        <kw-search-item
-          :label="$t('MSG_TXT_GD')"
-          :colspan="2"
-        >
-          <kw-select
-            v-model="searchParams.itmGdCd"
-            :options="tempOptions.itmGdCd"
-          />
-        </kw-search-item>
         <!-- 표시유형 -->
-        <!-- 권고사항...추가 작업예정 -->
-        <!-- <kw-search-item
+        <kw-search-item
           :label="$t('MSG_TXT_DISP_TYPE')"
           :colspan="2"
         >
           <kw-select
             v-model="searchParams.markTp"
             :options="tempOptions.markTp"
+            @change="onChangeMarkTp"
           />
-        </kw-search-item> -->
+        </kw-search-item>
       </kw-search-row>
       <kw-search-row>
+        <!-- 품목구분 -->
+        <kw-search-item
+          :label="$t('MSG_TXT_ITM_DV')"
+          :colspan="4"
+        >
+          <kw-select
+            v-model="searchParams.itmKndCd"
+            :options="codes.ITM_KND_CD"
+            first-option="all"
+            @change="onChangeItmDvCd"
+          />
+          <kw-select
+            v-model="searchParams.itmGrpCd"
+            :options="codes.PD_GRP_CD"
+            first-option="all"
+            @change="onChangeItmDvCd"
+          />
+          <kw-select
+            v-model="searchParams.itmPdCd"
+            :options="optionsItmPdCd"
+            option-value="pdCd"
+            option-label="pdNm"
+            first-option="all"
+            @change="onChangePdCd"
+          />
+        </kw-search-item>
         <!-- 품목코드 -->
         <kw-search-item
           :label="$t('MSG_TXT_ITM_CD')"
-          :colspan="2"
+          :colspan="3"
         >
           <kw-input
             v-model="searchParams.itmPdCd"
@@ -103,7 +106,19 @@
             rules="alpha_num|max:10"
           />
         </kw-search-item>
-        <!-- SAP코드 -->
+        <!-- 등급 -->
+        <kw-search-item
+          :label="$t('MSG_TXT_GD')"
+          :colspan="2"
+        >
+          <kw-select
+            v-model="searchParams.itmGdCd"
+            first-option="all"
+            :options="codes.PD_GD_CD"
+          />
+        </kw-search-item>
+      </kw-search-row>
+      <kw-search-row>
         <kw-search-item
           :label="$t('MSG_TXT_SAPCD')"
           :colspan="4"
@@ -168,7 +183,7 @@
 // -------------------------------------------------------------------------------------------------
 
 import { getComponentType, defineGrid, gridUtil, useDataService, codeUtil } from 'kw-lib';
-import { cloneDeep } from 'lodash-es';
+import { cloneDeep, isEmpty } from 'lodash-es';
 import dayjs from 'dayjs';
 
 const grdMainRef = ref(getComponentType('KwGrid'));
@@ -187,16 +202,12 @@ const codes = await codeUtil.getMultiCodes(
   'ITM_KND_CD',
   'MAT_UTLZ_DV_CD',
   'MAT_MNGT_DV_CD',
+  'PD_GD_CD',
+  'SV_MAT_GRP_CD',
+  'PD_GRP_CD',
 );
 
 const tempOptions = {
-  itmGdCd: [
-    { codeId: 'A', codeName: t('MSG_TXT_A_GD') }, // A급
-    { codeId: 'B', codeName: t('MSG_TXT_B_GD') }, // B급
-    { codeId: 'E', codeName: t('MSG_TXT_EGD') }, // E급
-    { codeId: 'R', codeName: t('MSG_TXT_RGD') }, // R급
-    { codeId: 'X', codeName: t('MSG_TXT_XGD') }, // X급
-  ],
   useYn: [
     { codeId: 'Y', codeName: t('MSG_TXT_USE') }, // 사용
     { codeId: 'N', codeName: t('MSG_TXT_NUSD') }, // 미사용
@@ -210,7 +221,7 @@ const tempOptions = {
   // ],
   markTp: [
     { codeId: 'Mm', codeName: t('지속월') },
-    { codeId: 'notMm', codeName: t('표시율') },
+    { codeId: 'notMm', codeName: t('회전율') },
   ],
 };
 
@@ -220,11 +231,12 @@ const searchParams = ref({
   itmGdCd: '', // 등급
   useYn: '', // 사용여부
   stockTpCd: '', // 재고유형
-  itmKndCd: '', // 품목구분 - 디폴트 4 상품
-  markTp: '', // 표시유형
+  markTp: 'Mm', // 표시유형
   itmPdCd: '', // 품목코드
   strtSapCd: '', // SAP 시작
   endSapCd: '', // SAP 종료
+  itmKndCd: '', // 품목구분
+  itmGrpCd: '',
 });
 
 let gridView;
@@ -279,6 +291,7 @@ const onChangeMatUtlzDvCd = (val) => {
     view.activateColumnFilters('trnovrRtOjYn', ['trnoverFilter'], false);
   }
 };
+
 // 창고조회
 async function getWareHouseList() {
   const result = await dataService.get(`${baseUrl}/ware-houses`, { params: searchParams.value });
@@ -310,6 +323,45 @@ async function getWareHouseList() {
   }
 }
 
+// 품목구분 변경
+// 품목구분 변경
+const optionsItmPdCd = ref();
+const optionsAllItmPdCd = ref();
+
+const getProducts = async () => {
+  const result = await dataService.get('/sms/wells/service/monthly-by-stock-state/products');
+  const pdCds = result.data.map((v) => v.pdCd);
+  optionsItmPdCd.value = result.data.filter((v, i) => pdCds.indexOf(v.pdCd) === i);
+  optionsAllItmPdCd.value = result.data;
+};
+
+const onChangeItmDvCd = () => {
+  searchParams.value.itmPdCds = [];
+  const { itmKndCd, itmGrpCd } = searchParams.value;
+
+  if (isEmpty(itmKndCd) && isEmpty(itmGrpCd)) {
+    const pdCds = optionsAllItmPdCd.value.map((v) => v.pdCd);
+    optionsItmPdCd.value = optionsAllItmPdCd.value.filter((v, i) => pdCds.indexOf(v.pdCd) === i);
+    return;
+  }
+
+  const filterPdInfos = optionsAllItmPdCd.value.filter(
+    (v) => (isEmpty(itmKndCd) || itmKndCd === v.itmKndCd) && (isEmpty(itmGrpCd) || itmGrpCd === v.itmGrpCd),
+  );
+
+  if (isEmpty(itmGrpCd)) {
+    const pdCds = filterPdInfos.map((v) => v.pdCd);
+    optionsItmPdCd.value = filterPdInfos.filter((v, i) => pdCds.indexOf(v.pdCd) === i);
+  } else {
+    optionsItmPdCd.value = filterPdInfos;
+  }
+};
+
+// 품목 변경 (pdCd)
+const onChangePdCd = (val) => {
+  searchParams.value.itmPdCd = val;
+};
+
 async function fetchData() {
   const res = await dataService.get(`${baseUrl}`, { params: cachedParams });
   const resList = res.data;
@@ -337,9 +389,14 @@ async function onClickExcelDownload() {
 }
 
 // 표시유형 변경시 그리드 표시 변경
-// async function onChangeMarkTp() {
-//   console.log('onChangeMarkTp searchParams.value.markTp >>', searchParams.value.markTp);
-// }
+function onChangeMarkTp() {
+  console.log('onChangeMarkTp searchParams.value.markTp >>', searchParams.value.markTp);
+  fieldsObj.setFields();
+}
+
+await Promise.all([
+  getProducts(),
+]);
 
 onMounted(async () => {
   // 품목구분 : 상품 기본설정(4)
@@ -396,7 +453,9 @@ fieldsObj = {
     logisticsFields.forEach((v) => {
       if (v.items.length > 0) {
         const qty = { fieldName: v.items[0], header: t('MSG_TXT_STOC'), styleName: 'text-right', dataType: 'number', numberFormat: '#,##0', footer: { expression: 'sum', numberFormat: '#,##0', styleName: 'text-right text-weight-bold' }, direction: 'horizontal' };
-        const mm = { fieldName: v.items[1], header: t('MSG_TXT_CTN_MM'), styleName: 'text-right', dataType: 'number', numberFormat: '#,##0.##', footer: { expression: 'sum', numberFormat: '#,##0.##', styleName: 'text-right text-weight-bold' }, direction: 'horizontal' };
+        const mm = searchParams.value.markTp === 'Mm'
+          ? { fieldName: v.items[1], header: t('MSG_TXT_CTN_MM'), styleName: 'text-right', dataType: 'number', numberFormat: '#,##0.##', footer: { expression: 'sum', numberFormat: '#,##0.##', styleName: 'text-right text-weight-bold' }, direction: 'horizontal' }
+          : { fieldName: v.items[1], header: t('MSG_TXT_TRNOVERRT'), styleName: 'text-right', dataType: 'number', numberFormat: '#,##0.##', footer: { expression: 'sum', numberFormat: '#,##0.##', styleName: 'text-right text-weight-bold' }, direction: 'horizontal' };
         logisticsTotalFields.push(qty);
         logisticsTotalFields.push(mm);
       }
@@ -408,7 +467,9 @@ fieldsObj = {
     serviceFields.forEach((v) => {
       if (v.items.length > 0) {
         const qty = { fieldName: v.items[0], header: t('MSG_TXT_STOC'), styleName: 'text-right', dataType: 'number', numberFormat: '#,##0', footer: { expression: 'sum', numberFormat: '#,##0', styleName: 'text-right text-weight-bold' }, direction: 'horizontal' };
-        const mm = { fieldName: v.items[1], header: t('MSG_TXT_CTN_MM'), styleName: 'text-right', dataType: 'number', numberFormat: '#,##0.##', footer: { expression: 'sum', numberFormat: '#,##0.##', styleName: 'text-right text-weight-bold' }, direction: 'horizontal' };
+        const mm = searchParams.value.markTp === 'Mm'
+          ? { fieldName: v.items[1], header: t('MSG_TXT_CTN_MM'), styleName: 'text-right', dataType: 'number', numberFormat: '#,##0.##', footer: { expression: 'sum', numberFormat: '#,##0.##', styleName: 'text-right text-weight-bold' }, direction: 'horizontal' }
+          : { fieldName: v.items[1], header: t('MSG_TXT_TRNOVERRT'), styleName: 'text-right', dataType: 'number', numberFormat: '#,##0.##', footer: { expression: 'sum', numberFormat: '#,##0.##', styleName: 'text-right text-weight-bold' }, direction: 'horizontal' };
         serviceTotalFields.push(qty);
         serviceTotalFields.push(mm);
       }

@@ -360,7 +360,7 @@ const onChangeItmDvCd = () => {
 
 // 품목 변경 (pdCd)
 const onChangePdCd = (val) => {
-  searchParams.value.pdCd = val;
+  searchParams.value.itmPdCd = val;
 };
 
 // 출고시작일자 및 출고종료일자 validation 체크 (12개월 미만으로만 선택가능)
@@ -423,6 +423,14 @@ async function fetchData() {
 }
 
 async function onClickSearch() {
+  if (!isEmpty(searchParams.value.strtSapCd) && isEmpty(searchParams.value.endSapCd)) {
+    searchParams.value.endSapCd = searchParams.value.strtSapCd;
+  }
+
+  if (!isEmpty(searchParams.value.endSapCd) && isEmpty(searchParams.value.strtSapCd)) {
+    searchParams.value.strtSapCd = searchParams.value.endSapCd;
+  }
+
   cachedParams = cloneDeep(searchParams.value);
   fieldsObj.setFields();
   await fetchData();
