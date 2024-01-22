@@ -25,10 +25,20 @@
           :label="$t('MSG_TXT_LOOKUP_PERIOD')"
           :colspan="3"
         >
-          <kw-date-range-picker
+          <!-- <kw-date-range-picker
             v-model:from="searchParams.startDt"
             v-model:to="searchParams.endDt"
             rules="date_range_required"
+            @change="onChangeDt"
+          /> -->
+          <kw-date-picker
+            v-model="searchParams.startDt"
+            @change="onChangeDt('S')"
+          />
+          ~
+          <kw-date-picker
+            v-model="searchParams.endDt"
+            @change="onChangeDt('E')"
           />
         </kw-search-item>
         <ZwcmWareHouseSearch
@@ -276,8 +286,10 @@ const wareDvCd = {
 };
 
 const searchParams = ref({
-  startDt: '',
-  endDt: '',
+  startDt: dayjs().set('date', 1).format('YYYYMMDD'),
+  endDt: dayjs().format('YYYYMMDD'),
+  tmpStartDt: dayjs().set('date', 1).format('YYYYMMDD'),
+  tmpEndDt: dayjs().format('YYYYMMDD'),
   wareDvCd: '2',
   wareNoM: '',
   wareNoD: '',
@@ -296,9 +308,6 @@ const searchParams = ref({
   itmPdCds: [],
   matUtlzDvCds: [''],
 });
-
-searchParams.value.startDt = dayjs().set('date', 1).format('YYYYMMDD');
-searchParams.value.endDt = dayjs().format('YYYYMMDD');
 
 const filterCodes = ref({
   wareDtlDvCd: [],
@@ -335,6 +344,49 @@ function onChangeItmDvCd() {
     optionsItmPdCd.value = filterPdInfos.filter((v, i) => pdCds.indexOf(v.pdCd) === i);
   } else {
     optionsItmPdCd.value = filterPdInfos;
+  }
+}
+
+/** =============================================
+ * 이영진 M..20240122
+ * 조회 기간 변경 처리
+** ============================================= */
+const currentYm = ref(dayjs().format('YYYYMM'));
+const sDt = ref('N');
+const eDt = ref('N');
+async function onChangeDt(obj) {
+  let currentYn = 'N';
+  if (obj === 'S') {
+    currentYn = currentYm.value === searchParams.value.startDt.substring(0, 6) ? 'Y' : 'N';
+    if (eDt.value === 'Y') {
+      eDt.value = 'N';
+      return;
+    }
+    if (currentYn === 'Y') {
+      searchParams.value.endDt = dayjs().format('YYYYMMDD');
+    } else {
+      searchParams.value.endDt = dayjs(searchParams.value.startDt).subtract(0, 'month').endOf('month').format('YYYYMMDD');
+    }
+    sDt.value = 'Y';
+  } else if (obj === 'E') {
+    currentYn = currentYm.value === searchParams.value.endDt.substring(0, 6) ? 'Y' : 'N';
+    if (sDt.value === 'Y') {
+      sDt.value = 'N';
+      if (searchParams.value.startDt.substring(0, 6) !== searchParams.value.endDt.substring(0, 6)) {
+        if (currentYn !== 'Y') {
+          searchParams.value.endDt = dayjs(searchParams.value.startDt).subtract(0, 'month').endOf('month').format('YYYYMMDD');
+        } else {
+          searchParams.value.endDt = dayjs().subtract(0, 'month').endOf('day').format('YYYYMMDD');
+        }
+      }
+      return;
+    }
+    if (currentYn === 'Y') {
+      searchParams.value.startDt = dayjs().subtract(0, 'month').startOf('month').format('YYYYMMDD');
+    } else {
+      searchParams.value.startDt = dayjs(searchParams.value.endDt).subtract(0, 'month').startOf('month').format('YYYYMMDD');
+    }
+    eDt.value = 'Y';
   }
 }
 
@@ -447,22 +499,6 @@ async function fetchData() {
   view.resetCurrent();
 }
 
-// 체크박스 조건 변환
-// function convertCheckBox() {
-//   const { matUtlzDvCds } = cachedParams;
-
-//   // 중수리자재 여부
-//   const commGb = isEmpty(matUtlzDvCds.find((v) => v === '01')) ? 'N' : 'Y';
-//   // 기초자재 여부
-//   const baseGb = isEmpty(matUtlzDvCds.find((v) => v === '02')) ? 'N' : 'Y';
-//   // 회전율대상 여부
-//   const turnoverGb = isEmpty(matUtlzDvCds.find((v) => v === '03')) ? 'N' : 'Y';
-
-//   cachedParams.commGb = commGb;
-//   cachedParams.baseGb = baseGb;
-//   cachedParams.turnoverGb = turnoverGb;
-// }
-
 async function onClickSearch() {
   cachedParams = cloneDeep(searchParams.value);
 
@@ -473,8 +509,6 @@ async function onClickSearch() {
     cachedParams.itmPdCds = [];
   }
 
-  // 체크박스 조건 변환
-  // convertCheckBox();
   await fetchData();
 }
 async function onClickExcelDownload() {
@@ -1025,6 +1059,7 @@ const initGrdMain = defineGrid((data, view) => {
     'lstmmWkEtcOstrGdQty',
     'wkEtcOstrGdQty',
     'lgstStrQty',
+    'svCnrStrQty',
     'lgstPitmStocGdQty',
     'svCnrPitmStocGdQty',
     'svEgerLgstPitmStocGdQty',
