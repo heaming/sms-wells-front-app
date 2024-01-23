@@ -66,7 +66,7 @@
         >
           <kw-select
             v-model="searchParams.stockTpCd"
-            :options="tempOptions.stockTpCd"
+            :options="codes.MAT_MNGT_DV_CD"
             first-option="all"
           />
         </kw-search-item>
@@ -223,7 +223,9 @@ const codes = await codeUtil.getMultiCodes(
   'ITM_KND_CD',
   'MAT_UTLZ_DV_CD',
   'PD_GRP_CD',
+  'MAT_MNGT_DV_CD',
 );
+console.log('codes.WARE_DV_CD >>>>>', codes.WARE_DV_CD);
 
 const tempOptions = {
   itmGdCd: [
@@ -237,13 +239,13 @@ const tempOptions = {
     { codeId: 'Y', codeName: t('MSG_TXT_USE') }, // 사용
     { codeId: 'N', codeName: t('MSG_TXT_NUSD') }, // 미사용
   ],
-  stockTpCd: [ // 재고유형기준
-    { codeId: '1', codeName: t('기준1') }, // 기준1
-    { codeId: '2', codeName: t('기준2') }, // 기준2
-    { codeId: '3', codeName: t('기준3') }, // 기준3
-    { codeId: '4', codeName: t('기준4') }, // 기준4
-    { codeId: '5', codeName: t('기준5') }, // 기준5
-  ],
+  // stockTpCd: [ // 재고유형기준
+  //   { codeId: '1', codeName: t('기준1') }, // 기준1
+  //   { codeId: '2', codeName: t('기준2') }, // 기준2
+  //   { codeId: '3', codeName: t('기준3') }, // 기준3
+  //   { codeId: '4', codeName: t('기준4') }, // 기준4
+  //   { codeId: '5', codeName: t('기준5') }, // 기준5
+  // ],
 };
 
 const wareDvCd = {
@@ -252,6 +254,7 @@ const wareDvCd = {
     { codeId: '1', codeName: t('MSG_TXT_LGST_CNR') },
   ],
 };
+console.log('wareDvCd.WARE_DV_CD >>>>', wareDvCd.WARE_DV_CD);
 
 const searchParams = ref({
   startDt: '',
