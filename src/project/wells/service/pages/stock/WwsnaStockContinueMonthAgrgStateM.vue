@@ -460,10 +460,10 @@ fieldsObj = {
     const logisticsTotalFields = [];
     logisticsFields.forEach((v) => {
       if (v.items.length > 0) {
-        const qty = { fieldName: v.items[0], header: t('MSG_TXT_STOC'), styleName: 'text-right', dataType: 'number', numberFormat: '#,##0', footer: { expression: 'sum', numberFormat: '#,##0', styleName: 'text-right text-weight-bold' }, direction: 'horizontal' };
+        const qty = { fieldName: v.items[0], header: t('MSG_TXT_STOC'), styleName: 'text-right', dataType: 'number', numberFormat: '#,##0', nanText: '0', footer: { expression: 'sum', numberFormat: '#,##0', styleName: 'text-right text-weight-bold' }, direction: 'horizontal' };
         const mm = searchParams.value.markTp === 'Mm'
-          ? { fieldName: v.items[1], header: t('MSG_TXT_CTN_MM'), styleName: 'text-right', dataType: 'number', numberFormat: '#,##0.##', footer: { expression: 'sum', numberFormat: '#,##0.##', styleName: 'text-right text-weight-bold' }, direction: 'horizontal' }
-          : { fieldName: v.items[1], header: t('MSG_TXT_TRNOVERRT'), styleName: 'text-right', dataType: 'number', numberFormat: '#,##0.##', footer: { expression: 'sum', numberFormat: '#,##0.##', styleName: 'text-right text-weight-bold' }, direction: 'horizontal' };
+          ? { fieldName: v.items[1], header: t('MSG_TXT_CTN_MM'), styleName: 'text-right', dataType: 'number', numberFormat: '#,##0.##', nanText: '0', footer: { expression: 'sum', numberFormat: '#,##0.##', styleName: 'text-right text-weight-bold' }, direction: 'horizontal' }
+          : { fieldName: v.items[1], header: t('MSG_TXT_TRNOVERRT'), styleName: 'text-right', dataType: 'number', numberFormat: '#,##0.##', nanText: '0', footer: { expression: 'sum', numberFormat: '#,##0.##', styleName: 'text-right text-weight-bold' }, direction: 'horizontal' };
         logisticsTotalFields.push(qty);
         logisticsTotalFields.push(mm);
       }
@@ -474,10 +474,10 @@ fieldsObj = {
     const serviceTotalFields = [];
     serviceFields.forEach((v) => {
       if (v.items.length > 0) {
-        const qty = { fieldName: v.items[0], header: t('MSG_TXT_STOC'), styleName: 'text-right', dataType: 'number', numberFormat: '#,##0', footer: { expression: 'sum', numberFormat: '#,##0', styleName: 'text-right text-weight-bold' }, direction: 'horizontal' };
+        const qty = { fieldName: v.items[0], header: t('MSG_TXT_STOC'), styleName: 'text-right', dataType: 'number', numberFormat: '#,##0', nanText: '0', footer: { expression: 'sum', numberFormat: '#,##0', styleName: 'text-right text-weight-bold' }, direction: 'horizontal' };
         const mm = searchParams.value.markTp === 'Mm'
-          ? { fieldName: v.items[1], header: t('MSG_TXT_CTN_MM'), styleName: 'text-right', dataType: 'number', numberFormat: '#,##0.##', footer: { expression: 'sum', numberFormat: '#,##0.##', styleName: 'text-right text-weight-bold' }, direction: 'horizontal' }
-          : { fieldName: v.items[1], header: t('MSG_TXT_TRNOVERRT'), styleName: 'text-right', dataType: 'number', numberFormat: '#,##0.##', footer: { expression: 'sum', numberFormat: '#,##0.##', styleName: 'text-right text-weight-bold' }, direction: 'horizontal' };
+          ? { fieldName: v.items[1], header: t('MSG_TXT_CTN_MM'), styleName: 'text-right', dataType: 'number', numberFormat: '#,##0.##', nanText: '0', footer: { expression: 'sum', numberFormat: '#,##0.##', styleName: 'text-right text-weight-bold' }, direction: 'horizontal' }
+          : { fieldName: v.items[1], header: t('MSG_TXT_TRNOVERRT'), styleName: 'text-right', dataType: 'number', numberFormat: '#,##0.##', nanText: '0', footer: { expression: 'sum', numberFormat: '#,##0.##', styleName: 'text-right text-weight-bold' }, direction: 'horizontal' };
         serviceTotalFields.push(qty);
         serviceTotalFields.push(mm);
       }
