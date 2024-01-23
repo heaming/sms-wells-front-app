@@ -269,7 +269,6 @@
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
-
 import { getComponentType, defineGrid, gridUtil, useDataService, useGlobal, codeUtil, useMeta } from 'kw-lib';
 import { cloneDeep, isEmpty } from 'lodash-es';
 import smsCommon from '~sms-wells/service/composables/useSnCode';
@@ -289,6 +288,10 @@ const { t } = useI18n();
 const { currentRoute } = useRouter();
 const router = useRouter();
 const now = dayjs();
+
+const { getters } = useStore();
+const sessionUserInfo = getters['meta/getUserInfo'];
+console.log('sessionUserInfo >>>>', sessionUserInfo);
 
 // -------------------------------------------------------------------------------------------------
 // Function & Event
@@ -501,6 +504,7 @@ async function onClickOZ() {
       },
     height: 1300,
     width: 1400,
+    viewMode: 'fittowidth',
   });
   openReportPopup(
     ozParam.value.ozrPath,
