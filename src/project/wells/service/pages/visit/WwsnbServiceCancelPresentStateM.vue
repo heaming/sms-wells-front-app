@@ -535,7 +535,6 @@ function initGrid(data, view) {
       },
       styleCallback(grid, dataCell) {
         const { istImpPhoApnFileUid3 } = grid.getValues(dataCell.index.itemIndex);
-        console.log('istImpPhoApnFileUid3 >>>', istImpPhoApnFileUid3);
         const returnValue = !istImpPhoApnFileUid3 ? 1 : 0;
         return returnValue === 0 ? { renderer: { type: 'button', hideWhenEmpty: false } } : '';
       },
@@ -610,10 +609,10 @@ function initGrid(data, view) {
   };
 
   view.onCellItemClicked = async (g, { column, itemIndex }) => {
-    const istImpPhoApnFileUid1 = g.getValues(itemIndex, 'istImpPhoApnFileUid1');
-    const istImpPhoApnFileUid2 = g.getValues(itemIndex, 'istImpPhoApnFileUid2');
-    const istImpPhoApnFileUid3 = g.getValues(itemIndex, 'istImpPhoApnFileUid3');
-
+    const istImpPhoApnFileUid1 = g.getValue(itemIndex, 'istImpPhoApnFileUid1');
+    const istImpPhoApnFileUid2 = g.getValue(itemIndex, 'istImpPhoApnFileUid2');
+    const istImpPhoApnFileUid3 = g.getValue(itemIndex, 'istImpPhoApnFileUid3');
+    // console.log(istImpPhoApnFileUid1);
     // let fileUid;
     if (column === 'imgFile1') {
       // fileUid = istImpPhoApnFileUid1;
