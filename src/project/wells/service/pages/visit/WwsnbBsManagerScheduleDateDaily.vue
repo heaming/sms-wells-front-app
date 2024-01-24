@@ -363,6 +363,11 @@ const initGrdMain = defineGrid((data, view) => {
     { fieldName: 'puPart4', header: t('MSG_TXT_PU_PART') || '4', width: '100', styleName: 'text-center' }, // 투입부품4
     { fieldName: 'puPart5', header: t('MSG_TXT_PU_PART') || '5', width: '100', styleName: 'text-center' }, // 투입부품5
     { fieldName: 'puPart6', header: t('MSG_TXT_PU_PART') || '6', width: '100', styleName: 'text-center' }, // 투입부품6
+    { fieldName: 'istYm', header: t('MSG_TXT_YR_INSTALLATION'), width: '100', styleName: 'text-center' }, // 설치년월
+    { fieldName: 'cntrNmnN', header: t('MSG_TXT_USE_NMN'), width: '100', styleName: 'text-center' }, // 사용차월
+    { fieldName: 'stplPtrm', header: t('MSG_TXT_CONTRACT_PERI'), width: '100', styleName: 'text-center' }, // 약정기간
+    { fieldName: 'fnlAmt', header: t('MSG_TXT_RTLFE'), width: '100', styleName: 'text-center' }, // 렌탈료
+    { fieldName: 'svHshdCnt', header: t('MSG_TXT_ACC_N'), width: '100', styleName: 'text-center' }, // 사용계정수
     { fieldName: 'cralLocaraTno', visible: false },
     { fieldName: 'mexnoEncr', visible: false },
     { fieldName: 'cralIdvTno', visible: false },
@@ -384,6 +389,11 @@ const initGrdMain = defineGrid((data, view) => {
     'puPart4',
     'puPart5',
     'puPart6',
+    'istYm',
+    'cntrNmnN',
+    'stplPtrm',
+    'fnlAmt',
+    'svHshdCnt',
   ];
 
   view.setColumnLayout(columnLayout);
