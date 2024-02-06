@@ -34,7 +34,7 @@
           <kw-select
             v-model="searchParams.svCnrCd"
             first-option="all"
-            :options="codes.SV_CNR_CD"
+            :options="svCnrOption"
           />
         </kw-search-item>
         <kw-search-item
@@ -120,7 +120,7 @@ const codes = await codeUtil.getMultiCodes(
   'RTNGD_PROCS_TP_CD',
   'SV_CNR_CD',
 );
-console.log(codes.SV_CNR_CD);
+
 const searchParams = ref({
   startDate: `${now.format('YYYYMM')}01`,
   endDate: now.format('YYYYMMDD'),
@@ -128,24 +128,22 @@ const searchParams = ref({
   rtngdProcsTpCd: '',
 });
 
-/*
- *  Page Info setting
- */
-// const pageInfo = ref({
-//   totalCount: 300,
-//   pageIndex: 1,
-//   pageSize: 500,
-//   needTotalCount: true,
-// });
 const totalCount = ref(0);
+const svCnrOption = ref([]);
 
 /*
  *  창고 선택 초기 설정
  */
 onMounted(async () => {
-  const param = { ogTpCd: userInfo.ogTpCd, ogId: userInfo.ogId };
-  console.log(param);
-  const res = await dataService.get('/sms/wells/service/returning-goods-out-of-storages-agrg/user-og-ware', { params: param });
+  const optionParam = { ogTpCd: '', ogId: '' };
+  console.log(optionParam);
+  // eslint-disable-next-line max-len
+  const optionRes = await dataService.get('/sms/wells/service/returning-goods-out-of-storages-agrg/user-og-ware', { params: optionParam });
+  svCnrOption.value = optionRes.data;
+
+  const userInfoParam = { ogTpCd: userInfo.ogTpCd, ogId: userInfo.ogId };
+  console.log(userInfoParam);
+  const res = await dataService.get('/sms/wells/service/returning-goods-out-of-storages-agrg/user-og-ware', { params: userInfoParam });
 
   console.log(res);
   if (res.data.length === 1) {
