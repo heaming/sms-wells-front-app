@@ -211,6 +211,7 @@ const tempOptions = {
   localMatUtlzDvCd: [
     { codeId: '01', codeName: t('MSG_TXT_MDIM_RPR') }, // 중수리
     { codeId: '02', codeName: t('MSG_TXT_BTD_MAT') }, // 기초자재
+    { codeId: '03', codeName: t('MSG_TXT_TRNOVERRT') }, // 회전율
   ],
 };
 
@@ -272,9 +273,14 @@ const onChangeMatUtlzDvCd = (val) => {
     name: 'ordnyHvMatFilter', // 기초자재 Y
     criteria: 'value="Y"',
   }];
+  const filter3 = [{
+    name: 'trnovrFilter', // 회전율
+    criteria: 'value="Y"',
+  }];
 
   view.setColumnFilters('cmnPartDvCd', filter1);
   view.setColumnFilters('ordnyHvMatYn', filter2);
+  view.setColumnFilters('trnovrRtOjYn', filter3);
 
   if (val.includes('01')) {
     view.activateColumnFilters('cmnPartDvCd', false);
@@ -288,6 +294,13 @@ const onChangeMatUtlzDvCd = (val) => {
     view.activateColumnFilters('ordnyHvMatYn', ['ordnyHvMatFilter'], true);
   } else {
     view.activateColumnFilters('ordnyHvMatYn', ['ordnyHvMatFilter'], false);
+  }
+
+  if (val.includes('03')) {
+    view.activateColumnFilters('trnovrRtOjYn', false);
+    view.activateColumnFilters('trnovrRtOjYn', ['trnovrFilter'], true);
+  } else {
+    view.activateColumnFilters('trnovrRtOjYn', ['trnovrFilter'], false);
   }
 };
 
@@ -430,6 +443,7 @@ fieldsObj = {
     },
     { fieldName: 'cmnPartDvCd', header: t(''), width: '150', styleName: 'text-center', visible: false, autoFilter: false },
     { fieldName: 'ordnyHvMatYn', header: t(''), width: '150', styleName: 'text-center', visible: false, autoFilter: false },
+    { fieldName: 'trnovrRtOjYn', header: t(''), width: '150', styleName: 'text-center', visible: false, autoFilter: false },
   ],
 
   // 필드 세팅
