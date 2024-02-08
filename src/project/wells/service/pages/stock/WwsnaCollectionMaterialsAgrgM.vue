@@ -14,98 +14,96 @@
 --->
 
 <template>
-  <kw-page>
-    <kw-search
-      :cols="4"
-      @search="onClickSearch"
-    >
-      <kw-search-row>
-        <!-- 수불일자 -->
-        <kw-search-item
-          :colspan="2"
+  <kw-search
+    :cols="4"
+    @search="onClickSearch"
+  >
+    <kw-search-row>
+      <!-- 수불일자 -->
+      <kw-search-item
+        :colspan="2"
+        :label="t('MSG_TXT_RVPY_DT')"
+      >
+        <kw-date-range-picker
+          v-model:from="searchParams.startDt"
+          v-model:to="searchParams.endDt"
+          rules="date_range_months:1"
           :label="t('MSG_TXT_RVPY_DT')"
-        >
-          <kw-date-range-picker
-            v-model:from="searchParams.startDt"
-            v-model:to="searchParams.endDt"
-            rules="date_range_months:1"
-            :label="t('MSG_TXT_RVPY_DT')"
-          />
-        </kw-search-item>
-
-        <!-- 창고상세구분 -->
-        <kw-search-item
-          :label="$t('MSG_TXT_WARE_DTL_DV')"
-          :colspan="1"
-        >
-          <kw-select
-            v-model="searchParams.wareDtlDvCd"
-            :options="codes.WARE_DTL_DV_CD.filter((v) => ['20', '21'].includes(v.codeId))"
-            first-option="all"
-            first-option-value="ALL"
-          />
-        </kw-search-item>
-      </kw-search-row>
-      <kw-search-row>
-        <ZwcmWareHouseSearch
-          v-model:start-ym="searchParams.startDt"
-          v-model:end-ym="searchParams.endDt"
-          v-model:ware-dv-cd="searchParams.wareDvCd"
-          v-model:ware-no-m="searchParams.wareNoM"
-          v-model:ware-no-d="searchParams.wareNoD"
-          v-model:options-ware-dv-cd="customCodes.wareDvCd"
-          :label1="$t('MSG_TXT_WARE')"
-          :label2="$t('MSG_TXT_WARE_DV')"
-          :label3="$t('MSG_TXT_HGR_WARE')"
-          :label4="$t('MSG_TXT_WARE')"
-          sub-first-option-value=""
-          sub-first-option="all"
-          :colspan="3"
-          @update:ware-dv-cd="onChangeStdWareDvCd"
-          @update:ware-no-m="onChagneHgrWareNo"
         />
-        <kw-field
-          v-model="searchParams.rgsnYn"
-        >
-          <template #default="{ field }">
-            <kw-checkbox
-              v-model="searchParams.rgsnYn"
-              v-bind="field"
-              :label="$t('MSG_TXT_RGSN_EXCD')"
-            />
-          </template>
-        </kw-field>
-      </kw-search-row>
-    </kw-search>
-    <div class="result-area">
-      <kw-action-top>
-        <template #left>
-          <kw-paging-info
-            :total-count="totalCount"
+      </kw-search-item>
+
+      <!-- 창고상세구분 -->
+      <kw-search-item
+        :label="$t('MSG_TXT_WARE_DTL_DV')"
+        :colspan="1"
+      >
+        <kw-select
+          v-model="searchParams.wareDtlDvCd"
+          :options="codes.WARE_DTL_DV_CD.filter((v) => ['20', '21'].includes(v.codeId))"
+          first-option="all"
+          first-option-value="ALL"
+        />
+      </kw-search-item>
+    </kw-search-row>
+    <kw-search-row>
+      <ZwcmWareHouseSearch
+        v-model:start-ym="searchParams.startDt"
+        v-model:end-ym="searchParams.endDt"
+        v-model:ware-dv-cd="searchParams.wareDvCd"
+        v-model:ware-no-m="searchParams.wareNoM"
+        v-model:ware-no-d="searchParams.wareNoD"
+        v-model:options-ware-dv-cd="customCodes.wareDvCd"
+        :label1="$t('MSG_TXT_WARE')"
+        :label2="$t('MSG_TXT_WARE_DV')"
+        :label3="$t('MSG_TXT_HGR_WARE')"
+        :label4="$t('MSG_TXT_WARE')"
+        sub-first-option-value=""
+        sub-first-option="all"
+        :colspan="3"
+        @update:ware-dv-cd="onChangeStdWareDvCd"
+        @update:ware-no-m="onChagneHgrWareNo"
+      />
+      <kw-field
+        v-model="searchParams.rgsnYn"
+      >
+        <template #default="{ field }">
+          <kw-checkbox
+            v-model="searchParams.rgsnYn"
+            v-bind="field"
+            :label="$t('MSG_TXT_RGSN_EXCD')"
           />
         </template>
-        <kw-btn
-          icon="download_on"
-          dense
-          secondary
-          :label="$t('MSG_BTN_EXCEL_DOWN')"
-          :disable="totalCount === 0"
-          @click="onClickExcelDownload"
+      </kw-field>
+    </kw-search-row>
+  </kw-search>
+  <div class="result-area">
+    <kw-action-top>
+      <template #left>
+        <kw-paging-info
+          :total-count="totalCount"
         />
-        <kw-btn
-          primary
-          dense
-          :label="$t('MSG_BTN_ASN_PS_PRNT')"
-          @click="onClickOZ"
-        />
-      </kw-action-top>
-      <kw-grid
-        ref="grdMainRef"
-        :total-count="totalCount"
-        @init="initGrdMain"
+      </template>
+      <kw-btn
+        icon="download_on"
+        dense
+        secondary
+        :label="$t('MSG_BTN_EXCEL_DOWN')"
+        :disable="totalCount === 0"
+        @click="onClickExcelDownload"
       />
-    </div>
-  </kw-page>
+      <kw-btn
+        primary
+        dense
+        :label="$t('MSG_BTN_ASN_PS_PRNT')"
+        @click="onClickOZ"
+      />
+    </kw-action-top>
+    <kw-grid
+      ref="grdMainRef"
+      :total-count="totalCount"
+      @init="initGrdMain"
+    />
+  </div>
 </template>
 
 <script setup>

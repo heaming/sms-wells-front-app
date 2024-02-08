@@ -13,69 +13,67 @@
 ****************************************************************************************************
 --->
 <template>
-  <kw-page>
-    <kw-search
-      one-row
-      @search="onClickSearch"
-    >
-      <kw-search-row>
-        <!-- 기준년월 -->
-        <kw-search-item
+  <kw-search
+    one-row
+    @search="onClickSearch"
+  >
+    <kw-search-row>
+      <!-- 기준년월 -->
+      <kw-search-item
+        :label="$t('MSG_TXT_BASE_YM')"
+        required
+      >
+        <kw-date-picker
+          v-model="searchParams.baseYm"
+          type="month"
+          rules="required"
           :label="$t('MSG_TXT_BASE_YM')"
-          required
-        >
-          <kw-date-picker
-            v-model="searchParams.baseYm"
-            type="month"
-            rules="required"
-            :label="$t('MSG_TXT_BASE_YM')"
-            @change="getWareHouses"
-          />
-        </kw-search-item>
-        <!-- 서비스센터 -->
-        <kw-search-item :label="$t('MSG_TXT_SV_CNR')">
-          <kw-select
-            v-model="searchParams.wareNo"
-            :options="optionsWareNo"
-            option-value="wareNo"
-            option-label="wareNm"
-            :label="$t('MSG_TXT_SV_CNR')"
-            first-option="all"
-          />
-        </kw-search-item>
-      </kw-search-row>
-    </kw-search>
-
-    <div class="result-area">
-      <kw-action-top>
-        <template #left>
-          <kw-paging-info
-            :total-count="totalCount"
-          />
-          <span class="ml8">
-            ({{ t('MSG_TXT_UNIT') }} : EA)
-          </span>
-        </template>
-        <!-- 엑셀다운로드 -->
-        <kw-btn
-          v-permission:download
-          :label="$t('MSG_TXT_EXCEL_DOWNLOAD')"
-          :disable="totalCount === 0"
-          icon="download_on"
-          secondary
-          dense
-          @click="onClickExcelDownload"
+          @change="getWareHouses"
         />
-      </kw-action-top>
-      <kw-grid
-        ref="grdMainRef"
-        name="grdMain"
-        :page-size="30"
-        :total-count="totalCount"
-        @init="initGrdMain"
+      </kw-search-item>
+      <!-- 서비스센터 -->
+      <kw-search-item :label="$t('MSG_TXT_SV_CNR')">
+        <kw-select
+          v-model="searchParams.wareNo"
+          :options="optionsWareNo"
+          option-value="wareNo"
+          option-label="wareNm"
+          :label="$t('MSG_TXT_SV_CNR')"
+          first-option="all"
+        />
+      </kw-search-item>
+    </kw-search-row>
+  </kw-search>
+
+  <div class="result-area">
+    <kw-action-top>
+      <template #left>
+        <kw-paging-info
+          :total-count="totalCount"
+        />
+        <span class="ml8">
+          ({{ t('MSG_TXT_UNIT') }} : EA)
+        </span>
+      </template>
+      <!-- 엑셀다운로드 -->
+      <kw-btn
+        v-permission:download
+        :label="$t('MSG_TXT_EXCEL_DOWNLOAD')"
+        :disable="totalCount === 0"
+        icon="download_on"
+        secondary
+        dense
+        @click="onClickExcelDownload"
       />
-    </div>
-  </kw-page>
+    </kw-action-top>
+    <kw-grid
+      ref="grdMainRef"
+      name="grdMain"
+      :page-size="30"
+      :total-count="totalCount"
+      @init="initGrdMain"
+    />
+  </div>
 </template>
 <script setup>
 
