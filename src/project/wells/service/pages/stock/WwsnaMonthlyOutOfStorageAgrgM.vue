@@ -19,6 +19,13 @@
       @search="onClickSearch"
     >
       <kw-search-row>
+        <WwsnProductSearchItemGroup
+          :colspan="9"
+          :use-pd-cd-list="true"
+          :use-div-levl="3"
+        />
+      </kw-search-row>
+      <kw-search-row>
         <kw-search-item
           :colspan="3"
           :label="$t('MSG_TXT_OSTR_DT')"
@@ -213,6 +220,7 @@ import { getComponentType, defineGrid, gridUtil, useDataService, codeUtil, valid
 import { cloneDeep, isEmpty } from 'lodash-es';
 import dayjs from 'dayjs';
 import ZwcmWareHouseSearch from '~sms-common/service/components/ZwsnzWareHouseSearch.vue';
+import WwsnProductSearchItemGroup from '~sms-wells/service/components/WwsnProductSearchItemGroup.vue';
 
 const grdMainRef = ref(getComponentType('KwGrid'));
 const dataService = useDataService();
