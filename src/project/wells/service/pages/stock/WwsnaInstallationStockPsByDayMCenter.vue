@@ -16,13 +16,13 @@
 
 <template>
   <kw-search
-    :cols="4"
+    :cols="8"
     @search="onClickSearch"
   >
     <kw-search-row>
       <kw-search-item
         :label="$t('MSG_TXT_BASE_DT')"
-        :colspan="1"
+        :colspan="2"
         required
       >
         <kw-date-picker
@@ -35,7 +35,7 @@
       </kw-search-item>
       <kw-search-item
         :label="$t('MSG_TXT_GD')"
-        :colspan="1"
+        :colspan="2"
       >
         <kw-select
           v-model="searchParams.pdGdCd"
@@ -45,33 +45,46 @@
       </kw-search-item>
       <kw-search-item
         :label="$t('MSG_TXT_ITM_DV')"
-        :colspan="2"
-        required
+        :colspan="4"
       >
         <kw-select
           v-model="searchParams.itmKndCd"
-          :label="$t('MSG_TXT_ITM_DV')"
           :options="codes.ITM_KND_CD"
-          first-option="select"
-          disable
-          @change="onChangeItmKnd"
+          first-option="all"
+          :disable="true"
+          @change="onChangeItmDvCd"
         />
         <kw-select
-          v-model="searchParams.pdCd"
-          :options="selectedProductByItmKnd"
+          v-model="searchParams.itmGrpCd"
+          :options="codes.PD_GRP_CD"
+          first-option="all"
+          @change="onChangeItmDvCd"
+        />
+        <kw-select
+          v-model="searchParams.itmPdCd"
+          :options="optionsItmPdCd"
+          option-value="pdCd"
+          option-label="pdNm"
           first-option="select"
-          :required="true"
+          required
+          @change="onChangePdCd"
         />
       </kw-search-item>
+      <!-- <WwsnProductSearchItemGroup
+        :colspan="2"
+        :use-pd-cd-list="false"
+        :use-div-levl="3"
+      /> -->
     </kw-search-row>
     <kw-search-row>
       <kw-search-item
         :label="$t('MSG_TXT_ITM_CD')"
-        :colspan="1"
+        :colspan="2"
       >
         <kw-input
-          v-model="searchParams.pdCd"
+          v-model="searchParams.itmPdCd"
           :label="$t('MSG_TXT_ITM_CD')"
+          @change="onChangePdCd"
         />
       </kw-search-item>
     </kw-search-row>
@@ -129,6 +142,7 @@
 // -------------------------------------------------------------------------------------------------
 import { codeUtil, getComponentType, gridUtil, useDataService, defineGrid, useGlobal, alert } from 'kw-lib';
 import { cloneDeep, isEmpty } from 'lodash-es';
+// import WwsnProductSearchItemGroup from '~sms-wells/service/components/WwsnProductSearchItemGroup.vue';
 import dayjs from 'dayjs';
 import 'dayjs/locale/ko';
 
@@ -168,14 +182,9 @@ const searchParams = ref({
   baseDt: now.format('YYYYMMDD'),
   pdGdCd: '',
   itmKndCd: '4',
-  pdCd: '',
+  itmPdCd: '',
+  itmGrpCd: '',
 });
-
-/*
- *  Select Component 초기화 - 전체 상품 목록 가져오기
- */
-const productList = ref([]);
-const selectedProductByItmKnd = ref([]);
 
 // async function getProductList() {
 //   cachedParams = cloneDeep(searchParams);
@@ -184,23 +193,13 @@ const selectedProductByItmKnd = ref([]);
 //   productList.value = response.data;
 // }
 
-onMounted(async () => {
-  // await getProductList();
-  const response = await dataService.get('/sms/wells/service/product-list/by-itmkndcd', { params: { itmKndCd: '4' } });
-  productList.value = response.data;
-  selectedProductByItmKnd.value = cloneDeep(productList.value);
-  // eslint-disable-next-line max-len
-  // selectedProductByItmKnd.value = selectedProductByItmKnd.value.map((v) => ({ codeId: v.codeId, codeName: `${v.codeId} - ${v.codeName}` }));
-  // console.log(selectedProductByItmKnd.value);
-});
-
-const onChangeItmKnd = (val) => {
-  if (val.length < 1) {
-    selectedProductByItmKnd.value = cloneDeep(productList.value);
-  } else {
-    selectedProductByItmKnd.value = productList.value.filter((v) => v.itmKndCd === val);
-  }
-};
+// const onChangeItmKnd = (val) => {
+//   if (val.length < 1) {
+//     selectedProductByItmKnd.value = cloneDeep(productList.value);
+//   } else {
+//     selectedProductByItmKnd.value = productList.value.filter((v) => v.itmKndCd === val);
+//   }
+// };
 
 let stockDateColumns = [];
 let stockDateFields = [];
@@ -255,6 +254,52 @@ const getDateColumnsFields = (searchDt) => {
     installDateColumns.push(installDateColumn);
     installDateFields.push(installDateField);
     installDateItems.push(`installdate${i + 1}`);
+  }
+};
+
+// 품목구분 변경
+const optionsItmPdCd = ref();
+const optionsAllItmPdCd = ref();
+
+const getProducts = async () => {
+  const result = await dataService.get('/sms/wells/service/monthly-by-stock-state/products');
+  const pdCds = result.data.map((v) => v.pdCd);
+  optionsItmPdCd.value = result.data.filter((v, i) => pdCds.indexOf(v.pdCd) === i);
+  optionsAllItmPdCd.value = result.data;
+};
+
+onMounted(() => {
+  getProducts();
+});
+
+const onChangeItmDvCd = () => {
+  searchParams.value.itmPdCds = [];
+  const { itmKndCd, itmGrpCd } = searchParams.value;
+
+  if (isEmpty(itmKndCd) && isEmpty(itmGrpCd)) {
+    const pdCds = optionsAllItmPdCd.value.map((v) => v.pdCd);
+    optionsItmPdCd.value = optionsAllItmPdCd.value.filter((v, i) => pdCds.indexOf(v.pdCd) === i);
+    return;
+  }
+
+  const filterPdInfos = optionsAllItmPdCd.value.filter(
+    (v) => (isEmpty(itmKndCd) || itmKndCd === v.itmKndCd) && (isEmpty(itmGrpCd) || itmGrpCd === v.itmGrpCd),
+  );
+
+  if (isEmpty(itmGrpCd)) {
+    const pdCds = filterPdInfos.map((v) => v.pdCd);
+    optionsItmPdCd.value = filterPdInfos.filter((v, i) => pdCds.indexOf(v.pdCd) === i);
+  } else {
+    optionsItmPdCd.value = filterPdInfos;
+  }
+};
+
+// 품목 변경 (pdCd)
+const onChangePdCd = (val) => {
+  if (!isEmpty(val)) {
+    searchParams.value.itmPdCd = val;
+  } else {
+    searchParams.value.itmPdCd = '';
   }
 };
 
@@ -315,7 +360,7 @@ async function fetchData() {
  *  Search - 조회
  */
 async function onClickSearch() {
-  if (isEmpty(searchParams.value.pdCd)) {
+  if (isEmpty(searchParams.value.itmPdCd)) {
     alert(t('MSG_ALT_PD_CD_CHO'));
     return;
   }
