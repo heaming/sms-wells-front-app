@@ -46,6 +46,13 @@
             @update:model-value="onChangeWareDtlDvCd"
           />
         </kw-search-item>
+        <kw-search-item :label="$t('MSG_TXT_STR_TP')">
+          <kw-select
+            v-model="searchParams.strTpCd"
+            :options="codes.STR_TP_CD"
+            first-option="all"
+          />
+        </kw-search-item>
       </kw-search-row>
     </kw-search>
 
@@ -115,6 +122,7 @@ const codes = await codeUtil.getMultiCodes(
   'STR_TP_CD',
   'WARE_DV_CD',
   'WARE_DTL_DV_CD',
+  'STR_TP_CD',
 );
 
 /*
@@ -150,6 +158,7 @@ const searchParams = ref({
   strWareNoM: '',
   strWareNoD: '',
   wareDtlDvCd: '',
+  strTpCd: '',
 });
 
 /*
