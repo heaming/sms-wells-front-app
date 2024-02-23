@@ -301,6 +301,8 @@ const onChangePdCd = (val) => {
   } else {
     searchParams.value.itmPdCd = '';
   }
+
+  searchParams.value.itmGrpCd = '';
 };
 
 async function fetchData() {
