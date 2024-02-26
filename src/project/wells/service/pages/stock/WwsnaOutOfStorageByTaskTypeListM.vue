@@ -21,12 +21,21 @@
       <kw-search-row>
         <kw-search-item
           :label="$t('MSG_TXT_OSTR_DT')"
-          :colspan="2"
+          :colspan="1"
         >
           <kw-date-range-picker
             v-model:from="searchParams.stOstrDt"
             v-model:to="searchParams.edOstrDt"
             rules="date_range_months:1"
+          />
+        </kw-search-item>
+        <kw-search-item
+          :label="$t('TXT_MSG_SAP_MAT_GRP_VAL')"
+        >
+          <kw-select
+            v-model="searchParams.svMatGrpCd"
+            :options="codes.SV_MAT_GRP_CD"
+            first-option="all"
           />
         </kw-search-item>
         <kw-search-item
@@ -75,14 +84,22 @@
           <kw-select
             v-model="searchParams.itmKndCd"
             :options="codes.ITM_KND_CD"
-            class="w150"
             first-option="all"
-            @change="onChangeItmKnd"
+            @change="onChangeItmDvCd"
+          />
+          <kw-select
+            v-model="searchParams.itmGrpCd"
+            :options="codes.PD_GRP_CD"
+            first-option="all"
+            @change="onChangeItmDvCd"
           />
           <kw-select
             v-model="searchParams.itmPdCd"
-            :options="selectedProductByItmKnd"
+            :options="optionsItmPdCd"
+            option-value="pdCd"
+            option-label="pdNm"
             first-option="all"
+            required
             @change="onChangeItmPdCd"
           />
         </kw-search-item>
@@ -127,7 +144,7 @@
             v-model:page-index="pageInfo.pageIndex"
             v-model:page-size="pageInfo.pageSize"
             :total-count="pageInfo.totalCount"
-            :page-size-options="codes.COD_PAGE_SIZE_OPTIONS"
+            :page-size-options="false"
             @change="fetchData"
           />
         </template>
@@ -160,12 +177,6 @@
         :total-count="pageInfo.totalCount"
         @init="initGrid"
       />
-      <kw-pagination
-        v-model:page-index="pageInfo.pageIndex"
-        v-model:page-size="pageInfo.pageSize"
-        :total-count="pageInfo.totalCount"
-        @change="fetchData"
-      />
     </div>
   </kw-page>
 </template>
@@ -175,7 +186,7 @@
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
 import { codeUtil, getComponentType, gridUtil, useDataService, defineGrid } from 'kw-lib';
-import { cloneDeep } from 'lodash-es';
+import { cloneDeep, isEmpty } from 'lodash-es';
 import dayjs from 'dayjs';
 // import { getCodeNames } from '~sms-common/product/utils/pdUtil';
 
@@ -201,6 +212,8 @@ const codes = await codeUtil.getMultiCodes(
   'PD_GD_CD', // 상품등급
   'USE_YN', // 사용유무
   'SV_CNR_CD', // 서비스센터코드
+  'PD_GRP_CD',
+  'SV_MAT_GRP_CD', // 자재그룹
   // 'TRNOVR_RT_OJ_YN', // 회전율
 );
 
@@ -249,33 +262,17 @@ const searchParams = ref({
   itmPdCdTo: '',
   pdGdCd: '',
   useSel: '',
+  itmGrpCd: '',
+  svMatGrpCd: '',
 });
 
-/*
- *  Select Component 초기화 - 전체 상품 목록 가져오기
- */
-const products = ref([]);
-const selectedProductByItmKnd = ref([]);
-
-async function getProductList() {
-  // cachedParams = cloneDeep(searchParams);
-  const response = await dataService.get('/sms/wells/service/product-list/by-itmkndcd', { params: { itmKndCd: searchParams.value.itmKndCd } });
-  products.value = response.data;
-}
-
-onMounted(async () => {
-  await getProductList();
-  selectedProductByItmKnd.value = cloneDeep(products.value);
-  searchParams.value.dispTypeCd = '1';
-});
-
-const onChangeItmKnd = (val) => {
-  if (val.length < 1) {
-    selectedProductByItmKnd.value = cloneDeep(products.value);
-  } else {
-    selectedProductByItmKnd.value = products.value.filter((v) => v.itmKndCd === val);
-  }
-};
+// const onChangeItmKnd = (val) => {
+//   if (val.length < 1) {
+//     selectedProductByItmKnd.value = cloneDeep(products.value);
+//   } else {
+//     selectedProductByItmKnd.value = products.value.filter((v) => v.itmKndCd === val);
+//   }
+// };
 
 const onChangeItmPdCd = (val) => {
   if (val !== '') {
@@ -284,30 +281,88 @@ const onChangeItmPdCd = (val) => {
   }
 };
 
-/*
- * 서비스센터 컬럼 세팅 - (보류) 서비스센터 공통코드 데이터 추가 필요
- */
-// const svcCntrCdColumn = codes.SV_CNR_CD.map((v) => ({
-//   fieldName: `typ${v.codeId}`,
-//   header: v.codeName,
-//   width: '80',
-//   styleName: 'text-right',
-//   dataType: 'number',
-//   groupFooter: {
-//     numberFormat: '#,##0',
-//     expression: 'sum',
-//   },
-//   visible: true,
-// }));
+// 품목구분 변경
+const optionsItmPdCd = ref();
+const optionsAllItmPdCd = ref();
+
+const getProducts = async () => {
+  const result = await dataService.get('/sms/wells/service/monthly-by-stock-state/products');
+  const pdCds = result.data.map((v) => v.pdCd);
+  optionsItmPdCd.value = result.data.filter((v, i) => pdCds.indexOf(v.pdCd) === i);
+  optionsAllItmPdCd.value = result.data;
+};
+
+const onChangeItmDvCd = () => {
+  searchParams.value.itmPdCds = [];
+  const { itmKndCd, itmGrpCd } = searchParams.value;
+
+  if (isEmpty(itmKndCd) && isEmpty(itmGrpCd)) {
+    const pdCds = optionsAllItmPdCd.value.map((v) => v.pdCd);
+    optionsItmPdCd.value = optionsAllItmPdCd.value.filter((v, i) => pdCds.indexOf(v.pdCd) === i);
+    return;
+  }
+
+  const filterPdInfos = optionsAllItmPdCd.value.filter(
+    (v) => (isEmpty(itmKndCd) || itmKndCd === v.itmKndCd) && (isEmpty(itmGrpCd) || itmGrpCd === v.itmGrpCd),
+  );
+
+  if (isEmpty(itmGrpCd)) {
+    const pdCds = filterPdInfos.map((v) => v.pdCd);
+    optionsItmPdCd.value = filterPdInfos.filter((v, i) => pdCds.indexOf(v.pdCd) === i);
+  } else {
+    optionsItmPdCd.value = filterPdInfos;
+  }
+};
+
+const wareColumns = ref([]);
+
+/* 그리드 필드 */
+async function getWareFields() {
+  const result = await dataService.get('/sms/wells/service/out-of-storage-by-task-type/ware-fields', { params: searchParams.value });
+  const resultArr = [];
+
+  result.data.forEach((item) => {
+    const column = { fieldName: `typ${item.wareNo}`, header: item.wareNm, width: '80', styleName: 'text-center', visible: true, dataType: 'number', numberFormat: '#,##0', nanText: '0' };
+    resultArr.push(column);
+  });
+
+  console.log(resultArr);
+
+  wareColumns.value = resultArr;
+}
+
+const baseColumns = [
+  { fieldName: 'matMngtDvCd', header: t('MSG_TXT_STOC_TYPE'), width: '100', styleName: 'text-center', visible: true },
+  { fieldName: 'sapMatCd', header: t('MSG_TXT_SAP_CD'), width: '120', styleName: 'text-center', visible: true },
+  { fieldName: 'itmPdCd', header: t('MSG_TXT_ITM_CD'), width: '140', styleName: 'text-center', visible: true },
+  { fieldName: 'pdNm', header: t('MSG_TXT_ITM_NM'), width: '270', styleName: 'text-center', visible: true },
+  { fieldName: 'typ999999', header: t('MSG_TXT_AGG'), width: '80', styleName: 'text-center', visible: true, dataType: 'number', numberFormat: '#,##0', nanText: '0' },
+  { fieldName: 'cmnPartDvCd', header: t('MSG_TXT_MDIM_RPR'), width: '150', styleName: 'text-center', visible: false, autoFilter: false },
+  { fieldName: 'ordnyHvMatYn', header: t('MSG_TXT_BTD'), width: '150', styleName: 'text-center', visible: false, autoFilter: false },
+  { fieldName: 'trnoverRtOjYn', header: t('MSG_TXT_TXT_MSG_TURNR_OJ_YN'), width: '150', styleName: 'text-center', visible: false, autoFilter: false },
+];
 
 async function fetchData() {
+  await getWareFields();
+
   // eslint-disable-next-line max-len
   const res = await dataService.get('/sms/wells/service/out-of-storage-by-task-type/paging', { params: { ...cachedParams, ...pageInfo.value } });
   const { list: state, pageInfo: pagingResult } = res.data;
 
   pageInfo.value = pagingResult;
+  pageInfo.value.totalCount = state.length;
 
   const view = grdMainRef.value.getView();
+  const data = grdMainRef.value.getData();
+  const columns = [...baseColumns, ...wareColumns.value];
+  console.log(columns);
+
+  // eslint-disable-next-line max-len
+  const fields = columns.map(({ fieldName, dataType, visible }) => (dataType ? { fieldName, dataType, visible } : { fieldName, visible }));
+
+  data.setFields(fields);
+  view.setColumns(columns);
+
   view.getDataSource().setRows(state);
   console.log(state);
   view.resetCurrent();
@@ -324,10 +379,20 @@ async function onClickSearch() {
 }
 
 async function onClickExcelDownload() {
+  // await getWareFields();
   const view = grdMainRef.value.getView();
+  // const data = grdMainRef.value.getData();
+  // const columns = [...baseColumns, ...wareColumns.value];
+  // // console.log(columns);
+
+  // eslint-disable-next-line max-len
+  // const fields = columns.map(({ fieldName, dataType, visible }) => (dataType ? { fieldName, dataType, visible } : { fieldName, visible }));
 
   // eslint-disable-next-line max-len
   const res = await dataService.get('/sms/wells/service/out-of-storage-by-task-type/excel-download', { params: searchParams.value });
+  // data.setFields(fields);
+  // view.setColumns(columns);
+  // view.getDataSource().setRows(res);
 
   await gridUtil.exportView(view, {
     fileName: currentRoute.value.meta.menuName,
@@ -383,45 +448,28 @@ const onChangeMatUtlzDvCd = (val) => {
   }
 };
 
+onMounted(() => {
+  searchParams.value.dispTypeCd = '1';
+  getProducts();
+  getWareFields();
+});
+
+Promise.all([
+  getProducts(),
+  getWareFields(),
+]);
+
 // -------------------------------------------------------------------------------------------------
 // Initialize Grid
 // -------------------------------------------------------------------------------------------------
 
-const initGrid = defineGrid((data, view) => {
+const initGrid = defineGrid(async (data, view) => {
+  await getWareFields();
+  console.log(wareColumns.value);
+
   const columns = [
-    { fieldName: 'matMngtDvCd', header: t('MSG_TXT_STOC_TYPE'), width: '100', styleName: 'text-center', visible: true },
-    { fieldName: 'sapMatCd', header: t('MSG_TXT_SAP_CD'), width: '120', styleName: 'text-center', visible: true },
-    { fieldName: 'itmPdCd', header: t('MSG_TXT_ITM_CD'), width: '140', styleName: 'text-center', visible: true },
-    { fieldName: 'pdNm', header: t('MSG_TXT_ITM_NM'), width: '270', styleName: 'text-center', visible: true },
-    { fieldName: 'typ200001', header: '성수', width: '80', styleName: 'text-center', visible: true, dataType: 'number', numberFormat: '#,##0' },
-    { fieldName: 'typ200002', header: '의정부', width: '80', styleName: 'text-center', visible: true, dataType: 'number', numberFormat: '#,##0' },
-    { fieldName: 'typ200465', header: '남양주', width: '80', styleName: 'text-center', visible: true, dataType: 'number', numberFormat: '#,##0' },
-    { fieldName: 'typ200009', header: '원주', width: '80', styleName: 'text-center', visible: true, dataType: 'number', numberFormat: '#,##0' },
-    { fieldName: 'typ200006', header: '수원', width: '80', styleName: 'text-center', visible: true, dataType: 'number', numberFormat: '#,##0' },
-    { fieldName: 'typ200024', header: '안양', width: '80', styleName: 'text-center', visible: true, dataType: 'number', numberFormat: '#,##0' },
-    { fieldName: 'typ200017', header: '광명', width: '80', styleName: 'text-center', visible: true, dataType: 'number', numberFormat: '#,##0' },
-    { fieldName: 'typ200005', header: '인천', width: '80', styleName: 'text-center', visible: true, dataType: 'number', numberFormat: '#,##0' },
-    { fieldName: 'typ200003', header: '일산', width: '80', styleName: 'text-center', visible: true, dataType: 'number', numberFormat: '#,##0' },
-    { fieldName: 'typ200010', header: '청주', width: '80', styleName: 'text-center', visible: true, dataType: 'number', numberFormat: '#,##0' },
-    { fieldName: 'typ200012', header: '대전', width: '80', styleName: 'text-center', visible: true, dataType: 'number', numberFormat: '#,##0' },
-    { fieldName: 'typ200466', header: '천안', width: '80', styleName: 'text-center', visible: true, dataType: 'number', numberFormat: '#,##0' },
-    { fieldName: 'typ200014', header: '전주', width: '80', styleName: 'text-center', visible: true, dataType: 'number', numberFormat: '#,##0' },
-    { fieldName: 'typ200013', header: '광주', width: '80', styleName: 'text-center', visible: true, dataType: 'number', numberFormat: '#,##0' },
-    { fieldName: 'typ200609', header: '순천', width: '80', styleName: 'text-center', visible: true, dataType: 'number', numberFormat: '#,##0' },
-    { fieldName: 'typ200127', header: '서대구', width: '80', styleName: 'text-center', visible: true, dataType: 'number', numberFormat: '#,##0' },
-    { fieldName: 'typ200467', header: '동대구', width: '80', styleName: 'text-center', visible: true, dataType: 'number', numberFormat: '#,##0' },
-    { fieldName: 'typ200007', header: '부산', width: '80', styleName: 'text-center', visible: true, dataType: 'number', numberFormat: '#,##0' },
-    { fieldName: 'typ200371', header: '김해', width: '80', styleName: 'text-center', visible: true, dataType: 'number', numberFormat: '#,##0' },
-    { fieldName: 'typ200008', header: '창원', width: '80', styleName: 'text-center', visible: true, dataType: 'number', numberFormat: '#,##0' },
-    { fieldName: 'typ200015', header: '제주', width: '80', styleName: 'text-center', visible: true, dataType: 'number', numberFormat: '#,##0' },
-    { fieldName: 'typ200608', header: '포항', width: '80', styleName: 'text-center', visible: true, dataType: 'number', numberFormat: '#,##0' },
-    { fieldName: 'typ200672', header: '진주', width: '80', styleName: 'text-center', visible: true, dataType: 'number', numberFormat: '#,##0' },
-    { fieldName: 'typ200934', header: '강서', width: '80', styleName: 'text-center', visible: true, dataType: 'number', numberFormat: '#,##0' },
-    { fieldName: 'typ201064', header: '인천공장', width: '80', styleName: 'text-center', visible: true, dataType: 'number', numberFormat: '#,##0' },
-    { fieldName: 'typ999999', header: t('MSG_TXT_AGG'), width: '80', styleName: 'text-center', visible: true, dataType: 'number', numberFormat: '#,##0' },
-    { fieldName: 'cmnPartDvCd', header: t('MSG_TXT_MDIM_RPR'), width: '150', styleName: 'text-center', visible: false, autoFilter: false },
-    { fieldName: 'ordnyHvMatYn', header: t('MSG_TXT_BTD'), width: '150', styleName: 'text-center', visible: true, autoFilter: false },
-    { fieldName: 'trnoverRtOjYn', header: t('MSG_TXT_TXT_MSG_TURNR_OJ_YN'), width: '150', styleName: 'text-center', visible: true, autoFilter: false },
+    ...baseColumns,
+    ...wareColumns.value,
   ];
   // eslint-disable-next-line max-len
   const fields = columns.map(({ fieldName, dataType, visible }) => (dataType ? { fieldName, dataType, visible } : { fieldName, visible }));
@@ -431,6 +479,7 @@ const initGrid = defineGrid((data, view) => {
   data.setFields(fields);
   view.setColumns(columns);
   view.filteringOptions.enabled = false;
+  view.setFixedOptions({ colCount: 5 });
 });
 
 </script>
