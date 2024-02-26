@@ -29,44 +29,19 @@
             :rules="required"
           />
         </kw-search-item>
-        <!-- 총괄단 -->
-        <kw-search-item
-          :label="$t('MSG_TXT_MANAGEMENT_DEPARTMENT')"
-        >
-          <kw-select
-            v-model="searchParams.mgtDept"
-            :options="mgtDeptAll"
-            first-option="all"
-            option-value="dgr1LevlOgCd"
-            option-label="dgr1LelOgNm"
-            @update:model-value="onUpdateMgtDept"
-          />
-        </kw-search-item>
-        <!-- 지역단 -->
-        <kw-search-item
-          :label="$t('MSG_TXT_RGNL_GRP')"
-        >
-          <kw-select
-            v-model="searchParams.rgnlGrp"
-            :options="filteredRgnlGrp"
-            first-option="all"
-            option-value="dgr2LevlOgCd"
-            option-label="dgr2LevlOgNm"
-            @update:model-value="onUpdateRgnlGrp"
-          />
-        </kw-search-item>
-        <!-- 지점 -->
-        <kw-search-item
-          :label="$t('MSG_TXT_BRANCH')"
-        >
-          <kw-select
-            v-model="searchParams.branch"
-            :options="filteredBranch"
-            first-option="all"
-            option-value="dgr3LevlOgCd"
-            option-label="dgr3LevlOgNm"
-          />
-        </kw-search-item>
+        <wwsn-manager-og-search-item-group
+          v-model:dgr1-levl-og-id="searchParams.mgtDept"
+          v-model:dgr2-levl-og-id="searchParams.rgnlGrp"
+          v-model:dgr3-levl-og-id="searchParams.branch"
+          use-og-level="3"
+          :use-partner="false"
+          dgr1-levl-og-first-option="all"
+          dgr2-levl-og-first-option="all"
+          dgr3-levl-og-first-option="all"
+          dgr1-levl-og-label="ogCdNm"
+          dgr2-levl-og-label="ogCdNm"
+          dgr3-levl-og-label="ogCdNm"
+        />
       </kw-search-row>
 
       <kw-search-row>
@@ -134,6 +109,7 @@
 import { codeUtil, defineGrid, getComponentType, useDataService, gridUtil } from 'kw-lib';
 import dayjs from 'dayjs';
 import { cloneDeep } from 'lodash-es';
+import WwsnManagerOgSearchItemGroup from '~sms-wells/service/components/WwsnManagerOgSearchItemGroup.vue';
 
 const { t } = useI18n();
 const { currentRoute } = useRouter();
@@ -174,47 +150,6 @@ const searchParams = ref({
 });
 
 /*
- * 조직코드 (총괄단/지역단/지점)
- */
-const mgtDeptAll = ref([]);
-const rgnlGrpAll = ref([]);
-const branchAll = ref([]);
-// const filteredMgtDept = ref([]);
-const filteredRgnlGrp = ref([]);
-const filteredBranch = ref([]);
-
-async function getRgnlGrpsNBranches() {
-  let res = [];
-  res = await dataService.get('/sms/wells/contract/partners/general-divisions');
-  mgtDeptAll.value = res.data;
-  res = await dataService.get('/sms/wells/contract/partners/regional-divisions');
-  rgnlGrpAll.value = res.data;
-  res = await dataService.get('/sms/wells/contract/partners/branch-divisions');
-  branchAll.value = res.data;
-}
-
-getRgnlGrpsNBranches();
-
-/*
- * Event - 총괄단 변경
- */
-async function onUpdateMgtDept(value) {
-  searchParams.value.rgnlGrp = '';
-  searchParams.value.branch = '';
-
-  filteredRgnlGrp.value = rgnlGrpAll.value.filter((v) => value.includes(v.dgr1LevlOgCd));
-  filteredBranch.value = [];
-}
-
-/*
- * Event - 지역단 변경
- */
-async function onUpdateRgnlGrp(value) {
-  searchParams.value.branch = '';
-  filteredBranch.value = branchAll.value.filter((v) => value.includes(v.dgr2LevlOgCd));
-}
-
-/*
  *  Select Component 초기화 - 전체 상품 목록 가져오기
  */
 const products = ref([]);
@@ -222,7 +157,7 @@ const selectedProductByPdGrpCd = ref([]);
 
 async function getProductList() {
   cachedParams = cloneDeep(searchParams);
-  const response = await dataService.get('/sms/wells/service/product-list/by-itmkndcd', { params: { itmKndCd: searchParams.value.itmKndCd } });
+  const response = await dataService.get('/sms/wells/common/sms-wells-codes/product-list/by-itmkndcd', { params: { itmKndCd: searchParams.value.itmKndCd } });
   products.value = response.data;
 }
 
