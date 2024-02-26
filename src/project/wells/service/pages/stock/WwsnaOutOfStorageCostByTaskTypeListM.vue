@@ -9,7 +9,7 @@
  ***************************************************************************************************
  * 프로그램 설명
  ***************************************************************************************************
- - 업무유형별 자재출고 현황 (http://localhost:3000/#/service/wwsna-out-of-storage-cost-by-task-type)
+ - 품목별 자재출고금액 현황 (http://localhost:3000/#/service/wwsna-out-of-storage-cost-by-task-type)
  ***************************************************************************************************
 -->
 <template>
@@ -212,6 +212,7 @@ async function fetchData() {
   const { list: state, pageInfo: pagingResult } = res.data;
 
   pageInfo.value = pagingResult;
+  pageInfo.value.pageSize = pagingResult.totalCount;
 
   const view = grdMainRef.value.getView();
   view.getDataSource().setRows(state);
