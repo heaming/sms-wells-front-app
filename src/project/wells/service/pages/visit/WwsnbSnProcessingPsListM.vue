@@ -276,15 +276,15 @@ const initMainGrid = defineGrid((data, view) => {
   const columns = [
     { fieldName: 'reYn', header: t('MSG_TXT_RPBL'), width: '90', styleName: 'text-center' },
     { fieldName: 'bcInMthdCd', header: t('MSG_TXT_WK_STS'), width: '110', styleName: 'text-center' },
-    { fieldName: 'hdwrInRsonCd', header: t('MSG_TIT_UNIFY_QR_TARGET'), width: '130', styleName: 'text-center' },
+    { fieldName: 'bcPblDvCd', header: t('MSG_TIT_UNIFY_QR_TARGET'), width: '130', styleName: 'text-center' },
     { fieldName: 'pblTms', header: t('MSG_TXT_PBL_CNT'), width: '110', styleName: 'text-center' },
     { fieldName: 'cntrNo', header: t('MSG_TXT_PBL_CNT'), width: '110', styleName: 'text-center', visible: false },
     { fieldName: 'cntrSn', header: t('MSG_TXT_PBL_CNT'), width: '110', styleName: 'text-center', visible: false },
     { fieldName: 'cstNo',
-      header: t('MSG_TXT_CST_NO'),
+      header: t('MSG_TXT_CNTR_DTL_NO'),
       width: '160',
-      styleName: 'text-center',
       renderer: { type: 'button', hideWhenEmpty: false },
+      styleName: 'text-center rg-button-link',
       displayCallback(grid, index) {
         const { cntrNo, cntrSn } = grid.getValues(index.itemIndex);
         return `${cntrNo}-${cntrSn}`;
@@ -316,9 +316,9 @@ const initMainGrid = defineGrid((data, view) => {
         const { cralLocaraTno: no1, mexnoEncr: no2, cralIdvTno: no3 } = grid.getValues(index.itemIndex);
         return !isEmpty(no1) && !isEmpty(no2) && !isEmpty(no3) ? `${no1}-${no2}-${no3}` : '';
       } },
-    { fieldName: 'sapMatCd', header: t('MSG_TXT_SAP_CD'), width: '200' },
-    { fieldName: 'pdCd', header: t('MSG_TXT_PRDT_CODE'), width: '200' },
-    { fieldName: 'pdNm', header: t('MSG_TXT_PRDT_NM'), width: '200' },
+    { fieldName: 'sapMatCd', header: t('MSG_TXT_SAP_CD'), width: '200', styleName: 'text-center' },
+    { fieldName: 'pdCd', header: t('MSG_TXT_ITM_CD'), width: '200', styleName: 'text-center' },
+    { fieldName: 'pdNm', header: t('MSG_TXT_ITM_NM'), width: '200', styleName: 'text-center' },
     { fieldName: 'sellTpCd', header: t('MSG_TXT_SEL_TYPE'), width: '110', styleName: 'text-center' },
     { fieldName: 'newAdrZip', header: t('MSG_TXT_IST_ZIP'), width: '136' },
     { fieldName: 'addr', header: t('MSG_TXT_ADDR'), width: '280' },
@@ -347,7 +347,7 @@ const initMainGrid = defineGrid((data, view) => {
       displayCallback: () => t('MSG_BTN_CST_SIGN'),
     },
     { fieldName: 'cancYn', header: t('MSG_TXT_CNCL_YN'), width: '100', styleName: 'text-center' },
-    { fieldName: 'bcPblDvCd', header: t('MSG_TXT_HDWR_RSON'), width: '140', styleName: 'text-center' },
+    { fieldName: 'hdwrInRsonCd', header: t('MSG_TXT_HDWR_RSON'), width: '140', styleName: 'text-center' },
     { fieldName: 'cstSvAsnNo', header: t('MSG_TXT_PBL_CNT'), width: '110', styleName: 'text-center', visible: false },
     { fieldName: 'cstSignCn', header: t('MSG_TXT_PBL_CNT'), width: '110', styleName: 'text-center', visible: false },
   ];
@@ -404,8 +404,8 @@ const initTotalGrid = defineGrid((data, view) => {
     { fieldName: 'bsCntrTotal', header: t('MSG_TXT_ALL'), width: '170', styleName: 'text-center', dataType: 'number', numberFormat: '#,###.##%' },
     { fieldName: 'procsTotal', header: t('MSG_TXT_PROC'), width: '170', styleName: 'text-center', dataType: 'number', numberFormat: '#,###.##%' },
     { fieldName: 'scanTotal', header: t('MSG_TXT_SCN'), width: '170', styleName: 'text-center', dataType: 'number', numberFormat: '#,###.##%' },
-    { fieldName: 'handTotal', header: t('MSG_TXT_HDWR_IN_RSON'), width: '170', styleName: 'text-center', dataType: 'number', numberFormat: '#,###.##%' },
-    { fieldName: 'stpTotal', header: t('MSG_TXT_APLC'), width: '170', styleName: 'text-center', dataType: 'number', numberFormat: '#,###.##%' },
+    { fieldName: 'handTotal', header: t('MSG_TXT_HANDWRITE'), width: '170', styleName: 'text-center', dataType: 'number', numberFormat: '#,###.##%' },
+    { fieldName: 'reReqTotal', header: t('MSG_TXT_APLC'), width: '170', styleName: 'text-center', dataType: 'number', numberFormat: '#,###.##%' },
     { fieldName: 'yetProcs', header: t('MSG_TXT_NO_PROC'), width: '170', styleName: 'text-center', dataType: 'number', numberFormat: '#,###.##%' },
     { fieldName: 'ratProcsTotal', header: `${t('MSG_TXT_PROCS_RT')}(%)`, width: '170', styleName: 'text-center', dataType: 'number', numberFormat: '#,###.##%' },
     { fieldName: 'ratStickTotal', header: `${t('MSG_TXT_STICK_RT')}(%)`, width: '170', styleName: 'text-center', dataType: 'number', numberFormat: '#,###.##%' },
@@ -427,8 +427,8 @@ const initSubGrid = defineGrid((data, view) => {
     { fieldName: 'curMmRe', header: t('MSG_TXT_ALL'), width: '170', styleName: 'text-center', dataType: 'number', numberFormat: '#,###.##%' },
     { fieldName: 'curMmReProcs', header: t('MSG_TXT_PROC'), width: '170', styleName: 'text-center', dataType: 'number', numberFormat: '#,###.##%' },
     { fieldName: 'curMmReScan', header: t('MSG_TXT_SCN'), width: '170', styleName: 'text-center', dataType: 'number', numberFormat: '#,###.##%' },
-    { fieldName: 'curMmReHand', header: t('MSG_TXT_HDWR_IN_RSON'), width: '170', styleName: 'text-center', dataType: 'number', numberFormat: '#,###.##%' },
-    { fieldName: 'curMmReStp', header: t('MSG_TXT_APLC'), width: '170', styleName: 'text-center', dataType: 'number', numberFormat: '#,###.##%' },
+    { fieldName: 'curMmReHand', header: t('MSG_TXT_HANDWRITE'), width: '170', styleName: 'text-center', dataType: 'number', numberFormat: '#,###.##%' },
+    { fieldName: 'curMmReReq', header: t('MSG_TXT_APLC'), width: '170', styleName: 'text-center', dataType: 'number', numberFormat: '#,###.##%' },
     { fieldName: 'curMmReYetProcs', header: t('MSG_TXT_NO_PROC'), width: '170', styleName: 'text-center', dataType: 'number', numberFormat: '#,###.##%' },
     { fieldName: 'ratReProcs', header: `${t('MSG_TXT_PROCS_RT')}(%)`, width: '170', styleName: 'text-center', dataType: 'number', numberFormat: '#,###.##%' },
     { fieldName: 'ratReStick', header: `${t('MSG_TXT_STICK_RT')}(%)`, width: '170', styleName: 'text-center', dataType: 'number', numberFormat: '#,###.##%' },
