@@ -75,11 +75,13 @@
           </kw-field>
         </kw-search-item>
         <kw-search-item
-          :label="t('MSG_TXT_CHK_PRD')"
+          :label="t('MSG_TXT_VST_PRD')"
         >
           <kw-select
             v-model="searchParams.bfsvcPrdCd"
-            :options="CUST_BFSVC_PRD_CD"
+            :options="optionSvVstPrdCd"
+            option-label="codeName"
+            option-value="code"
             first-option="all"
           />
         </kw-search-item>
@@ -151,6 +153,8 @@ const codes = await codeUtil.getMultiCodes(
   'BFSVC_PRD_CD',
 );
 
+const optionSvVstPrdCd = ref([]);
+
 /*
  *  Page Info setting
  */
@@ -175,33 +179,28 @@ const searchParams = ref({
   cancelOrReqd: '',
 });
 
-/* 점검주기 option 재설정 */
-const CUST_BFSVC_PRD_CD = codes.BFSVC_PRD_CD.filter((v) => (v.codeId !== 'A'));
-
 /*
  *  Select Component 초기화 - 전체 상품 목록 가져오기
  */
 const products = ref([]);
 const selectedProductByPdGrpCd = ref([]);
 
+async function getSvVstPrdCd() {
+  const res = await dataService.get('/sms/wells/service/customer-ps-by-product/svVstPrdCd');
+  console.log(res);
+  optionSvVstPrdCd.value = res.data;
+}
+
+onMounted(async () => {
+  await getSvVstPrdCd();
+});
+
 async function getProductList() {
   cachedParams = cloneDeep(searchParams);
-  const response = await dataService.get('/sms/wells/service/product-list/by-itmkndcd', { params: { itmKndCd: '4' } });
+  const response = await dataService.get('sms/wells/common/sms-wells-codes/product-list/by-itmkndcd', { params: { itmKndCd: '4' } });
   products.value = response.data;
 }
 
-// onBeforeMount(async () => {
-//   searchParams.value.itmKndCd = '4';
-// });
-
-// onMounted(async () => {
-//   await getProductList();
-//   // selectedProductByPdGrpCd.value = cloneDeep(products.value);
-//   // eslint-disable-next-line max-len
-// eslint-disable-next-line max-len
-//   // selectedProductByPdGrpCd.value = selectedProductByPdGrpCd.value.map((v) => ({ codeId: v.codeId, codeName: `${v.codeId} - ${v.codeName}` }));
-//   // console.log(selectedProductByItmKnd.value);
-// });
 await getProductList();
 
 const onChangePdGrpCd = (val) => {
@@ -214,7 +213,7 @@ const onChangePdGrpCd = (val) => {
 
 async function fetchData() {
   // eslint-disable-next-line max-len
-  const res = await dataService.get('/sms/wells/service/customer-ps-by-product/paging', { params: { ...cachedParams, ...pageInfo.value } });
+  const res = await dataService.get('/sms/wells/service/customer-ps-by-product/paging', { params: { ...cachedParams, ...pageInfo.value }, timeout: 300000 });
   const { list: state, pageInfo: pagingResult } = res.data;
 
   pageInfo.value = pagingResult;
@@ -239,7 +238,7 @@ async function onClickExcelDownload() {
   const view = grdMainRef.value.getView();
 
   // eslint-disable-next-line max-len
-  const res = await dataService.get('/sms/wells/service/customer-ps-by-product/excel-download', { params: searchParams.value });
+  const res = await dataService.get('/sms/wells/service/customer-ps-by-product/excel-download', { params: searchParams.value, timeout: 300000 });
 
   await gridUtil.exportView(view, {
     fileName: currentRoute.value.meta.menuName,
@@ -257,13 +256,11 @@ const initGrid = defineGrid((data, view) => {
       fieldName: 'cntrNoSn',
       header: t('MSG_TXT_CNTR_DTL_NO'),
       width: '160',
-      styleName: 'text-center',
       renderer: { type: 'button', hideWhenEmpty: false },
+      styleName: 'text-center rg-button-link',
       displayCallback(grid, index) {
         const { cntrNo, cntrSn } = grid.getValues(index.itemIndex);
-        if (!isEmpty(cntrNo)) {
-          return `${cntrNo}-${cntrSn}`;
-        }
+        return `${cntrNo}-${cntrSn}`;
       },
     }, // 고객번호
     { fieldName: 'cntrNo', header: t('MSG_TXT_CNTR_NO'), width: '100', styleName: 'text-center', visible: false },
@@ -272,8 +269,9 @@ const initGrid = defineGrid((data, view) => {
     { fieldName: 'pdCd', header: t('MSG_TXT_PRDT_CODE'), width: '130', styleName: 'text-center' },
     { fieldName: 'pdNm', header: t('MSG_TXT_PRDT_NM'), width: '200', styleName: 'text-left' },
     { fieldName: 'newAdrZip', header: t('MSG_TXT_ZIP'), width: '90', styleName: 'text-center' },
-    { fieldName: 'brchOgCd', header: t('MSG_TXT_BSNS_CNTR'), width: '110', styleName: 'text-center' },
-    { fieldName: 'svcOgNm', header: t('MSG_TXT_SV_CNR'), width: '110', styleName: 'text-center' },
+    { fieldName: 'ogCd', header: t('MSG_TXT_BSNS_CNTR'), width: '110', styleName: 'text-center' },
+    { fieldName: 'brchOgNm', header: t('MSG_TXT_BSNS_CNTR'), width: '110', styleName: 'text-center' },
+    // { fieldName: 'svcOgNm', header: t('MSG_TXT_SV_CNR'), width: '110', styleName: 'text-center' },
     { fieldName: 'addr', header: t('MSG_TXT_INST_ADDR'), width: '260', styleName: 'text-left' },
     { fieldName: 'cphoneNo',
       header: t('MSG_TXT_CPHON_NO'),
@@ -305,22 +303,20 @@ const initGrid = defineGrid((data, view) => {
     { fieldName: 'cralLocaraTno', header: t('MSG_TXT_TEL_NO'), width: '130', styleName: 'text-center', visible: false },
     { fieldName: 'mexnoEncr', header: t('MSG_TXT_TEL_NO'), width: '130', styleName: 'text-center', visible: false },
     { fieldName: 'cralIdvTno', header: t('MSG_TXT_TEL_NO'), width: '130', styleName: 'text-center', visible: false },
-    { fieldName: 'canDt', header: t('MSG_TXT_CANC_DT'), width: '130', styleName: 'text-center' },
+    { fieldName: 'rsgFshDt', header: t('MSG_TXT_RSG_DT'), width: '130', styleName: 'text-center' },
     { fieldName: 'istDt', header: t('MSG_TXT_IST_DT'), width: '130', styleName: 'text-center' },
     { fieldName: 'reqdDt', header: t('MSG_TXT_DEM_DT'), width: '130', styleName: 'text-center' },
+    { fieldName: 'svStpDt', header: t('MSG_TXT_STP_DT'), width: '130', styleName: 'text-center' },
     { fieldName: 'sellTpNm', header: t('MSG_TXT_SEL_TYPE'), width: '130', styleName: 'text-center' },
-    { fieldName: 'pdUswyCd', header: t('MSG_TXT_USWY'), width: '130', styleName: 'text-center' },
+    { fieldName: 'prdNm', header: t('MSG_TXT_CYCL'), width: '130', styleName: 'text-center' },
     { fieldName: 'bcNo', header: t('MSG_TXT_BARCODE'), width: '130', styleName: 'text-center' },
-    { fieldName: 'svStpDt', header: t('MSG_TXT_SV_STP_DT'), width: '130', styleName: 'text-center' },
-    { fieldName: 'cntrPtrm', header: t('MSG_TXT_DUTY_USE_MCNT_N'), width: '130', styleName: 'text-center' },
-    { fieldName: 'extFrisuAsMcn', header: t('MSG_TXT_FRISU_AS_PTRM_N'), width: '130', styleName: 'text-center' },
-    { fieldName: 'dlqAcuMcn', header: t('MSG_TXT_OVERDUE'), width: '130', styleName: 'text-center' },
+    { fieldName: 'stplPtrm', header: t('MSG_TXT_DUTY_USE_MCNT_N'), width: '130', styleName: 'text-center' },
+    { fieldName: 'frisuAsPtrmN', header: t('MSG_TXT_FRISU_AS_PTRM_N'), width: '130', styleName: 'text-center' },
+    { fieldName: 'frisuBfsvcPtrmN', header: t('MSG_TXT_FRISU_BFSVC_PTRM_N'), width: '130', styleName: 'text-center' },
+    { fieldName: 'dlqAcuMcn', header: t('MSG_TXT_DLQ_MCN'), width: '130', styleName: 'text-center' },
     { fieldName: 'ogNm', header: t('MSG_TXT_MNGER_AFFILITN_CD'), width: '130', styleName: 'text-center' },
     { fieldName: 'prtnrKnm', header: t('MSG_TXT_MNGER_NM'), width: '130', styleName: 'text-center' },
     { fieldName: 'prtnrNo', header: t('MSG_TXT_MNGER_EPNO'), width: '130', styleName: 'text-center' },
-    { fieldName: 'trnovrRtOjYn', header: t('MSG_TXT_TURNOVER_TRGT'), width: '130', styleName: 'text-center', autoFilter: false, visible: false }, // 회전율
-    { fieldName: 'cmnPartDvCd', header: t('MSG_TXT_MDIM_RPR_MAT'), width: '130', styleName: 'text-center', autoFilter: false, visible: false }, // 중수리
-    { fieldName: 'ordnyHvMatYn', header: t('MSG_TXT_BTD_MAT'), width: '130', styleName: 'text-center', autoFilter: false, visible: false }, // 기초자재
   ];
   // eslint-disable-next-line max-len
   const fields = columns.map(({ fieldName, dataType }) => (dataType ? { fieldName, dataType } : { fieldName }));
