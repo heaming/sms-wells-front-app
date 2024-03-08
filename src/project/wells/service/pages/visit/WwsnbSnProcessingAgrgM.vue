@@ -43,11 +43,17 @@
           dgr1-levl-og-label="ogCdNm"
           dgr2-levl-og-label="ogCdNm"
         />
+        <kw-search-item :label="$t('MSG_TXT_DIV')">
+          <kw-select
+            v-model="searchParams.div"
+            :options="divOption"
+          />
+        </kw-search-item>
       </kw-search-row>
     </kw-search>
 
     <div
-      v-if="isShowRgrp"
+      v-show="isShowRgrp"
       class="result-area"
     >
       <!-- 지역단별집계표 -->
@@ -56,11 +62,7 @@
       <kw-action-top>
         <template #left>
           <kw-paging-info
-            v-model:page-index="pageInfo.pageIndex"
-            v-model:page-size="pageInfo.pageSize"
-            :page-size-options="codes.COD_PAGE_SIZE_OPTIONS"
-            :total-count="pageInfo.totalCount"
-            @change="fetchData"
+            :total-count="rgrpTotalCount"
           />
         </template>
         <kw-btn
@@ -68,26 +70,19 @@
           dense
           secondary
           :label="$t('MSG_BTN_EXCEL_DOWN')"
-          :disable="pageInfo.totalCount === 0"
+          :disable="rgrpTotalCount === 0"
           @click="onClickExcelDownload"
         />
       </kw-action-top>
       <kw-grid
         ref="grdRgrpRef"
         name="grdRgrp"
-        :page-size="pageInfo.pageSize"
-        :total-count="pageInfo.totalCount"
+        :total-count="rgrpTotalCount"
         @init="initRgrpGrid"
-      />
-      <kw-pagination
-        v-model:page-index="pageInfo.pageIndex"
-        v-model:page-size="pageInfo.pageSize"
-        :total-count="pageInfo.totalCount"
-        @change="fetchData"
       />
     </div>
     <div
-      v-if="isShowSn"
+      v-show="isShowSn"
       class="result-area"
     >
       <!-- S/N처리집계표 -->
@@ -95,10 +90,7 @@
       <kw-action-top>
         <template #left>
           <kw-paging-info
-            v-model:page-index="pageInfo.pageIndex"
-            v-model:page-size="pageInfo.pageSize"
-            :total-count="pageInfo.totalCount"
-            :page-size-options="codes.COD_PAGE_SIZE_OPTIONS"
+            :total-count="snTotalCount"
             @change="fetchData"
           />
         </template>
@@ -107,22 +99,15 @@
           dense
           secondary
           :label="$t('MSG_BTN_EXCEL_DOWN')"
-          :disable="pageInfo.totalCount === 0"
+          :disable="snTotalCount === 0"
           @click="onClickExcelDownload"
         />
       </kw-action-top>
       <kw-grid
         ref="grdSnRef"
         name="grdSn"
-        :page-size="pageInfo.pageSize"
-        :total-count="pageInfo.totalCount"
+        :total-count="snTotalCount"
         @init="initSnGrid"
-      />
-      <kw-pagination
-        v-model:page-index="pageInfo.pageIndex"
-        v-model:page-size="pageInfo.pageSize"
-        :total-count="pageInfo.totalCount"
-        @change="fetchData"
       />
     </div>
   </kw-page>
@@ -132,8 +117,8 @@
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
-import { codeUtil, useDataService, getComponentType, defineGrid, gridUtil } from 'kw-lib';
-import { cloneDeep, isEmpty } from 'lodash-es';
+import { useDataService, getComponentType, defineGrid, gridUtil } from 'kw-lib';
+import { cloneDeep } from 'lodash-es';
 import dayjs from 'dayjs';
 import WwsnManagerOgSearchItemGroup from '~sms-wells/service/components/WwsnManagerOgSearchItemGroup.vue';
 
@@ -149,9 +134,14 @@ const { currentRoute } = useRouter();
 // -------------------------------------------------------------------------------------------------
 let cachedParams;
 
-const codes = await codeUtil.getMultiCodes(
-  'COD_PAGE_SIZE_OPTIONS',
-);
+// const codes = await codeUtil.getMultiCodes(
+//   'COD_PAGE_SIZE_OPTIONS',
+// );
+
+const divOption = [
+  { codeId: 'dgr1', codeName: '지역단별 집계표' },
+  { codeId: 'dgr2', codeName: 'S/N처리집계표' },
+];
 
 const searchParams = ref({
   baseDt: now.startOf('month').format('YYYYMMDD'),
@@ -159,42 +149,51 @@ const searchParams = ref({
   dgr2LevlOg: {},
   dgr1LevlOgId: '',
   dgr2LevlOgId: '',
+  div: 'dgr1',
 });
 
-/*
- *  Page Info setting
- */
-const pageInfo = ref({
-  totalCount: 0,
-  pageIndex: 1,
-  pageSize: Number(codes.COD_PAGE_SIZE_OPTIONS[0].codeName),
-  needTotalCount: true,
-});
+const rgrpTotalCount = ref(0);
+const snTotalCount = ref(0);
 
-const isDgr2 = computed(() => !isEmpty(searchParams.value.dgr2LevlOgId));
+const isDgr2 = computed(() => searchParams.value.div === 'dgr1');
 // const curView = isDgr2.value === false ? grdRgrgRef.value : grdSnRef.value;
 
 const isShowRgrp = ref(false);
 const isShowSn = ref(false);
 
+const byRgrpUrl = '/sms/wells/service/sn-processing-agrg/by-rgrp/excel-download';
+const bySnUrl = '/sms/wells/service/sn-processing-agrg/by-sn/excel-download';
+
 function getSearchUrl() {
-  return isDgr2.value === false ? '/sms/wells/service/sn-processing-agrg/by-rgrp/paging' : '/sms/wells/service/sn-processing-agrg/by-sn/paging';
+  return isDgr2.value === false
+    ? '/sms/wells/service/sn-processing-agrg/by-rgrp/excel-download'
+    : '/sms/wells/service/sn-processing-agrg/by-sn/excel-download';
 }
 
 function getCurrentViewRef() {
   return isDgr2.value === false ? grdRgrpRef.value.getView() : grdSnRef.value.getView();
 }
 
-async function fetchData() {
-  const searchUrl = getSearchUrl();
-  const res = await dataService.get(searchUrl, { params: { ...cachedParams, ...pageInfo.value } });
-  const { list: state, pageInfo: pagingResult } = res.data;
-  pageInfo.value = pagingResult;
+async function getDataBySeq(url, view, totalCount) {
+  const res = await dataService.get(url, { params: { ...cachedParams } });
+  const state = res.data;
 
-  const view = getCurrentViewRef();
   view.getDataSource().setRows(state);
-  console.log(state);
+  totalCount.value = state.length;
+
   view.resetCurrent();
+}
+
+async function fetchData() {
+  const firstUrl = isDgr2.value === false ? byRgrpUrl : bySnUrl;
+  const secondUrl = isDgr2.value === false ? bySnUrl : byRgrpUrl;
+  const firstView = isDgr2.value === false ? grdRgrpRef.value.getView() : grdSnRef.value.getView();
+  const secondView = isDgr2.value === false ? grdSnRef.value.getView() : grdRgrpRef.value.getView();
+  const firstTotalCount = isDgr2.value === false ? rgrpTotalCount : snTotalCount;
+  const secondTotalCount = isDgr2.value === false ? snTotalCount : rgrpTotalCount;
+
+  await getDataBySeq(firstUrl, firstView, firstTotalCount);
+  await getDataBySeq(secondUrl, secondView, secondTotalCount);
 }
 
 async function onClickSearch() {
@@ -215,8 +214,8 @@ async function onClickExcelDownload() {
 }
 
 onMounted(async () => {
-  isDgr2.value = computed(() => searchParams.value.dgr2LevlOgId.length > 0);
-  if (isEmpty(searchParams.value.dgr2LevlOgId)) {
+  isDgr2.value = computed(() => searchParams.value.div === 'dgr1');
+  if (searchParams.value.div === 'dgr1') {
     isShowRgrp.value = true;
     isShowSn.value = false;
   } else {
@@ -224,9 +223,9 @@ onMounted(async () => {
     isShowSn.value = true;
   }
 });
-watch(() => searchParams.value.dgr2LevlOgId, async (val) => {
-  isDgr2.value = computed(() => val.length > 0);
-  if (isEmpty(searchParams.value.dgr2LevlOgId)) {
+watch(() => searchParams.value.div, async (val) => {
+  isDgr2.value = computed(() => val === 'dgr1');
+  if (searchParams.value.div === 'dgr1') {
     isShowRgrp.value = true;
     isShowSn.value = false;
   } else {
