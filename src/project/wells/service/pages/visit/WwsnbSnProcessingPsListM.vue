@@ -331,8 +331,8 @@ const initMainGrid = defineGrid((data, view) => {
       displayCallback: () => t('MSG_TXT_SHOW_DETAIL'),
     },
     { fieldName: 'lstmmVstCnfmdt', header: t('MSG_TXT_LSTMM') + t('MSG_TXT_VST_DT'), width: '140', styleName: 'text-center' },
-    { fieldName: 'vstCnfmdt', header: t('MSG_TXT_VST_EXP_DT'), width: '140', styleName: 'text-center' },
-    { fieldName: 'vstDuedt', header: t('MSG_TXT_PROM_DT'), width: '140', styleName: 'text-center' },
+    { fieldName: 'vstDuedt', header: t('MSG_TXT_VST_EXP_DT'), width: '140', styleName: 'text-center' }, // 방문 예정일자
+    { fieldName: 'vstCnfmdt', header: t('MSG_TXT_PROM_DT'), width: '140', styleName: 'text-center' },
     { fieldName: 'vstExpHh', header: t('MSG_TXT_PROM_HH'), width: '106', styleName: 'text-center' },
     { fieldName: 'ogNm', header: t('MSG_TXT_BLG'), width: '140', styleName: 'text-center' },
     { fieldName: 'prtnrNo', header: t('MSG_TXT_CNT_PER'), width: '120', styleName: 'text-center' },
